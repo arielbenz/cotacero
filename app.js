@@ -489,7 +489,7 @@ async function cargarTendencia() {
 <div class="tend">
   <div class="flecha" style="color:${color}">${flecha}</div>
   <div>
-    <div style="font-family:var(--display);font-weight:700;font-size:20px;
+    <div style="font-family:var(--display);font-weight:700;font-size: var(--t-l);
       letter-spacing:.03em;text-transform:uppercase;color:${color}">${txt}</div>
     <div class="chico">${camb >= 0 ? "+" : ""}${camb.toFixed(0)}% en los últimos 7 días${
       proy === null
@@ -581,14 +581,16 @@ function pintarRio() {
 
   const r = estado.rio;
   html += `<div class="agua" style="height:${r == null ? 0 : Math.max(0, Math.min(100, pct(r)))}%"></div>`;
-  html += `<div class="marca-linea" style="bottom:${pct(ALERTA)}%;color:var(--alerta)"><b style="color:var(--alerta)">5,30</b></div>`;
+  // "debajo": la etiqueta de alerta va del otro lado de su línea porque si no
+  // se monta con la de evacuación, que está a 40 cm — 15px en esta escala.
+  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta)"><b style="color:var(--alerta)">5,30</b></div>`;
   html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro)"><b style="color:var(--peligro)">5,70</b></div>`;
 
   // tu cota, traducida a lectura de hidrómetro
   const critico = cotaEnHidrometro();
   if (critico !== null && critico >= ESCALA_MIN && critico <= ESCALA_MAX) {
-    html += `<div class="marca-linea" style="bottom:${pct(critico)}%;color:var(--tierra)">
-       <b style="color:var(--tierra)">vos</b></div>`;
+    html += `<div class="marca-linea propia" style="bottom:${pct(critico)}%;color:var(--tierra)">
+       <b>vos</b></div>`;
   }
   regla.innerHTML = html;
 
@@ -1047,15 +1049,15 @@ function calcular() {
   }
 
   html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
-    <p style="margin:0 0 12px;font-size:14px">${txt}</p>
+    <p style="margin:0 0 12px;font-size: var(--t-base)">${txt}</p>
     <span class="eti">El agua llega a tu cota cuando el hidrómetro marque</span>
     <div class="dato">${m(ref)}</div></div>`;
 
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
-    <table style="width:100%;font-family:var(--data);font-size:13px;border-collapse:collapse">
+    <table style="width:100%;font-family:var(--data);font-size: var(--t-s);border-collapse:collapse">
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno<br>
-        <span style="font-size:11px">según ${(origenCota() || {}).corto || "—"}</span></td>
+        <span style="font-size: var(--t-xs)">según ${(origenCota() || {}).corto || "—"}</span></td>
   <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
     ${
       estado.cotaEsEstimada
@@ -1070,7 +1072,7 @@ function calcular() {
     <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""
-        : '<br><span style="color:var(--alerta);font-size:11px">distancia estimada, no medida</span>'
+        : '<br><span style="color:var(--alerta);font-size: var(--t-xs)">distancia estimada, no medida</span>'
     }</td>
   <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
@@ -1509,7 +1511,7 @@ async function armarMapa() {
       .setLngLat(c)
       .setPopup(
         new maplibregl.Popup({ offset: 14 }).setHTML(
-          `<strong>${n}</strong><br><span style="font-size:13px;color:#7E959D">${d}</span>`,
+          `<strong>${n}</strong><br><span style="font-size: var(--t-s);color:#7E959D">${d}</span>`,
         ),
       )
       .addTo(mapa);
@@ -1641,7 +1643,7 @@ function pintarPuntos(filtro = "", destacar = null) {
         miPos && c ? " · " + distanciaKm(miPos, c).toFixed(1) + " km" : "";
       return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
-<div class="n">${n}${destacar === n ? ' <span style="color:var(--ok);font-size:12px">· el más cercano</span>' : ""}</div>
+<div class="n">${n}${destacar === n ? ' <span style="color:var(--ok);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
 <div class="d">${d}${km}</div>
 <span class="ir">Abrir en mapas →</span></a>`;
     })

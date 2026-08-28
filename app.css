@@ -120,6 +120,10 @@
   --nav-fondo: rgba(11, 20, 24, 0.96);
   --attrib-fondo: rgba(16, 41, 47, 0.82);
   --sombra: rgba(0, 0, 0, 0.5);
+  /* En oscuro la profundidad la da la diferencia de luminosidad entre
+     superficies; una sombra negra sobre fondo casi negro no se ve. En
+     claro pasa lo contrario: sin sombra las tarjetas flotan sin apoyo. */
+  --elevacion: none;
   --agua-alta: rgba(95, 200, 232, 0.55);
   --agua-baja: rgba(46, 155, 196, 0.22);
   /* El basemap del IGN es claro de origen. En tema oscuro lo invertimos, con
@@ -131,6 +135,35 @@
   /* Los íconos de MapLibre son SVG oscuros embebidos: en tema oscuro se
      invierten, en claro van como vienen. */
   --filtro-iconos-mapa: invert(1) brightness(0.92);
+
+  /* ---- escalas ----
+     Antes había 20 tamaños de texto, 23 espaciados y 8 radios: valores
+     acumulados uno por uno, no un sistema. Estas escalas son la razón por la
+     que las cosas se ven alineadas sin que uno sepa por qué. */
+  --t-xxl: 30px; /* el número grande, la marca */
+  --t-xl: 24px; /* títulos de veredicto */
+  --t-l: 20px; /* h2 */
+  --t-m: 17px; /* h3, nombres, teléfonos */
+  --t-base: 15px; /* cuerpo */
+  --t-s: 13px; /* texto chico */
+  --t-xs: 12px; /* etiquetas monoespaciadas — piso de legibilidad */
+  --t-tick: 10px; /* sólo los números de la regla, que es decorativa */
+
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 20px;
+  --e-6: 24px;
+  --e-7: 32px;
+
+  --r-s: 6px;
+  --r-m: 10px;
+  --r-l: 14px;
+  --r-full: 999px;
+
+  /* Una sola curva para todo lo que responde al toque. */
+  --mov: 160ms cubic-bezier(0.2, 0, 0.2, 1);
 
   --display: "Barlow Condensed", system-ui, sans-serif;
   --data: "JetBrains Mono", ui-monospace, monospace;
@@ -168,6 +201,8 @@
   --c-nav-fondo: rgba(255, 255, 255, 0.97);
   --c-attrib-fondo: rgba(255, 255, 255, 0.85);
   --c-sombra: rgba(13, 27, 33, 0.22);
+  --c-elevacion:
+    0 1px 2px rgba(13, 27, 33, 0.05), 0 2px 8px rgba(13, 27, 33, 0.04);
   --c-agua-alta: rgba(23, 96, 127, 0.42);
   --c-agua-baja: rgba(23, 96, 127, 0.14);
   --c-filtro-mapa: saturate(0.92);
@@ -206,6 +241,7 @@
     --nav-fondo: var(--c-nav-fondo);
     --attrib-fondo: var(--c-attrib-fondo);
     --sombra: var(--c-sombra);
+    --elevacion: var(--c-elevacion);
     --agua-alta: var(--c-agua-alta);
     --agua-baja: var(--c-agua-baja);
     --filtro-mapa: var(--c-filtro-mapa);
@@ -243,6 +279,7 @@ html[data-tema="claro"] {
   --nav-fondo: var(--c-nav-fondo);
   --attrib-fondo: var(--c-attrib-fondo);
   --sombra: var(--c-sombra);
+  --elevacion: var(--c-elevacion);
   --agua-alta: var(--c-agua-alta);
   --agua-baja: var(--c-agua-baja);
   --filtro-mapa: var(--c-filtro-mapa);
@@ -268,7 +305,7 @@ body {
 body.con-instalar {
   padding-bottom: calc(72px + 58px + env(safe-area-inset-bottom));
   line-height: 1.5;
-  font-size: 15px;
+  font-size: var(--t-base);
 }
 button,
 input,
@@ -281,7 +318,7 @@ textarea {
 :focus-visible {
   outline: 2px solid var(--agua-claro);
   outline-offset: 2px;
-  border-radius: 3px;
+  border-radius: var(--r-s);
 }
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -302,7 +339,7 @@ textarea {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--e-4);
   border-bottom: 1px solid var(--linea);
   position: relative;
   overflow: hidden;
@@ -323,11 +360,11 @@ textarea {
   flex: none;
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--r-m);
   border: 1px solid var(--linea);
   background: var(--panel);
   color: var(--tenue);
-  font-size: 17px;
+  font-size: var(--t-m);
   line-height: 1;
   cursor: pointer;
   z-index: 2;
@@ -339,7 +376,7 @@ textarea {
 .marca {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 30px;
+  font-size: var(--t-xxl);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 0.95;
@@ -349,18 +386,18 @@ textarea {
 }
 .sub {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--tenue);
   letter-spacing: 0.13em;
   text-transform: uppercase;
   /* Es un <p> por semántica; el margen inferior de los párrafos no va acá. */
-  margin: 5px 0 0;
+  margin: var(--e-1) 0 0;
 }
 
 /* ---------- estructura ---------- */
 .vista {
   display: none;
-  padding: 18px;
+  padding: var(--e-5);
   max-width: 640px;
   margin: 0 auto;
 }
@@ -370,17 +407,17 @@ textarea {
 h2 {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 23px;
+  font-size: var(--t-l);
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  margin: 26px 0 10px;
+  margin: var(--e-6) 0 var(--e-3);
 }
 h2:first-child {
-  margin-top: 4px;
+  margin-top: var(--e-1);
 }
 .cuenta {
   font-family: var(--data);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 400;
   letter-spacing: 0.04em;
   color: var(--tenue);
@@ -392,43 +429,44 @@ h2:first-child {
 h3 {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 17px;
+  font-size: var(--t-m);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--tenue);
-  margin: 18px 0 8px;
+  margin: var(--e-5) 0 var(--e-2);
 }
 p {
-  margin: 0 0 11px;
+  margin: 0 0 var(--e-3);
 }
 .chico {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--tenue);
 }
 .tarjeta {
   background: var(--panel);
   border: 1px solid var(--linea);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 14px;
+  box-shadow: var(--elevacion);
+  border-radius: var(--r-l);
+  padding: var(--e-4);
+  margin-bottom: var(--e-4);
 }
 .eti {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--tenue);
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: var(--e-2);
 }
 .dato {
   font-family: var(--data);
   font-weight: 700;
-  font-size: 30px;
+  font-size: var(--t-xxl);
   line-height: 1.1;
 }
 .unidad {
-  font-size: 14px;
+  font-size: var(--t-base);
   color: var(--tenue);
   font-weight: 400;
 }
@@ -436,19 +474,21 @@ p {
 /* ---------- regla / hidrómetro (elemento firma) ---------- */
 .regla-caja {
   display: flex;
-  gap: 16px;
+  gap: var(--e-4);
   align-items: stretch;
-  margin: 6px 0 4px;
+  margin: var(--e-2) 0 var(--e-1);
 }
 .regla {
   position: relative;
-  width: 74px;
+  /* 74px eran pocos: entre marcas y números ya se iban 31, y las etiquetas de
+     umbral se montaban encima de la numeración. */
+  width: 96px;
   flex: none;
   background: var(--panel-2);
   border: 1px solid var(--linea);
-  border-radius: 8px;
+  border-radius: var(--r-m);
   overflow: hidden;
-  min-height: 300px;
+  min-height: 320px;
 }
 .agua {
   position: absolute;
@@ -456,18 +496,18 @@ p {
   right: 0;
   bottom: 0;
   background: linear-gradient(180deg, var(--agua-alta), var(--agua-baja));
-  border-top: 2px solid var(--agua-claro);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* La superficie del agua es la línea que más se mira: va nítida y de un solo
+   grosor, sin el resplandor de antes (que en tema claro quedaba raro). */
 .agua::before {
   content: "";
   position: absolute;
-  top: -2px;
+  top: 0;
   left: 0;
   right: 0;
   height: 2px;
   background: var(--agua-claro);
-  box-shadow: 0 0 12px var(--agua-claro);
 }
 .marca-linea {
   position: absolute;
@@ -479,32 +519,48 @@ p {
 }
 .marca-linea b {
   position: absolute;
-  right: 3px;
-  top: -14px;
+  right: var(--e-1);
+  top: -15px;
   font-family: var(--data);
-  font-size: 10.5px;
+  font-size: var(--t-tick);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  background: var(--fondo);
-  padding: 1px 3px;
-  border-radius: 2px;
+  letter-spacing: 0.02em;
+  /* El chip usaba --fondo, pero se apoya sobre la regla, que es --panel-2. */
+  background: var(--panel-2);
+  border: 1px solid currentColor;
+  padding: 1px var(--e-1);
+  border-radius: var(--r-s);
+  line-height: 1.35;
+}
+/* 5,30 y 5,70 están siempre a 40 cm: sobre esta escala son 15px, y las
+   etiquetas miden 14. Se montaban una sobre otra. Bajamos la de alerta al
+   otro lado de su línea y el problema desaparece para siempre. */
+.marca-linea.debajo b {
+  top: 3px;
+}
+/* "vos" va con chip lleno: es tuyo, no un umbral oficial. */
+.marca-linea.propia b {
+  background: var(--tierra);
+  color: var(--fondo) !important;
+  border-color: var(--tierra);
 }
 .tic {
   position: absolute;
   left: 0;
-  width: 9px;
+  width: 8px;
   height: 1px;
   background: var(--linea);
 }
 .tic.mayor {
-  width: 16px;
+  width: 15px;
   background: var(--tenue);
 }
 .tic-num {
   position: absolute;
-  left: 19px;
+  left: var(--e-5);
   font-family: var(--data);
-  font-size: 10px;
+  font-size: var(--t-tick);
+  font-weight: 700;
   color: var(--tenue);
   transform: translateY(-50%);
 }
@@ -513,20 +569,20 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 13px;
+  gap: var(--e-3);
 }
 .leyenda-item {
   border-left: 3px solid;
-  padding-left: 11px;
+  padding-left: var(--e-3);
 }
 .leyenda-item .v {
   font-family: var(--data);
   font-weight: 700;
-  font-size: 19px;
+  font-size: var(--t-m);
   line-height: 1.15;
 }
 .leyenda-item .k {
-  font-size: 12.5px;
+  font-size: var(--t-s);
   color: var(--tenue);
   line-height: 1.35;
   margin-top: 2px;
@@ -534,19 +590,20 @@ p {
 
 /* ---------- veredicto ---------- */
 .veredicto {
-  border-radius: 12px;
-  padding: 17px;
-  margin-bottom: 14px;
+  border-radius: var(--r-l);
+  box-shadow: var(--elevacion);
+  padding: var(--e-4);
+  margin-bottom: var(--e-4);
   border: 1px solid;
 }
 .veredicto .titu {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 25px;
+  font-size: var(--t-xl);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   line-height: 1.05;
-  margin-bottom: 7px;
+  margin-bottom: var(--e-2);
 }
 .v-ok {
   background: var(--ok-fondo);
@@ -591,16 +648,16 @@ p {
 /* ---------- controles ---------- */
 label.campo {
   display: block;
-  margin-bottom: 13px;
+  margin-bottom: var(--e-3);
 }
 label.campo > span {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--tenue);
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: var(--e-1);
 }
 input[type="text"],
 input[type="number"],
@@ -609,8 +666,8 @@ textarea {
   width: 100%;
   background: var(--panel-2);
   border: 1px solid var(--linea);
-  border-radius: 8px;
-  padding: 11px 12px;
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
   font-family: var(--data);
 }
 textarea {
@@ -626,18 +683,24 @@ input[type="range"] {
   background: var(--agua);
   color: var(--btn-texto);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-m);
+  /* La altura mínima se declara, no se deduce del padding: así el objetivo
+     táctil no depende de que nadie toque la escala de espaciados. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
      objetivo táctil son 44. Con 12px quedaba en 43. */
-  padding: 13px 16px;
+  padding: var(--e-3) var(--e-4);
   font-family: var(--display);
   font-weight: 700;
-  font-size: 15.5px;
+  font-size: var(--t-base);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
   width: 100%;
-  margin-bottom: 9px;
+  margin-bottom: var(--e-2);
 }
 .btn:disabled {
   opacity: 0.55;
@@ -653,29 +716,29 @@ input[type="range"] {
 }
 .btn.mini {
   width: auto;
-  padding: 8px 13px;
-  font-size: 13px;
+  padding: var(--e-2) var(--e-3);
+  font-size: var(--t-s);
 }
 .fila {
   display: flex;
-  gap: 9px;
+  gap: var(--e-2);
 }
 .fila > * {
   flex: 1;
-  margin-bottom: 9px;
+  margin-bottom: var(--e-2);
 }
 
 /* ---------- pronóstico ---------- */
 .dias {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  margin-top: 4px;
+  gap: var(--e-1);
+  margin-top: var(--e-1);
 }
 .dia {
   background: var(--panel-2);
-  border-radius: 7px;
-  padding: 8px 3px;
+  border-radius: var(--r-s);
+  padding: var(--e-2) 3px;
   text-align: center;
   border: 1px solid transparent;
 }
@@ -684,14 +747,14 @@ input[type="range"] {
 }
 .dia .d {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--tenue);
   text-transform: uppercase;
 }
 .dia .mm {
   font-family: var(--data);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-base);
   margin-top: 3px;
 }
 .dia .mm.hay {
@@ -705,9 +768,9 @@ input[type="range"] {
 .dia .barra {
   position: relative;
   height: 34px;
-  margin-top: 5px;
+  margin-top: var(--e-1);
   background: var(--hueco);
-  border-radius: 3px;
+  border-radius: var(--r-s);
   overflow: hidden;
 }
 .dia .barra i {
@@ -733,9 +796,9 @@ input[type="range"] {
 /* ---------- listas ---------- */
 .chk {
   display: flex;
-  gap: 11px;
+  gap: var(--e-3);
   align-items: flex-start;
-  padding: 10px 0;
+  padding: var(--e-3) 0;
   border-bottom: 1px solid var(--linea);
   cursor: pointer;
 }
@@ -751,7 +814,7 @@ input[type="range"] {
 }
 .chk span {
   flex: 1;
-  font-size: 14.5px;
+  font-size: var(--t-base);
 }
 .chk input:checked + span {
   color: var(--tenue);
@@ -765,7 +828,7 @@ input[type="range"] {
 }
 .punto {
   display: block;
-  padding: 12px 0;
+  padding: var(--e-3) 0;
   border-bottom: 1px solid var(--linea);
   color: inherit;
   text-decoration: none;
@@ -776,17 +839,17 @@ input[type="range"] {
 .punto .n {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 17px;
+  font-size: var(--t-m);
   letter-spacing: 0.02em;
 }
 .punto .d {
-  font-size: 12.5px;
+  font-size: var(--t-s);
   color: var(--tenue);
   margin-top: 1px;
 }
 .punto .ir {
   font-family: var(--data);
-  font-size: 11.5px;
+  font-size: var(--t-xs);
   color: var(--agua-claro);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -798,10 +861,10 @@ input[type="range"] {
 .aviso {
   border-left: 3px solid var(--alerta);
   background: var(--alerta-suave);
-  padding: 11px 13px;
-  border-radius: 0 8px 8px 0;
-  font-size: 13px;
-  margin-bottom: 13px;
+  padding: var(--e-3) var(--e-3);
+  border-radius: 0 var(--r-m) var(--r-m) 0;
+  font-size: var(--t-s);
+  margin-bottom: var(--e-3);
 }
 .aviso.grave {
   border-color: var(--peligro);
@@ -809,13 +872,13 @@ input[type="range"] {
 }
 /* Una lista de acciones se lee; el mismo contenido en prosa, no. */
 .pasos {
-  margin: 4px 0 0;
-  padding-left: 18px;
-  font-size: 13px;
+  margin: var(--e-1) 0 0;
+  padding-left: var(--e-5);
+  font-size: var(--t-s);
   color: var(--tenue);
 }
 .pasos li {
-  margin-bottom: 7px;
+  margin-bottom: var(--e-2);
   line-height: 1.45;
 }
 .pasos.grave li b {
@@ -828,7 +891,7 @@ input[type="range"] {
 }
 .aviso details summary {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--tenue);
@@ -843,7 +906,7 @@ input[type="range"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  padding: var(--e-3) 0;
   border-bottom: 1px solid var(--linea);
   color: inherit;
   text-decoration: none;
@@ -852,12 +915,12 @@ input[type="range"] {
   border-bottom: none;
 }
 .tel .q {
-  font-size: 14.5px;
+  font-size: var(--t-base);
 }
 .tel .n {
   font-family: var(--data);
   font-weight: 700;
-  font-size: 17px;
+  font-size: var(--t-m);
   color: var(--agua-claro);
 }
 
@@ -881,9 +944,9 @@ input[type="range"] {
 #mapa {
   width: 100%;
   height: 340px;
-  border-radius: 12px;
+  border-radius: var(--r-l);
   border: 1px solid var(--linea);
-  margin-bottom: 14px;
+  margin-bottom: var(--e-4);
   background: var(--panel-2);
 }
 /* MapLibre trae sus controles en blanco. Sobre un mapa que oscurecimos a
@@ -906,7 +969,7 @@ input[type="range"] {
 #mapa .maplibregl-ctrl-attrib {
   background: var(--attrib-fondo);
   color: var(--tenue);
-  font-size: 11px;
+  font-size: var(--t-xs);
 }
 #mapa .maplibregl-ctrl-attrib a {
   color: var(--agua-claro);
@@ -919,13 +982,13 @@ input[type="range"] {
   background: var(--panel);
   color: var(--texto);
   border: 1px solid var(--linea);
-  border-radius: 9px;
-  padding: 11px 13px;
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
   font-family: var(--body);
 }
 .maplibregl-popup-content strong {
   font-family: var(--display);
-  font-size: 16px;
+  font-size: var(--t-m);
   letter-spacing: 0.02em;
 }
 .maplibregl-popup-tip {
@@ -934,7 +997,7 @@ input[type="range"] {
 }
 .maplibregl-popup-close-button {
   color: var(--tenue);
-  font-size: 18px;
+  font-size: var(--t-m);
 }
 .pin {
   width: 15px;
@@ -959,9 +1022,9 @@ input[type="range"] {
 }
 .punto.destacado {
   background: var(--ok-suave);
-  border-radius: 8px;
-  padding-left: 10px;
-  padding-right: 10px;
+  border-radius: var(--r-m);
+  padding-left: var(--e-3);
+  padding-right: var(--e-3);
   border-bottom-color: transparent;
 }
 
@@ -969,10 +1032,10 @@ input[type="range"] {
 .tend {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--e-3);
 }
 .tend .flecha {
-  font-size: 27px;
+  font-size: var(--t-xl);
   line-height: 1;
   font-family: var(--data);
   font-weight: 700;
@@ -980,7 +1043,7 @@ input[type="range"] {
 .sparkline {
   width: 100%;
   height: 46px;
-  margin-top: 9px;
+  margin-top: var(--e-2);
   display: block;
 }
 
@@ -1001,13 +1064,13 @@ nav button {
   flex: 1;
   background: none;
   border: none;
-  padding: 11px 2px 12px;
+  padding: var(--e-3) 2px var(--e-3);
   cursor: pointer;
   color: var(--tenue);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--e-1);
 }
 nav button.on {
   color: var(--agua-claro);
@@ -1023,7 +1086,7 @@ nav button svg {
 }
 nav button span {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -1032,9 +1095,9 @@ nav button span {
   border-bottom: 1px solid var(--alerta-borde);
   color: var(--alerta);
   font-family: var(--data);
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.04em;
-  padding: 9px 18px;
+  padding: var(--e-2) var(--e-5);
   text-align: center;
 }
 #sin-conexion[hidden] {
@@ -1050,10 +1113,10 @@ nav button span {
   bottom: calc(78px + env(safe-area-inset-bottom));
   z-index: 60;
   display: flex;
-  gap: 8px;
+  gap: var(--e-2);
   align-items: stretch;
   box-shadow: 0 6px 24px var(--sombra);
-  border-radius: 8px;
+  border-radius: var(--r-m);
 }
 .instalar .btn {
   margin: 0;
@@ -1063,10 +1126,10 @@ nav button span {
   flex: none;
   width: 46px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-m);
   background: var(--panel-2);
   color: var(--texto);
-  font-size: 20px;
+  font-size: var(--t-l);
   cursor: pointer;
 }
 
@@ -1100,18 +1163,18 @@ nav button span {
 /* ---------- sugerencias ---------- */
 .sugerir {
   max-width: 640px;
-  margin: 26px auto 0;
-  padding: 0 18px;
+  margin: var(--e-6) auto 0;
+  padding: 0 var(--e-5);
 }
 .sugerir > summary {
   cursor: pointer;
   font-family: var(--display);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--t-m);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--tenue);
-  padding: 12px 0;
+  padding: var(--e-3) 0;
   border-top: 1px solid var(--linea);
 }
 .sugerir > summary:hover {
@@ -1122,21 +1185,21 @@ nav button span {
 }
 
 .pie {
-  padding: 22px 18px 30px;
+  padding: var(--e-6) var(--e-5) var(--e-7);
   text-align: center;
-  font-size: 12.5px;
+  font-size: var(--t-s);
   color: var(--tenue);
   border-top: 1px solid var(--linea);
-  margin-top: 22px;
+  margin-top: var(--e-6);
   line-height: 1.6;
 }
 /* Una herramienta que dice "no tiene vínculo con organismos oficiales"
    gana en que se vea quién responde por ella. */
 .firma {
-  margin-top: 14px;
-  padding-top: 13px;
+  margin-top: var(--e-4);
+  padding-top: var(--e-3);
   border-top: 1px solid var(--linea);
-  font-size: 12.5px;
+  font-size: var(--t-s);
 }
 .firma b {
   color: var(--texto);
@@ -1144,18 +1207,18 @@ nav button span {
 }
 .firma .redes {
   display: inline-flex;
-  gap: 7px;
-  margin-left: 6px;
+  gap: var(--e-2);
+  margin-left: var(--e-2);
 }
 .firma .redes a {
   font-family: var(--data);
-  font-size: 11px;
+  font-size: var(--t-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
-  padding: 4px 9px;
+  padding: var(--e-1) var(--e-2);
   border: 1px solid var(--linea);
-  border-radius: 999px;
+  border-radius: var(--r-full);
   color: var(--agua-claro);
 }
 .firma .redes a:hover {
@@ -1164,6 +1227,105 @@ nav button span {
 
 .pie a {
   color: var(--agua-claro);
+}
+
+/* ==========================================================================
+   ESTADOS E INTERACCIÓN
+   Había 4 hover y 1 active en toda la app: nada respondía al toque. La
+   diferencia entre "funciona" y "está hecho" suele ser esto.
+   Todo va bajo (hover: hover) para que en el teléfono no queden estados
+   pegados después de tocar.
+   ========================================================================== */
+.btn,
+.tema,
+.punto,
+.tel,
+.chk,
+nav button,
+summary,
+input,
+select,
+textarea {
+  transition:
+    background-color var(--mov),
+    border-color var(--mov),
+    color var(--mov),
+    transform var(--mov);
+}
+
+.btn:active,
+.tema:active {
+  transform: translateY(1px);
+}
+
+/* Las filas de lista son links: tienen que sentirse como tales. */
+.punto,
+.tel {
+  margin: 0 calc(var(--e-2) * -1);
+  padding-left: var(--e-2);
+  padding-right: var(--e-2);
+  border-radius: var(--r-m);
+}
+.punto .ir {
+  transition: transform var(--mov);
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+  .btn.sec:hover:not(:disabled) {
+    filter: none;
+    border-color: var(--agua);
+    color: var(--agua-claro);
+  }
+  .punto:hover,
+  .tel:hover {
+    background: var(--panel-2);
+  }
+  .punto:hover .ir {
+    transform: translateX(3px);
+  }
+  .chk:hover span {
+    color: var(--texto);
+  }
+  nav button:hover {
+    color: var(--texto);
+  }
+  summary:hover {
+    color: var(--texto);
+  }
+}
+
+/* El foco visible tiene que verse igual en todos lados, no heredar el que
+   trae cada control. */
+:focus-visible {
+  outline: 2px solid var(--agua-claro);
+  outline-offset: 2px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--agua);
+  outline-offset: 0;
+}
+
+/* ---- el número grande ----
+   Es el centro de la app: una app de datos se juzga por cómo trata sus
+   números. A 30px una monoespaciada queda suelta; el tracking negativo la
+   compacta y la hace leer como un instrumento. */
+.dato {
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+.dato .unidad {
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+.leyenda-item .v,
+.tel .n {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 /* ==========================================================================
@@ -1211,23 +1373,23 @@ nav button span {
     top: 0;
     z-index: 50;
     justify-content: center;
-    gap: 6px;
-    padding: 0 18px;
+    gap: var(--e-2);
+    padding: 0 var(--e-5);
     border-top: none;
     border-bottom: 1px solid var(--linea);
   }
   nav button {
     flex: none;
     flex-direction: row;
-    gap: 9px;
-    padding: 14px 20px;
+    gap: var(--e-2);
+    padding: var(--e-4) var(--e-5);
     border-bottom: 2px solid transparent;
   }
   nav button.on {
     border-bottom-color: var(--agua-claro);
   }
   nav button span {
-    font-size: 12.5px;
+    font-size: var(--t-s);
   }
 
   /* El encabezado se alinea con la columna de contenido en vez de quedar
@@ -1256,7 +1418,7 @@ nav button span {
   #v-donde.on {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 20px;
+    column-gap: var(--e-5);
     align-items: start;
   }
   #v-donde > h2,
@@ -1272,7 +1434,7 @@ nav button span {
   #v-rio.on {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 20px;
+    column-gap: var(--e-5);
     align-items: start;
   }
   #v-rio > .veredicto,
@@ -1286,7 +1448,7 @@ nav button span {
   #v-plan.on {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 20px;
+    column-gap: var(--e-5);
     align-items: start;
   }
   #v-plan > h2,
