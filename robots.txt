@@ -1,0 +1,10 @@
+# Cota Cero — Santa Fe
+User-agent: *
+Allow: /
+# /api/ son funciones, no páginas: no hay nada que indexar y cada visita
+# consume una invocación.
+Disallow: /api/
+Disallow: /vendor/
+Disallow: /_vercel/
+
+Sitemap: https://cotacerosf.com/sitemap.xml

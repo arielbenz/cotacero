@@ -137,114 +137,29 @@ const PREVIA = [
   "Tener a mano el número del contacto fuera de la zona",
 ];
 
-/* Los 30 puntos de encuentro del Plan de Contingencia, con las coordenadas
-   OFICIALES del municipio: capa `puntos_de_encuentro` del GeoServer público
-   de la Municipalidad de Santa Fe (geoservicios.santafeciudad.gov.ar,
-   workspace `publico`), la misma que dibuja el GeoPortal.
-   Van hardcodeadas y no se geocodifica nada: el dato es fijo, andan sin red
-   y no dependen de la cuota de ningún proveedor.
-   Para actualizarlas:
+/* Los 30 puntos de encuentro viven en el HTML (ver index.html), con las
+   coordenadas OFICIALES del municipio en atributos data-. Los leemos de ahí en
+   vez de tener una copia acá: así el listado lo indexa un buscador, se ve
+   aunque el JS no arranque, y no hay dos fuentes que se puedan desincronizar.
+   Fuente: capa `puntos_de_encuentro` del GeoServer público de la
+   Municipalidad de Santa Fe, la misma que dibuja el GeoPortal. Para
+   actualizarlas:
      https://geoservicios.santafeciudad.gov.ar/geoserver/publico/ows
        ?service=WFS&version=1.0.0&request=GetFeature
        &typeName=publico:puntos_de_encuentro&outputFormat=application/json */
-const PUNTOS = [
-  ["Asoc. Vecinal Sarmiento", "Vieytes 5047", [-60.72546604, -31.5965]],
-  ["ASOEM Camping", "RP Nº 1 - km 2.5", [-60.60681828, -31.6270493]],
-  ["Boca del Tigre", "J.J. Paso y Zavalla", [-60.72517614, -31.66131579]],
-  ["Bochas Club Mitre", "Gral. López 3815", [-60.72595784, -31.65460239]],
-  [
-    "Bomberos Voluntarios Las Flores",
-    "Av. Blas Parera 8700",
-    [-60.72689011, -31.58001751],
+const PUNTOS = [...document.querySelectorAll("#lista-puntos li[data-lon]")].map(
+  (li) => [
+    li.querySelector(".n").textContent.trim(),
+    li.querySelector(".d").textContent.trim(),
+    [parseFloat(li.dataset.lon), parseFloat(li.dataset.lat)],
   ],
-  [
-    "Capilla Nuestra Señora de la Guardia",
-    "A. de Petre y H. Serafina",
-    [-60.63433982, -31.64234205],
-  ],
-  [
-    "Cementerio Municipal",
-    "Av. Blas Parera 5401",
-    [-60.71863653, -31.61379472],
-  ],
-  [
-    "Centro Comunitario Noreste",
-    "Defensa y French",
-    [-60.66612462, -31.5977847],
-  ],
-  [
-    "CIC Facundo Zuviría",
-    "Av. Facundo Zuviría 8002 / Azcuénaga",
-    [-60.6988815, -31.59267741],
-  ],
-  ["CIC Roca", "Pasaje Roca y República de Siria", [-60.68433875, -31.5785339]],
-  ["Cilsa", "Mar Argentino y R11", [-60.73261501, -31.66508848]],
-  [
-    "Club Banco Provincia",
-    "Av. Aristóbulo del Valle 9958",
-    [-60.68928171, -31.57358485],
-  ],
-  ["Club Cabal", "Servando Bayo 6730", [-60.72944315, -31.59893853]],
-  ["Distrito La Costa", "RP Nº 1 - km 2.7", [-60.60493224, -31.62688844]],
-  [
-    "Estación Colastiné Norte",
-    "Las Macluras y Orquídeas",
-    [-60.60814703, -31.62364809],
-  ],
-  [
-    "Estación Mitre (Andenes)",
-    "Gral. López y San Juan",
-    [-60.72427681, -31.65484814],
-  ],
-  ["Estación San Lorenzo", "Entre Ríos 4080", [-60.72986264, -31.65645015]],
-  [
-    "Jardín Botánico Ing. Lorenzo Parodi",
-    "Av. Gorriti 3902",
-    [-60.70727912, -31.58704761],
-  ],
-  ["La Virgencita", "RN 168 y calle Principal", [-60.63365832, -31.63972864]],
-  ["Mediateca", "Pje. Mitre y Tucumán", [-60.72916015, -31.64108094]],
-  [
-    "Parada de ómnibus (La Guardia/Colastiné)",
-    "Ruta 1 y Favaloro",
-    [-60.62654115, -31.6381007],
-  ],
-  [
-    "Polideportivo La Tablada",
-    "Teniente Loza 6970",
-    [-60.74551756, -31.56381964],
-  ],
-  ["Talleres Municipales", "Pte. Perón 3575", [-60.71754382, -31.63212773]],
-  ["Vecinal Centenario", "Zavalía 711", [-60.72236452, -31.66487521]],
-  ["Vecinal Facundo Quiroga", "Almafuerte 7739", [-60.69540016, -31.59617794]],
-  ["Vecinal Guadalupe Oeste", "Risso 1745", [-60.68367933, -31.60310257]],
-  [
-    "Vecinal Juan de Garay",
-    "Salvador Caputto 3955",
-    [-60.72253068, -31.636429],
-  ],
-  [
-    "Vecinal Las Delicias",
-    "Alfonsina Storni 3100",
-    [-60.69534873, -31.58298864],
-  ],
-  [
-    "Vecinal Pro Mejoras Alto Verde",
-    "Manzana 1, M. Gómez e I. Monzón",
-    [-60.70076676, -31.66521436],
-  ],
-  ["Vecinal Santa Marta", "Chubut 6291", [-60.73289024, -31.57099227]],
-];
+);
 
-const TELEFONOS = [
-  ["Emergencias (centraliza Bomberos, Defensa Civil, Policía)", "911"],
-  ["Bomberos", "100"],
-  ["Defensa Civil", "103"],
-  ["Emergencias náuticas — Prefectura", "106"],
-  ["Prefectura Santa Fe", "342 456-2400"],
-  ["Atención Ciudadana — Municipalidad", "0800-777-5000"],
-  ["Gobierno de la Provincia", "0800-777-0801"],
-];
+/* Igual que los puntos: el HTML es la fuente. */
+const TELEFONOS = [...document.querySelectorAll("#lista-tel li")].map((li) => [
+  li.querySelector(".q").textContent.trim(),
+  li.querySelector(".n").textContent.trim(),
+]);
 
 /* ---------- almacenamiento con degradación elegante ----------
    localStorage falla en algunos visores embebidos y en modo privado.
@@ -1748,13 +1663,6 @@ function verEnMapa(n) {
   }
 }
 
-function pintarTelefonos() {
-  document.getElementById("lista-tel").innerHTML = TELEFONOS.map(
-    ([q, n]) =>
-      `<a class="tel" href="tel:${n.replace(/[^0-9+]/g, "")}"><span class="q">${q}</span><span class="n">${n}</span></a>`,
-  ).join("");
-}
-
 /* ================= ARRANQUE ================= */
 function iniciar() {
   limpiarGuardadoViejo();
@@ -1791,7 +1699,6 @@ function iniciar() {
 
   pintarListas();
   pintarPuntos();
-  pintarTelefonos();
   pintarRio();
   calcular();
   cargarRio();

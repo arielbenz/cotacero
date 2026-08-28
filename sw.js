@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v19";
+const VERSION = "cota-cero-v22";
 const ESENCIALES = [
   "/",
   "/index.html",
@@ -73,6 +73,10 @@ self.addEventListener("fetch", (e) => {
 
   // Datos en vivo: siempre a la red, sin respaldo en caché.
   if (url.pathname.startsWith("/api/")) return;
+
+  // Analytics: ni cachear el script ni interceptar los envíos. Si lo
+  // cacheáramos serviríamos una versión vieja para siempre.
+  if (url.pathname.startsWith("/_vercel/")) return;
 
   // Tiles del IGN y Open-Meteo: a la red. Cachear tiles no vale la pena.
   if (

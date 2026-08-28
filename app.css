@@ -348,7 +348,8 @@ textarea {
   color: var(--tenue);
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  margin-top: 5px;
+  /* Es un <p> por semántica; el margen inferior de los párrafos no va acá. */
+  margin: 5px 0 0;
 }
 
 /* ---------- estructura ---------- */
@@ -750,6 +751,12 @@ input[type="range"] {
 .chk input:checked + span {
   color: var(--tenue);
   text-decoration: line-through;
+}
+/* Las listas vienen como <ul> en el HTML para que sean indexables. */
+.lista-plana {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 .punto {
   display: block;

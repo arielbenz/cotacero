@@ -169,6 +169,23 @@ la consola de Upstash**, no hay panel:
 
 Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
+## Analítica
+
+Vercel Web Analytics, sólo el `<script defer src="/_vercel/insights/script.js">`.
+El snippet oficial trae además un `<script>` inline que la CSP bloquea; ese
+inline sólo encola *custom events*, que son de plan Pro. Al ser mismo-origen
+entra en `script-src 'self'` y `connect-src 'self'` sin abrir la política.
+
+Hay que **habilitarlo en el panel de Vercel** (Analytics → Enable) o la ruta no
+existe. En local da 404, es normal.
+
+Es sin cookies y agregada: no identifica personas. La promesa del plan familiar
+—"se guarda en este teléfono"— sigue siendo cierta; lo único que sale del
+dispositivo son las sugerencias, y ahí el formulario lo dice.
+
+El service worker no toca `/_vercel/`: cachear ese script serviría una versión
+vieja para siempre.
+
 ## Pendientes
 
 - Los km río arriba de cada zona son estimaciones propias, salvo
