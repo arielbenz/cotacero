@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v22";
+const VERSION = "cota-cero-v25";
 const ESENCIALES = [
   "/",
   "/index.html",

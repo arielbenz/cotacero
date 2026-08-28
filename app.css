@@ -296,6 +296,13 @@ textarea {
      la barra de estado. El safe-area estaba contemplado abajo (la nav) pero
      no arriba, así que el logo quedaba pisado. */
   padding: calc(18px + env(safe-area-inset-top)) 18px 12px;
+  /* El botón de tema va en el flujo, no absoluto: estaba posicionado y el
+     subtítulo le pasaba por debajo. Con flex no se solapan nunca, cualquiera
+     sea el largo del texto. */
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
   border-bottom: 1px solid var(--linea);
   position: relative;
   overflow: hidden;
@@ -313,9 +320,7 @@ textarea {
 /* El botón de tema va en el encabezado, arriba a la derecha, donde no
    compite con nada. */
 .tema {
-  position: absolute;
-  top: calc(14px + env(safe-area-inset-top));
-  right: 14px;
+  flex: none;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -1159,4 +1164,142 @@ nav button span {
 
 .pie a {
   color: var(--agua-claro);
+}
+
+/* ==========================================================================
+   PANTALLAS ANCHAS
+   La app es mobile-first y está bien que lo sea: se usa en el teléfono. Pero
+   en 1440px quedaba una columna de 640px con 400px vacíos de cada lado, y la
+   barra de navegación —un idioma de teléfono— estirada de punta a punta con
+   los ítems a media pantalla uno de otro.
+   ========================================================================== */
+@media (min-width: 900px) {
+  /* Reordenamos con flex para subir la nav sin tocar el orden del HTML: en el
+     marcado sigue después del contenido, que es lo correcto. */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 0;
+  }
+  body.con-instalar {
+    padding-bottom: 0;
+  }
+  .top {
+    order: 0;
+  }
+  #sin-conexion {
+    order: 1;
+  }
+  nav {
+    order: 2;
+  }
+  .vista {
+    order: 3;
+  }
+  .sugerir {
+    order: 4;
+  }
+  .pie {
+    order: 5;
+    margin-top: auto;
+  }
+
+  /* La nav deja de ser una barra fija abajo y pasa a acompañar al contenido. */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 18px;
+    border-top: none;
+    border-bottom: 1px solid var(--linea);
+  }
+  nav button {
+    flex: none;
+    flex-direction: row;
+    gap: 9px;
+    padding: 14px 20px;
+    border-bottom: 2px solid transparent;
+  }
+  nav button.on {
+    border-bottom-color: var(--agua-claro);
+  }
+  nav button span {
+    font-size: 12.5px;
+  }
+
+  /* El encabezado se alinea con la columna de contenido en vez de quedar
+     pegado al borde de la ventana. */
+  .top {
+    padding-left: max(18px, calc((100vw - 1040px) / 2));
+    padding-right: max(18px, calc((100vw - 1040px) / 2));
+  }
+  .vista,
+  .sugerir {
+    max-width: 1040px;
+  }
+
+  /* Mapa y lista lado a lado: el mapa queda fijo mientras se recorre la
+     lista, que es como se usa un buscador de lugares en una pantalla grande. */
+  .col-mapa {
+    position: sticky;
+    top: 76px;
+  }
+  #v-donde .col-mapa,
+  #v-donde .col-lista {
+    grid-column: auto;
+  }
+  /* .on: si no, este display gana sobre el `display:none` de .vista y se
+     muestran todas las secciones a la vez. */
+  #v-donde.on {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    align-items: start;
+  }
+  #v-donde > h2,
+  #v-donde > p,
+  #v-donde > .tarjeta {
+    grid-column: 1 / -1;
+  }
+  #mapa {
+    height: 460px;
+  }
+
+  /* En "Río" el hidrómetro y el pronóstico caben uno al lado del otro. */
+  #v-rio.on {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    align-items: start;
+  }
+  #v-rio > .veredicto,
+  #v-rio > #cta-cota,
+  #v-rio > details,
+  #v-rio > .aviso {
+    grid-column: 1 / -1;
+  }
+
+  /* El plan es un formulario largo: dos columnas de tarjetas. */
+  #v-plan.on {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    align-items: start;
+  }
+  #v-plan > h2,
+  #v-plan > p,
+  #v-plan > .btn {
+    grid-column: 1 / -1;
+  }
+}
+
+/* El foco programático de las secciones es para que un lector de pantalla
+   anuncie el cambio, no para dibujar un recuadro alrededor de media página.
+   Sólo se puede enfocar por script (tabindex="-1"), así que sacar el contorno
+   no le quita nada a quien navega con teclado. */
+.vista:focus {
+  outline: none;
 }
