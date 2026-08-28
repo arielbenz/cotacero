@@ -30,6 +30,7 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     api/suscribir.js         alta de un endpoint de push
     api/desuscribir.js       baja
     api/cron/avisar.js       lo dispara Vercel Cron
+    api/sugerencias.js       recibe feedback de la gente
     lib/ina.js               parser del INA (módulo, NO endpoint)
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     scripts/vapid.js         genera las claves, se corre una vez
@@ -147,6 +148,24 @@ que devuelven 404/410 se borran solas.
 
 **iOS.** Safari sólo permite avisos si la PWA está instalada en la pantalla
 de inicio. La app lo detecta y lo explica en vez de quedarse muda.
+
+## Sugerencias
+
+Formulario plegado al pie, accesible desde cualquier pestaña. Abre con la
+negación —**no es una vía para pedir ayuda**— y los teléfonos de emergencia,
+porque en una app así cualquier caja de texto se puede leer como un pedido de
+auxilio.
+
+Es lo **único** de la app que manda texto de la persona a un servidor, y el
+formulario lo dice. No se guarda la IP: se usa sólo para limitar envíos (3 por
+hora) y hasheada con `CRON_SECRET` de sal.
+
+Se guardan en Redis, lista `cc:sugerencias`, con tope de 500. **Se leen desde
+la consola de Upstash**, no hay panel:
+
+    LRANGE cc:sugerencias 0 49
+
+Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
 ## Pendientes
 

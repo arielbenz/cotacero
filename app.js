@@ -390,6 +390,10 @@ const horasDesde = (d) => (d ? (Date.now() - d.getTime()) / 36e5 : null);
    serverless propia (api/nivel.js) que lo lee y lo reexpone.
    Si eso falla, quedan el último valor guardado y la carga manual. */
 async function cargarRio() {
+  // Marcamos que estamos buscando: sin esto, entre el "Cargando" inicial y
+  // el resultado no había diferencia visible con el estado de falla.
+  const ver = document.getElementById("veredicto-rio");
+  if (estado.rio == null) ver.classList.add("cargando");
   document.getElementById("origen-dato").textContent =
     "Buscando el nivel del río…";
   let valor = null,
@@ -474,6 +478,7 @@ async function cargarRio() {
       extra;
     if (estado.rioVencido) document.getElementById("det-manual").open = true;
   }
+  ver.classList.remove("cargando");
   pintarRio();
   calcular();
 }
@@ -680,9 +685,7 @@ function pintarCtaCota() {
   }
   cta.innerHTML =
     '<div class="aviso" style="margin-bottom:14px"><b>Todavía no sé dónde vivís.</b> ' +
-    "Con tu zona y la cota de tu terreno, la app te dice a qué altura del " +
-    "hidrómetro el agua llega a tu casa — que puede ser bastante antes que la " +
-    "alerta general de 5,30 m." +
+    "Con tu zona y tu cota te digo a qué altura del río el agua llega a tu casa." +
     '<button class="btn mini" style="margin-top:11px;display:block" data-accion="ir" data-vista="cota">' +
     "Cargar mi cota</button></div>";
 }
@@ -708,10 +711,19 @@ function pintarVeredictoRio() {
   const c = document.getElementById("veredicto-rio");
   const r = estado.rio;
   if (r == null) {
+    // Lo primero que veía alguien que abre la app por primera vez era
+    // "FALTA EL NIVEL DEL RÍO" en tipografía gigante: un reporte de lo que
+    // no anda, antes de explicar para qué sirve. Ahora la pantalla vacía
+    // dice qué hace la app, y el problema va en segundo plano.
     c.className = "veredicto v-neutro";
     c.innerHTML =
-      '<div class="titu">Falta el nivel del río</div>' +
-      '<p class="chico" style="margin:0">Cargalo a mano abajo para que el resto de la app funcione.</p>';
+      '<div class="titu">¿Hasta dónde llega el agua?</div>' +
+      '<p class="chico" style="margin:0 0 10px">Te dice <b>a qué altura del río ' +
+      "el agua llega a tu terreno</b>. En muchas zonas eso pasa antes que la " +
+      "alerta general de 5,30 m.</p>" +
+      '<p class="chico" style="margin:0"><b style="color:var(--alerta)">Ahora mismo ' +
+      "no pudimos leer el nivel del INA.</b> Cargalo a mano acá abajo, o probá de " +
+      "nuevo en un rato.</p>";
     return;
   }
   let cls, titu, txt;
@@ -1203,6 +1215,26 @@ function pintarListas() {
 }
 /* 26 casillas sin ninguna señal de avance: nadie sabía si iba por la mitad. */
 function pintarProgreso() {
+  // El resumen va arriba de la pestaña: los contadores por lista quedaban
+  // abajo, donde no se ven al entrar.
+  const res = document.getElementById("resumen-plan");
+  if (res) {
+    const hechos =
+      MOCHILA.length -
+      faltanMochila() +
+      PREVIA.filter((_, i) => guardado.get("cc_pv" + i) === "1").length;
+    const total = MOCHILA.length + PREVIA.length;
+    res.innerHTML =
+      hechos === total
+        ? '<b style="color:var(--ok)">Tu plan está completo.</b> Revisalo cada tanto.'
+        : "Llevás <b>" +
+          hechos +
+          " de " +
+          total +
+          "</b> cosas listas. Te faltan <b>" +
+          (total - hechos) +
+          "</b>.";
+  }
   const poner = (id, hechos, total) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -1625,6 +1657,17 @@ function ubicarmeEnMapa() {
 }
 
 /* ================= LISTA DE PUNTOS ================= */
+// La lista completa medía cinco pantallas y media de scroll. Arranca corta:
+// si diste ubicación, los más cercanos; si no, los primeros. El buscador
+// siempre muestra todo lo que coincide.
+const PUNTOS_VISIBLES = 6;
+let verTodosLosPuntos = false;
+
+function alternarTodosLosPuntos() {
+  verTodosLosPuntos = !verTodosLosPuntos;
+  pintarPuntos(document.getElementById("buscar-punto").value);
+}
+
 function pintarPuntos(filtro = "", destacar = null) {
   const f = filtro.toLowerCase().trim();
   const lista = PUNTOS.filter(
@@ -1640,12 +1683,17 @@ function pintarPuntos(filtro = "", destacar = null) {
         distanciaKm(miPos, coordsPuntos[b[0]] || [0, 0]),
     );
   const cont = document.getElementById("lista-puntos");
+  // Con búsqueda activa mostramos todo lo que coincide: recortar un
+  // resultado de búsqueda sería desconcertante.
+  const recorta = !f && !verTodosLosPuntos && lista.length > PUNTOS_VISIBLES;
+  const ocultos = recorta ? lista.length - PUNTOS_VISIBLES : 0;
+  const mostrar = recorta ? lista.slice(0, PUNTOS_VISIBLES) : lista;
   if (!lista.length) {
     cont.innerHTML =
       '<p class="chico">Ningún punto coincide con esa búsqueda.</p>';
     return;
   }
-  cont.innerHTML = lista
+  cont.innerHTML = mostrar
     .map(([n, d]) => {
       const c = coordsPuntos[n];
       // geo: abre la app de mapas que la persona ya tenga en el teléfono
@@ -1661,6 +1709,12 @@ data-accion="ver-en-mapa" data-nombre="${atr(n)}">
 <span class="ir">Abrir en mapas →</span></a>`;
     })
     .join("");
+  if (recorta || (!f && verTodosLosPuntos))
+    cont.innerHTML +=
+      '<button class="btn sec mini" style="margin:12px 0 0;display:block;width:100%" ' +
+      'data-accion="ver-todos">' +
+      (recorta ? "Ver los otros " + ocultos + " puntos" : "Ver menos") +
+      "</button>";
 }
 function filtrarPuntos() {
   pintarPuntos(document.getElementById("buscar-punto").value);
@@ -1789,6 +1843,97 @@ function aLaVista(el) {
   try {
     el.scrollIntoView({ block: "nearest", behavior: "smooth" });
   } catch (e) {}
+}
+
+/* ================= SUGERENCIAS =================
+   Lo único de la app que manda texto de la persona a un servidor, y el
+   formulario lo dice con todas las letras. */
+const SUG_MAX = 600;
+
+function contarSugerencia() {
+  const t = document.getElementById("sug-texto");
+  const c = document.getElementById("sug-cuenta");
+  if (!t || !c) return;
+  const n = t.value.trim().length;
+  c.textContent = n ? n + " de " + SUG_MAX + " caracteres" : "";
+  c.style.color = n > SUG_MAX - 60 ? "var(--alerta)" : "var(--tenue)";
+}
+
+async function enviarSugerencia() {
+  const est = document.getElementById("sug-estado");
+  const texto = document.getElementById("sug-texto").value.trim();
+  if (texto.length < 10) {
+    est.innerHTML =
+      '<b style="color:var(--alerta)">Contanos un poco más</b>, con diez caracteres no se entiende.';
+    document.getElementById("sug-texto").focus();
+    return;
+  }
+  const liberar = ocupar('[data-accion="sug-enviar"]', "Enviando…");
+  est.textContent = "Enviando…";
+  try {
+    const r = await fetch("/api/sugerencias", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        categoria: document.getElementById("sug-categoria").value,
+        texto,
+        contacto: document.getElementById("sug-contacto").value.trim(),
+      }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "No se pudo enviar.");
+    document.getElementById("sug-texto").value = "";
+    document.getElementById("sug-contacto").value = "";
+    contarSugerencia();
+    est.innerHTML =
+      '<b style="color:var(--ok)">Gracias, llegó.</b> Lo va a leer una persona. ' +
+      "Si dejaste contacto y hace falta, te escribimos.";
+  } catch (e) {
+    est.innerHTML =
+      '<b style="color:var(--alerta)">' +
+      atr(e.message) +
+      "</b> Podés intentar de nuevo más tarde.";
+  } finally {
+    liberar();
+    aLaVista(est);
+  }
+}
+
+/* ================= TEMA =================
+   El claro existe por legibilidad a pleno sol, no por gusto. El CSS ya sigue
+   al sistema por su cuenta; acá sólo aplicamos la elección manual, que gana
+   sobre el sistema. */
+function temaDelSistema() {
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "claro"
+    : "oscuro";
+}
+function temaActual() {
+  return document.documentElement.dataset.tema || temaDelSistema();
+}
+function aplicarTema(t) {
+  const raiz = document.documentElement;
+  if (t) raiz.dataset.tema = t;
+  else delete raiz.dataset.tema;
+  const claro = temaActual() === "claro";
+  const b = document.getElementById("btn-tema");
+  if (b) {
+    b.textContent = claro ? "☾" : "☀";
+    b.title = claro ? "Pasar a tema oscuro" : "Pasar a tema claro";
+  }
+  // La barra del sistema en el teléfono también tiene que acompañar.
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta)
+    meta.setAttribute(
+      "content",
+      getComputedStyle(raiz).getPropertyValue("--fondo").trim() ||
+        (claro ? "#f2f6f7" : "#0B1418"),
+    );
+}
+function alternarTema() {
+  const nuevo = temaActual() === "claro" ? "oscuro" : "claro";
+  guardado.set("cc_tema", nuevo);
+  aplicarTema(nuevo);
 }
 
 /* ================= AVISOS =================
@@ -2011,6 +2156,9 @@ const ACCIONES = {
   compartir: () => compartirPlan(),
   ubicarme: () => ubicarmeEnMapa(),
   imprimir: () => imprimirPlan(),
+  tema: () => alternarTema(),
+  "ver-todos": () => alternarTodosLosPuntos(),
+  "sug-enviar": () => enviarSugerencia(),
   "avisos-on": () => activarAvisos(),
   "avisos-off": () => desactivarAvisos(),
   ver: (el) => ver(el.dataset.vista, el),
@@ -2026,6 +2174,7 @@ const ENTRADAS = {
   "cota-manual": () => marcarCotaManual(),
   "filtrar-puntos": () => filtrarPuntos(),
   "km-manual": (el) => fijarKmManual(el.value),
+  "sug-texto": () => contarSugerencia(),
 };
 
 function conectarEventos() {
@@ -2039,6 +2188,11 @@ function conectarEventos() {
     const fn = el && ENTRADAS[el.dataset.input];
     if (fn) fn(el, ev);
   });
+  window
+    .matchMedia("(prefers-color-scheme: light)")
+    .addEventListener("change", () => {
+      if (!guardado.get("cc_tema")) aplicarTema("");
+    });
   window.addEventListener("online", pintarConexion);
   window.addEventListener("offline", pintarConexion);
   // Ctrl/Cmd+P también tiene que salir bien, no sólo el botón.
@@ -2076,7 +2230,7 @@ function mostrarBotonInstalar() {
     promptInstalar.prompt();
     await promptInstalar.userChoice;
     promptInstalar = null;
-    caja.remove();
+    quitarBarraInstalar();
   });
   const x = document.createElement("button");
   x.className = "cerrar";
@@ -2085,10 +2239,18 @@ function mostrarBotonInstalar() {
   x.textContent = "×";
   x.addEventListener("click", () => {
     guardado.set("cc_no_instalar", "1");
-    caja.remove();
+    quitarBarraInstalar();
   });
   caja.append(b, x);
   document.body.appendChild(caja);
+  document.body.classList.add("con-instalar");
+}
+
+/* Saca la barra y devuelve al body su padding normal. */
+function quitarBarraInstalar() {
+  const caja = document.getElementById("barra-instalar");
+  if (caja) caja.remove();
+  document.body.classList.remove("con-instalar");
 }
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -2105,6 +2267,7 @@ function abrirDesdeURL() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  aplicarTema(guardado.get("cc_tema") || "");
   conectarEventos();
   iniciar();
   abrirDesdeURL();

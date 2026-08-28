@@ -28,9 +28,8 @@
     <meta property="og:locale" content="es_AR" />
     <meta property="og:url" content="/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <!-- Sin esto los select y los spinners de input[type=number] se dibujan
-         con el tema claro del sistema sobre un fondo oscuro. -->
-    <meta name="color-scheme" content="dark" />
+    <!-- Los controles nativos (select, scrollbars) siguen al tema. -->
+    <meta name="color-scheme" content="dark light" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -53,6 +52,12 @@
   </head>
   <body>
     <header class="top">
+      <button
+        id="btn-tema"
+        class="tema"
+        type="button"
+        data-accion="tema"
+        aria-label="Cambiar entre tema claro y oscuro"></button>
       <div class="marca">Cota<span>Cero</span></div>
       <div class="sub" id="subtitulo">
         Emergencia hídrica · Santa Fe · vigente hasta 30/04/2027
@@ -107,10 +112,12 @@
         </div>
         <h2>Si tenés que salir</h2>
         <div class="aviso grave">
-          <b>No cruces agua en movimiento</b>, ni a pie ni en auto. Treinta
-          centímetros de corriente arrastran una persona y sesenta arrastran un
-          vehículo. No se ve el pozo, la tapa de cloaca abierta ni el cable
-          caído debajo.
+          <b>No cruces agua en movimiento</b>, ni a pie ni en auto.
+          <ul class="pasos grave">
+            <li><b>30 cm</b> de corriente arrastran a una persona.</li>
+            <li><b>60 cm</b> arrastran un vehículo.</li>
+            <li>Abajo no se ve el pozo, la cloaca abierta ni el cable caído.</li>
+          </ul>
         </div>
         <p class="chico">
           Cortá la llave general de luz y la del gas antes de irte. Llevá los
@@ -122,10 +129,10 @@
 
     <!-- ======================= RÍO ======================= -->
     <section class="vista on" id="v-rio" aria-label="Nivel del río" tabindex="-1">
-      <div id="veredicto-rio" class="veredicto v-neutro" role="status">
-        <div class="titu">Cargando</div>
+      <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
+        <div class="titu">¿Hasta dónde llega el agua?</div>
         <p class="chico" style="margin: 0">
-          Buscando el nivel del río y el pronóstico.
+          Buscando el nivel del río en el INA…
         </p>
       </div>
 
@@ -229,9 +236,9 @@
       </div>
 
       <div class="aviso">
-        <b>El escenario que planifica el municipio</b> es río en 6 metros más
-        una lluvia convectiva de 200 a 300 mm. Los dos factores juntos, no por
-        separado: el río alto impide que las bombas desagoten la lluvia.
+        <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
+        Los dos juntos, no por separado: con el río alto las bombas no
+        desagotan.
       </div>
     </section>
 
@@ -239,9 +246,8 @@
     <section class="vista" id="v-cota" aria-label="Mi cota" tabindex="-1">
       <h2>¿Hasta dónde llega el agua?</h2>
       <p class="chico">
-        La altura del río y la altura de tu terreno son dos números distintos.
-        El hidrómetro te dice cuánto subió el agua. La cota IGN te dice si esa
-        agua llega a tu casa. Acá se cruzan los dos.
+        El hidrómetro dice cuánto subió el agua. Tu cota dice si esa agua
+        llega a tu casa. Acá se cruzan los dos.
       </p>
 
       <div class="tarjeta">
@@ -293,12 +299,17 @@
 
         <div class="aviso" style="margin-top: 12px">
           <b>La estimación satelital no alcanza para decidir una evacuación.</b>
-          Tiene un error de varios metros en terreno llano, y acá estamos
-          midiendo márgenes de centímetros. Además está referida al geoide
-          EGM2008 y no al cero del IGN, así que puede arrastrar un desfasaje
-          fijo de decenas de centímetros. Sirve para empezar. El número que
-          vale es el de un relevamiento topográfico, la escritura de tu terreno,
-          o el que te dé el municipio.
+          Sirve para empezar. El número que vale es el de un relevamiento
+          topográfico, la escritura de tu terreno, o el que te dé el municipio.
+          <details style="margin-top: 8px">
+            <summary style="cursor: pointer">Por qué no alcanza</summary>
+            <p style="margin: 8px 0 0">
+              Tiene un error de varios metros en terreno llano, y acá estamos
+              midiendo márgenes de centímetros. Además está referida al geoide
+              EGM2008 y no al cero del IGN, así que puede arrastrar un
+              desfasaje fijo de decenas de centímetros.
+            </p>
+          </details>
         </div>
       </div>
 
@@ -309,6 +320,7 @@
     <!-- ======================= MI PLAN ======================= -->
     <section class="vista" id="v-plan" aria-label="Mi plan familiar" tabindex="-1">
       <h2>Plan familiar</h2>
+      <p class="chico" id="resumen-plan" role="status"></p>
       <p class="chico">
         Se guarda en este teléfono. No se envía a ningún lado. Llenalo ahora,
         con tiempo, no cuando el agua ya esté en la puerta.
@@ -374,10 +386,8 @@
     <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
       <h2>Puntos de encuentro</h2>
       <p class="chico">
-        Los 30 espacios que el municipio tiene conveniados dentro del Plan de
-        Contingencia. Cada uno tiene responsables capacitados del Gobierno de la
-        Ciudad. Identificá el tuyo <b>antes</b> de necesitarlo y fijate cómo
-        llegar sin pasar por zona baja.
+        Los 30 espacios del Plan de Contingencia municipal, con responsables
+        capacitados. Identificá el tuyo <b>antes</b> de necesitarlo.
       </p>
 
       <div id="mapa"></div>
@@ -403,23 +413,92 @@
       <h2>Si tenés que salir</h2>
       <div class="tarjeta">
         <div class="aviso grave">
-          <b>No cruces agua en movimiento</b>, ni a pie ni en auto. Treinta
-          centímetros de corriente arrastran una persona y sesenta arrastran un
-          vehículo. No se ve el pozo, la tapa de cloaca abierta ni el cable
-          caído debajo.
+          <b>No cruces agua en movimiento</b>, ni a pie ni en auto.
+          <ul class="pasos grave">
+            <li><b>30 cm</b> de corriente arrastran a una persona.</li>
+            <li><b>60 cm</b> arrastran un vehículo.</li>
+            <li>Abajo no se ve el pozo, la cloaca abierta ni el cable caído.</li>
+          </ul>
         </div>
         <p class="chico">
-          Cortá la llave general de luz y la del gas antes de irte. Llevá los
-          documentos en bolsa de nylon cerrada. Avisale a un vecino y al
-          contacto de referencia hacia dónde vas. Si hay alguien con movilidad
-          reducida en tu cuadra, avisá al 911 con la dirección exacta.
+          Antes de salir:
         </p>
+        <ul class="pasos">
+          <li>Cortá la llave general de luz y la del gas.</li>
+          <li>Llevá los documentos en bolsa de nylon cerrada.</li>
+          <li>Avisale a un vecino y al contacto de referencia adónde vas.</li>
+          <li>
+            Si hay alguien con movilidad reducida en tu cuadra, avisá al
+            <a href="tel:911">911</a> con la dirección exacta.
+          </li>
+        </ul>
       </div>
     </section>
 
     <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
          papel y no se podía imprimir nada decente. -->
     <pre id="plan-impreso" aria-hidden="true"></pre>
+
+    <!-- Va en el pie: es una acción secundaria, y así queda a mano desde
+         cualquier pestaña sin ocupar un lugar en la nav. -->
+    <details class="sugerir" id="sugerir">
+      <summary>Sugerir algo o avisar de un error</summary>
+
+      <!-- Lo primero, antes que el formulario: cualquier caja de texto en una
+           app de emergencia se puede leer como una vía para pedir auxilio. -->
+      <div class="aviso grave" style="margin: 12px 0">
+        <b>Esto no es una vía para pedir ayuda.</b> Nadie lo lee en el momento.
+        Si necesitás asistencia ahora:
+        <ul class="pasos grave">
+          <li><a href="tel:911">911</a> emergencias</li>
+          <li><a href="tel:103">103</a> Defensa Civil</li>
+        </ul>
+      </div>
+
+      <p class="chico">
+        Lo que sabés vos de tu zona no está en ningún dato: si un punto de
+        encuentro cambió, si los kilómetros de tu zona no cierran, si algo se
+        entiende mal. <b>Lo lee una persona</b>, no hay respuesta automática y
+        puede tardar.
+      </p>
+
+      <label class="campo"
+        ><span>De qué se trata</span>
+        <select id="sug-categoria">
+          <option value="dato">Un dato está mal</option>
+          <option value="falta">Falta algo que me serviría</option>
+          <option value="confuso">No entendí algo</option>
+          <option value="otro">Otra cosa</option>
+        </select></label
+      >
+
+      <label class="campo"
+        ><span>Contanos</span>
+        <textarea
+          id="sug-texto"
+          data-input="sug-texto"
+          maxlength="600"
+          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."></textarea
+      ></label>
+      <p class="chico" id="sug-cuenta" style="margin: -8px 0 12px"></p>
+
+      <label class="campo"
+        ><span>Cómo contactarte (opcional)</span>
+        <input
+          type="text"
+          id="sug-contacto"
+          maxlength="120"
+          autocomplete="off"
+          placeholder="Sólo si querés respuesta" /></label
+      >
+      <p class="chico" style="margin: -8px 0 12px">
+        <b>No pongas tu dirección.</b> Esto sí sale de tu teléfono: es lo único
+        de la app que se guarda en un servidor junto con lo que escribas.
+      </p>
+
+      <button class="btn" data-accion="sug-enviar">Enviar</button>
+      <p class="chico" id="sug-estado" role="status" style="margin: 4px 0 0"></p>
+    </details>
 
     <div class="pie">
       Herramienta ciudadana, sin vínculo con organismos oficiales.<br />

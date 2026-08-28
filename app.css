@@ -1,3 +1,13 @@
+/* ==========================================================================
+   TEMAS
+   El claro no es preferencia estética: esta app se usa parada en la vereda,
+   de día, mirando el agua, y un tema oscuro a pleno sol se lee mucho peor.
+   La paleta clara es propia, no el oscuro invertido: los ocho colores del
+   oscuro fallan AA sobre blanco (el ámbar de alerta da 2,16). Los de acá
+   están medidos; el más bajo da 5,19 sobre el fondo.
+   Los fondos con alfa también son tokens: si no, quedarían calibrados para
+   un solo tema y en el otro se verían mal.
+   ========================================================================== */
 :root {
   --fondo: #0b1418;
   --panel: #101e24;
@@ -11,9 +21,149 @@
   --alerta: #e8a33d;
   --peligro: #d94f3d;
   --ok: #4fa88b;
+
+  --btn-texto: #03181f;
+  --ok-fondo: rgba(79, 168, 139, 0.11);
+  --ok-borde: rgba(79, 168, 139, 0.45);
+  --ok-suave: rgba(79, 168, 139, 0.09);
+  --alerta-fondo: rgba(232, 163, 61, 0.11);
+  --alerta-borde: rgba(232, 163, 61, 0.45);
+  --alerta-suave: rgba(232, 163, 61, 0.08);
+  --alerta-barra: rgba(232, 163, 61, 0.14);
+  --peligro-fondo: rgba(217, 79, 61, 0.13);
+  --peligro-borde: rgba(217, 79, 61, 0.5);
+  --peligro-suave: rgba(217, 79, 61, 0.09);
+  --hueco: rgba(126, 149, 157, 0.14);
+  --nav-fondo: rgba(11, 20, 24, 0.96);
+  --attrib-fondo: rgba(16, 41, 47, 0.82);
+  --sombra: rgba(0, 0, 0, 0.5);
+  --agua-alta: rgba(95, 200, 232, 0.55);
+  --agua-baja: rgba(46, 155, 196, 0.22);
+  /* El basemap del IGN es claro de origen. En tema oscuro lo invertimos, con
+     saturate() bajo para que el beige urbano no quede rojizo: en una app que
+     usa rojo para peligro, un mapa rojizo confunde. En tema claro va tal
+     cual lo publica el organismo. */
+  --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
+    contrast(0.9);
+  /* Los íconos de MapLibre son SVG oscuros embebidos: en tema oscuro se
+     invierten, en claro van como vienen. */
+  --filtro-iconos-mapa: invert(1) brightness(0.92);
+
   --display: "Barlow Condensed", system-ui, sans-serif;
   --data: "JetBrains Mono", ui-monospace, monospace;
   --body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Los valores del tema claro viven UNA sola vez acá. Los dos selectores de
+   abajo sólo los remapean: si estuvieran duplicados, tarde o temprano uno se
+   actualiza y el otro no. */
+:root {
+  --c-fondo: #f2f6f7;
+  --c-panel: #ffffff;
+  --c-panel-2: #e6edf0;
+  --c-linea: #ccd9de;
+  --c-texto: #0d1b21;
+  --c-tenue: #4a5f67;
+  --c-agua: #17607f;
+  --c-agua-claro: #0f6f93;
+  --c-tierra: #7a5f0d;
+  --c-alerta: #8a5200;
+  --c-peligro: #a5271a;
+  --c-ok: #1f6b53;
+  --c-btn-texto: #ffffff;
+  --c-ok-fondo: rgba(31, 107, 83, 0.1);
+  --c-ok-borde: rgba(31, 107, 83, 0.4);
+  --c-ok-suave: rgba(31, 107, 83, 0.08);
+  --c-alerta-fondo: rgba(138, 82, 0, 0.1);
+  --c-alerta-borde: rgba(138, 82, 0, 0.4);
+  --c-alerta-suave: rgba(138, 82, 0, 0.07);
+  --c-alerta-barra: rgba(138, 82, 0, 0.12);
+  --c-peligro-fondo: rgba(165, 39, 26, 0.09);
+  --c-peligro-borde: rgba(165, 39, 26, 0.4);
+  --c-peligro-suave: rgba(165, 39, 26, 0.07);
+  --c-hueco: rgba(74, 95, 103, 0.12);
+  --c-nav-fondo: rgba(255, 255, 255, 0.97);
+  --c-attrib-fondo: rgba(255, 255, 255, 0.85);
+  --c-sombra: rgba(13, 27, 33, 0.22);
+  --c-agua-alta: rgba(23, 96, 127, 0.42);
+  --c-agua-baja: rgba(23, 96, 127, 0.14);
+  --c-filtro-mapa: saturate(0.92);
+  --c-filtro-iconos-mapa: none;
+}
+
+/* Por defecto seguimos al sistema, y desde CSS: con `script-src 'self'` no
+   podemos usar un script inline para aplicarlo antes del primer pintado, así
+   que si esto dependiera de JS habría un destello oscuro en cada carga. */
+@media (prefers-color-scheme: light) {
+  html:not([data-tema="oscuro"]) {
+    --fondo: var(--c-fondo);
+    --panel: var(--c-panel);
+    --panel-2: var(--c-panel-2);
+    --linea: var(--c-linea);
+    --texto: var(--c-texto);
+    --tenue: var(--c-tenue);
+    --agua: var(--c-agua);
+    --agua-claro: var(--c-agua-claro);
+    --tierra: var(--c-tierra);
+    --alerta: var(--c-alerta);
+    --peligro: var(--c-peligro);
+    --ok: var(--c-ok);
+    --btn-texto: var(--c-btn-texto);
+    --ok-fondo: var(--c-ok-fondo);
+    --ok-borde: var(--c-ok-borde);
+    --ok-suave: var(--c-ok-suave);
+    --alerta-fondo: var(--c-alerta-fondo);
+    --alerta-borde: var(--c-alerta-borde);
+    --alerta-suave: var(--c-alerta-suave);
+    --alerta-barra: var(--c-alerta-barra);
+    --peligro-fondo: var(--c-peligro-fondo);
+    --peligro-borde: var(--c-peligro-borde);
+    --peligro-suave: var(--c-peligro-suave);
+    --hueco: var(--c-hueco);
+    --nav-fondo: var(--c-nav-fondo);
+    --attrib-fondo: var(--c-attrib-fondo);
+    --sombra: var(--c-sombra);
+    --agua-alta: var(--c-agua-alta);
+    --agua-baja: var(--c-agua-baja);
+    --filtro-mapa: var(--c-filtro-mapa);
+    --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
+  }
+}
+
+/* La elección manual gana siempre: alguien puede querer el claro justo para
+   salir a la calle, tenga el teléfono como lo tenga. */
+html[data-tema="claro"] {
+  --fondo: var(--c-fondo);
+  --panel: var(--c-panel);
+  --panel-2: var(--c-panel-2);
+  --linea: var(--c-linea);
+  --texto: var(--c-texto);
+  --tenue: var(--c-tenue);
+  --agua: var(--c-agua);
+  --agua-claro: var(--c-agua-claro);
+  --tierra: var(--c-tierra);
+  --alerta: var(--c-alerta);
+  --peligro: var(--c-peligro);
+  --ok: var(--c-ok);
+  --btn-texto: var(--c-btn-texto);
+  --ok-fondo: var(--c-ok-fondo);
+  --ok-borde: var(--c-ok-borde);
+  --ok-suave: var(--c-ok-suave);
+  --alerta-fondo: var(--c-alerta-fondo);
+  --alerta-borde: var(--c-alerta-borde);
+  --alerta-suave: var(--c-alerta-suave);
+  --alerta-barra: var(--c-alerta-barra);
+  --peligro-fondo: var(--c-peligro-fondo);
+  --peligro-borde: var(--c-peligro-borde);
+  --peligro-suave: var(--c-peligro-suave);
+  --hueco: var(--c-hueco);
+  --nav-fondo: var(--c-nav-fondo);
+  --attrib-fondo: var(--c-attrib-fondo);
+  --sombra: var(--c-sombra);
+  --agua-alta: var(--c-agua-alta);
+  --agua-baja: var(--c-agua-baja);
+  --filtro-mapa: var(--c-filtro-mapa);
+  --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
 }
 * {
   box-sizing: border-box;
@@ -29,6 +179,11 @@ body {
 }
 body {
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+/* La barra de instalar es fixed: sin esto flotaba encima del último bloque
+   de cada pestaña, que además suele ser un aviso importante. */
+body.con-instalar {
+  padding-bottom: calc(72px + 58px + env(safe-area-inset-bottom));
   line-height: 1.5;
   font-size: 15px;
 }
@@ -69,14 +224,30 @@ textarea {
   right: 0;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--agua),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--agua), transparent);
   opacity: 0.5;
 }
+/* El botón de tema va en el encabezado, arriba a la derecha, donde no
+   compite con nada. */
+.tema {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--linea);
+  background: var(--panel);
+  color: var(--tenue);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.tema:hover {
+  color: var(--texto);
+}
+
 .marca {
   font-family: var(--display);
   font-weight: 700;
@@ -195,11 +366,7 @@ p {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(95, 200, 232, 0.55),
-    rgba(46, 155, 196, 0.22)
-  );
+  background: linear-gradient(180deg, var(--agua-alta), var(--agua-baja));
   border-top: 2px solid var(--agua-claro);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -293,25 +460,39 @@ p {
   margin-bottom: 7px;
 }
 .v-ok {
-  background: rgba(79, 168, 139, 0.11);
-  border-color: rgba(79, 168, 139, 0.45);
+  background: var(--ok-fondo);
+  border-color: var(--ok-borde);
 }
 .v-ok .titu {
   color: var(--ok);
 }
 .v-alerta {
-  background: rgba(232, 163, 61, 0.11);
-  border-color: rgba(232, 163, 61, 0.45);
+  background: var(--alerta-fondo);
+  border-color: var(--alerta-borde);
 }
 .v-alerta .titu {
   color: var(--alerta);
 }
 .v-peligro {
-  background: rgba(217, 79, 61, 0.13);
-  border-color: rgba(217, 79, 61, 0.5);
+  background: var(--peligro-fondo);
+  border-color: var(--peligro-borde);
 }
 .v-peligro .titu {
   color: var(--peligro);
+}
+/* Mientras busca el dato, la tarjeta late suave. Es la diferencia entre
+   "esperá" y "falló". */
+.veredicto.cargando {
+  animation: latido 1.6s ease-in-out infinite;
+}
+@keyframes latido {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
 }
 .v-neutro {
   background: var(--panel);
@@ -354,7 +535,7 @@ input[type="range"] {
 }
 .btn {
   background: var(--agua);
-  color: #03181f;
+  color: var(--btn-texto);
   border: none;
   border-radius: 8px;
   /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
@@ -436,7 +617,7 @@ input[type="range"] {
   position: relative;
   height: 34px;
   margin-top: 5px;
-  background: rgba(126, 149, 157, 0.14);
+  background: var(--hueco);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -521,7 +702,7 @@ input[type="range"] {
 /* ---------- avisos ---------- */
 .aviso {
   border-left: 3px solid var(--alerta);
-  background: rgba(232, 163, 61, 0.08);
+  background: var(--alerta-suave);
   padding: 11px 13px;
   border-radius: 0 8px 8px 0;
   font-size: 13px;
@@ -529,7 +710,33 @@ input[type="range"] {
 }
 .aviso.grave {
   border-color: var(--peligro);
-  background: rgba(217, 79, 61, 0.09);
+  background: var(--peligro-suave);
+}
+/* Una lista de acciones se lee; el mismo contenido en prosa, no. */
+.pasos {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--tenue);
+}
+.pasos li {
+  margin-bottom: 7px;
+  line-height: 1.45;
+}
+.pasos.grave li b {
+  color: var(--peligro);
+  font-family: var(--data);
+}
+.pasos a {
+  color: var(--agua-claro);
+  font-weight: 700;
+}
+.aviso details summary {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tenue);
 }
 .aviso b {
   color: var(--alerta);
@@ -569,8 +776,7 @@ input[type="range"] {
   /* saturate() baja el rojizo que deja la inversión sobre el beige urbano
      del IGN: en una app que usa rojo para peligro, un mapa rojizo
      confunde. El agua queda igual de reconocible. */
-  filter: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
-    contrast(0.9);
+  filter: var(--filtro-mapa);
 }
 @media (prefers-contrast: more) {
   #mapa .maplibregl-canvas {
@@ -585,6 +791,35 @@ input[type="range"] {
   margin-bottom: 14px;
   background: var(--panel-2);
 }
+/* MapLibre trae sus controles en blanco. Sobre un mapa que oscurecimos a
+   propósito quedaban como dos parches brillantes. */
+#mapa .maplibregl-ctrl-group {
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  box-shadow: none;
+}
+#mapa .maplibregl-ctrl-group button + button {
+  border-top-color: var(--linea);
+}
+#mapa .maplibregl-ctrl-group button:hover {
+  background: var(--panel-2);
+}
+/* Los íconos son SVG oscuros embebidos: no se recolorean, se invierten. */
+#mapa .maplibregl-ctrl-icon {
+  filter: var(--filtro-iconos-mapa);
+}
+#mapa .maplibregl-ctrl-attrib {
+  background: var(--attrib-fondo);
+  color: var(--tenue);
+  font-size: 11px;
+}
+#mapa .maplibregl-ctrl-attrib a {
+  color: var(--agua-claro);
+}
+#mapa .maplibregl-ctrl-attrib-button {
+  filter: var(--filtro-iconos-mapa);
+}
+
 .maplibregl-popup-content {
   background: var(--panel);
   color: var(--texto);
@@ -628,7 +863,7 @@ input[type="range"] {
   box-shadow: 0 0 0 1px var(--tierra);
 }
 .punto.destacado {
-  background: rgba(79, 168, 139, 0.09);
+  background: var(--ok-suave);
   border-radius: 8px;
   padding-left: 10px;
   padding-right: 10px;
@@ -661,7 +896,7 @@ nav {
   right: 0;
   bottom: 0;
   display: flex;
-  background: rgba(11, 20, 24, 0.96);
+  background: var(--nav-fondo);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--linea);
   padding-bottom: env(safe-area-inset-bottom);
@@ -698,8 +933,8 @@ nav button span {
   text-transform: uppercase;
 }
 #sin-conexion {
-  background: rgba(232, 163, 61, 0.14);
-  border-bottom: 1px solid rgba(232, 163, 61, 0.45);
+  background: var(--alerta-barra);
+  border-bottom: 1px solid var(--alerta-borde);
   color: var(--alerta);
   font-family: var(--data);
   font-size: 12px;
@@ -722,7 +957,7 @@ nav button span {
   display: flex;
   gap: 8px;
   align-items: stretch;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 24px var(--sombra);
   border-radius: 8px;
 }
 .instalar .btn {
@@ -765,6 +1000,30 @@ nav button span {
     color: #000;
     padding: 0;
   }
+}
+
+/* ---------- sugerencias ---------- */
+.sugerir {
+  max-width: 640px;
+  margin: 26px auto 0;
+  padding: 0 18px;
+}
+.sugerir > summary {
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  padding: 12px 0;
+  border-top: 1px solid var(--linea);
+}
+.sugerir > summary:hover {
+  color: var(--texto);
+}
+.sugerir[open] > summary {
+  color: var(--texto);
 }
 
 .pie {
