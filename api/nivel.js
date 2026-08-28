@@ -2,7 +2,7 @@
 // Devuelve el nivel de Santa Fe como JSON. El navegador no puede pedirlo
 // directo porque el INA no habilita CORS.
 
-import { leerNivelINA } from "./_ina.js";
+import { leerNivelINA } from "../lib/ina.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");

@@ -1,6 +1,6 @@
 // api/desuscribir.js — saca un endpoint de la lista.
 
-import { redis, CLAVE_SUBS, endpointValido, hayAlmacen } from "./_push.js";
+import { redis, CLAVE_SUBS, endpointValido, hayAlmacen } from "../lib/push.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");

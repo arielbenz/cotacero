@@ -2,7 +2,7 @@
 // No recibe ni guarda la cota, la zona, el umbral ni el plan de nadie: el
 // servidor no puede saber a quién le corresponde qué aviso, y no lo necesita.
 
-import { redis, CLAVE_SUBS, endpointValido, hayAlmacen } from "./_push.js";
+import { redis, CLAVE_SUBS, endpointValido, hayAlmacen } from "../lib/push.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");

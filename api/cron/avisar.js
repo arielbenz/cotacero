@@ -5,11 +5,11 @@
 // movió lo suficiente como para que a alguien le importe. El filtro fino lo
 // hace cada service worker contra el umbral guardado en su propio dispositivo.
 
-import { leerNivelINA } from "../_ina.js";
+import { leerNivelINA } from "../../lib/ina.js";
 import {
   enviarPush, redis, hayAlmacen,
   CLAVE_SUBS, CLAVE_NIVEL, CLAVE_AVISADO,
-} from "../_push.js";
+} from "../../lib/push.js";
 
 const ALERTA = 5.3;
 const EVACUACION = 5.7;

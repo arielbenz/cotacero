@@ -27,6 +27,12 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     app.js                   lógica
     vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
     api/nivel.js             lee el reporte diario del INA (CORS proxy)
+    api/suscribir.js         alta de un endpoint de push
+    api/desuscribir.js       baja
+    api/cron/avisar.js       lo dispara Vercel Cron
+    lib/ina.js               parser del INA (módulo, NO endpoint)
+    lib/push.js              VAPID y almacén (módulo, NO endpoint)
+    scripts/vapid.js         genera las claves, se corre una vez
     sw.js                    service worker
     manifest.webmanifest     PWA
     vercel.json              cabeceras y CSP
@@ -97,6 +103,9 @@ quedaban a más de 90 km, y diez en la calle homónima de otro municipio
 (Santo Tomé, Recreo, Sauce Viejo). El listado publicado en prensa además
 tenía 29 puntos; el oficial tiene 30. Faltaba **Vecinal Pro Mejoras Alto
 Verde**, en un barrio que está fuera del anillo de defensas.
+
+Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
+`api/` se publica como una función de Vercel, y en Hobby hay un tope de 12.
 
 ## Avisos (Web Push)
 
