@@ -54,7 +54,10 @@ textarea {
 
 /* ---------- cabecera ---------- */
 .top {
-  padding: 18px 18px 12px;
+  /* viewport-fit=cover hace que el contenido vaya por debajo de la muesca y
+     la barra de estado. El safe-area estaba contemplado abajo (la nav) pero
+     no arriba, así que el logo quedaba pisado. */
+  padding: calc(18px + env(safe-area-inset-top)) 18px 12px;
   border-bottom: 1px solid var(--linea);
   position: relative;
   overflow: hidden;
@@ -365,6 +368,10 @@ input[type="range"] {
   cursor: pointer;
   width: 100%;
   margin-bottom: 9px;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 .btn:active {
   transform: translateY(1px);

@@ -18,7 +18,8 @@ const CONFIG = {
   // Clave pública VAPID para los avisos. Se genera con `node scripts/vapid.js`
   // y la privada va SÓLO en las variables de entorno de Vercel.
   // Vacía = avisos apagados; la app funciona igual.
-  VAPID_PUBLIC_KEY: "BDvA4gsUx-S1tEyYZ-BeaXubLuO-qvY1sdME3-vpyYULbzb-UVkOB17nw2bYQsfvVsGvN6r-p_sgFg4byZoEKto",
+  VAPID_PUBLIC_KEY:
+    "BDvA4gsUx-S1tEyYZ-BeaXubLuO-qvY1sdME3-vpyYULbzb-UVkOB17nw2bYQsfvVsGvN6r-p_sgFg4byZoEKto",
 
   // La funcion serverless que lee el nivel del INA.
   // En local con `vercel dev`: '/api/nivel' funciona igual.
@@ -151,31 +152,87 @@ const PUNTOS = [
   ["ASOEM Camping", "RP Nº 1 - km 2.5", [-60.60681828, -31.6270493]],
   ["Boca del Tigre", "J.J. Paso y Zavalla", [-60.72517614, -31.66131579]],
   ["Bochas Club Mitre", "Gral. López 3815", [-60.72595784, -31.65460239]],
-  ["Bomberos Voluntarios Las Flores", "Av. Blas Parera 8700", [-60.72689011, -31.58001751]],
-  ["Capilla Nuestra Señora de la Guardia", "A. de Petre y H. Serafina", [-60.63433982, -31.64234205]],
-  ["Cementerio Municipal", "Av. Blas Parera 5401", [-60.71863653, -31.61379472]],
-  ["Centro Comunitario Noreste", "Defensa y French", [-60.66612462, -31.5977847]],
-  ["CIC Facundo Zuviría", "Av. Facundo Zuviría 8002 / Azcuénaga", [-60.6988815, -31.59267741]],
+  [
+    "Bomberos Voluntarios Las Flores",
+    "Av. Blas Parera 8700",
+    [-60.72689011, -31.58001751],
+  ],
+  [
+    "Capilla Nuestra Señora de la Guardia",
+    "A. de Petre y H. Serafina",
+    [-60.63433982, -31.64234205],
+  ],
+  [
+    "Cementerio Municipal",
+    "Av. Blas Parera 5401",
+    [-60.71863653, -31.61379472],
+  ],
+  [
+    "Centro Comunitario Noreste",
+    "Defensa y French",
+    [-60.66612462, -31.5977847],
+  ],
+  [
+    "CIC Facundo Zuviría",
+    "Av. Facundo Zuviría 8002 / Azcuénaga",
+    [-60.6988815, -31.59267741],
+  ],
   ["CIC Roca", "Pasaje Roca y República de Siria", [-60.68433875, -31.5785339]],
   ["Cilsa", "Mar Argentino y R11", [-60.73261501, -31.66508848]],
-  ["Club Banco Provincia", "Av. Aristóbulo del Valle 9958", [-60.68928171, -31.57358485]],
+  [
+    "Club Banco Provincia",
+    "Av. Aristóbulo del Valle 9958",
+    [-60.68928171, -31.57358485],
+  ],
   ["Club Cabal", "Servando Bayo 6730", [-60.72944315, -31.59893853]],
   ["Distrito La Costa", "RP Nº 1 - km 2.7", [-60.60493224, -31.62688844]],
-  ["Estación Colastiné Norte", "Las Macluras y Orquídeas", [-60.60814703, -31.62364809]],
-  ["Estación Mitre (Andenes)", "Gral. López y San Juan", [-60.72427681, -31.65484814]],
+  [
+    "Estación Colastiné Norte",
+    "Las Macluras y Orquídeas",
+    [-60.60814703, -31.62364809],
+  ],
+  [
+    "Estación Mitre (Andenes)",
+    "Gral. López y San Juan",
+    [-60.72427681, -31.65484814],
+  ],
   ["Estación San Lorenzo", "Entre Ríos 4080", [-60.72986264, -31.65645015]],
-  ["Jardín Botánico Ing. Lorenzo Parodi", "Av. Gorriti 3902", [-60.70727912, -31.58704761]],
+  [
+    "Jardín Botánico Ing. Lorenzo Parodi",
+    "Av. Gorriti 3902",
+    [-60.70727912, -31.58704761],
+  ],
   ["La Virgencita", "RN 168 y calle Principal", [-60.63365832, -31.63972864]],
   ["Mediateca", "Pje. Mitre y Tucumán", [-60.72916015, -31.64108094]],
-  ["Parada de ómnibus (La Guardia/Colastiné)", "Ruta 1 y Favaloro", [-60.62654115, -31.6381007]],
-  ["Polideportivo La Tablada", "Teniente Loza 6970", [-60.74551756, -31.56381964]],
+  [
+    "Parada de ómnibus (La Guardia/Colastiné)",
+    "Ruta 1 y Favaloro",
+    [-60.62654115, -31.6381007],
+  ],
+  [
+    "Polideportivo La Tablada",
+    "Teniente Loza 6970",
+    [-60.74551756, -31.56381964],
+  ],
   ["Talleres Municipales", "Pte. Perón 3575", [-60.71754382, -31.63212773]],
   ["Vecinal Centenario", "Zavalía 711", [-60.72236452, -31.66487521]],
   ["Vecinal Facundo Quiroga", "Almafuerte 7739", [-60.69540016, -31.59617794]],
   ["Vecinal Guadalupe Oeste", "Risso 1745", [-60.68367933, -31.60310257]],
-  ["Vecinal Juan de Garay", "Salvador Caputto 3955", [-60.72253068, -31.636429]],
-  ["Vecinal Las Delicias", "Alfonsina Storni 3100", [-60.69534873, -31.58298864]],
-  ["Vecinal Pro Mejoras Alto Verde", "Manzana 1, M. Gómez e I. Monzón", [-60.70076676, -31.66521436]],
+  [
+    "Vecinal Juan de Garay",
+    "Salvador Caputto 3955",
+    [-60.72253068, -31.636429],
+  ],
+  [
+    "Vecinal Las Delicias",
+    "Alfonsina Storni 3100",
+    [-60.69534873, -31.58298864],
+  ],
+  [
+    "Vecinal Pro Mejoras Alto Verde",
+    "Manzana 1, M. Gómez e I. Monzón",
+    [-60.70076676, -31.66521436],
+  ],
   ["Vecinal Santa Marta", "Chubut 6291", [-60.73289024, -31.57099227]],
 ];
 
@@ -241,9 +298,7 @@ let ultimoRefresco = 0;
 /* `desdeHistorial` evita empujar una entrada nueva cuando el cambio de vista
    ya vino del historial (popstate) — si no, atrás y adelante se pelean. */
 function ver(id, btn, desdeHistorial) {
-  document
-    .querySelectorAll(".vista")
-    .forEach((v) => v.classList.remove("on"));
+  document.querySelectorAll(".vista").forEach((v) => v.classList.remove("on"));
   const panel = document.getElementById("v-" + id);
   panel.classList.add("on");
   document.querySelectorAll("nav button").forEach((b) => {
@@ -291,9 +346,15 @@ const m = (v) =>
 /* Acepta coma o punto. La app muestra "16,40" en todos lados y los campos
    pedían "16.40": la persona escribía lo que veía, el navegador descartaba el
    valor y no pasaba nada, sin ningún aviso. */
-const aNumero = (v) => parseFloat(String(v ?? "").trim().replace(",", "."));
+const aNumero = (v) =>
+  parseFloat(
+    String(v ?? "")
+      .trim()
+      .replace(",", "."),
+  );
 /* Y al revés, para precargar los campos con el mismo formato que se muestra. */
-const enCampo = (v) => (v == null || isNaN(v) ? "" : v.toFixed(2).replace(".", ","));
+const enCampo = (v) =>
+  v == null || isNaN(v) ? "" : v.toFixed(2).replace(".", ",");
 /* null = todavía no eligió zona. Antes arrancaba en "centro" (0 km), que es
    la zona MÁS protegida: quien no tocaba el selector recibía el cálculo más
    optimista, hasta 1,80 m de diferencia contra la zona más expuesta. En una
@@ -399,8 +460,13 @@ async function cargarRio() {
     estado.rio = valor;
     estado.rioOrigen = origen;
     document.getElementById("origen-dato").innerHTML =
-      (estado.rioVencido ? '<b style="color:var(--alerta)">Dato vencido.</b> ' : "") +
-      "Fuente: " + origen + "." + extra;
+      (estado.rioVencido
+        ? '<b style="color:var(--alerta)">Dato vencido.</b> '
+        : "") +
+      "Fuente: " +
+      origen +
+      "." +
+      extra;
     if (estado.rioVencido) document.getElementById("det-manual").open = true;
   }
   pintarRio();
@@ -573,11 +639,7 @@ function pintarRio() {
 
   // tu cota, traducida a lectura de hidrómetro
   const critico = cotaEnHidrometro();
-  if (
-    critico !== null &&
-    critico >= ESCALA_MIN &&
-    critico <= ESCALA_MAX
-  ) {
+  if (critico !== null && critico >= ESCALA_MIN && critico <= ESCALA_MAX) {
     html += `<div class="marca-linea" style="bottom:${pct(critico)}%;color:var(--tierra)">
        <b style="color:var(--tierra)">vos</b></div>`;
   }
@@ -589,10 +651,9 @@ function pintarRio() {
   if (critico !== null) {
     wrap.style.display = "block";
     document.getElementById("lg-cota").textContent = m(critico);
-    document.getElementById("lg-cota-k").textContent =
-      estado.cotaEsEstimada
-        ? "Tu cota, traducida a lectura de hidrómetro, con el margen de error satelital ya descontado"
-        : "Tu cota, traducida a lectura de hidrómetro";
+    document.getElementById("lg-cota-k").textContent = estado.cotaEsEstimada
+      ? "Tu cota, traducida a lectura de hidrómetro, con el margen de error satelital ya descontado"
+      : "Tu cota, traducida a lectura de hidrómetro";
   } else wrap.style.display = "none";
 
   pintarVeredictoRio();
@@ -760,15 +821,13 @@ function pintarLluvia() {
   document.getElementById("dias").innerHTML = html;
   const res = document.getElementById("lluvia-resumen");
   if (total < 5)
-    res.textContent =
-      "Semana seca: " + Math.round(total) + " mm acumulados.";
+    res.textContent = "Semana seca: " + Math.round(total) + " mm acumulados.";
   else if (pico >= 40)
     res.innerHTML =
       '<b style="color:var(--alerta)">Se esperan ' +
       Math.round(pico) +
       " mm en un solo día.</b> Con el río alto, las bombas tardan más en desagotar.";
-  else
-    res.textContent = Math.round(total) + " mm acumulados en la semana.";
+  else res.textContent = Math.round(total) + " mm acumulados en la semana.";
 }
 
 /* ================= CÁLCULO DE COTA ================= */
@@ -782,9 +841,7 @@ function pintarLluvia() {
 function cotaEnHidrometro({ crudo = false } = {}) {
   if (estado.cota == null || kmDeZona() === null) return null;
   const cota =
-    !crudo && estado.cotaEsEstimada
-      ? estado.cota - ERROR_DEM
-      : estado.cota;
+    !crudo && estado.cotaEsEstimada ? estado.cota - ERROR_DEM : estado.cota;
   return cota - CERO_IGN - PENDIENTE * kmDeZona();
 }
 
@@ -828,48 +885,61 @@ async function estimarCota() {
     e.textContent = "Este navegador no da ubicación.";
     return;
   }
+  // El GPS puede tardar hasta 12 s. Sin esto el botón queda igual todo ese
+  // rato y parece que no hizo nada.
+  const liberar = ocupar('[data-accion="cota-gps"]', "Ubicando…");
   e.textContent = "Pidiendo tu ubicación…";
+  aLaVista(e);
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
-      const { latitude: la, longitude: lo, accuracy: prec } = pos.coords;
-      // La app es explícita sobre el error del DEM y era muda sobre éste:
-      // con un fix de ±800 m el modelo devuelve la elevación de otro
-      // terreno, no del tuyo, y el número parece igual de firme.
-      if (typeof prec === "number" && prec > PRECISION_MAX) {
-        e.innerHTML =
-          '<b style="color:var(--alerta)">La ubicación llegó con ±' +
-          Math.round(prec) +
-          " m de error.</b> A esa distancia el modelo mide otro terreno. " +
-          "Probá al aire libre, buscá la dirección, o cargá la cota a mano.";
-        return;
-      }
-      e.textContent = "Consultando el modelo de elevación…";
       try {
-        const alt = await elevacionDe(la, lo);
-        if (typeof alt !== "number") throw new Error("sin dato");
-        estado.cota = alt;
-        estado.cotaEsEstimada = true;
-        document.getElementById("in-cota").value = enCampo(alt);
-        guardado.set("cc_cota", String(alt));
-        guardado.set("cc_cota_est", "1");
-        e.innerHTML =
-          "Estimación satelital: <b>" +
-          m(alt) +
-          "</b>" +
-          (typeof prec === "number"
-            ? " (ubicación con ±" + Math.round(prec) + " m de error)"
-            : "") +
-          ". Es un punto de partida, no un dato de precisión.";
-        calcular();
-        pintarRio();
-      } catch (err) {
-        e.textContent =
-          "No se pudo obtener la elevación. Cargá la cota a mano.";
+        const { latitude: la, longitude: lo, accuracy: prec } = pos.coords;
+        // La app es explícita sobre el error del DEM y era muda sobre éste:
+        // con un fix de ±800 m el modelo devuelve la elevación de otro
+        // terreno, no del tuyo, y el número parece igual de firme.
+        if (typeof prec === "number" && prec > PRECISION_MAX) {
+          e.innerHTML =
+            '<b style="color:var(--alerta)">La ubicación llegó con ±' +
+            Math.round(prec) +
+            " m de error.</b> A esa distancia el modelo mide otro terreno. " +
+            "Probá al aire libre, buscá la dirección, o cargá la cota a mano.";
+          return;
+        }
+        e.textContent = "Consultando el modelo de elevación…";
+        try {
+          const alt = await elevacionDe(la, lo);
+          if (typeof alt !== "number") throw new Error("sin dato");
+          estado.cota = alt;
+          estado.cotaEsEstimada = true;
+          document.getElementById("in-cota").value = enCampo(alt);
+          guardado.set("cc_cota", String(alt));
+          guardado.set("cc_cota_est", "1");
+          e.innerHTML =
+            "Estimación satelital: <b>" +
+            m(alt) +
+            "</b>" +
+            (typeof prec === "number"
+              ? " (ubicación con ±" + Math.round(prec) + " m de error)"
+              : "") +
+            ". Es un punto de partida, no un dato de precisión.";
+          calcular();
+          pintarRio();
+        } catch (err) {
+          e.textContent =
+            "No se pudo obtener la elevación. Cargá la cota a mano.";
+        }
+      } finally {
+        liberar();
+        aLaVista(e);
       }
     },
     (err) => {
+      liberar();
       e.textContent =
-        "No diste permiso de ubicación. Podés cargar la cota a mano.";
+        err && err.code === 3
+          ? "La ubicación tardó demasiado. Probá al aire libre, buscá la dirección, o cargá la cota a mano."
+          : "No diste permiso de ubicación. Podés cargar la cota a mano.";
+      aLaVista(e);
     },
     { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 },
   );
@@ -960,8 +1030,7 @@ function calcular() {
   } else if (ref <= EVACUACION) {
     cls = "v-alerta";
     titu = "Te alcanza en zona de evacuación";
-    txt =
-      "El agua llega a tu cota con el hidrómetro entre 5,30 y 5,70 m.";
+    txt = "El agua llega a tu cota con el hidrómetro entre 5,30 y 5,70 m.";
   } else if (ref <= 6.5) {
     cls = "v-alerta";
     titu = "Margen ajustado";
@@ -990,19 +1059,19 @@ function calcular() {
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno</td>
   <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
     ${
-estado.cotaEsEstimada
-  ? `<tr><td style="padding:6px 0;color:var(--alerta)">Margen de error satelital</td>
+      estado.cotaEsEstimada
+        ? `<tr><td style="padding:6px 0;color:var(--alerta)">Margen de error satelital</td>
   <td style="text-align:right;color:var(--alerta)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota usada (la pesimista)</td>
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
-  : ""
+        : ""
     }
     <tr><td style="padding:6px 0;color:var(--tenue)">Cero del hidrómetro</td>
   <td style="text-align:right">− ${CERO_IGN.toFixed(2).replace(".", ",")} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)${
-KM_PUBLICADO.has(estado.zona)
-  ? ""
-  : '<br><span style="color:var(--alerta);font-size:11px">distancia estimada, no medida</span>'
+      KM_PUBLICADO.has(estado.zona)
+        ? ""
+        : '<br><span style="color:var(--alerta);font-size:11px">distancia estimada, no medida</span>'
     }</td>
   <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
@@ -1137,12 +1206,9 @@ function textoPlan() {
   t += "Contacto fuera de la zona: " + (g("p-contacto") || "—") + "\n";
   t += "Animales: " + (g("p-animales") || "—") + "\n\n";
   if (g("p-roles")) t += "QUIÉN HACE QUÉ\n" + g("p-roles") + "\n\n";
-  if (g("p-ayuda"))
-    t += "NECESITAN AYUDA PARA SALIR\n" + g("p-ayuda") + "\n\n";
+  if (g("p-ayuda")) t += "NECESITAN AYUDA PARA SALIR\n" + g("p-ayuda") + "\n\n";
   t += "MOCHILA — falta:\n";
-  const faltan = MOCHILA.filter(
-    (_, i) => guardado.get("cc_mo" + i) !== "1",
-  );
+  const faltan = MOCHILA.filter((_, i) => guardado.get("cc_mo" + i) !== "1");
   t += faltan.length
     ? faltan.map((x) => "  [ ] " + x).join("\n")
     : "  Completa.";
@@ -1171,8 +1237,7 @@ function compartirPlan() {
     navigator
       .share({ title: "Plan familiar ante crecida", text: t })
       .catch(() => {});
-  } else
-    window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank");
+  } else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank");
 }
 
 /* ================= MAPA ================= */
@@ -1264,17 +1329,23 @@ async function buscarDireccion() {
     e.textContent = "Escribí una dirección.";
     return;
   }
-  e.textContent = "Buscando la dirección…";
-  const r = await geocodificar(q + ", Santa Fe, Argentina", false);
-  if (!r) {
-    e.textContent = "No se encontró esa dirección. Probá con calle y altura.";
-    return;
-  }
-  e.textContent = "Consultando la elevación…";
-  const alt = await elevacionDe(r.c[1], r.c[0]);
-  if (alt === null) {
-    e.textContent = "Se encontró la dirección pero no la elevación.";
-    return;
+  const liberar = ocupar('[data-accion="buscar-dir"]', "Buscando…");
+  try {
+    e.textContent = "Buscando la dirección…";
+    aLaVista(e);
+    var r = await geocodificar(q + ", Santa Fe, Argentina", false);
+    if (!r) {
+      e.textContent = "No se encontró esa dirección. Probá con calle y altura.";
+      return;
+    }
+    e.textContent = "Consultando la elevación…";
+    var alt = await elevacionDe(r.c[1], r.c[0]);
+    if (alt === null) {
+      e.textContent = "Se encontró la dirección pero no la elevación.";
+      return;
+    }
+  } finally {
+    liberar();
   }
   estado.cota = alt;
   estado.cotaEsEstimada = true;
@@ -1345,7 +1416,11 @@ const ESTILO_IGN = {
     },
   },
   layers: [
-    { id: "fondo", type: "background", paint: { "background-color": "#16292f" } },
+    {
+      id: "fondo",
+      type: "background",
+      paint: { "background-color": "#16292f" },
+    },
     {
       id: "ign",
       type: "raster",
@@ -1491,10 +1566,7 @@ function ubicarmeEnMapa() {
         cerca.km.toFixed(1) +
         " km en línea recta. <b>Fijate el recorrido real</b>: el camino más " +
         "corto puede pasar por zona baja.";
-      pintarPuntos(
-        document.getElementById("buscar-punto").value,
-        cerca.nombre,
-      );
+      pintarPuntos(document.getElementById("buscar-punto").value, cerca.nombre);
     },
     () => {
       e.textContent = "No diste permiso de ubicación.";
@@ -1532,9 +1604,7 @@ function pintarPuntos(filtro = "", destacar = null) {
         ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${encodeURIComponent(n)})`
         : `geo:0,0?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`;
       const km =
-        miPos && c
-          ? " · " + distanciaKm(miPos, c).toFixed(1) + " km"
-          : "";
+        miPos && c ? " · " + distanciaKm(miPos, c).toFixed(1) + " km" : "";
       return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
 <div class="n">${n}${destacar === n ? ' <span style="color:var(--ok);font-size:12px">· el más cercano</span>' : ""}</div>
@@ -1581,10 +1651,9 @@ function iniciar() {
     estado.cota = parseFloat(c);
     document.getElementById("in-cota").value = enCampo(estado.cota);
     estado.cotaEsEstimada = guardado.get("cc_cota_est") === "1";
-    document.getElementById("estado-cota").textContent =
-      estado.cotaEsEstimada
-        ? "Usando una estimación satelital guardada."
-        : "Usando la cota que cargaste.";
+    document.getElementById("estado-cota").textContent = estado.cotaEsEstimada
+      ? "Usando una estimación satelital guardada."
+      : "Usando la cota que cargaste.";
   }
 
   const km = guardado.get("cc_km");
@@ -1644,6 +1713,29 @@ function prepararImpresion() {
 function imprimirPlan() {
   prepararImpresion();
   window.print();
+}
+
+/* Un botón que dispara algo lento tiene que decirlo él mismo. Antes quedaba
+   idéntico y la única señal era un renglón gris más abajo que, con el teclado
+   abierto en el teléfono, ni se ve. Devuelve la función que lo libera. */
+function ocupar(selector, texto) {
+  const b = document.querySelector(selector);
+  if (!b) return () => {};
+  const original = b.textContent;
+  b.disabled = true;
+  b.textContent = texto;
+  return () => {
+    b.disabled = false;
+    b.textContent = original;
+  };
+}
+
+/* El renglón de estado vive debajo de los botones: en el teléfono queda tapado
+   por el teclado. Lo traemos a la vista. */
+function aLaVista(el) {
+  try {
+    el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  } catch (e) {}
 }
 
 /* ================= AVISOS =================
@@ -1708,9 +1800,34 @@ async function suscripcionActual() {
 
 async function activarAvisos() {
   const caja = document.getElementById("avisos");
+  const tarjeta = (dentro) => {
+    caja.innerHTML =
+      '<div class="tarjeta"><h3 style="margin-top:0">Avisos</h3>' +
+      dentro +
+      "</div>";
+    aLaVista(caja);
+  };
+  const liberar = ocupar('[data-accion="avisos-on"]', "Activando…");
   try {
     const permiso = await Notification.requestPermission();
-    if (permiso !== "granted") return pintarAvisos();
+    if (permiso === "denied") {
+      tarjeta(
+        '<p class="chico" style="margin:0"><b style="color:var(--alerta)">Bloqueaste los avisos.</b> ' +
+          "Se vuelven a habilitar desde los ajustes del navegador para este sitio.</p>",
+      );
+      return;
+    }
+    if (permiso !== "granted") {
+      // Descartar el cartel del navegador dejaba la tarjeta IDÉNTICA: cero
+      // señal de que hubiera pasado algo.
+      tarjeta(
+        '<p class="chico" style="margin:0">No diste el permiso, así que no vamos ' +
+          "a avisarte. Podés intentarlo cuando quieras.</p>" +
+          '<button class="btn mini" style="margin-top:11px;display:block" ' +
+          'data-accion="avisos-on">Probar de nuevo</button>',
+      );
+      return;
+    }
     const reg = await navigator.serviceWorker.ready;
     const sub =
       (await reg.pushManager.getSubscription()) ||
@@ -1725,12 +1842,17 @@ async function activarAvisos() {
     });
     if (!r.ok) throw new Error("el servidor rechazó la suscripción");
     await guardarUmbral();
-    pintarAvisos();
+    await pintarAvisos();
+    aLaVista(caja);
   } catch (e) {
-    caja.innerHTML =
-      '<div class="tarjeta"><p class="chico" style="margin:0">' +
-      '<b style="color:var(--alerta)">No se pudieron activar los avisos.</b> ' +
-      "Probá de nuevo más tarde.</p></div>";
+    tarjeta(
+      '<p class="chico" style="margin:0"><b style="color:var(--alerta)">No se pudieron ' +
+        "activar los avisos.</b> Probá de nuevo más tarde.</p>" +
+        '<button class="btn mini" style="margin-top:11px;display:block" ' +
+        'data-accion="avisos-on">Reintentar</button>',
+    );
+  } finally {
+    liberar();
   }
 }
 
@@ -1764,7 +1886,9 @@ async function pintarAvisos() {
   if (!CONFIG.VAPID_PUBLIC_KEY) return (caja.innerHTML = "");
 
   const envoltura = (dentro) =>
-    '<div class="tarjeta"><h3 style="margin-top:0">Avisos</h3>' + dentro + "</div>";
+    '<div class="tarjeta"><h3 style="margin-top:0">Avisos</h3>' +
+    dentro +
+    "</div>";
 
   if (!avisosPosibles()) {
     // En iOS los avisos web sólo funcionan con la app instalada en la
