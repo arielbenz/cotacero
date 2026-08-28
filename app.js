@@ -277,6 +277,28 @@ const guardado = (() => {
   };
 })();
 
+/* Las versiones anteriores cacheaban las coordenadas de los 30 puntos en
+   localStorage, con prefijos que ya no se usan. Ahora las coordenadas son las
+   oficiales del municipio y viven en el código: esas entradas quedaron
+   ocupando lugar en el teléfono de cualquiera que haya usado la app antes.
+   Se barren una sola vez. */
+const CLAVE_LIMPIEZA = "cc_limpieza_1";
+function limpiarGuardadoViejo() {
+  if (!guardado.ok || guardado.get(CLAVE_LIMPIEZA) === "1") return;
+  try {
+    const muertas = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      // cc_geo_, cc_geo2_ y cc_geo3_ sí; cc_geo4_ es la que se usa hoy.
+      if (k && /^cc_geo(|2|3)_/.test(k)) muertas.push(k);
+    }
+    muertas.forEach((k) => localStorage.removeItem(k));
+  } catch (e) {
+    /* si el navegador no deja, no pasa nada */
+  }
+  guardado.set(CLAVE_LIMPIEZA, "1");
+}
+
 let estado = {
   rio: null, // altura del hidrómetro en metros
   rioOrigen: "",
@@ -1633,9 +1655,9 @@ function ubicarmeEnMapa() {
       Object.values(pinDe).forEach((el) => el.classList.remove("cerca"));
       if (pinDe[cerca.nombre]) pinDe[cerca.nombre].classList.add("cerca");
       if (mapa)
-        // Con un array plano [a, b] MapLibre lo toma como [sw, ne] al pie de la
+        // MapLibre toma un array plano [a, b] como [sw, ne] al pie de la
         // letra: si vienen al revés arma un bounds invertido y se va al mundo
-        // entero (zoom -0.15). Mapbox lo normalizaba solo; MapLibre no.
+        // entero (zoom -0.15). Por eso se construye con extend().
         mapa.fitBounds(
           new maplibregl.LngLatBounds(miPos, miPos).extend(cerca.coord),
           { padding: 70, maxZoom: 14 },
@@ -1735,6 +1757,7 @@ function pintarTelefonos() {
 
 /* ================= ARRANQUE ================= */
 function iniciar() {
+  limpiarGuardadoViejo();
   const sel = document.getElementById("sel-zona");
   sel.innerHTML =
     '<option value="" disabled selected>Elegí dónde vivís…</option>' +

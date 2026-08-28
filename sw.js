@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v17";
+const VERSION = "cota-cero-v19";
 const ESENCIALES = [
   "/",
   "/index.html",
@@ -24,6 +24,14 @@ const ESENCIALES = [
   // y pesados), así que sale el fondo liso, pero los 30 puntos se ven igual.
   "/vendor/maplibre-gl.js",
   "/vendor/maplibre-gl.css",
+  // Las tipografías ahora son nuestras: precacheadas andan sin conexión de
+  // verdad, no con los fallbacks del sistema.
+  "/vendor/fonts/barlow-600.woff2",
+  "/vendor/fonts/barlow-700.woff2",
+  "/vendor/fonts/inter-400.woff2",
+  "/vendor/fonts/inter-700.woff2",
+  "/vendor/fonts/jetbrains-400.woff2",
+  "/vendor/fonts/jetbrains-700.woff2",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",
@@ -127,11 +135,7 @@ self.addEventListener("fetch", (e) => {
         .then((r) => {
           if (
             r.ok &&
-            (url.origin === location.origin ||
-              url.hostname.includes("gstatic") ||
-              // Faltaba: sin el CSS de googleapis las tipografías no cargan
-              // offline aunque los archivos de gstatic sí estén guardados.
-              url.hostname.includes("fonts.googleapis.com"))
+            url.origin === location.origin
           ) {
             const copia = r.clone();
             caches.open(VERSION).then((c) => c.put(req, copia));

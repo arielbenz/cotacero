@@ -4,27 +4,34 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Cota Cero — Santa Fe</title>
     <meta
       name="description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe." />
+      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe."
+    />
     <meta name="theme-color" content="#0B1418" />
     <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
          difundir esto. Si le ponés dominio propio, conviene pasar og:image y
          og:url a URL absoluta. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cota Cero" />
-    <meta property="og:title" content="Cota Cero — ¿hasta dónde llega el agua?" />
+    <meta
+      property="og:title"
+      content="Cota Cero — ¿hasta dónde llega el agua?"
+    />
     <meta
       property="og:description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe." />
+      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
+    />
     <meta property="og:image" content="/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe" />
+      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe"
+    />
     <meta property="og:locale" content="es_AR" />
     <meta property="og:url" content="/" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -36,14 +43,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent" />
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Cota Cero" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Las tipografías van self-hosteadas en /vendor/fonts. Precargamos las
+         dos que se ven arriba de todo, para que el encabezado no parpadee. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet" />
+      rel="preload"
+      href="/vendor/fonts/barlow-700.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/vendor/fonts/inter-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <!-- El motor del mapa (MapLibre, self-hosteado en /vendor) no va acá:
          bloqueaba la primera pintura de toda la app, teléfonos de emergencia
          incluidos, por una pestaña que quizá nadie abra. Se carga recién al
@@ -57,7 +76,8 @@
         class="tema"
         type="button"
         data-accion="tema"
-        aria-label="Cambiar entre tema claro y oscuro"></button>
+        aria-label="Cambiar entre tema claro y oscuro"
+      ></button>
       <div class="marca">Cota<span>Cero</span></div>
       <div class="sub" id="subtitulo">
         Emergencia hídrica · Santa Fe · vigente hasta 30/04/2027
@@ -116,7 +136,9 @@
           <ul class="pasos grave">
             <li><b>30 cm</b> de corriente arrastran a una persona.</li>
             <li><b>60 cm</b> arrastran un vehículo.</li>
-            <li>Abajo no se ve el pozo, la cloaca abierta ni el cable caído.</li>
+            <li>
+              Abajo no se ve el pozo, la cloaca abierta ni el cable caído.
+            </li>
           </ul>
         </div>
         <p class="chico">
@@ -128,7 +150,12 @@
     </noscript>
 
     <!-- ======================= RÍO ======================= -->
-    <section class="vista on" id="v-rio" aria-label="Nivel del río" tabindex="-1">
+    <section
+      class="vista on"
+      id="v-rio"
+      aria-label="Nivel del río"
+      tabindex="-1"
+    >
       <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
         <div class="titu">¿Hasta dónde llega el agua?</div>
         <p class="chico" style="margin: 0">
@@ -161,7 +188,8 @@
             <div
               class="leyenda-item"
               id="lg-cota-wrap"
-              style="border-color: var(--tierra); display: none">
+              style="border-color: var(--tierra); display: none"
+            >
               <div class="v" id="lg-cota">—</div>
               <div class="k" id="lg-cota-k">
                 Tu cota, traducida a lectura de hidrómetro
@@ -173,7 +201,8 @@
           class="chico"
           id="origen-dato"
           role="status"
-          style="margin-top: 10px"></div>
+          style="margin-top: 10px"
+        ></div>
       </div>
 
       <!-- Sin cota cargada, la app no puede responder su propia pregunta.
@@ -190,7 +219,8 @@
             font-size: 16px;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-          ">
+          "
+        >
           Cargar el nivel a mano
         </summary>
         <p class="chico" style="margin: 11px 0">
@@ -246,8 +276,8 @@
     <section class="vista" id="v-cota" aria-label="Mi cota" tabindex="-1">
       <h2>¿Hasta dónde llega el agua?</h2>
       <p class="chico">
-        El hidrómetro dice cuánto subió el agua. Tu cota dice si esa agua
-        llega a tu casa. Acá se cruzan los dos.
+        El hidrómetro dice cuánto subió el agua. Tu cota dice si esa agua llega
+        a tu casa. Acá se cruzan los dos.
       </p>
 
       <div class="tarjeta">
@@ -277,9 +307,7 @@
           <button class="btn sec" data-accion="cota-gps">
             Usar mi ubicación
           </button>
-          <button
-            class="btn sec"
-            data-accion="abrir-dir">
+          <button class="btn sec" data-accion="abrir-dir">
             Buscar dirección
           </button>
         </div>
@@ -306,8 +334,8 @@
             <p style="margin: 8px 0 0">
               Tiene un error de varios metros en terreno llano, y acá estamos
               midiendo márgenes de centímetros. Además está referida al geoide
-              EGM2008 y no al cero del IGN, así que puede arrastrar un
-              desfasaje fijo de decenas de centímetros.
+              EGM2008 y no al cero del IGN, así que puede arrastrar un desfasaje
+              fijo de decenas de centímetros.
             </p>
           </details>
         </div>
@@ -318,7 +346,12 @@
     </section>
 
     <!-- ======================= MI PLAN ======================= -->
-    <section class="vista" id="v-plan" aria-label="Mi plan familiar" tabindex="-1">
+    <section
+      class="vista"
+      id="v-plan"
+      aria-label="Mi plan familiar"
+      tabindex="-1"
+    >
       <h2>Plan familiar</h2>
       <p class="chico" id="resumen-plan" role="status"></p>
       <p class="chico">
@@ -343,13 +376,15 @@
           ><span>Quién se ocupa de qué</span>
           <textarea
             id="p-roles"
-            placeholder="Ej: Bet agarra la mochila y los documentos. Yo corto la luz y el gas. La perra va con Bet."></textarea>
+            placeholder="Ej: Bet agarra la mochila y los documentos. Yo corto la luz y el gas. La perra va con Bet."
+          ></textarea>
         </label>
         <label class="campo"
           ><span>Personas que necesitan ayuda para salir</span>
           <textarea
             id="p-ayuda"
-            placeholder="Ej: Mi vieja, 82 años, camina con andador. Vive a dos casas."></textarea>
+            placeholder="Ej: Mi vieja, 82 años, camina con andador. Vive a dos casas."
+          ></textarea>
         </label>
         <label class="campo"
           ><span>Animales</span>
@@ -360,7 +395,9 @@
         /></label>
       </div>
 
-      <h2>Mochila de emergencia <span class="cuenta" id="prog-mochila"></span></h2>
+      <h2>
+        Mochila de emergencia <span class="cuenta" id="prog-mochila"></span>
+      </h2>
       <p class="chico">
         Preparada durante toda la temporada de lluvias, en un lugar que todos
         conozcan.
@@ -370,7 +407,9 @@
       <h2>Antes de que suba <span class="cuenta" id="prog-previa"></span></h2>
       <div class="tarjeta" id="lista-previa"></div>
 
-      <button class="btn" data-accion="compartir">Compartir por WhatsApp</button>
+      <button class="btn" data-accion="compartir">
+        Compartir por WhatsApp
+      </button>
       <button class="btn sec" data-accion="exportar">
         Descargar el plan (.txt)
       </button>
@@ -379,7 +418,8 @@
         class="chico"
         id="estado-guardado"
         role="status"
-        style="text-align: center"></p>
+        style="text-align: center"
+      ></p>
     </section>
 
     <!-- ======================= DÓNDE IR ======================= -->
@@ -417,12 +457,12 @@
           <ul class="pasos grave">
             <li><b>30 cm</b> de corriente arrastran a una persona.</li>
             <li><b>60 cm</b> arrastran un vehículo.</li>
-            <li>Abajo no se ve el pozo, la cloaca abierta ni el cable caído.</li>
+            <li>
+              Abajo no se ve el pozo, la cloaca abierta ni el cable caído.
+            </li>
           </ul>
         </div>
-        <p class="chico">
-          Antes de salir:
-        </p>
+        <p class="chico">Antes de salir:</p>
         <ul class="pasos">
           <li>Cortá la llave general de luz y la del gas.</li>
           <li>Llevá los documentos en bolsa de nylon cerrada.</li>
@@ -478,8 +518,9 @@
           id="sug-texto"
           data-input="sug-texto"
           maxlength="600"
-          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."></textarea
-      ></label>
+          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."
+        ></textarea>
+      </label>
       <p class="chico" id="sug-cuenta" style="margin: -8px 0 12px"></p>
 
       <label class="campo"
@@ -489,15 +530,20 @@
           id="sug-contacto"
           maxlength="120"
           autocomplete="off"
-          placeholder="Sólo si querés respuesta" /></label
-      >
+          placeholder="Sólo si querés respuesta"
+      /></label>
       <p class="chico" style="margin: -8px 0 12px">
         <b>No pongas tu dirección.</b> Esto sí sale de tu teléfono: es lo único
         de la app que se guarda en un servidor junto con lo que escribas.
       </p>
 
       <button class="btn" data-accion="sug-enviar">Enviar</button>
-      <p class="chico" id="sug-estado" role="status" style="margin: 4px 0 0"></p>
+      <p
+        class="chico"
+        id="sug-estado"
+        role="status"
+        style="margin: 4px 0 0"
+      ></p>
     </details>
 
     <div class="pie">
@@ -507,6 +553,26 @@
       Niveles de alerta y evacuación según FICH-UNL y Prefectura Naval
       Argentina.<br />
       <span id="version"></span>
+
+      <div class="firma">
+        Hecho por <b>Ariel Benz</b>
+        <span class="redes">
+          <a
+            href="https://x.com/arielbenz"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ariel Benz en X"
+            >X</a
+          >
+          <a
+            href="https://www.instagram.com/ariel.front/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ariel Benz en Instagram"
+            >Instagram</a
+          >
+        </span>
+      </div>
     </div>
 
     <nav aria-label="Secciones">

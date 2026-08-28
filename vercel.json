@@ -84,7 +84,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://wms.ign.gob.ar; connect-src 'self' https://wms.ign.gob.ar https://nominatim.openstreetmap.org https://api.open-meteo.com https://flood-api.open-meteo.com"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.ign.gob.ar; connect-src 'self' https://wms.ign.gob.ar https://nominatim.openstreetmap.org https://api.open-meteo.com https://flood-api.open-meteo.com"
         }
       ]
     }

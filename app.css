@@ -1,4 +1,87 @@
 /* ==========================================================================
+   TIPOGRAFÍAS
+   Self-hosteadas, subset latin (cubre todos los acentos del español, ¿ y ¡).
+   Se bajaban de Google: eso era una hoja de estilos de terceros bloqueando el
+   render, dos dominios más en la CSP, y tipografías que no cargaban del todo
+   sin conexión.
+   Sólo las seis caras que el CSS realmente usa. Antes se pedían ocho: sobraba
+   Barlow 500 y faltaba Inter 700, así que TODA negrita del cuerpo era un bold
+   sintético —el navegador engordando la 400— justo en las frases que la app
+   marca como importantes.
+   ========================================================================== */
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/vendor/fonts/barlow-600.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/vendor/fonts/barlow-700.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/vendor/fonts/inter-400.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/vendor/fonts/inter-700.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/vendor/fonts/jetbrains-400.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/vendor/fonts/jetbrains-700.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+/* ==========================================================================
    TEMAS
    El claro no es preferencia estética: esta app se usa parada en la vereda,
    de día, mirando el agua, y un tema oscuro a pleno sol se lee mucho peor.
@@ -1035,6 +1118,38 @@ nav button span {
   margin-top: 22px;
   line-height: 1.6;
 }
+/* Una herramienta que dice "no tiene vínculo con organismos oficiales"
+   gana en que se vea quién responde por ella. */
+.firma {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--linea);
+  font-size: 12.5px;
+}
+.firma b {
+  color: var(--texto);
+  font-weight: 600;
+}
+.firma .redes {
+  display: inline-flex;
+  gap: 7px;
+  margin-left: 6px;
+}
+.firma .redes a {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 4px 9px;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  color: var(--agua-claro);
+}
+.firma .redes a:hover {
+  border-color: var(--agua-claro);
+}
+
 .pie a {
   color: var(--agua-claro);
 }

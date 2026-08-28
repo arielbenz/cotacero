@@ -78,9 +78,10 @@ nacional. Es un servicio TMS (la Y se cuenta desde abajo): de ahí
 `scheme: "tms"` en el estilo. Como el basemap es claro y la app oscura, se
 invierte por CSS sobre el canvas de los tiles.
 
-Antes esto era Mapbox GL, que exigía token y facturaba por *map load* pasado
-el tramo gratis — con el modo de falla de caerse justo cuando la app se
-comparte durante una crecida. Ya no hay token en el repo.
+El motor del mapa va self-hosteado en `vendor/`. **No usar un proveedor con
+clave y cuota**: el modo de falla es caerse justo cuando la app se comparte
+durante una crecida, que es cuando importa. No hay ningún token en el repo ni
+hace falta.
 
 La búsqueda de dirección usa Nominatim (OpenStreetMap), una consulta por
 búsqueda que inicia la persona. Cuando resuelve la calle pero no la altura
@@ -99,11 +100,12 @@ Para actualizarlas:
       ?service=WFS&version=1.0.0&request=GetFeature
       &typeName=publico:puntos_de_encuentro&outputFormat=application/json
 
-Antes esto se geocodificaba en runtime con Mapbox y salía mal: seis puntos
-quedaban a más de 90 km, y diez en la calle homónima de otro municipio
-(Santo Tomé, Recreo, Sauce Viejo). El listado publicado en prensa además
-tenía 29 puntos; el oficial tiene 30. Faltaba **Vecinal Pro Mejoras Alto
-Verde**, en un barrio que está fuera del anillo de defensas.
+**No volver a geocodificar estas direcciones en runtime.** Se probó y salía
+mal: seis puntos quedaban a más de 90 km, y diez en la calle homónima de otro
+municipio (Santo Tomé, Recreo, Sauce Viejo) — "Santa Fe" es ciudad y provincia
+a la vez y los geocodificadores se van a Rosario. El listado publicado en
+prensa además tenía 29 puntos; el oficial tiene 30. Faltaba **Vecinal Pro
+Mejoras Alto Verde**, en un barrio fuera del anillo de defensas.
 
 Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
 `api/` se publica como una función de Vercel, y en Hobby hay un tope de 12.
