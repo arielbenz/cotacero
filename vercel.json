@@ -7,11 +7,32 @@
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
         },
-        { "key": "Service-Worker-Allowed", "value": "/" }
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
       ]
     },
     {
       "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(app.(js|css)|manifest.webmanifest)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/vendor/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -31,9 +52,37 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=(), payment=(), usb=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://wms.ign.gob.ar; connect-src 'self' https://wms.ign.gob.ar https://nominatim.openstreetmap.org https://api.open-meteo.com https://flood-api.open-meteo.com"
+        }
       ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/avisar",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/avisar",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/avisar",
+      "schedule": "0 21 * * *"
     }
   ]
 }

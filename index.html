@@ -10,6 +10,27 @@
       name="description"
       content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe." />
     <meta name="theme-color" content="#0B1418" />
+    <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
+         difundir esto. Si le ponés dominio propio, conviene pasar og:image y
+         og:url a URL absoluta. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Cota Cero — ¿hasta dónde llega el agua?" />
+    <meta
+      property="og:description"
+      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe." />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Sin esto los select y los spinners de input[type=number] se dibujan
+         con el tema claro del sistema sobre un fondo oscuro. -->
+    <meta name="color-scheme" content="dark" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -24,658 +45,11 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet" />
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css"
-      rel="stylesheet" />
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
-    <style>
-      :root {
-        --fondo: #0b1418;
-        --panel: #101e24;
-        --panel-2: #16292f;
-        --linea: #223a42;
-        --texto: #e6edef;
-        --tenue: #7e959d;
-        --agua: #2e9bc4;
-        --agua-claro: #5fc8e8;
-        --tierra: #c9a227;
-        --alerta: #e8a33d;
-        --peligro: #d94f3d;
-        --ok: #4fa88b;
-        --display: "Barlow Condensed", system-ui, sans-serif;
-        --data: "JetBrains Mono", ui-monospace, monospace;
-        --body: "Inter", system-ui, -apple-system, sans-serif;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html,
-      body {
-        background: var(--fondo);
-        color: var(--texto);
-        font-family: var(--body);
-        -webkit-text-size-adjust: 100%;
-      }
-      body {
-        padding-bottom: calc(72px + env(safe-area-inset-bottom));
-        line-height: 1.5;
-        font-size: 15px;
-      }
-      button,
-      input,
-      select,
-      textarea {
-        font-family: inherit;
-        font-size: inherit;
-        color: inherit;
-      }
-      :focus-visible {
-        outline: 2px solid var(--agua-claro);
-        outline-offset: 2px;
-        border-radius: 3px;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        * {
-          animation: none !important;
-          transition: none !important;
-        }
-      }
-
-      /* ---------- cabecera ---------- */
-      .top {
-        padding: 18px 18px 12px;
-        border-bottom: 1px solid var(--linea);
-        position: relative;
-        overflow: hidden;
-      }
-      .top::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 1px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--agua),
-          transparent
-        );
-        opacity: 0.5;
-      }
-      .marca {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 30px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        line-height: 0.95;
-      }
-      .marca span {
-        color: var(--agua-claro);
-      }
-      .sub {
-        font-family: var(--data);
-        font-size: 10.5px;
-        color: var(--tenue);
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
-        margin-top: 5px;
-      }
-
-      /* ---------- estructura ---------- */
-      .vista {
-        display: none;
-        padding: 18px;
-        max-width: 640px;
-        margin: 0 auto;
-      }
-      .vista.on {
-        display: block;
-      }
-      h2 {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 23px;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        margin: 26px 0 10px;
-      }
-      h2:first-child {
-        margin-top: 4px;
-      }
-      h3 {
-        font-family: var(--display);
-        font-weight: 600;
-        font-size: 17px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--tenue);
-        margin: 18px 0 8px;
-      }
-      p {
-        margin: 0 0 11px;
-      }
-      .chico {
-        font-size: 13px;
-        color: var(--tenue);
-      }
-      .tarjeta {
-        background: var(--panel);
-        border: 1px solid var(--linea);
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 14px;
-      }
-      .eti {
-        font-family: var(--data);
-        font-size: 10px;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--tenue);
-        display: block;
-        margin-bottom: 6px;
-      }
-      .dato {
-        font-family: var(--data);
-        font-weight: 700;
-        font-size: 30px;
-        line-height: 1.1;
-      }
-      .unidad {
-        font-size: 14px;
-        color: var(--tenue);
-        font-weight: 400;
-      }
-
-      /* ---------- regla / hidrómetro (elemento firma) ---------- */
-      .regla-caja {
-        display: flex;
-        gap: 16px;
-        align-items: stretch;
-        margin: 6px 0 4px;
-      }
-      .regla {
-        position: relative;
-        width: 74px;
-        flex: none;
-        background: var(--panel-2);
-        border: 1px solid var(--linea);
-        border-radius: 8px;
-        overflow: hidden;
-        min-height: 300px;
-      }
-      .agua {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-          180deg,
-          rgba(95, 200, 232, 0.55),
-          rgba(46, 155, 196, 0.22)
-        );
-        border-top: 2px solid var(--agua-claro);
-        transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .agua::before {
-        content: "";
-        position: absolute;
-        top: -2px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--agua-claro);
-        box-shadow: 0 0 12px var(--agua-claro);
-      }
-      .marca-linea {
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 0;
-        border-top: 1px dashed currentColor;
-        transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .marca-linea b {
-        position: absolute;
-        right: 3px;
-        top: -14px;
-        font-family: var(--data);
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        background: var(--fondo);
-        padding: 1px 3px;
-        border-radius: 2px;
-      }
-      .tic {
-        position: absolute;
-        left: 0;
-        width: 9px;
-        height: 1px;
-        background: var(--linea);
-      }
-      .tic.mayor {
-        width: 16px;
-        background: var(--tenue);
-      }
-      .tic-num {
-        position: absolute;
-        left: 19px;
-        font-family: var(--data);
-        font-size: 8.5px;
-        color: var(--tenue);
-        transform: translateY(-50%);
-      }
-      .leyenda {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 13px;
-      }
-      .leyenda-item {
-        border-left: 3px solid;
-        padding-left: 11px;
-      }
-      .leyenda-item .v {
-        font-family: var(--data);
-        font-weight: 700;
-        font-size: 19px;
-        line-height: 1.15;
-      }
-      .leyenda-item .k {
-        font-size: 11.5px;
-        color: var(--tenue);
-        line-height: 1.35;
-        margin-top: 2px;
-      }
-
-      /* ---------- veredicto ---------- */
-      .veredicto {
-        border-radius: 12px;
-        padding: 17px;
-        margin-bottom: 14px;
-        border: 1px solid;
-      }
-      .veredicto .titu {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 25px;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        line-height: 1.05;
-        margin-bottom: 7px;
-      }
-      .v-ok {
-        background: rgba(79, 168, 139, 0.11);
-        border-color: rgba(79, 168, 139, 0.45);
-      }
-      .v-ok .titu {
-        color: var(--ok);
-      }
-      .v-alerta {
-        background: rgba(232, 163, 61, 0.11);
-        border-color: rgba(232, 163, 61, 0.45);
-      }
-      .v-alerta .titu {
-        color: var(--alerta);
-      }
-      .v-peligro {
-        background: rgba(217, 79, 61, 0.13);
-        border-color: rgba(217, 79, 61, 0.5);
-      }
-      .v-peligro .titu {
-        color: var(--peligro);
-      }
-      .v-neutro {
-        background: var(--panel);
-        border-color: var(--linea);
-      }
-
-      /* ---------- controles ---------- */
-      label.campo {
-        display: block;
-        margin-bottom: 13px;
-      }
-      label.campo > span {
-        font-family: var(--data);
-        font-size: 10px;
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
-        color: var(--tenue);
-        display: block;
-        margin-bottom: 5px;
-      }
-      input[type="text"],
-      input[type="number"],
-      select,
-      textarea {
-        width: 100%;
-        background: var(--panel-2);
-        border: 1px solid var(--linea);
-        border-radius: 8px;
-        padding: 11px 12px;
-        font-family: var(--data);
-      }
-      textarea {
-        font-family: var(--body);
-        resize: vertical;
-        min-height: 64px;
-      }
-      input[type="range"] {
-        width: 100%;
-        accent-color: var(--agua);
-      }
-      .btn {
-        background: var(--agua);
-        color: #03181f;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 15.5px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 9px;
-      }
-      .btn:active {
-        transform: translateY(1px);
-      }
-      .btn.sec {
-        background: transparent;
-        color: var(--texto);
-        border: 1px solid var(--linea);
-      }
-      .btn.mini {
-        width: auto;
-        padding: 8px 13px;
-        font-size: 13px;
-      }
-      .fila {
-        display: flex;
-        gap: 9px;
-      }
-      .fila > * {
-        flex: 1;
-        margin-bottom: 9px;
-      }
-
-      /* ---------- pronóstico ---------- */
-      .dias {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        margin-top: 4px;
-      }
-      .dia {
-        background: var(--panel-2);
-        border-radius: 7px;
-        padding: 8px 3px;
-        text-align: center;
-        border: 1px solid transparent;
-      }
-      .dia.fuerte {
-        border-color: var(--alerta);
-      }
-      .dia .d {
-        font-family: var(--data);
-        font-size: 9px;
-        color: var(--tenue);
-        text-transform: uppercase;
-      }
-      .dia .mm {
-        font-family: var(--data);
-        font-weight: 700;
-        font-size: 14px;
-        margin-top: 3px;
-      }
-      .dia .mm.hay {
-        color: var(--agua-claro);
-      }
-      .dia .mm.fuerte {
-        color: var(--alerta);
-      }
-
-      /* ---------- listas ---------- */
-      .chk {
-        display: flex;
-        gap: 11px;
-        align-items: flex-start;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--linea);
-        cursor: pointer;
-      }
-      .chk:last-child {
-        border-bottom: none;
-      }
-      .chk input {
-        margin-top: 2px;
-        width: 19px;
-        height: 19px;
-        flex: none;
-        accent-color: var(--ok);
-      }
-      .chk span {
-        flex: 1;
-        font-size: 14.5px;
-      }
-      .chk input:checked + span {
-        color: var(--tenue);
-        text-decoration: line-through;
-      }
-      .punto {
-        display: block;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--linea);
-        color: inherit;
-        text-decoration: none;
-      }
-      .punto:last-child {
-        border-bottom: none;
-      }
-      .punto .n {
-        font-family: var(--display);
-        font-weight: 600;
-        font-size: 17px;
-        letter-spacing: 0.02em;
-      }
-      .punto .d {
-        font-size: 12.5px;
-        color: var(--tenue);
-        margin-top: 1px;
-      }
-      .punto .ir {
-        font-family: var(--data);
-        font-size: 10px;
-        color: var(--agua-claro);
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        margin-top: 3px;
-        display: inline-block;
-      }
-
-      /* ---------- avisos ---------- */
-      .aviso {
-        border-left: 3px solid var(--alerta);
-        background: rgba(232, 163, 61, 0.08);
-        padding: 11px 13px;
-        border-radius: 0 8px 8px 0;
-        font-size: 13px;
-        margin-bottom: 13px;
-      }
-      .aviso.grave {
-        border-color: var(--peligro);
-        background: rgba(217, 79, 61, 0.09);
-      }
-      .aviso b {
-        color: var(--alerta);
-      }
-      .aviso.grave b {
-        color: var(--peligro);
-      }
-      .tel {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--linea);
-        color: inherit;
-        text-decoration: none;
-      }
-      .tel:last-child {
-        border-bottom: none;
-      }
-      .tel .q {
-        font-size: 14.5px;
-      }
-      .tel .n {
-        font-family: var(--data);
-        font-weight: 700;
-        font-size: 17px;
-        color: var(--agua-claro);
-      }
-
-      /* ---------- mapa ---------- */
-      #mapa {
-        width: 100%;
-        height: 340px;
-        border-radius: 12px;
-        border: 1px solid var(--linea);
-        margin-bottom: 14px;
-        background: var(--panel-2);
-      }
-      .mapboxgl-popup-content {
-        background: var(--panel);
-        color: var(--texto);
-        border: 1px solid var(--linea);
-        border-radius: 9px;
-        padding: 11px 13px;
-        font-family: var(--body);
-      }
-      .mapboxgl-popup-content strong {
-        font-family: var(--display);
-        font-size: 16px;
-        letter-spacing: 0.02em;
-      }
-      .mapboxgl-popup-tip {
-        border-top-color: var(--panel) !important;
-        border-bottom-color: var(--panel) !important;
-      }
-      .mapboxgl-popup-close-button {
-        color: var(--tenue);
-        font-size: 18px;
-      }
-      .pin {
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background: var(--agua);
-        border: 2px solid var(--fondo);
-        box-shadow: 0 0 0 1px var(--agua);
-        cursor: pointer;
-      }
-      .pin.cerca {
-        background: var(--ok);
-        width: 21px;
-        height: 21px;
-        box-shadow:
-          0 0 0 1px var(--ok),
-          0 0 14px var(--ok);
-      }
-      .pin.yo {
-        background: var(--tierra);
-        box-shadow: 0 0 0 1px var(--tierra);
-      }
-      .punto.destacado {
-        background: rgba(79, 168, 139, 0.09);
-        border-radius: 8px;
-        padding-left: 10px;
-        padding-right: 10px;
-        border-bottom-color: transparent;
-      }
-
-      /* ---------- tendencia ---------- */
-      .tend {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .tend .flecha {
-        font-size: 27px;
-        line-height: 1;
-        font-family: var(--data);
-        font-weight: 700;
-      }
-      .sparkline {
-        width: 100%;
-        height: 46px;
-        margin-top: 9px;
-        display: block;
-      }
-
-      /* ---------- navegación ---------- */
-      nav {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        background: rgba(11, 20, 24, 0.96);
-        backdrop-filter: blur(12px);
-        border-top: 1px solid var(--linea);
-        padding-bottom: env(safe-area-inset-bottom);
-        z-index: 50;
-      }
-      nav button {
-        flex: 1;
-        background: none;
-        border: none;
-        padding: 11px 2px 12px;
-        cursor: pointer;
-        color: var(--tenue);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-      }
-      nav button.on {
-        color: var(--agua-claro);
-      }
-      nav button svg {
-        width: 21px;
-        height: 21px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-      }
-      nav button i {
-        font-family: var(--data);
-        font-size: 9px;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-        font-style: normal;
-      }
-      .pie {
-        padding: 22px 18px 30px;
-        text-align: center;
-        font-size: 11.5px;
-        color: var(--tenue);
-        border-top: 1px solid var(--linea);
-        margin-top: 22px;
-        line-height: 1.6;
-      }
-      .pie a {
-        color: var(--agua-claro);
-      }
-    </style>
+    <!-- El motor del mapa (MapLibre, self-hosteado en /vendor) no va acá:
+         bloqueaba la primera pintura de toda la app, teléfonos de emergencia
+         incluidos, por una pestaña que quizá nadie abra. Se carga recién al
+         entrar a "Dónde ir". -->
+    <link rel="stylesheet" href="/app.css" />
   </head>
   <body>
     <header class="top">
@@ -685,9 +59,70 @@
       </div>
     </header>
 
+    <!-- La app anda sin conexión, pero no lo decía: sólo avisaba que el dato
+         del río estaba vencido. -->
+    <div id="sin-conexion" role="status" hidden></div>
+
+    <noscript>
+      <style>
+        .vista,
+        nav {
+          display: none !important;
+        }
+      </style>
+      <div style="padding: 18px; max-width: 640px; margin: 0 auto">
+        <div class="aviso grave">
+          <b>Esta página necesita JavaScript</b> para leer el nivel del río y
+          calcular tu cota. Lo que no puede depender de eso es esto:
+        </div>
+        <h2>Teléfonos</h2>
+        <div class="tarjeta">
+          <a class="tel" href="tel:911"
+            ><span class="q"
+              >Emergencias (centraliza Bomberos, Defensa Civil, Policía)</span
+            ><span class="n">911</span></a
+          >
+          <a class="tel" href="tel:100"
+            ><span class="q">Bomberos</span><span class="n">100</span></a
+          >
+          <a class="tel" href="tel:103"
+            ><span class="q">Defensa Civil</span><span class="n">103</span></a
+          >
+          <a class="tel" href="tel:106"
+            ><span class="q">Emergencias náuticas — Prefectura</span
+            ><span class="n">106</span></a
+          >
+          <a class="tel" href="tel:3424562400"
+            ><span class="q">Prefectura Santa Fe</span
+            ><span class="n">342 456-2400</span></a
+          >
+          <a class="tel" href="tel:08007775000"
+            ><span class="q">Atención Ciudadana — Municipalidad</span
+            ><span class="n">0800-777-5000</span></a
+          >
+          <a class="tel" href="tel:08007770801"
+            ><span class="q">Gobierno de la Provincia</span
+            ><span class="n">0800-777-0801</span></a
+          >
+        </div>
+        <h2>Si tenés que salir</h2>
+        <div class="aviso grave">
+          <b>No cruces agua en movimiento</b>, ni a pie ni en auto. Treinta
+          centímetros de corriente arrastran una persona y sesenta arrastran un
+          vehículo. No se ve el pozo, la tapa de cloaca abierta ni el cable
+          caído debajo.
+        </div>
+        <p class="chico">
+          Cortá la llave general de luz y la del gas antes de irte. Llevá los
+          documentos en bolsa de nylon cerrada. Avisale a un vecino hacia dónde
+          vas. Si Defensa Civil o el municipio te dicen que salgas, salí.
+        </p>
+      </div>
+    </noscript>
+
     <!-- ======================= RÍO ======================= -->
-    <section class="vista on" id="v-rio">
-      <div id="veredicto-rio" class="veredicto v-neutro">
+    <section class="vista on" id="v-rio" aria-label="Nivel del río" tabindex="-1">
+      <div id="veredicto-rio" class="veredicto v-neutro" role="status">
         <div class="titu">Cargando</div>
         <p class="chico" style="margin: 0">
           Buscando el nivel del río y el pronóstico.
@@ -697,7 +132,10 @@
       <div class="tarjeta">
         <span class="eti">Hidrómetro · Dique 2, Puerto de Santa Fe</span>
         <div class="regla-caja">
-          <div class="regla" id="regla"></div>
+          <!-- Puro gráfico. Cada número que dibuja está como texto en la
+               leyenda de al lado, así que para un lector de pantalla esto
+               sólo sería ruido. -->
+          <div class="regla" id="regla" aria-hidden="true"></div>
           <div class="leyenda">
             <div class="leyenda-item" style="border-color: var(--agua-claro)">
               <div class="v" id="lg-actual">—</div>
@@ -718,12 +156,23 @@
               id="lg-cota-wrap"
               style="border-color: var(--tierra); display: none">
               <div class="v" id="lg-cota">—</div>
-              <div class="k">Tu cota, traducida a lectura de hidrómetro</div>
+              <div class="k" id="lg-cota-k">
+                Tu cota, traducida a lectura de hidrómetro
+              </div>
             </div>
           </div>
         </div>
-        <div class="chico" id="origen-dato" style="margin-top: 10px"></div>
+        <div
+          class="chico"
+          id="origen-dato"
+          role="status"
+          style="margin-top: 10px"></div>
       </div>
+
+      <!-- Sin cota cargada, la app no puede responder su propia pregunta.
+           Antes no lo decía en esta pestaña: el renglón "tu cota" simplemente
+           no aparecía. -->
+      <div id="cta-cota"></div>
 
       <details class="tarjeta" id="det-manual">
         <summary
@@ -743,30 +192,40 @@
         </p>
         <label class="campo"
           ><span>Altura del hidrómetro (m)</span>
+          <!-- type=text + inputmode: con type=number el navegador descarta
+               "3,40" y dejaba el campo vacío sin avisar nada. La app muestra
+               coma en todos lados; el campo tiene que aceptarla. -->
           <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="in-rio"
-            step="0.01"
-            min="-1"
-            max="10"
-            placeholder="3.00"
+            autocomplete="off"
+            placeholder="3,40"
         /></label>
-        <button class="btn" onclick="fijarRioManual()">Usar este valor</button>
-        <button class="btn sec" onclick="cargarRio()">
+        <button class="btn" data-accion="rio-manual">Usar este valor</button>
+        <button class="btn sec" data-accion="rio-auto">
           Volver al dato automático
         </button>
       </details>
-
-      <div class="tarjeta" id="tendencia">
-        <span class="eti">Tendencia</span>
-        <p class="chico" style="margin: 0">Cargando el modelo de caudal…</p>
-      </div>
 
       <h2>Lluvia prevista</h2>
       <div class="tarjeta">
         <span class="eti">Milímetros por día · próximos 7 días</span>
         <div class="dias" id="dias"></div>
         <p class="chico" style="margin: 11px 0 0" id="lluvia-resumen"></p>
+        <p class="chico" style="margin: 7px 0 0; color: var(--tenue)">
+          Las barras están a escala. La línea marca los <b>40 mm en un día</b>,
+          desde donde el desagote empieza a complicarse.
+        </p>
+      </div>
+
+      <!-- La tendencia va después de la lluvia: es caudal simulado en m³/s y
+           la propia tarjeta aclara que no sirve para decidir. Estaba arriba,
+           en el lugar de la información accionable. -->
+      <h2>Tendencia del caudal</h2>
+      <div class="tarjeta" id="tendencia">
+        <span class="eti">Tendencia</span>
+        <p class="chico" style="margin: 0">Cargando el modelo de caudal…</p>
       </div>
 
       <div class="aviso">
@@ -777,7 +236,7 @@
     </section>
 
     <!-- ======================= MI COTA ======================= -->
-    <section class="vista" id="v-cota">
+    <section class="vista" id="v-cota" aria-label="Mi cota" tabindex="-1">
       <h2>¿Hasta dónde llega el agua?</h2>
       <p class="chico">
         La altura del río y la altura de tu terreno son dos números distintos.
@@ -789,7 +248,7 @@
         <h3 style="margin-top: 0">1 · Dónde vivís</h3>
         <label class="campo"
           ><span>Zona</span>
-          <select id="sel-zona" onchange="calcular()"></select
+          <select id="sel-zona"></select
         ></label>
         <p class="chico" id="nota-zona"></p>
       </div>
@@ -800,25 +259,21 @@
         <label class="campo"
           ><span>Cota IGN (metros sobre el nivel del mar)</span>
           <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="in-cota"
-            step="0.01"
-            min="0"
-            max="40"
-            placeholder="16.00"
-            oninput="marcarCotaManual()"
+            autocomplete="off"
+            placeholder="16,00"
+            data-input="cota-manual"
         /></label>
 
         <div class="fila">
-          <button class="btn sec" onclick="estimarCota()">
+          <button class="btn sec" data-accion="cota-gps">
             Usar mi ubicación
           </button>
           <button
             class="btn sec"
-            onclick="
-              document.getElementById('caja-dir').style.display = 'block';
-              document.getElementById('in-dir').focus();
-            ">
+            data-accion="abrir-dir">
             Buscar dirección
           </button>
         </div>
@@ -830,27 +285,29 @@
               type="text"
               id="in-dir"
               placeholder="Ej: Risso 1745, Santa Fe"
-              onkeydown="if (event.key === 'Enter') buscarDireccion();"
           /></label>
-          <button class="btn sec" onclick="buscarDireccion()">Buscar</button>
+          <button class="btn sec" data-accion="buscar-dir">Buscar</button>
         </div>
 
-        <p class="chico" id="estado-cota"></p>
+        <p class="chico" id="estado-cota" role="status"></p>
 
         <div class="aviso" style="margin-top: 12px">
           <b>La estimación satelital no alcanza para decidir una evacuación.</b>
           Tiene un error de varios metros en terreno llano, y acá estamos
-          midiendo márgenes de centímetros. Sirve para empezar. El número que
+          midiendo márgenes de centímetros. Además está referida al geoide
+          EGM2008 y no al cero del IGN, así que puede arrastrar un desfasaje
+          fijo de decenas de centímetros. Sirve para empezar. El número que
           vale es el de un relevamiento topográfico, la escritura de tu terreno,
           o el que te dé el municipio.
         </div>
       </div>
 
-      <div id="resultado"></div>
+      <div id="resultado" role="status"></div>
+      <div id="avisos"></div>
     </section>
 
     <!-- ======================= MI PLAN ======================= -->
-    <section class="vista" id="v-plan">
+    <section class="vista" id="v-plan" aria-label="Mi plan familiar" tabindex="-1">
       <h2>Plan familiar</h2>
       <p class="chico">
         Se guarda en este teléfono. No se envía a ningún lado. Llenalo ahora,
@@ -891,38 +348,43 @@
         /></label>
       </div>
 
-      <h2>Mochila de emergencia</h2>
+      <h2>Mochila de emergencia <span class="cuenta" id="prog-mochila"></span></h2>
       <p class="chico">
         Preparada durante toda la temporada de lluvias, en un lugar que todos
         conozcan.
       </p>
       <div class="tarjeta" id="lista-mochila"></div>
 
-      <h2>Antes de que suba</h2>
+      <h2>Antes de que suba <span class="cuenta" id="prog-previa"></span></h2>
       <div class="tarjeta" id="lista-previa"></div>
 
-      <button class="btn" onclick="exportarPlan()">Descargar el plan</button>
-      <button class="btn sec" onclick="compartirPlan()">
-        Compartir por WhatsApp
+      <button class="btn" data-accion="compartir">Compartir por WhatsApp</button>
+      <button class="btn sec" data-accion="exportar">
+        Descargar el plan (.txt)
       </button>
-      <p class="chico" id="estado-guardado" style="text-align: center"></p>
+      <button class="btn sec" data-accion="imprimir">Imprimir el plan</button>
+      <p
+        class="chico"
+        id="estado-guardado"
+        role="status"
+        style="text-align: center"></p>
     </section>
 
     <!-- ======================= DÓNDE IR ======================= -->
-    <section class="vista" id="v-donde">
+    <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
       <h2>Puntos de encuentro</h2>
       <p class="chico">
-        Los 29 espacios que el municipio tiene conveniados dentro del Plan de
+        Los 30 espacios que el municipio tiene conveniados dentro del Plan de
         Contingencia. Cada uno tiene responsables capacitados del Gobierno de la
         Ciudad. Identificá el tuyo <b>antes</b> de necesitarlo y fijate cómo
         llegar sin pasar por zona baja.
       </p>
 
       <div id="mapa"></div>
-      <button class="btn sec" onclick="ubicarmeEnMapa()">
+      <button class="btn sec" data-accion="ubicarme">
         Mostrar el más cercano a mí
       </button>
-      <p class="chico" id="estado-mapa"></p>
+      <p class="chico" id="estado-mapa" role="status"></p>
 
       <label class="campo"
         ><span>Buscar</span>
@@ -930,7 +392,7 @@
           type="text"
           id="buscar-punto"
           placeholder="Nombre o calle"
-          oninput="filtrarPuntos()"
+          data-input="filtrar-puntos"
       /></label>
 
       <div class="tarjeta" id="lista-puntos"></div>
@@ -955,6 +417,10 @@
       </div>
     </section>
 
+    <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
+         papel y no se podía imprimir nada decente. -->
+    <pre id="plan-impreso" aria-hidden="true"></pre>
+
     <div class="pie">
       Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
       No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
@@ -964,1222 +430,38 @@
       <span id="version"></span>
     </div>
 
-    <nav>
-      <button class="on" onclick="ver('rio', this)">
-        <svg viewBox="0 0 24 24">
+    <nav aria-label="Secciones">
+      <button class="on" aria-current="true" data-accion="ver" data-vista="rio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M2 15c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
           <path d="M2 9c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
         </svg>
-        <i>Río</i>
+        <span>Río</span>
       </button>
-      <button onclick="ver('cota', this)">
-        <svg viewBox="0 0 24 24">
+      <button data-accion="ver" data-vista="cota">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M3 20h18" />
           <path d="M3 20l6-11 4 6 3-4 5 9" />
         </svg>
-        <i>Mi cota</i>
+        <span>Mi cota</span>
       </button>
-      <button onclick="ver('plan', this)">
-        <svg viewBox="0 0 24 24">
+      <button data-accion="ver" data-vista="plan">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M9 3h6v3H9z" />
           <path d="M6 6h12v15H6z" />
           <path d="M9 12l2 2 4-4" />
         </svg>
-        <i>Mi plan</i>
+        <span>Mi plan</span>
       </button>
-      <button onclick="ver('donde', this)">
-        <svg viewBox="0 0 24 24">
+      <button data-accion="ver" data-vista="donde">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z" />
           <circle cx="12" cy="10" r="2.5" />
         </svg>
-        <i>Dónde ir</i>
+        <span>Dónde ir</span>
       </button>
     </nav>
 
-    <script>
-      /* ==========================================================================
-   COTA CERO — Santa Fe
-   --------------------------------------------------------------------------
-   MODELO HIDROLÓGICO
-   El cero del hidrómetro del Puerto de Santa Fe está a ~8,20 m IGN.
-   Entonces:   cota del agua (IGN) = lectura del hidrómetro + 8,20
-   El río tiene pendiente natural: aguas arriba el mismo evento da cota más alta.
-   Pendiente ~0,045 m por km.
-   Verificación con la crecida de junio 1992:
-     puerto 7,43 m -> 15,62 IGN.  Arroyo Leyes, 24 km arriba:
-     15,62 + (0,045 x 24) = 16,70 IGN  <- coincide con el valor publicado.
-   Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m.
-   ========================================================================== */
-
-      /* ==========  CONFIGURACIÓN  ==========
-   Lo único que tenés que tocar para poner esto en marcha. */
-      const CONFIG = {
-        // Tu token público de Mapbox (empieza con pk.)
-        MAPBOX_TOKEN:
-          "pk.eyJ1IjoiYXJpZWxiZW56IiwiYSI6ImNtcG9ubXZhdzA1d2IycnE2dnBxdDVzcmQifQ.LcGzu92FCvUSoQBKdB2Tuw",
-
-        // La funcion serverless que lee el nivel del INA.
-        // En local con `vercel dev`: '/api/nivel' funciona igual.
-        NIVEL_ENDPOINT: "/api/nivel",
-      };
-
-      const CERO_IGN = 8.2;
-      const PENDIENTE = 0.045;
-      const ALERTA = 5.3;
-      const EVACUACION = 5.7;
-      const ESCALA_MIN = 0;
-      const ESCALA_MAX = 8;
-      const ERROR_DEM = 3.0; // incertidumbre del modelo satelital, en metros
-
-      /* Distancia sobre el río desde el hidrómetro del puerto, en km.
-   ATENCIÓN: sólo Arroyo Leyes (24 km) está publicado. El resto son
-   estimaciones propias y conviene ajustarlas midiendo sobre el cauce. */
-      const ZONAS = [
-        {
-          id: "centro",
-          n: "Santa Fe — centro / puerto",
-          km: 0,
-          nota: "Dentro del anillo de defensas.",
-        },
-        {
-          id: "altoverde",
-          n: "Alto Verde",
-          km: 2,
-          nota: "Fuera del anillo de defensas.",
-        },
-        {
-          id: "guadalupe",
-          n: "Guadalupe / Costanera Este",
-          km: 4,
-          nota: "Dentro del anillo, con sectores bajos.",
-        },
-        {
-          id: "vuelta",
-          n: "La Vuelta del Paraguayo",
-          km: 5,
-          nota: "Fuera del anillo. Evacúa temprano.",
-        },
-        { id: "laguardia", n: "La Guardia", km: 7, nota: "Fuera del anillo." },
-        { id: "colsur", n: "Colastiné Sur", km: 8, nota: "Fuera del anillo." },
-        {
-          id: "colnorte",
-          n: "Colastiné Norte",
-          km: 11,
-          nota: "Fuera del anillo. Zona históricamente expuesta.",
-        },
-        {
-          id: "rincon",
-          n: "San José del Rincón",
-          km: 16,
-          nota: "Defensa local propia.",
-        },
-        {
-          id: "leyes",
-          n: "Arroyo Leyes",
-          km: 24,
-          nota: "Defensa local a cota 17 IGN.",
-        },
-        {
-          id: "calchines",
-          n: "Santa Rosa de Calchines",
-          km: 40,
-          nota: "Estimación gruesa: verificá con la comuna.",
-        },
-        {
-          id: "otro",
-          n: "Otra zona — pongo los km a mano",
-          km: null,
-          nota: "",
-        },
-      ];
-
-      const MOCHILA = [
-        "Documentos de todos, en bolsa de nylon cerrada",
-        "Medicación habitual y recetas",
-        "Botiquín de primeros auxilios",
-        "Agua potable para tres días",
-        "Alimentos que no necesiten cocción ni frío",
-        "Linterna y pilas de repuesto",
-        "Radio a pilas (para cuando no haya luz ni datos)",
-        "Cargador y batería portátil cargada",
-        "Mantas y ropa de abrigo",
-        "Muda de ropa por persona",
-        "Pañales, mamadera y leche si hay bebés",
-        "Comida y correa de los animales",
-        "Efectivo en billetes chicos",
-        "Copia de llaves",
-        "Anotado: teléfonos en papel, por si se apaga el celular",
-      ];
-
-      const PREVIA = [
-        "Saber la cota de mi terreno",
-        "Elegir el punto de encuentro y probar el recorrido",
-        "Acordar quién hace qué el día que haya que salir",
-        "Guardar los documentos importantes en alto",
-        "Levantar del piso lo que se arruina con el agua",
-        "Fijarme dónde se corta la luz y el gas, y que otro más lo sepa",
-        "Limpiar la cuneta y el desagüe de la vereda",
-        "No dejar escombros ni ramas en la calle",
-        "Hablar con los vecinos: quién necesita ayuda para salir",
-        "Cargar el celular y la batería portátil cuando anuncian tormenta",
-        "Tener a mano el número del contacto fuera de la zona",
-      ];
-
-      const PUNTOS = [
-        ["ASOEM Camping", "RP Nº 1 - km 2.5"],
-        ["Asoc. Vecinal Sarmiento", "Vieytes 5047"],
-        ["Boca del Tigre", "J.J. Paso y Zavalla"],
-        ["Bochas Club Mitre", "Gral. López 3815"],
-        ["Bomberos Voluntarios Las Flores", "Av. Blas Parera 8700"],
-        ["Capilla Nuestra Señora de la Guardia", "A. de Petre y H. Serafina"],
-        ["Cementerio Municipal", "Av. Blas Parera 5401"],
-        ["Centro Comunitario Noreste", "Defensa y French"],
-        ["CIC Facundo Zuviría", "Av. Facundo Zuviría 8002 / Azcuénaga"],
-        ["CIC Roca", "Pasaje Roca y República de Siria"],
-        ["Cilsa", "Mar Argentino y R11"],
-        ["Club Banco Provincia", "Av. Aristóbulo del Valle 9958"],
-        ["Club Cabal", "Servando Bayo 6730"],
-        ["Distrito La Costa", "RP Nº 1 - km 2.7"],
-        ["Estación Colastiné Norte", "Las Macluras y Orquídeas"],
-        ["Estación Mitre (Andenes)", "Gral. López y San Juan"],
-        ["Estación San Lorenzo", "Entre Ríos 4080"],
-        ["Jardín Botánico Ing. Lorenzo Parodi", "Av. Gorriti 3902"],
-        ["La Virgencita", "RN 168 y calle Principal"],
-        ["Mediateca", "Pje. Mitre y Tucumán"],
-        ["Parada de ómnibus (La Guardia/Colastiné)", "Ruta 1 y Favaloro"],
-        ["Polideportivo La Tablada", "Teniente Loza 6970"],
-        ["Talleres Municipales", "Pte. Perón 3575"],
-        ["Vecinal Centenario", "Zavalía 711"],
-        ["Vecinal Facundo Quiroga", "Almafuerte 7739"],
-        ["Vecinal Guadalupe Oeste", "Risso 1745"],
-        ["Vecinal Juan de Garay", "Salvador Caputto 3955"],
-        ["Vecinal Las Delicias", "Alfonsina Storni 3100"],
-        ["Vecinal Santa Marta", "Chubut 6291"],
-      ];
-
-      const TELEFONOS = [
-        ["Emergencias (centraliza Bomberos, Defensa Civil, Policía)", "911"],
-        ["Bomberos", "100"],
-        ["Defensa Civil", "103"],
-        ["Emergencias náuticas — Prefectura", "106"],
-        ["Prefectura Santa Fe", "342 456-2400"],
-        ["Atención Ciudadana — Municipalidad", "0800-777-5000"],
-        ["Gobierno de la Provincia", "0800-777-0801"],
-      ];
-
-      /* ---------- almacenamiento con degradación elegante ----------
-   localStorage falla en algunos visores embebidos y en modo privado.
-   Si falla, seguimos en memoria: la app funciona igual durante la sesión. */
-      const guardado = (() => {
-        let ok = true,
-          mem = {};
-        try {
-          localStorage.setItem("_t", "1");
-          localStorage.removeItem("_t");
-        } catch (e) {
-          ok = false;
-        }
-        return {
-          ok,
-          get(k) {
-            try {
-              return ok ? localStorage.getItem(k) : mem[k];
-            } catch (e) {
-              return mem[k];
-            }
-          },
-          set(k, v) {
-            try {
-              ok ? localStorage.setItem(k, v) : (mem[k] = v);
-            } catch (e) {
-              mem[k] = v;
-            }
-          },
-        };
-      })();
-
-      let estado = {
-        rio: null, // altura del hidrómetro en metros
-        rioOrigen: "",
-        cota: null, // cota IGN del terreno
-        cotaEsEstimada: false,
-        zona: "centro",
-        kmManual: null,
-        lluvia: null,
-      };
-
-      /* ---------------- navegación ---------------- */
-      function ver(id, btn) {
-        document
-          .querySelectorAll(".vista")
-          .forEach((v) => v.classList.remove("on"));
-        document.getElementById("v-" + id).classList.add("on");
-        document
-          .querySelectorAll("nav button")
-          .forEach((b) => b.classList.remove("on"));
-        btn.classList.add("on");
-        window.scrollTo(0, 0);
-      }
-
-      /* ---------------- utilidades ---------------- */
-      const m = (v) =>
-        v == null || isNaN(v) ? "—" : v.toFixed(2).replace(".", ",") + " m";
-      const kmDeZona = () => {
-        if (estado.zona === "otro") return estado.kmManual ?? 0;
-        const z = ZONAS.find((z) => z.id === estado.zona);
-        return z ? (z.km ?? 0) : 0;
-      };
-
-      /* ================= NIVEL DEL RÍO =================
-   El INA publica el nivel de Santa Fe todos los días, pero sin CORS abierto:
-   el navegador no puede pedirlo directo. Por eso la fuente 1 es una funcion
-   serverless propia (api/nivel.js) que lo lee y lo reexpone.
-   Si eso falla, quedan el último valor guardado y la carga manual. */
-      async function cargarRio() {
-        document.getElementById("origen-dato").textContent =
-          "Buscando el nivel del río…";
-        let valor = null,
-          origen = "",
-          extra = "";
-
-        // Fuente 1: nuestra función que lee el reporte diario del INA
-        try {
-          const r = await fetch(CONFIG.NIVEL_ENDPOINT, { cache: "no-store" });
-          if (r.ok) {
-            const j = await r.json();
-            if (typeof j.altura === "number") {
-              valor = j.altura;
-              origen = "INA · Alerta Hidrológico Cuenca del Plata";
-              if (j.fecha_dato) extra = " Medición del " + j.fecha_dato + ".";
-              if (typeof j.delta === "number") estado.delta = j.delta;
-              guardado.set("cc_rio_auto", String(j.altura));
-              guardado.set("cc_rio_fecha", j.fecha_dato || "");
-            }
-          }
-        } catch (e) {
-          /* pasamos a la siguiente */
-        }
-
-        // Fuente 2: último valor automático conocido
-        if (valor === null) {
-          const a = guardado.get("cc_rio_auto");
-          if (a) {
-            valor = parseFloat(a);
-            origen = "último dato del INA guardado";
-            extra = " Puede estar desactualizado.";
-          }
-        }
-
-        // Fuente 3: último valor que cargó la persona
-        if (valor === null) {
-          const g = guardado.get("cc_rio");
-          if (g) {
-            valor = parseFloat(g);
-            origen = "último valor cargado a mano";
-          }
-        }
-
-        if (valor === null) {
-          estado.rio = null;
-          estado.rioOrigen = "";
-          document.getElementById("origen-dato").innerHTML =
-            '<b style="color:var(--alerta)">Sin dato automático.</b> Cargá la altura a mano acá abajo. ' +
-            "La publican el INA, Prefectura y la FICH-UNL todos los días.";
-          document.getElementById("det-manual").open = true;
-        } else {
-          estado.rio = valor;
-          estado.rioOrigen = origen;
-          document.getElementById("origen-dato").innerHTML =
-            "Fuente: " + origen + "." + extra;
-        }
-        pintarRio();
-        calcular();
-      }
-
-      /* ---- Tendencia del caudal (GloFAS vía Open-Meteo) ----
-   Esto SÍ funciona sin servidor ni clave. Ojo: es caudal en m³/s, no altura
-   en metros. No sirve para decir "el río está en X", sí para ver si viene
-   subiendo o bajando, y trae 7 días de pronóstico. */
-      async function cargarTendencia() {
-        const caja = document.getElementById("tendencia");
-        try {
-          const u =
-            "https://flood-api.open-meteo.com/v1/flood?latitude=-31.63&longitude=-60.70" +
-            "&daily=river_discharge&past_days=30&forecast_days=7";
-          const r = await fetch(u);
-          const j = await r.json();
-          const serie = ((j.daily && j.daily.river_discharge) || []).filter(
-            (v) => typeof v === "number",
-          );
-          if (serie.length < 10) throw new Error("serie corta");
-
-          const hoyIdx = 30;
-          const hoy = serie[Math.min(hoyIdx, serie.length - 1)];
-          const haceUnaSemana = serie[Math.max(0, hoyIdx - 7)];
-          const futuro = serie[serie.length - 1];
-
-          const camb = ((hoy - haceUnaSemana) / haceUnaSemana) * 100;
-          const proy = ((futuro - hoy) / hoy) * 100;
-
-          let flecha, color, txt;
-          if (camb > 8) {
-            flecha = "↗";
-            color = "var(--alerta)";
-            txt = "Viene subiendo";
-          } else if (camb < -8) {
-            flecha = "↘";
-            color = "var(--ok)";
-            txt = "Viene bajando";
-          } else {
-            flecha = "→";
-            color = "var(--tenue)";
-            txt = "Estable";
-          }
-
-          caja.innerHTML = `<span class="eti">Caudal del Paraná · modelo GloFAS</span>
-      <div class="tend">
-        <div class="flecha" style="color:${color}">${flecha}</div>
-        <div>
-          <div style="font-family:var(--display);font-weight:700;font-size:20px;
-            letter-spacing:.03em;text-transform:uppercase;color:${color}">${txt}</div>
-          <div class="chico">${camb >= 0 ? "+" : ""}${camb.toFixed(0)}% en los últimos 7 días ·
-            proyección a 7 días: ${proy >= 0 ? "+" : ""}${proy.toFixed(0)}%</div>
-        </div>
-      </div>
-      ${sparkline(serie, hoyIdx)}
-      <p class="chico" style="margin:9px 0 0">Es caudal simulado en metros cúbicos por segundo,
-        no la altura del hidrómetro. Sirve para ver la tendencia, no para decidir.</p>`;
-        } catch (e) {
-          caja.innerHTML =
-            '<span class="eti">Tendencia</span>' +
-            '<p class="chico" style="margin:0">No se pudo cargar el modelo de caudal.</p>';
-        }
-      }
-
-      function sparkline(serie, corte) {
-        const w = 300,
-          h = 46,
-          min = Math.min(...serie),
-          max = Math.max(...serie),
-          rango = max - min || 1;
-        const px = (i) => (i / (serie.length - 1)) * w;
-        const py = (v) => h - ((v - min) / rango) * (h - 6) - 3;
-        const pasado = serie
-          .slice(0, corte + 1)
-          .map((v, i) => `${px(i)},${py(v)}`)
-          .join(" ");
-        const futuro = serie
-          .slice(corte)
-          .map((v, i) => `${px(i + corte)},${py(v)}`)
-          .join(" ");
-        return `<svg class="sparkline" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-    <polyline points="${pasado}" fill="none" stroke="var(--agua)" stroke-width="2"/>
-    <polyline points="${futuro}" fill="none" stroke="var(--agua-claro)"
-      stroke-width="2" stroke-dasharray="4 3"/>
-    <line x1="${px(corte)}" y1="0" x2="${px(corte)}" y2="${h}"
-      stroke="var(--linea)" stroke-width="1"/></svg>`;
-      }
-
-      function fijarRioManual() {
-        const v = parseFloat(document.getElementById("in-rio").value);
-        if (isNaN(v)) {
-          alert("Escribí un número, por ejemplo 3.40");
-          return;
-        }
-        estado.rio = v;
-        estado.rioOrigen = "cargado a mano";
-        guardado.set("cc_rio", String(v));
-        document.getElementById("origen-dato").textContent =
-          "Fuente: cargado a mano.";
-        document.getElementById("det-manual").open = false;
-        pintarRio();
-        calcular();
-      }
-
-      /* ---------------- la regla (elemento firma) ---------------- */
-      function pintarRio() {
-        const regla = document.getElementById("regla");
-        const pct = (v) => ((v - ESCALA_MIN) / (ESCALA_MAX - ESCALA_MIN)) * 100;
-        let html = "";
-
-        for (let t = ESCALA_MIN; t <= ESCALA_MAX; t += 0.5) {
-          const mayor = Number.isInteger(t);
-          html += `<div class="tic ${mayor ? "mayor" : ""}" style="bottom:${pct(t)}%"></div>`;
-          if (mayor)
-            html += `<div class="tic-num" style="bottom:${pct(t)}%">${t}</div>`;
-        }
-
-        const r = estado.rio;
-        html += `<div class="agua" style="height:${r == null ? 0 : Math.max(0, Math.min(100, pct(r)))}%"></div>`;
-        html += `<div class="marca-linea" style="bottom:${pct(ALERTA)}%;color:var(--alerta)"><b style="color:var(--alerta)">5,30</b></div>`;
-        html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro)"><b style="color:var(--peligro)">5,70</b></div>`;
-
-        // tu cota, traducida a lectura de hidrómetro
-        const critico = cotaEnHidrometro();
-        if (
-          critico !== null &&
-          critico >= ESCALA_MIN &&
-          critico <= ESCALA_MAX
-        ) {
-          html += `<div class="marca-linea" style="bottom:${pct(critico)}%;color:var(--tierra)">
-             <b style="color:var(--tierra)">vos</b></div>`;
-        }
-        regla.innerHTML = html;
-
-        document.getElementById("lg-actual").textContent =
-          r == null ? "sin dato" : m(r);
-        const wrap = document.getElementById("lg-cota-wrap");
-        if (critico !== null) {
-          wrap.style.display = "block";
-          document.getElementById("lg-cota").textContent = m(critico);
-        } else wrap.style.display = "none";
-
-        pintarVeredictoRio();
-      }
-
-      function pintarVeredictoRio() {
-        const c = document.getElementById("veredicto-rio");
-        const r = estado.rio;
-        if (r == null) {
-          c.className = "veredicto v-neutro";
-          c.innerHTML =
-            '<div class="titu">Falta el nivel del río</div>' +
-            '<p class="chico" style="margin:0">Cargalo a mano abajo para que el resto de la app funcione.</p>';
-          return;
-        }
-        let cls, titu, txt;
-        if (r >= EVACUACION) {
-          cls = "v-peligro";
-          titu = "Nivel de evacuación";
-          txt =
-            "El río superó los 5,70 m. Seguí las indicaciones de Defensa Civil y del municipio.";
-        } else if (r >= ALERTA) {
-          cls = "v-peligro";
-          titu = "Nivel de alerta";
-          txt =
-            "El río superó los 5,30 m. A esta altura arrancan las evacuaciones en los sectores fuera del anillo de defensas.";
-        } else if (r >= 4.3) {
-          cls = "v-alerta";
-          titu = "Atención";
-          txt =
-            "Faltan " +
-            m(ALERTA - r).replace(" m", "") +
-            " m para el nivel de alerta. Buen momento para tener la mochila lista.";
-        } else {
-          cls = "v-ok";
-          titu = "Nivel normal";
-          txt =
-            "Faltan " +
-            m(ALERTA - r).replace(" m", "") +
-            " m para el nivel de alerta. Es el momento de prepararse, no de esperar.";
-        }
-        c.className = "veredicto " + cls;
-        c.innerHTML = `<div class="titu">${titu}</div>
-    <div class="dato" style="margin-bottom:6px">${m(r)}<span class="unidad"> en el puerto</span></div>
-    <p class="chico" style="margin:0">${txt}</p>`;
-      }
-
-      /* ================= LLUVIA ================= */
-      async function cargarLluvia() {
-        try {
-          const u =
-            "https://api.open-meteo.com/v1/forecast?latitude=-31.63&longitude=-60.70" +
-            "&daily=precipitation_sum&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=7";
-          const r = await fetch(u);
-          const j = await r.json();
-          estado.lluvia = j.daily;
-          pintarLluvia();
-        } catch (e) {
-          document.getElementById("dias").innerHTML =
-            '<p class="chico" style="grid-column:1/-1">No se pudo cargar el pronóstico. Revisá la conexión.</p>';
-        }
-      }
-
-      function pintarLluvia() {
-        const d = estado.lluvia;
-        if (!d) return;
-        const dd = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
-        let html = "",
-          total = 0,
-          pico = 0;
-        d.time.forEach((f, i) => {
-          const mm = d.precipitation_sum[i] ?? 0;
-          total += mm;
-          pico = Math.max(pico, mm);
-          const fecha = new Date(f + "T12:00:00");
-          const cls = mm >= 40 ? "fuerte" : mm >= 1 ? "hay" : "";
-          html += `<div class="dia ${mm >= 40 ? "fuerte" : ""}">
-      <div class="d">${dd[fecha.getDay()]}</div>
-      <div class="mm ${cls}">${mm >= 1 ? Math.round(mm) : "·"}</div></div>`;
-        });
-        document.getElementById("dias").innerHTML = html;
-        const res = document.getElementById("lluvia-resumen");
-        if (total < 5)
-          res.textContent =
-            "Semana seca: " + Math.round(total) + " mm acumulados.";
-        else if (pico >= 40)
-          res.innerHTML =
-            '<b style="color:var(--alerta)">Se esperan ' +
-            Math.round(pico) +
-            " mm en un solo día.</b> Con el río alto, las bombas tardan más en desagotar.";
-        else
-          res.textContent = Math.round(total) + " mm acumulados en la semana.";
-      }
-
-      /* ================= CÁLCULO DE COTA ================= */
-      function cotaEnHidrometro() {
-        if (estado.cota == null) return null;
-        return estado.cota - CERO_IGN - PENDIENTE * kmDeZona();
-      }
-
-      function marcarCotaManual() {
-        const v = parseFloat(document.getElementById("in-cota").value);
-        estado.cota = isNaN(v) ? null : v;
-        estado.cotaEsEstimada = false;
-        guardado.set("cc_cota", isNaN(v) ? "" : String(v));
-        guardado.set("cc_cota_est", "0");
-        document.getElementById("estado-cota").textContent =
-          estado.cota == null ? "" : "Usando la cota que cargaste.";
-        calcular();
-        pintarRio();
-      }
-
-      async function estimarCota() {
-        const e = document.getElementById("estado-cota");
-        if (!navigator.geolocation) {
-          e.textContent = "Este navegador no da ubicación.";
-          return;
-        }
-        e.textContent = "Pidiendo tu ubicación…";
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const { latitude: la, longitude: lo } = pos.coords;
-            e.textContent = "Consultando el modelo de elevación…";
-            try {
-              const r = await fetch(
-                `https://api.open-meteo.com/v1/elevation?latitude=${la}&longitude=${lo}`,
-              );
-              const j = await r.json();
-              const alt = Array.isArray(j.elevation)
-                ? j.elevation[0]
-                : j.elevation;
-              if (typeof alt !== "number") throw new Error("sin dato");
-              estado.cota = alt;
-              estado.cotaEsEstimada = true;
-              document.getElementById("in-cota").value = alt.toFixed(2);
-              guardado.set("cc_cota", String(alt));
-              guardado.set("cc_cota_est", "1");
-              e.innerHTML =
-                "Estimación satelital: <b>" +
-                m(alt) +
-                "</b>. " +
-                "Es un punto de partida, no un dato de precisión.";
-              calcular();
-              pintarRio();
-            } catch (err) {
-              e.textContent =
-                "No se pudo obtener la elevación. Cargá la cota a mano.";
-            }
-          },
-          (err) => {
-            e.textContent =
-              "No diste permiso de ubicación. Podés cargar la cota a mano.";
-          },
-          { timeout: 12000 },
-        );
-      }
-
-      function calcular() {
-        const sel = document.getElementById("sel-zona");
-        if (sel) estado.zona = sel.value;
-
-        const z = ZONAS.find((z) => z.id === estado.zona);
-        const nz = document.getElementById("nota-zona");
-        if (estado.zona === "otro") {
-          nz.innerHTML =
-            '<label class="campo" style="margin-top:8px"><span>Km sobre el río, aguas arriba del puerto</span>' +
-            '<input type="number" id="in-km" step="1" min="0" max="120" value="' +
-            (estado.kmManual ?? 0) +
-            '" oninput="estado.kmManual=parseFloat(this.value)||0;calcular();pintarRio()"></label>';
-        } else {
-          nz.textContent =
-            (z ? z.nota : "") +
-            " A " +
-            kmDeZona() +
-            " km del hidrómetro, aguas arriba.";
-        }
-
-        const cont = document.getElementById("resultado");
-        if (estado.cota == null) {
-          cont.innerHTML =
-            '<div class="veredicto v-neutro"><div class="titu">Falta tu cota</div>' +
-            '<p class="chico" style="margin:0">Cargala arriba y calculo el resto.</p></div>';
-          pintarRio();
-          return;
-        }
-
-        const km = kmDeZona();
-        const critico = estado.cota - CERO_IGN - PENDIENTE * km;
-
-        // Con estimación satelital razonamos siempre con el escenario pesimista.
-        const cotaPeor = estado.cotaEsEstimada
-          ? estado.cota - ERROR_DEM
-          : estado.cota;
-        const criticoPeor = cotaPeor - CERO_IGN - PENDIENTE * km;
-
-        const r = estado.rio;
-        let html = "";
-
-        // veredicto
-        let cls = "v-ok",
-          titu = "",
-          txt = "";
-        const ref = criticoPeor;
-        if (r != null && r >= ref) {
-          cls = "v-peligro";
-          titu = "El agua ya está en tu cota";
-          txt =
-            "Con el río en " +
-            m(r) +
-            ", el nivel en tu zona alcanza o supera la cota que cargaste.";
-        } else if (ref <= ALERTA) {
-          cls = "v-peligro";
-          titu = "Te alcanza antes del nivel de alerta";
-          txt =
-            "El agua llega a tu cota con el hidrómetro en " +
-            m(ref) +
-            ", o sea <b>antes</b> de los 5,30 m " +
-            "que disparan el aviso general. No esperes la alerta oficial para moverte.";
-        } else if (ref <= EVACUACION) {
-          cls = "v-alerta";
-          titu = "Te alcanza en zona de evacuación";
-          txt =
-            "El agua llega a tu cota con el hidrómetro entre 5,30 y 5,70 m.";
-        } else if (ref <= 6.5) {
-          cls = "v-alerta";
-          titu = "Margen ajustado";
-          txt =
-            "El agua llega a tu cota con el hidrómetro en " +
-            m(ref) +
-            ". Está por encima del nivel de " +
-            "evacuación, pero dentro del escenario que el municipio dice estar planificando.";
-        } else {
-          cls = "v-ok";
-          titu = "Margen amplio";
-          txt =
-            "El agua llegaría a tu cota recién con el hidrómetro en " +
-            m(ref) +
-            ". Para dimensionar: el récord de 1992 fue 7,43 m.";
-        }
-
-        html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
-    <p style="margin:0 0 12px;font-size:14px">${txt}</p>
-    <span class="eti">El agua llega a tu cota cuando el hidrómetro marque</span>
-    <div class="dato">${m(ref)}</div></div>`;
-
-        // desglose
-        html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
-    <table style="width:100%;font-family:var(--data);font-size:13px;border-collapse:collapse">
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno</td>
-        <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
-    ${
-      estado.cotaEsEstimada
-        ? `<tr><td style="padding:6px 0;color:var(--alerta)">Margen de error satelital</td>
-        <td style="text-align:right;color:var(--alerta)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cota usada (la pesimista)</td>
-        <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
-        : ""
-    }
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cero del hidrómetro</td>
-        <td style="text-align:right">− ${CERO_IGN.toFixed(2).replace(".", ",")} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)</td>
-        <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
-    <tr style="border-top:1px solid var(--linea)">
-        <td style="padding:9px 0;font-weight:700">Lectura crítica</td>
-        <td style="text-align:right;font-weight:700;color:var(--agua-claro)">${m(ref)}</td></tr>
-    </table>`;
-
-        if (r != null) {
-          const falta = ref - r;
-          html += `<p class="chico" style="margin:12px 0 0">Hoy el río está en ${m(r)}.
-      ${
-        falta > 0
-          ? "Faltan <b>" + m(falta) + "</b> para llegar a tu cota."
-          : '<b style="color:var(--peligro)">Ya lo superó.</b>'
-      }</p>`;
-        }
-        html += "</div>";
-
-        if (estado.cotaEsEstimada) {
-          html +=
-            '<div class="aviso"><b>Estás usando una estimación satelital.</b> ' +
-            "El cálculo se hizo con el escenario pesimista (" +
-            ERROR_DEM.toFixed(0) +
-            " m menos que lo medido) " +
-            "justamente porque el dato no es confiable a este nivel de detalle. " +
-            "Conseguí la cota real y volvé a calcular: puede cambiar todo el resultado.</div>";
-        }
-
-        html +=
-          '<div class="aviso grave"><b>Esto es una estimación, no una orden.</b> ' +
-          "El modelo asume terreno parejo y no contempla el anillo de defensas, las bombas, " +
-          "el viento sur que empuja el agua, ni las lluvias que se acumulan del lado de adentro. " +
-          "Si el municipio o Defensa Civil indican evacuar, evacuá aunque acá diga que tenés margen.</div>";
-
-        cont.innerHTML = html;
-        pintarRio();
-      }
-
-      /* ================= PLAN ================= */
-      function pintarListas() {
-        const l1 = document.getElementById("lista-mochila");
-        l1.innerHTML = MOCHILA.map(
-          (t, i) =>
-            `<label class="chk"><input type="checkbox" data-k="mo${i}"><span>${t}</span></label>`,
-        ).join("");
-        const l2 = document.getElementById("lista-previa");
-        l2.innerHTML = PREVIA.map(
-          (t, i) =>
-            `<label class="chk"><input type="checkbox" data-k="pv${i}"><span>${t}</span></label>`,
-        ).join("");
-
-        document.querySelectorAll(".chk input").forEach((cb) => {
-          cb.checked = guardado.get("cc_" + cb.dataset.k) === "1";
-          cb.addEventListener("change", () => {
-            guardado.set("cc_" + cb.dataset.k, cb.checked ? "1" : "0");
-            avisarGuardado();
-          });
-        });
-
-        ["p-punto", "p-contacto", "p-roles", "p-ayuda", "p-animales"].forEach(
-          (id) => {
-            const el = document.getElementById(id);
-            el.value = guardado.get("cc_" + id) || "";
-            el.addEventListener("input", () => {
-              guardado.set("cc_" + id, el.value);
-              avisarGuardado();
-            });
-          },
-        );
-
-        if (!guardado.ok) {
-          document.getElementById("estado-guardado").innerHTML =
-            '<b style="color:var(--alerta)">Este navegador no deja guardar.</b> ' +
-            "Descargá el plan antes de cerrar la página.";
-        }
-      }
-      let tGuardado;
-      function avisarGuardado() {
-        if (!guardado.ok) return;
-        const e = document.getElementById("estado-guardado");
-        e.textContent = "Guardado en este teléfono.";
-        clearTimeout(tGuardado);
-        tGuardado = setTimeout(() => (e.textContent = ""), 2200);
-      }
-
-      function textoPlan() {
-        const g = (id) => document.getElementById(id).value.trim();
-        let t = "PLAN FAMILIAR ANTE CRECIDA — COTA CERO\n";
-        t += "Santa Fe · " + new Date().toLocaleDateString("es-AR") + "\n";
-        t += "====================================\n\n";
-        if (estado.cota != null) {
-          t +=
-            "Cota del terreno: " +
-            m(estado.cota) +
-            " IGN" +
-            (estado.cotaEsEstimada ? " (estimada)" : "") +
-            "\n";
-          t +=
-            "Zona: " + (ZONAS.find((z) => z.id === estado.zona) || {}).n + "\n";
-          t +=
-            "El agua llega a esta cota con el hidrómetro en: " +
-            m(cotaEnHidrometro()) +
-            "\n\n";
-        }
-        t += "Punto de encuentro: " + (g("p-punto") || "—") + "\n";
-        t += "Contacto fuera de la zona: " + (g("p-contacto") || "—") + "\n";
-        t += "Animales: " + (g("p-animales") || "—") + "\n\n";
-        if (g("p-roles")) t += "QUIÉN HACE QUÉ\n" + g("p-roles") + "\n\n";
-        if (g("p-ayuda"))
-          t += "NECESITAN AYUDA PARA SALIR\n" + g("p-ayuda") + "\n\n";
-        t += "MOCHILA — falta:\n";
-        const faltan = MOCHILA.filter(
-          (_, i) => guardado.get("cc_mo" + i) !== "1",
-        );
-        t += faltan.length
-          ? faltan.map((x) => "  [ ] " + x).join("\n")
-          : "  Completa.";
-        t += "\n\nTELÉFONOS\n";
-        TELEFONOS.forEach(([q, n]) => {
-          t += "  " + n + "  " + q + "\n";
-        });
-        t += "\nNo cruzar agua en movimiento, ni a pie ni en auto.\n";
-        return t;
-      }
-
-      function exportarPlan() {
-        const b = new Blob([textoPlan()], { type: "text/plain;charset=utf-8" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(b);
-        a.download = "plan-familiar-crecida.txt";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      }
-
-      function compartirPlan() {
-        const t = textoPlan();
-        if (navigator.share) {
-          navigator
-            .share({ title: "Plan familiar ante crecida", text: t })
-            .catch(() => {});
-        } else
-          window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank");
-      }
-
-      /* ================= MAPBOX ================= */
-      let mapa = null,
-        marcadores = [],
-        coordsPuntos = {},
-        miPos = null;
-
-      function tokenOk() {
-        return CONFIG.MAPBOX_TOKEN && CONFIG.MAPBOX_TOKEN.startsWith("pk.");
-      }
-
-      /* Geocodifica una dirección con Mapbox. Devuelve [lon,lat] o null.
-   Cachea en el dispositivo: las 29 direcciones se resuelven una sola vez. */
-      async function geocodificar(texto, cache = true) {
-        if (!tokenOk()) return null;
-        const clave = "cc_geo_" + texto.replace(/\s+/g, "_").slice(0, 60);
-        if (cache) {
-          const g = guardado.get(clave);
-          if (g) {
-            try {
-              return JSON.parse(g);
-            } catch (e) {}
-          }
-        }
-        try {
-          const u =
-            "https://api.mapbox.com/search/geocode/v6/forward" +
-            "?q=" +
-            encodeURIComponent(texto) +
-            "&country=ar&limit=1&proximity=-60.70,-31.63" +
-            "&access_token=" +
-            CONFIG.MAPBOX_TOKEN;
-          const r = await fetch(u);
-          const j = await r.json();
-          const f = j.features && j.features[0];
-          if (!f) return null;
-          const c = f.geometry.coordinates;
-          if (cache) guardado.set(clave, JSON.stringify(c));
-          return c;
-        } catch (e) {
-          return null;
-        }
-      }
-
-      async function elevacionDe(lat, lon) {
-        try {
-          const r = await fetch(
-            `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`,
-          );
-          const j = await r.json();
-          const a = Array.isArray(j.elevation) ? j.elevation[0] : j.elevation;
-          return typeof a === "number" ? a : null;
-        } catch (e) {
-          return null;
-        }
-      }
-
-      async function buscarDireccion() {
-        const q = document.getElementById("in-dir").value.trim();
-        const e = document.getElementById("estado-cota");
-        if (!q) {
-          e.textContent = "Escribí una dirección.";
-          return;
-        }
-        if (!tokenOk()) {
-          e.innerHTML =
-            '<b style="color:var(--alerta)">Falta el token de Mapbox</b> en CONFIG.';
-          return;
-        }
-        e.textContent = "Buscando la dirección…";
-        const c = await geocodificar(q + ", Santa Fe, Argentina", false);
-        if (!c) {
-          e.textContent =
-            "No se encontró esa dirección. Probá con calle y altura.";
-          return;
-        }
-        e.textContent = "Consultando la elevación…";
-        const alt = await elevacionDe(c[1], c[0]);
-        if (alt === null) {
-          e.textContent = "Se encontró la dirección pero no la elevación.";
-          return;
-        }
-        estado.cota = alt;
-        estado.cotaEsEstimada = true;
-        document.getElementById("in-cota").value = alt.toFixed(2);
-        guardado.set("cc_cota", String(alt));
-        guardado.set("cc_cota_est", "1");
-        e.innerHTML =
-          "Estimación satelital para esa dirección: <b>" +
-          m(alt) +
-          "</b>. Es un punto de partida, no un dato de precisión.";
-        calcular();
-        pintarRio();
-      }
-
-      async function armarMapa() {
-        const cont = document.getElementById("mapa");
-        if (!tokenOk()) {
-          cont.innerHTML =
-            '<div style="padding:18px"><p class="chico">Para ver el mapa, ' +
-            "poné tu token público de Mapbox en <code>CONFIG.MAPBOX_TOKEN</code>. " +
-            "Mientras tanto, la lista de abajo funciona igual.</p></div>";
-          return;
-        }
-        mapboxgl.accessToken = CONFIG.MAPBOX_TOKEN;
-        mapa = new mapboxgl.Map({
-          container: "mapa",
-          style: "mapbox://styles/mapbox/dark-v11",
-          center: [-60.7, -31.63],
-          zoom: 11,
-        });
-        mapa.addControl(
-          new mapboxgl.NavigationControl({ showCompass: false }),
-          "top-right",
-        );
-
-        document.getElementById("estado-mapa").textContent =
-          "Ubicando los puntos de encuentro…";
-        let listos = 0;
-        for (const [n, d] of PUNTOS) {
-          const c = await geocodificar(d + ", Santa Fe, Argentina");
-          if (!c) continue;
-          coordsPuntos[n] = c;
-          listos++;
-          const el = document.createElement("div");
-          el.className = "pin";
-          el.dataset.nombre = n;
-          const mk = new mapboxgl.Marker(el)
-            .setLngLat(c)
-            .setPopup(
-              new mapboxgl.Popup({ offset: 14 }).setHTML(
-                `<strong>${n}</strong><br><span style="font-size:13px;color:#7E959D">${d}</span>`,
-              ),
-            )
-            .addTo(mapa);
-          marcadores.push({ nombre: n, dir: d, coord: c, el });
-        }
-        document.getElementById("estado-mapa").textContent =
-          listos + " de " + PUNTOS.length + " puntos ubicados en el mapa.";
-        pintarPuntos();
-      }
-
-      function distanciaKm(a, b) {
-        const R = 6371,
-          dLat = ((b[1] - a[1]) * Math.PI) / 180,
-          dLon = ((b[0] - a[0]) * Math.PI) / 180;
-        const x =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos((a[1] * Math.PI) / 180) *
-            Math.cos((b[1] * Math.PI) / 180) *
-            Math.sin(dLon / 2) ** 2;
-        return 2 * R * Math.asin(Math.sqrt(x));
-      }
-
-      function ubicarmeEnMapa() {
-        const e = document.getElementById("estado-mapa");
-        if (!navigator.geolocation) {
-          e.textContent = "Este navegador no da ubicación.";
-          return;
-        }
-        e.textContent = "Pidiendo tu ubicación…";
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            miPos = [pos.coords.longitude, pos.coords.latitude];
-            if (mapa) {
-              const el = document.createElement("div");
-              el.className = "pin yo";
-              new mapboxgl.Marker(el)
-                .setLngLat(miPos)
-                .setPopup(
-                  new mapboxgl.Popup({ offset: 14 }).setHTML(
-                    "<strong>Estás acá</strong>",
-                  ),
-                )
-                .addTo(mapa);
-            }
-            if (!marcadores.length) {
-              e.textContent = "Los puntos todavía no están ubicados.";
-              return;
-            }
-            const orden = marcadores
-              .map((mk) => ({ ...mk, km: distanciaKm(miPos, mk.coord) }))
-              .sort((a, b) => a.km - b.km);
-            const cerca = orden[0];
-            marcadores.forEach((mk) => mk.el.classList.remove("cerca"));
-            cerca.el.classList.add("cerca");
-            if (mapa)
-              mapa.fitBounds([miPos, cerca.coord], {
-                padding: 70,
-                maxZoom: 14,
-              });
-            e.innerHTML =
-              "El más cercano es <b>" +
-              cerca.nombre +
-              "</b>, a " +
-              cerca.km.toFixed(1) +
-              " km en línea recta. <b>Fijate el recorrido real</b>: el camino más corto puede pasar por zona baja.";
-            pintarPuntos(
-              document.getElementById("buscar-punto").value,
-              cerca.nombre,
-            );
-          },
-          () => {
-            e.textContent = "No diste permiso de ubicación.";
-          },
-          { timeout: 12000 },
-        );
-      }
-
-      /* ================= LISTA DE PUNTOS ================= */
-      function pintarPuntos(filtro = "", destacar = null) {
-        const f = filtro.toLowerCase().trim();
-        const lista = PUNTOS.filter(
-          ([n, d]) =>
-            !f || n.toLowerCase().includes(f) || d.toLowerCase().includes(f),
-        );
-        const cont = document.getElementById("lista-puntos");
-        if (!lista.length) {
-          cont.innerHTML =
-            '<p class="chico">Ningún punto coincide con esa búsqueda.</p>';
-          return;
-        }
-        cont.innerHTML = lista
-          .map(([n, d]) => {
-            const c = coordsPuntos[n];
-            // geo: abre la app de mapas que la persona ya tenga en el teléfono
-            const href = c
-              ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${encodeURIComponent(n)})`
-              : `geo:0,0?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`;
-            const km =
-              miPos && c
-                ? " · " + distanciaKm(miPos, c).toFixed(1) + " km"
-                : "";
-            return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
-      onclick="verEnMapa('${n.replace(/'/g, "\\'")}');return true">
-      <div class="n">${n}${destacar === n ? ' <span style="color:var(--ok);font-size:12px">· el más cercano</span>' : ""}</div>
-      <div class="d">${d}${km}</div>
-      <span class="ir">Abrir en mapas →</span></a>`;
-          })
-          .join("");
-      }
-      function filtrarPuntos() {
-        pintarPuntos(document.getElementById("buscar-punto").value);
-      }
-      function verEnMapa(n) {
-        const c = coordsPuntos[n];
-        if (c && mapa) {
-          mapa.flyTo({ center: c, zoom: 15 });
-        }
-      }
-
-      function pintarTelefonos() {
-        document.getElementById("lista-tel").innerHTML = TELEFONOS.map(
-          ([q, n]) =>
-            `<a class="tel" href="tel:${n.replace(/[^0-9+]/g, "")}"><span class="q">${q}</span><span class="n">${n}</span></a>`,
-        ).join("");
-      }
-
-      /* ================= ARRANQUE ================= */
-      function iniciar() {
-        const sel = document.getElementById("sel-zona");
-        sel.innerHTML = ZONAS.map(
-          (z) => `<option value="${z.id}">${z.n}</option>`,
-        ).join("");
-
-        estado.zona = guardado.get("cc_zona") || "centro";
-        sel.value = estado.zona;
-        sel.addEventListener("change", () =>
-          guardado.set("cc_zona", sel.value),
-        );
-
-        const c = guardado.get("cc_cota");
-        if (c) {
-          estado.cota = parseFloat(c);
-          document.getElementById("in-cota").value = estado.cota.toFixed(2);
-          estado.cotaEsEstimada = guardado.get("cc_cota_est") === "1";
-          document.getElementById("estado-cota").textContent =
-            estado.cotaEsEstimada
-              ? "Usando una estimación satelital guardada."
-              : "Usando la cota que cargaste.";
-        }
-
-        const km = guardado.get("cc_km");
-        if (km) estado.kmManual = parseFloat(km);
-
-        pintarListas();
-        pintarPuntos();
-        pintarTelefonos();
-        pintarRio();
-        calcular();
-        cargarRio();
-        cargarLluvia();
-        cargarTendencia();
-        armarMapa();
-
-        document.getElementById("version").textContent =
-          "Actualizado " + new Date().toLocaleDateString("es-AR");
-      }
-
-      /* ================= PWA ================= */
-      let promptInstalar = null;
-      window.addEventListener("beforeinstallprompt", (ev) => {
-        ev.preventDefault();
-        promptInstalar = ev;
-        mostrarBotonInstalar();
-      });
-      function mostrarBotonInstalar() {
-        if (document.getElementById("btn-instalar")) return;
-        const b = document.createElement("button");
-        b.id = "btn-instalar";
-        b.className = "btn";
-        b.textContent = "Instalar en el telefono";
-        b.style.cssText =
-          "position:fixed;left:14px;right:14px;bottom:calc(78px + env(safe-area-inset-bottom));width:auto;z-index:60;box-shadow:0 6px 24px rgba(0,0,0,.5)";
-        b.onclick = async () => {
-          if (!promptInstalar) return;
-          promptInstalar.prompt();
-          await promptInstalar.userChoice;
-          promptInstalar = null;
-          b.remove();
-        };
-        document.body.appendChild(b);
-        setTimeout(() => b.remove(), 20000);
-      }
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch(() => {});
-        });
-      }
-      /* Deep links: /?ir=cota abre directo esa pestana */
-      function abrirDesdeURL() {
-        const ir = new URLSearchParams(location.search).get("ir");
-        if (!ir) return;
-        const i = { rio: 0, cota: 1, plan: 2, donde: 3 }[ir];
-        if (i === undefined) return;
-        const b = document.querySelectorAll("nav button")[i];
-        if (b) ver(ir, b);
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        iniciar();
-        abrirDesdeURL();
-      });
-    </script>
+    <script src="/app.js" defer></script>
   </body>
 </html>

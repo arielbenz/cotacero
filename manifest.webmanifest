@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Cota Cero — Santa Fe",
   "short_name": "Cota Cero",
   "description": "Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe.",
@@ -16,8 +17,32 @@
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshot-movil.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "El nivel del río en el hidrómetro del puerto, con los umbrales de alerta y evacuación"
+    },
+    {
+      "src": "/screenshot-ancho.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Cálculo de a qué lectura del hidrómetro el agua llega a tu terreno"
+    }
+  ],
   "shortcuts": [
-    { "name": "Mi cota", "url": "/?ir=cota" },
-    { "name": "Dónde ir", "url": "/?ir=donde" }
+    {
+      "name": "Mi cota",
+      "url": "/?ir=cota",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Dónde ir",
+      "url": "/?ir=donde",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

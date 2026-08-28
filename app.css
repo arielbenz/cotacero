@@ -1,0 +1,774 @@
+:root {
+  --fondo: #0b1418;
+  --panel: #101e24;
+  --panel-2: #16292f;
+  --linea: #223a42;
+  --texto: #e6edef;
+  --tenue: #7e959d;
+  --agua: #2e9bc4;
+  --agua-claro: #5fc8e8;
+  --tierra: #c9a227;
+  --alerta: #e8a33d;
+  --peligro: #d94f3d;
+  --ok: #4fa88b;
+  --display: "Barlow Condensed", system-ui, sans-serif;
+  --data: "JetBrains Mono", ui-monospace, monospace;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--body);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  line-height: 1.5;
+  font-size: 15px;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--agua-claro);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- cabecera ---------- */
+.top {
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid var(--linea);
+  position: relative;
+  overflow: hidden;
+}
+.top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--agua),
+    transparent
+  );
+  opacity: 0.5;
+}
+.marca {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+.marca span {
+  color: var(--agua-claro);
+}
+.sub {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--tenue);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* ---------- estructura ---------- */
+.vista {
+  display: none;
+  padding: 18px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.vista.on {
+  display: block;
+}
+h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 23px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 26px 0 10px;
+}
+h2:first-child {
+  margin-top: 4px;
+}
+.cuenta {
+  font-family: var(--data);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--tenue);
+  text-transform: none;
+}
+.cuenta.completa {
+  color: var(--ok);
+}
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  margin: 18px 0 8px;
+}
+p {
+  margin: 0 0 11px;
+}
+.chico {
+  font-size: 13px;
+  color: var(--tenue);
+}
+.tarjeta {
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.eti {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  display: block;
+  margin-bottom: 6px;
+}
+.dato {
+  font-family: var(--data);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.1;
+}
+.unidad {
+  font-size: 14px;
+  color: var(--tenue);
+  font-weight: 400;
+}
+
+/* ---------- regla / hidrómetro (elemento firma) ---------- */
+.regla-caja {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  margin: 6px 0 4px;
+}
+.regla {
+  position: relative;
+  width: 74px;
+  flex: none;
+  background: var(--panel-2);
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 300px;
+}
+.agua {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(95, 200, 232, 0.55),
+    rgba(46, 155, 196, 0.22)
+  );
+  border-top: 2px solid var(--agua-claro);
+  transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.agua::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--agua-claro);
+  box-shadow: 0 0 12px var(--agua-claro);
+}
+.marca-linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed currentColor;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.marca-linea b {
+  position: absolute;
+  right: 3px;
+  top: -14px;
+  font-family: var(--data);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--fondo);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+.tic {
+  position: absolute;
+  left: 0;
+  width: 9px;
+  height: 1px;
+  background: var(--linea);
+}
+.tic.mayor {
+  width: 16px;
+  background: var(--tenue);
+}
+.tic-num {
+  position: absolute;
+  left: 19px;
+  font-family: var(--data);
+  font-size: 10px;
+  color: var(--tenue);
+  transform: translateY(-50%);
+}
+.leyenda {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 13px;
+}
+.leyenda-item {
+  border-left: 3px solid;
+  padding-left: 11px;
+}
+.leyenda-item .v {
+  font-family: var(--data);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.15;
+}
+.leyenda-item .k {
+  font-size: 12.5px;
+  color: var(--tenue);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* ---------- veredicto ---------- */
+.veredicto {
+  border-radius: 12px;
+  padding: 17px;
+  margin-bottom: 14px;
+  border: 1px solid;
+}
+.veredicto .titu {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 25px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin-bottom: 7px;
+}
+.v-ok {
+  background: rgba(79, 168, 139, 0.11);
+  border-color: rgba(79, 168, 139, 0.45);
+}
+.v-ok .titu {
+  color: var(--ok);
+}
+.v-alerta {
+  background: rgba(232, 163, 61, 0.11);
+  border-color: rgba(232, 163, 61, 0.45);
+}
+.v-alerta .titu {
+  color: var(--alerta);
+}
+.v-peligro {
+  background: rgba(217, 79, 61, 0.13);
+  border-color: rgba(217, 79, 61, 0.5);
+}
+.v-peligro .titu {
+  color: var(--peligro);
+}
+.v-neutro {
+  background: var(--panel);
+  border-color: var(--linea);
+}
+
+/* ---------- controles ---------- */
+label.campo {
+  display: block;
+  margin-bottom: 13px;
+}
+label.campo > span {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  display: block;
+  margin-bottom: 5px;
+}
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-family: var(--data);
+}
+textarea {
+  font-family: var(--body);
+  resize: vertical;
+  min-height: 64px;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--agua);
+}
+.btn {
+  background: var(--agua);
+  color: #03181f;
+  border: none;
+  border-radius: 8px;
+  /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
+     objetivo táctil son 44. Con 12px quedaba en 43. */
+  padding: 13px 16px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 9px;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.sec {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--linea);
+}
+.btn.mini {
+  width: auto;
+  padding: 8px 13px;
+  font-size: 13px;
+}
+.fila {
+  display: flex;
+  gap: 9px;
+}
+.fila > * {
+  flex: 1;
+  margin-bottom: 9px;
+}
+
+/* ---------- pronóstico ---------- */
+.dias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+.dia {
+  background: var(--panel-2);
+  border-radius: 7px;
+  padding: 8px 3px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+.dia.fuerte {
+  border-color: var(--alerta);
+}
+.dia .d {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--tenue);
+  text-transform: uppercase;
+}
+.dia .mm {
+  font-family: var(--data);
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 3px;
+}
+.dia .mm.hay {
+  color: var(--agua-claro);
+}
+.dia .mm.fuerte {
+  color: var(--alerta);
+}
+/* Un número suelto no dice si 12 mm es mucho o poco. La barra da la escala y
+   la línea punteada marca el umbral de 40 mm. */
+.dia .barra {
+  position: relative;
+  height: 34px;
+  margin-top: 5px;
+  background: rgba(126, 149, 157, 0.14);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.dia .barra i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  background: var(--agua);
+}
+.dia.fuerte .barra i {
+  background: var(--alerta);
+}
+.dia .barra u {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed var(--alerta);
+  opacity: 0.55;
+}
+
+/* ---------- listas ---------- */
+.chk {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linea);
+  cursor: pointer;
+}
+.chk:last-child {
+  border-bottom: none;
+}
+.chk input {
+  margin-top: 2px;
+  width: 19px;
+  height: 19px;
+  flex: none;
+  accent-color: var(--ok);
+}
+.chk span {
+  flex: 1;
+  font-size: 14.5px;
+}
+.chk input:checked + span {
+  color: var(--tenue);
+  text-decoration: line-through;
+}
+.punto {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--linea);
+  color: inherit;
+  text-decoration: none;
+}
+.punto:last-child {
+  border-bottom: none;
+}
+.punto .n {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+}
+.punto .d {
+  font-size: 12.5px;
+  color: var(--tenue);
+  margin-top: 1px;
+}
+.punto .ir {
+  font-family: var(--data);
+  font-size: 11.5px;
+  color: var(--agua-claro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+/* ---------- avisos ---------- */
+.aviso {
+  border-left: 3px solid var(--alerta);
+  background: rgba(232, 163, 61, 0.08);
+  padding: 11px 13px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  margin-bottom: 13px;
+}
+.aviso.grave {
+  border-color: var(--peligro);
+  background: rgba(217, 79, 61, 0.09);
+}
+.aviso b {
+  color: var(--alerta);
+}
+.aviso.grave b {
+  color: var(--peligro);
+}
+.tel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--linea);
+  color: inherit;
+  text-decoration: none;
+}
+.tel:last-child {
+  border-bottom: none;
+}
+.tel .q {
+  font-size: 14.5px;
+}
+.tel .n {
+  font-family: var(--data);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--agua-claro);
+}
+
+/* ---------- mapa ---------- */
+/* El basemap del IGN es claro y la app es oscura. invert + hue-rotate(180)
+   invierte la luminosidad conservando los tonos: el agua sigue siendo azul y
+   los espacios verdes verdes, pero sobre fondo oscuro. Va sólo sobre el
+   canvas de los tiles; los pines y los controles son DOM aparte y no se
+   tocan. */
+#mapa .maplibregl-canvas {
+  /* saturate() baja el rojizo que deja la inversión sobre el beige urbano
+     del IGN: en una app que usa rojo para peligro, un mapa rojizo
+     confunde. El agua queda igual de reconocible. */
+  filter: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
+    contrast(0.9);
+}
+@media (prefers-contrast: more) {
+  #mapa .maplibregl-canvas {
+    filter: none;
+  }
+}
+#mapa {
+  width: 100%;
+  height: 340px;
+  border-radius: 12px;
+  border: 1px solid var(--linea);
+  margin-bottom: 14px;
+  background: var(--panel-2);
+}
+.maplibregl-popup-content {
+  background: var(--panel);
+  color: var(--texto);
+  border: 1px solid var(--linea);
+  border-radius: 9px;
+  padding: 11px 13px;
+  font-family: var(--body);
+}
+.maplibregl-popup-content strong {
+  font-family: var(--display);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+.maplibregl-popup-tip {
+  border-top-color: var(--panel) !important;
+  border-bottom-color: var(--panel) !important;
+}
+.maplibregl-popup-close-button {
+  color: var(--tenue);
+  font-size: 18px;
+}
+.pin {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--agua);
+  border: 2px solid var(--fondo);
+  box-shadow: 0 0 0 1px var(--agua);
+  cursor: pointer;
+}
+.pin.cerca {
+  background: var(--ok);
+  width: 21px;
+  height: 21px;
+  box-shadow:
+    0 0 0 1px var(--ok),
+    0 0 14px var(--ok);
+}
+.pin.yo {
+  background: var(--tierra);
+  box-shadow: 0 0 0 1px var(--tierra);
+}
+.punto.destacado {
+  background: rgba(79, 168, 139, 0.09);
+  border-radius: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-bottom-color: transparent;
+}
+
+/* ---------- tendencia ---------- */
+.tend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tend .flecha {
+  font-size: 27px;
+  line-height: 1;
+  font-family: var(--data);
+  font-weight: 700;
+}
+.sparkline {
+  width: 100%;
+  height: 46px;
+  margin-top: 9px;
+  display: block;
+}
+
+/* ---------- navegación ---------- */
+nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: rgba(11, 20, 24, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--linea);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 50;
+}
+nav button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 11px 2px 12px;
+  cursor: pointer;
+  color: var(--tenue);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+nav button.on {
+  color: var(--agua-claro);
+}
+nav button svg {
+  width: 21px;
+  height: 21px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+nav button span {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+#sin-conexion {
+  background: rgba(232, 163, 61, 0.14);
+  border-bottom: 1px solid rgba(232, 163, 61, 0.45);
+  color: var(--alerta);
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 9px 18px;
+  text-align: center;
+}
+#sin-conexion[hidden] {
+  display: none;
+}
+
+/* Barra de instalar: se queda hasta que la persona la cierre. Antes se
+   borraba sola a los 20 s y no volvía en toda la sesión. */
+.instalar {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+.instalar .btn {
+  margin: 0;
+  flex: 1;
+}
+.instalar .cerrar {
+  flex: none;
+  width: 46px;
+  border: none;
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--texto);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ---------- impresión ---------- */
+#plan-impreso {
+  display: none;
+}
+@media print {
+  /* Lo único que tiene sentido en papel es el plan, y en texto plano: los
+     campos de formulario se imprimen mal y los textarea se recortan. */
+  body > *:not(#plan-impreso) {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff;
+    color: #000;
+    padding: 0;
+  }
+  #plan-impreso {
+    display: block;
+    white-space: pre-wrap;
+    font-family: ui-monospace, monospace;
+    font-size: 11.5pt;
+    line-height: 1.45;
+    color: #000;
+    padding: 0;
+  }
+}
+
+.pie {
+  padding: 22px 18px 30px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--tenue);
+  border-top: 1px solid var(--linea);
+  margin-top: 22px;
+  line-height: 1.6;
+}
+.pie a {
+  color: var(--agua-claro);
+}
