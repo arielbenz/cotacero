@@ -285,6 +285,11 @@ let estado = {
   rioVencido: false, // el dato guardado ya no se puede presentar como vigente
   cota: null, // cota IGN del terreno
   cotaEsEstimada: false,
+  // "mano" | "gps" | "direccion". Antes sólo se guardaba si era estimada o
+  // no, y las dos estimaciones quedaban indistinguibles: una sacada del GPS
+  // es la altura del lugar donde estabas parado, que puede no ser tu casa.
+  cotaOrigen: "",
+  cotaDetalle: "", // la dirección encontrada, o la precisión del GPS
   zona: "centro",
   kmManual: null,
   lluvia: null,
@@ -855,6 +860,49 @@ function fijarKmManual(v) {
   pintarRio();
 }
 
+/* De dónde salió la cota que estamos usando. Lo consumen el renglón de
+   estado, el desglose del cálculo y el plan exportado, así que la respuesta
+   es siempre la misma en todos lados. */
+function origenCota() {
+  if (estado.cota == null) return null;
+  if (estado.cotaOrigen === "gps")
+    return {
+      corto: "tu ubicación de ese momento",
+      largo:
+        "Sale de <b>dónde estabas parado</b> cuando tocaste el botón" +
+        (estado.cotaDetalle ? " (" + atr(estado.cotaDetalle) + ")" : "") +
+        ". Si no era tu casa, este número no sirve.",
+      ojo: true,
+    };
+  if (estado.cotaOrigen === "direccion")
+    return {
+      corto: "una dirección buscada",
+      largo:
+        "Sale de la dirección <b>" +
+        atr(estado.cotaDetalle || "que buscaste") +
+        "</b>. Verificá que sea la tuya.",
+      ojo: false,
+    };
+  return { corto: "lo que cargaste a mano", largo: "", ojo: false };
+}
+
+/* Deja el renglón de estado diciendo SIEMPRE de dónde salió la cota, no sólo
+   justo después de la acción. */
+function pintarOrigenCota() {
+  const e = document.getElementById("estado-cota");
+  const o = origenCota();
+  if (!o) return (e.innerHTML = "");
+  e.innerHTML =
+    "Cota <b>" +
+    m(estado.cota) +
+    "</b>, tomada de " +
+    (o.ojo
+      ? '<b style="color:var(--alerta)">' + o.corto + "</b>"
+      : "<b>" + o.corto + "</b>") +
+    "." +
+    (o.largo ? " " + o.largo : "");
+}
+
 function marcarCotaManual() {
   const campo = document.getElementById("in-cota");
   const v = aNumero(campo.value);
@@ -871,10 +919,13 @@ function marcarCotaManual() {
   }
   estado.cota = isNaN(v) ? null : v;
   estado.cotaEsEstimada = false;
+  estado.cotaOrigen = isNaN(v) ? "" : "mano";
+  estado.cotaDetalle = "";
   guardado.set("cc_cota", isNaN(v) ? "" : String(v));
   guardado.set("cc_cota_est", "0");
-  document.getElementById("estado-cota").textContent =
-    estado.cota == null ? "" : "Usando la cota que cargaste.";
+  guardado.set("cc_cota_origen", estado.cotaOrigen);
+  guardado.set("cc_cota_detalle", "");
+  pintarOrigenCota();
   calcular();
   pintarRio();
 }
@@ -911,17 +962,15 @@ async function estimarCota() {
           if (typeof alt !== "number") throw new Error("sin dato");
           estado.cota = alt;
           estado.cotaEsEstimada = true;
+          estado.cotaOrigen = "gps";
+          estado.cotaDetalle =
+            typeof prec === "number" ? "±" + Math.round(prec) + " m" : "";
           document.getElementById("in-cota").value = enCampo(alt);
           guardado.set("cc_cota", String(alt));
           guardado.set("cc_cota_est", "1");
-          e.innerHTML =
-            "Estimación satelital: <b>" +
-            m(alt) +
-            "</b>" +
-            (typeof prec === "number"
-              ? " (ubicación con ±" + Math.round(prec) + " m de error)"
-              : "") +
-            ". Es un punto de partida, no un dato de precisión.";
+          guardado.set("cc_cota_origen", "gps");
+          guardado.set("cc_cota_detalle", estado.cotaDetalle);
+          pintarOrigenCota();
           calcular();
           pintarRio();
         } catch (err) {
@@ -1056,7 +1105,8 @@ function calcular() {
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
     <table style="width:100%;font-family:var(--data);font-size:13px;border-collapse:collapse">
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno</td>
+    <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno<br>
+        <span style="font-size:11px">según ${(origenCota() || {}).corto || "—"}</span></td>
   <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
     ${
       estado.cotaEsEstimada
@@ -1185,8 +1235,9 @@ function textoPlan() {
     t +=
       "Cota del terreno: " +
       m(estado.cota) +
-      " IGN" +
-      (estado.cotaEsEstimada ? " (estimada)" : "") +
+      " IGN, según " +
+      ((origenCota() || {}).corto || "—") +
+      (estado.cotaDetalle ? " (" + estado.cotaDetalle + ")" : "") +
       "\n";
     t +=
       "Zona: " +
@@ -1349,22 +1400,20 @@ async function buscarDireccion() {
   }
   estado.cota = alt;
   estado.cotaEsEstimada = true;
+  estado.cotaOrigen = "direccion";
+  // Guardamos qué encontró, no lo que la persona escribió: el geocodificador
+  // puede haber entendido otra cosa, y así se puede desmentir.
+  estado.cotaDetalle = r.nombre.split(",").slice(0, 4).join(",").trim();
   document.getElementById("in-cota").value = enCampo(alt);
   guardado.set("cc_cota", String(alt));
   guardado.set("cc_cota_est", "1");
-  // Mostramos qué encontró para que la persona pueda desmentirlo.
-  const donde = r.nombre.split(",").slice(0, 4).join(",");
-  e.innerHTML =
-    "Encontré: <b>" +
-    atr(donde) +
-    "</b>. " +
-    (r.exacta
-      ? ""
-      : '<b style="color:var(--alerta)">Ubicó la calle, no la altura exacta</b>, ' +
-        "así que puede estar a varias cuadras. Si no es tu casa, cargá la cota a mano. ") +
-    "Estimación satelital ahí: <b>" +
-    m(alt) +
-    "</b>. Es un punto de partida, no un dato de precisión.";
+  guardado.set("cc_cota_origen", "direccion");
+  guardado.set("cc_cota_detalle", estado.cotaDetalle);
+  pintarOrigenCota();
+  if (!r.exacta)
+    e.innerHTML +=
+      ' <b style="color:var(--alerta)">Ubicó la calle, no la altura exacta</b>, ' +
+      "así que puede estar a varias cuadras. Si no es tu casa, cargá la cota a mano.";
   calcular();
   pintarRio();
 }
@@ -1651,9 +1700,13 @@ function iniciar() {
     estado.cota = parseFloat(c);
     document.getElementById("in-cota").value = enCampo(estado.cota);
     estado.cotaEsEstimada = guardado.get("cc_cota_est") === "1";
-    document.getElementById("estado-cota").textContent = estado.cotaEsEstimada
-      ? "Usando una estimación satelital guardada."
-      : "Usando la cota que cargaste.";
+    // Antes acá se perdía el origen: al recargar, una cota del GPS y una de
+    // una dirección buscada decían exactamente lo mismo.
+    estado.cotaOrigen =
+      guardado.get("cc_cota_origen") ||
+      (estado.cotaEsEstimada ? "gps" : "mano");
+    estado.cotaDetalle = guardado.get("cc_cota_detalle") || "";
+    pintarOrigenCota();
   }
 
   const km = guardado.get("cc_km");
