@@ -1129,6 +1129,58 @@ nav button span {
   cursor: pointer;
 }
 
+/* ---------- hoja de instrucciones ---------- */
+/* Va en <dialog> por lo que trae gratis: foco atrapado, Escape para salir y
+   el resto de la página inerte para un lector de pantalla. Nada de eso sale
+   bien a mano. */
+.hoja {
+  /* El reset de arriba pone margin:0 en todo, y con eso se pierde el
+     margin:auto con el que el navegador centra un <dialog> modal: quedaba
+     pegado arriba a la izquierda. */
+  margin: auto;
+  border: none;
+  background: var(--panel);
+  color: var(--texto);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sombra);
+  padding: var(--e-5);
+  width: min(420px, calc(100vw - 32px));
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.hoja::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+.hoja h2 {
+  margin-top: 0;
+}
+.hoja ol {
+  margin: var(--e-4) 0;
+  padding-left: var(--e-5);
+}
+.hoja ol li {
+  margin-bottom: var(--e-3);
+}
+.hoja .aviso {
+  margin-bottom: var(--e-4);
+}
+/* Sin showModal() el <dialog> queda abierto pero NO modal, y por defecto se
+   posiciona en absoluto: se salía de la pantalla y empujaba el resto de la
+   página. Vuelve al flujo normal. */
+.hoja:not(:modal) {
+  position: static;
+  margin: var(--e-4) auto;
+}
+
+/* ---------- instalar, enlace del pie ---------- */
+.instalar-pie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e-2);
+  margin: 0 0 var(--e-5);
+}
+
 /* ---------- impresión ---------- */
 #plan-impreso {
   display: none;

@@ -174,6 +174,26 @@ que devuelven 404/410 se borran solas.
 **iOS.** Safari sólo permite avisos si la PWA está instalada en la pantalla
 de inicio. La app lo detecta y lo explica en vez de quedarse muda.
 
+## Instalar
+
+`beforeinstallprompt` existe sólo en Chromium, y aun ahí Chrome lo dispara
+cuando quiere. En iPhone no existe: Safari deja instalar únicamente desde su
+menú Compartir. Antes el botón dependía de ese evento, así que en iOS no
+aparecía nunca.
+
+Ahora hay dos caminos. Si el navegador ofrece el diálogo, se usa. Si no, el
+botón abre una hoja con los pasos del navegador que corresponda —Safari,
+Chrome/Edge en iPhone, Firefox, Chromium— y en iPhone fuera de Safari avisa
+que puede no estar la opción.
+
+Tres puertas de entrada: la barra flotante cuando llega el evento, la misma
+barra a los 2,5 s si no llegó y estamos en un móvil, y un enlace permanente en
+el pie que sobrevive a que la cierren. Todo se oculta si `display-mode:
+standalone` dice que ya está instalada.
+
+La hoja va en `<dialog>` por lo que trae gratis: foco atrapado, Escape y el
+resto de la página inerte para un lector de pantalla.
+
 ## Sugerencias
 
 Formulario plegado al pie, accesible desde cualquier pestaña. Abre con la
@@ -214,12 +234,18 @@ El día se corta en hora argentina (UTC-3 fijo, sin horario de verano): con el
 corte en UTC, todo lo que pasa entre las 21 y la medianoche caería en el día
 siguiente.
 
-**El tablero.** `GET /api/metricas?clave=...` con `METRICAS_CLAVE`. Devuelve
-HTML —activos de hoy / 7 / 30 días, los últimos 14 en barras, suscriptos a los
-avisos y las últimas 25 sugerencias— o JSON con `&formato=json`. Sin clave
-configurada no responde: es preferible que no funcione a que quede abierto.
-Compara en tiempo constante y responde 404, no 401, para no confirmar que
-existe.
+**El tablero.** `GET /api/metricas?clave=...` con `METRICAS_CLAVE`. Dos
+solapas: *Resumen* (activos de hoy / 7 / 30 días, los últimos 14 en barras,
+suscriptos a los avisos y las últimas 5 sugerencias) y *Sugerencias*
+(`&ver=sugerencias`, hasta 200, con el desglose por categoría). Con
+`&formato=json` sale todo en JSON.
+
+Sin clave configurada no responde: es preferible que no funcione a que quede
+abierto. Compara en tiempo constante y responde 404, no 401, para no confirmar
+que existe.
+
+Las sugerencias **no** se muestran dentro de la app: traen el contacto que la
+gente deja para que le respondan.
 
 Ojo: los totales de 7 y 30 días son la **unión**, no la suma. Quien entró
 lunes y martes cuenta una vez.
