@@ -16,28 +16,17 @@
 // responde nada: es preferible que no funcione a que quede abierto por
 // olvidarse de ponerla.
 
-import crypto from "node:crypto";
 import { redis, hayAlmacen, CLAVE_SUBS } from "../lib/push.js";
 import {
   diaAR,
   ultimosDias,
   claveDia,
   CLAVE_SUGERENCIAS,
+  claveCorrecta,
 } from "../lib/metricas.js";
 
 const EN_RESUMEN = 5; // las últimas, como anticipo
 const EN_LISTA = 200; // la vista completa
-
-/* Comparación de tiempo constante: un === corta en el primer carácter
-   distinto y con eso se puede adivinar la clave de a una letra. */
-function claveCorrecta(dada) {
-  const real = process.env.METRICAS_CLAVE || "";
-  if (!real || typeof dada !== "string") return false;
-  const a = Buffer.from(dada);
-  const b = Buffer.from(real);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
-}
 
 const escapar = (t) =>
   String(t).replace(

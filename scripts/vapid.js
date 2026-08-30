@@ -23,6 +23,6 @@ const priv = privateKey
 console.log("Pegá esto en las variables de entorno de Vercel:\n");
 console.log("VAPID_PUBLIC_KEY  =", b64url(pub));
 console.log("VAPID_PRIVATE_KEY =", b64url(priv));
-console.log("VAPID_SUBJECT     = mailto:tu@correo.com");
+console.log("VAPID_SUBJECT     = mailto:arielmbenz@gmail.com");
 console.log("CRON_SECRET       =", b64url(crypto.randomBytes(24)));
 console.log("\nY la pública también en app.js, en CONFIG.VAPID_PUBLIC_KEY.");
