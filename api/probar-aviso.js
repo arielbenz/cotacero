@@ -9,6 +9,7 @@
 // no puede quedar abierto. Y sólo por POST, para que no lo dispare el
 // prefetch de un navegador.
 
+import crypto from "node:crypto";
 import {
   redis,
   hayAlmacen,
@@ -16,6 +17,56 @@ import {
   enviarPushDetalle,
 } from "../lib/push.js";
 import { claveCorrecta } from "../lib/metricas.js";
+
+/* Un par VAPID son dos mitades de la misma llave: la pública va en app.js y
+   el teléfono se suscribe con ella; la privada firma en el servidor. Si no
+   son del mismo par, o si la pública del servidor no es la de app.js, Apple
+   rechaza con VapidPkHashMismatch y no hay aviso que llegue.
+   Derivar la pública de la privada dice cuál de las dos está mal. */
+function revisarVapid() {
+  const publica = process.env.VAPID_PUBLIC_KEY || null;
+  const privada = process.env.VAPID_PRIVATE_KEY || null;
+  if (!publica || !privada)
+    return { ok: false, motivo: "falta VAPID_PUBLIC_KEY o VAPID_PRIVATE_KEY" };
+  try {
+    const raw = Buffer.from(
+      privada.replace(/-/g, "+").replace(/_/g, "/"),
+      "base64",
+    );
+    if (raw.length !== 32)
+      return { ok: false, motivo: "VAPID_PRIVATE_KEY no mide 32 bytes" };
+    const der = Buffer.concat([
+      Buffer.from(
+        "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420",
+        "hex",
+      ),
+      raw,
+    ]);
+    const priv = crypto.createPrivateKey({
+      key: der,
+      format: "der",
+      type: "pkcs8",
+    });
+    const jwk = crypto.createPublicKey(priv).export({ format: "jwk" });
+    const b64 = (v) => Buffer.from(v, "base64url");
+    const derivada = Buffer.concat([
+      Buffer.from([4]),
+      b64(jwk.x),
+      b64(jwk.y),
+    ]).toString("base64url");
+    return {
+      ok: derivada === publica,
+      publica_del_servidor: publica,
+      publica_derivada_de_la_privada: derivada,
+      motivo:
+        derivada === publica
+          ? "el par es coherente; comparar publica_del_servidor con CONFIG.VAPID_PUBLIC_KEY de app.js"
+          : "la privada NO corresponde a la pública: son de pares distintos",
+    };
+  } catch (e) {
+    return { ok: false, motivo: "no se pudo leer la privada: " + e.message };
+  }
+}
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -60,6 +111,7 @@ export default async function handler(req, res) {
     if (aBorrar.length) await redis("SREM", CLAVE_SUBS, ...aBorrar);
 
     return res.status(200).json({
+      vapid: revisarVapid(),
       urgencia,
       vapid_subject: sujeto || "SIN CONFIGURAR (se usa un mailto de relleno)",
       suscriptos: endpoints.length,
