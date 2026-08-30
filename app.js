@@ -19,7 +19,7 @@ const CONFIG = {
   // y la privada va SÓLO en las variables de entorno de Vercel.
   // Vacía = avisos apagados; la app funciona igual.
   VAPID_PUBLIC_KEY:
-    "BDvA4gsUx-S1tEyYZ-BeaXubLuO-qvY1sdME3-vpyYULbzb-UVkOB17nw2bYQsfvVsGvN6r-p_sgFg4byZoEKto",
+    "BLbYpcsVuEVYGieE3kyi-Yj3ZRXCPCoWh28nkeBZmTBTmriOcHuXLV7n8W88E__e-f-Ph40Eqpotf6vSWM9E-lQ",
 
   // La funcion serverless que lee el nivel del INA.
   // En local con `vercel dev`: '/api/nivel' funciona igual.
