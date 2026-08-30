@@ -8,8 +8,8 @@
 
 import crypto from "node:crypto";
 import { redis, hayAlmacen } from "../lib/push.js";
+import { CLAVE_SUGERENCIAS as CLAVE } from "../lib/metricas.js";
 
-const CLAVE = "cc:sugerencias";
 const MAX_GUARDADAS = 500; // la lista no crece para siempre
 const MAX_TEXTO = 600;
 const MAX_CONTACTO = 120;
@@ -40,7 +40,9 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Usá POST" });
   if (!hayAlmacen())
-    return res.status(503).json({ error: "Las sugerencias no están configuradas todavía." });
+    return res
+      .status(503)
+      .json({ error: "Las sugerencias no están configuradas todavía." });
 
   const cuerpo = req.body || {};
   const categoria = CATEGORIAS[cuerpo.categoria] ? cuerpo.categoria : "otro";
@@ -48,9 +50,13 @@ export default async function handler(req, res) {
   const contacto = String(cuerpo.contacto || "").trim();
 
   if (texto.length < 10)
-    return res.status(400).json({ error: "Contanos un poco más: al menos 10 caracteres." });
+    return res
+      .status(400)
+      .json({ error: "Contanos un poco más: al menos 10 caracteres." });
   if (texto.length > MAX_TEXTO)
-    return res.status(400).json({ error: "Quedó muy largo. Máximo " + MAX_TEXTO + " caracteres." });
+    return res
+      .status(400)
+      .json({ error: "Quedó muy largo. Máximo " + MAX_TEXTO + " caracteres." });
   if (contacto.length > MAX_CONTACTO)
     return res.status(400).json({ error: "El contacto es demasiado largo." });
 
@@ -59,9 +65,9 @@ export default async function handler(req, res) {
     const cuantas = await redis("INCR", clave);
     if (Number(cuantas) === 1) await redis("EXPIRE", clave, 3600);
     if (Number(cuantas) > POR_HORA)
-      return res
-        .status(429)
-        .json({ error: "Ya mandaste varias seguidas. Probá de nuevo en un rato." });
+      return res.status(429).json({
+        error: "Ya mandaste varias seguidas. Probá de nuevo en un rato.",
+      });
 
     await redis(
       "LPUSH",
@@ -76,6 +82,8 @@ export default async function handler(req, res) {
     await redis("LTRIM", CLAVE, 0, MAX_GUARDADAS - 1);
     return res.status(200).json({ ok: true });
   } catch (e) {
-    return res.status(502).json({ error: "No se pudo guardar. Probá más tarde." });
+    return res
+      .status(502)
+      .json({ error: "No se pudo guardar. Probá más tarde." });
   }
 }

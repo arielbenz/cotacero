@@ -31,13 +31,36 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     api/desuscribir.js       baja
     api/cron/avisar.js       lo dispara Vercel Cron
     api/sugerencias.js       recibe feedback de la gente
+    api/visita.js            cuenta una apertura (sin caché, a propósito)
+    api/metricas.js          tablero privado, protegido con clave
     lib/ina.js               parser del INA (módulo, NO endpoint)
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
+    lib/metricas.js          claves y días del contador (módulo, NO endpoint)
     scripts/vapid.js         genera las claves, se corre una vez
+    scripts/servir.js        servidor de desarrollo
     sw.js                    service worker
     manifest.webmanifest     PWA
     vercel.json              cabeceras y CSP
     icon-*.png               íconos
+
+## Correr en local
+
+    node scripts/servir.js        # http://localhost:3000
+
+Sirve los estáticos, **ejecuta las funciones de `/api`** y —lo que ningún
+servidor estático hace— **aplica las cabeceras de `vercel.json`, CSP incluida**.
+Sin eso la política no se prueba hasta producción.
+
+`/api/nivel` anda de verdad contra el INA. Las que necesitan Redis devuelven
+503, igual que en producción sin configurar.
+
+**El service worker cachea fuerte.** Mientras desarrollás, en DevTools →
+Application → Service Workers tildá **"Update on reload"**, o vas a estar
+mirando código viejo y creyendo que los cambios no se aplicaron. Y subí
+`VERSION` en `sw.js` en cada deploy.
+
+`vercel dev` (con `npx vercel dev`) es la otra opción: más fiel para las
+funciones, pero pide login y no corre los cron jobs.
 
 ## Caché
 
@@ -134,7 +157,7 @@ ninguna dependencia y el proyecto sigue sin `package.json`.
 1. `node scripts/vapid.js` — imprime el par de claves y un CRON_SECRET.
 2. En Vercel, variables de entorno:
    `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:),
-   `CRON_SECRET`, y las del almacén.
+   `CRON_SECRET`, `METRICAS_CLAVE`, y las del almacén.
 3. Pegar la pública también en `app.js`, en `CONFIG.VAPID_PUBLIC_KEY`.
 4. Almacén: Upstash Redis desde el marketplace de Vercel. Se usa por su API
    REST (`KV_REST_API_URL` / `KV_REST_API_TOKEN`), sin librería.
@@ -162,18 +185,50 @@ Es lo **único** de la app que manda texto de la persona a un servidor, y el
 formulario lo dice. No se guarda la IP: se usa sólo para limitar envíos (3 por
 hora) y hasheada con `CRON_SECRET` de sal.
 
-Se guardan en Redis, lista `cc:sugerencias`, con tope de 500. **Se leen desde
-la consola de Upstash**, no hay panel:
+Se guardan en Redis, lista `cc:sugerencias`, con tope de 500. Se leen en el
+tablero (abajo), o a mano desde la consola de Upstash:
 
     LRANGE cc:sugerencias 0 49
 
 Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
+## Cuántos la usan
+
+Dos fuentes, por si una falla:
+
+**Vercel Web Analytics.** El script ya está en `index.html` y el service worker
+deja pasar `/_vercel/` sin cachear. Hay que activarlo en el panel del proyecto;
+hasta entonces devuelve 404 y no registra nada. No mide a quien abre la app sin
+conexión, que es justo el día que más importa.
+
+**Contador propio.** `POST /api/visita` una vez por sesión, con un número al
+azar que el teléfono guarda en `cc_id`. Del lado del servidor entra a un
+HyperLogLog (`cc:activos:AAAA-MM-DD`, 40 días de vida): responde _cuántos
+distintos_ sin guardar ninguno. No viaja la cota, ni la zona, ni el plan.
+
+Va en su propia función y **no** dentro de `/api/nivel`: ese está cacheado una
+hora en el CDN, así que la mayoría de las llamadas nunca ejecutan la función.
+Contar ahí subestimaría, y más los días de tráfico alto.
+
+El día se corta en hora argentina (UTC-3 fijo, sin horario de verano): con el
+corte en UTC, todo lo que pasa entre las 21 y la medianoche caería en el día
+siguiente.
+
+**El tablero.** `GET /api/metricas?clave=...` con `METRICAS_CLAVE`. Devuelve
+HTML —activos de hoy / 7 / 30 días, los últimos 14 en barras, suscriptos a los
+avisos y las últimas 25 sugerencias— o JSON con `&formato=json`. Sin clave
+configurada no responde: es preferible que no funcione a que quede abierto.
+Compara en tiempo constante y responde 404, no 401, para no confirmar que
+existe.
+
+Ojo: los totales de 7 y 30 días son la **unión**, no la suma. Quien entró
+lunes y martes cuenta una vez.
+
 ## Analítica
 
 Vercel Web Analytics, sólo el `<script defer src="/_vercel/insights/script.js">`.
 El snippet oficial trae además un `<script>` inline que la CSP bloquea; ese
-inline sólo encola *custom events*, que son de plan Pro. Al ser mismo-origen
+inline sólo encola _custom events_, que son de plan Pro. Al ser mismo-origen
 entra en `script-src 'self'` y `connect-src 'self'` sin abrir la política.
 
 Hay que **habilitarlo en el panel de Vercel** (Analytics → Enable) o la ruta no

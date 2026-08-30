@@ -7,8 +7,12 @@
 
 import { leerNivelINA } from "../../lib/ina.js";
 import {
-  enviarPush, redis, hayAlmacen,
-  CLAVE_SUBS, CLAVE_NIVEL, CLAVE_AVISADO,
+  enviarPush,
+  redis,
+  hayAlmacen,
+  CLAVE_SUBS,
+  CLAVE_NIVEL,
+  CLAVE_AVISADO,
 } from "../../lib/push.js";
 
 const ALERTA = 5.3;
@@ -28,7 +32,8 @@ export default async function handler(req, res) {
   if (!esperado) return res.status(503).json({ error: "Falta CRON_SECRET" });
   if (req.headers.authorization !== "Bearer " + esperado)
     return res.status(401).json({ error: "No autorizado" });
-  if (!hayAlmacen()) return res.status(503).json({ error: "Avisos no configurados" });
+  if (!hayAlmacen())
+    return res.status(503).json({ error: "Avisos no configurados" });
 
   try {
     const { altura, fecha_dato } = await leerNivelINA();
@@ -45,12 +50,16 @@ export default async function handler(req, res) {
 
     if (!oficial && !subio) {
       if (base !== avisado) await redis("SET", CLAVE_AVISADO, String(base));
-      return res.status(200).json({ altura, previo, aviso: false, motivo: "sin movimiento" });
+      return res
+        .status(200)
+        .json({ altura, previo, aviso: false, motivo: "sin movimiento" });
     }
 
     const endpoints = (await redis("SMEMBERS", CLAVE_SUBS)) || [];
     const urgencia = oficial ? "high" : "normal";
-    let ok = 0, muertas = 0, errores = 0;
+    let ok = 0,
+      muertas = 0,
+      errores = 0;
 
     for (let i = 0; i < endpoints.length; i += LOTE) {
       const tanda = endpoints.slice(i, i + LOTE);
@@ -58,8 +67,10 @@ export default async function handler(req, res) {
       const aBorrar = [];
       rs.forEach((r, k) => {
         if (r === "ok") ok++;
-        else if (r === "muerta") { muertas++; aBorrar.push(tanda[k]); }
-        else errores++;
+        else if (r === "muerta") {
+          muertas++;
+          aBorrar.push(tanda[k]);
+        } else errores++;
       });
       // Las suscripciones muertas se sacan o la lista se llena de basura.
       if (aBorrar.length) await redis("SREM", CLAVE_SUBS, ...aBorrar);
@@ -67,9 +78,16 @@ export default async function handler(req, res) {
 
     await redis("SET", CLAVE_AVISADO, String(altura));
     return res.status(200).json({
-      altura, previo, fecha_dato, aviso: true,
+      altura,
+      previo,
+      fecha_dato,
+      aviso: true,
       motivo: oficial ? "cruce de umbral oficial" : "subida",
-      urgencia, enviados: ok, muertas, errores, total: endpoints.length,
+      urgencia,
+      enviados: ok,
+      muertas,
+      errores,
+      total: endpoints.length,
     });
   } catch (e) {
     return res.status(502).json({ error: e.message });

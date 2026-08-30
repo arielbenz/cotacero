@@ -4,8 +4,7 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
+      content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>
       Cota Cero — ¿Hasta dónde llega el agua? Nivel del río en Santa Fe
     </title>
@@ -15,8 +14,7 @@
     <link rel="canonical" href="https://cotacerosf.com/" />
     <meta
       name="description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe."
-    />
+      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe." />
     <meta name="theme-color" content="#0B1418" />
     <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
          difundir esto. Las URL van absolutas: los rastreadores de vista previa
@@ -25,19 +23,16 @@
     <meta property="og:site_name" content="Cota Cero" />
     <meta
       property="og:title"
-      content="Cota Cero — ¿hasta dónde llega el agua?"
-    />
+      content="Cota Cero — ¿hasta dónde llega el agua?" />
     <meta
       property="og:description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
-    />
+      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe." />
     <meta property="og:image" content="https://cotacerosf.com/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe"
-    />
+      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe" />
     <meta property="og:locale" content="es_AR" />
     <meta property="og:url" content="https://cotacerosf.com/" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -79,26 +74,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+      content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Cota Cero" />
     <meta name="mobile-web-app-capable" content="yes" />
     <!-- Las tipografías van self-hosteadas en /vendor/fonts. Precargamos las
          dos que se ven arriba de todo, para que el encabezado no parpadee. -->
     <link
       rel="preload"
-      href="/vendor/fonts/barlow-700.woff2"
+      href="/vendor/fonts/jakarta-800.woff2"
       as="font"
       type="font/woff2"
-      crossorigin
-    />
+      crossorigin />
     <link
       rel="preload"
-      href="/vendor/fonts/inter-400.woff2"
+      href="/vendor/fonts/jakarta-500.woff2"
       as="font"
       type="font/woff2"
-      crossorigin
-    />
+      crossorigin />
     <!-- El motor del mapa (MapLibre, self-hosteado en /vendor) no va acá:
          bloqueaba la primera pintura de toda la app, teléfonos de emergencia
          incluidos, por una pestaña que quizá nadie abra. Se carga recién al
@@ -118,8 +110,7 @@
         class="tema"
         type="button"
         data-accion="tema"
-        aria-label="Cambiar entre tema claro y oscuro"
-      ></button>
+        aria-label="Cambiar entre tema claro y oscuro"></button>
     </header>
 
     <!-- La app anda sin conexión, pero no lo decía: sólo avisaba que el dato
@@ -192,8 +183,7 @@
       class="vista on"
       id="v-rio"
       aria-label="Nivel del río"
-      tabindex="-1"
-    >
+      tabindex="-1">
       <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
         <div class="titu">¿Hasta dónde llega el agua?</div>
         <p class="chico" style="margin: 0">
@@ -206,10 +196,16 @@
         <div class="regla-caja">
           <!-- Puro gráfico. Cada número que dibuja está como texto en la
                leyenda de al lado, así que para un lector de pantalla esto
-               sólo sería ruido. -->
-          <div class="regla" id="regla" aria-hidden="true"></div>
+               sólo sería ruido.
+               La numeración va en su propia columna, fuera de la pista: con
+               los números adentro se montaban con las pastillas de umbral,
+               que están a 40 cm una de otra. -->
+          <div class="instrumento" aria-hidden="true">
+            <div class="escala" id="escala"></div>
+            <div class="regla" id="regla"></div>
+          </div>
           <div class="leyenda">
-            <div class="leyenda-item" style="border-color: var(--agua-claro)">
+            <div class="leyenda-item" style="border-color: var(--acento)">
               <div class="v" id="lg-actual">—</div>
               <div class="k">Nivel actual del río</div>
             </div>
@@ -226,8 +222,7 @@
             <div
               class="leyenda-item"
               id="lg-cota-wrap"
-              style="border-color: var(--tierra); display: none"
-            >
+              style="border-color: var(--tierra); display: none">
               <div class="v" id="lg-cota">—</div>
               <div class="k" id="lg-cota-k">
                 Tu cota, traducida a lectura de hidrómetro
@@ -239,8 +234,7 @@
           class="chico"
           id="origen-dato"
           role="status"
-          style="margin-top: 10px"
-        ></div>
+          style="margin-top: 10px"></div>
       </div>
 
       <!-- Sin cota cargada, la app no puede responder su propia pregunta.
@@ -252,13 +246,12 @@
         <summary
           style="
             cursor: pointer;
-            font-family: var(--display);
+            font-family: var(--sans);
             font-weight: 600;
             font-size: var(--t-m);
             letter-spacing: 0.04em;
             text-transform: uppercase;
-          "
-        >
+          ">
           Cargar el nivel a mano
         </summary>
         <p class="chico" style="margin: 11px 0">
@@ -388,8 +381,7 @@
       class="vista"
       id="v-plan"
       aria-label="Mi plan familiar"
-      tabindex="-1"
-    >
+      tabindex="-1">
       <h2>Plan familiar</h2>
       <p class="chico" id="resumen-plan" role="status"></p>
       <p class="chico">
@@ -414,15 +406,13 @@
           ><span>Quién se ocupa de qué</span>
           <textarea
             id="p-roles"
-            placeholder="Ej: Bet agarra la mochila y los documentos. Yo corto la luz y el gas. La perra va con Bet."
-          ></textarea>
+            placeholder="Ej: Bet agarra la mochila y los documentos. Yo corto la luz y el gas. La perra va con Bet."></textarea>
         </label>
         <label class="campo"
           ><span>Personas que necesitan ayuda para salir</span>
           <textarea
             id="p-ayuda"
-            placeholder="Ej: Mi vieja, 82 años, camina con andador. Vive a dos casas."
-          ></textarea>
+            placeholder="Ej: Mi vieja, 82 años, camina con andador. Vive a dos casas."></textarea>
         </label>
         <label class="campo"
           ><span>Animales</span>
@@ -456,8 +446,7 @@
         class="chico"
         id="estado-guardado"
         role="status"
-        style="text-align: center"
-      ></p>
+        style="text-align: center"></p>
     </section>
 
     <!-- ======================= DÓNDE IR ======================= -->
@@ -468,332 +457,308 @@
         capacitados. Identificá el tuyo <b>antes</b> de necesitarlo.
       </p>
 
-      <!-- Envueltos para poder ponerlos lado a lado en pantallas anchas. -->
-      <div class="col-mapa">
-        <div id="mapa"></div>
-        <button class="btn sec" data-accion="ubicarme">
-          Mostrar el más cercano a mí
-        </button>
-        <p class="chico" id="estado-mapa" role="status"></p>
-      </div>
+      <!-- La grilla de dos columnas va acá, en un envoltorio propio, y NO en
+           la sección: si estuviera en la sección, los <h2> a ancho completo
+           cortarían cada fila y la segunda columna nunca se formaría. -->
+      <div class="mapa-y-lista">
+        <div class="col-mapa">
+          <div id="mapa"></div>
+          <button class="btn sec" data-accion="ubicarme">
+            Mostrar el más cercano a mí
+          </button>
+          <p class="chico" id="estado-mapa" role="status"></p>
+        </div>
 
-      <div class="col-lista">
-        <label class="campo"
-          ><span>Buscar</span>
-          <input
-            type="text"
-            id="buscar-punto"
-            placeholder="Nombre o calle"
-            data-input="filtrar-puntos"
-        /></label>
+        <div class="col-lista">
+          <label class="campo"
+            ><span>Buscar</span>
+            <input
+              type="text"
+              id="buscar-punto"
+              placeholder="Nombre o calle"
+              data-input="filtrar-puntos"
+          /></label>
 
-        <!-- Los 30 puntos van en el HTML, no inyectados por JS: así los indexa
+          <!-- Los 30 puntos van en el HTML, no inyectados por JS: así los indexa
            un buscador y se ven aunque el script no arranque. app.js los lee de
            acá, así que esto es la ÚNICA fuente de verdad — no hay copia en el
            JS que se pueda desincronizar. -->
-        <div class="tarjeta">
-          <ul class="lista-plana" id="lista-puntos">
-            <li data-lon="-60.72546604" data-lat="-31.5965">
-              <a
-                class="punto"
-                href="geo:-31.5965,-60.72546604?q=-31.5965,-60.72546604(Asoc.%20Vecinal%20Sarmiento)"
-              >
-                <span class="n">Asoc. Vecinal Sarmiento</span>
-                <span class="d">Vieytes 5047</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.60681828" data-lat="-31.6270493">
-              <a
-                class="punto"
-                href="geo:-31.6270493,-60.60681828?q=-31.6270493,-60.60681828(ASOEM%20Camping)"
-              >
-                <span class="n">ASOEM Camping</span>
-                <span class="d">RP Nº 1 - km 2.5</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72517614" data-lat="-31.66131579">
-              <a
-                class="punto"
-                href="geo:-31.66131579,-60.72517614?q=-31.66131579,-60.72517614(Boca%20del%20Tigre)"
-              >
-                <span class="n">Boca del Tigre</span>
-                <span class="d">J.J. Paso y Zavalla</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72595784" data-lat="-31.65460239">
-              <a
-                class="punto"
-                href="geo:-31.65460239,-60.72595784?q=-31.65460239,-60.72595784(Bochas%20Club%20Mitre)"
-              >
-                <span class="n">Bochas Club Mitre</span>
-                <span class="d">Gral. López 3815</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72689011" data-lat="-31.58001751">
-              <a
-                class="punto"
-                href="geo:-31.58001751,-60.72689011?q=-31.58001751,-60.72689011(Bomberos%20Voluntarios%20Las%20Flores)"
-              >
-                <span class="n">Bomberos Voluntarios Las Flores</span>
-                <span class="d">Av. Blas Parera 8700</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.63433982" data-lat="-31.64234205">
-              <a
-                class="punto"
-                href="geo:-31.64234205,-60.63433982?q=-31.64234205,-60.63433982(Capilla%20Nuestra%20Se%C3%B1ora%20de%20la%20Guardia)"
-              >
-                <span class="n">Capilla Nuestra Señora de la Guardia</span>
-                <span class="d">A. de Petre y H. Serafina</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.71863653" data-lat="-31.61379472">
-              <a
-                class="punto"
-                href="geo:-31.61379472,-60.71863653?q=-31.61379472,-60.71863653(Cementerio%20Municipal)"
-              >
-                <span class="n">Cementerio Municipal</span>
-                <span class="d">Av. Blas Parera 5401</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.66612462" data-lat="-31.5977847">
-              <a
-                class="punto"
-                href="geo:-31.5977847,-60.66612462?q=-31.5977847,-60.66612462(Centro%20Comunitario%20Noreste)"
-              >
-                <span class="n">Centro Comunitario Noreste</span>
-                <span class="d">Defensa y French</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.6988815" data-lat="-31.59267741">
-              <a
-                class="punto"
-                href="geo:-31.59267741,-60.6988815?q=-31.59267741,-60.6988815(CIC%20Facundo%20Zuvir%C3%ADa)"
-              >
-                <span class="n">CIC Facundo Zuviría</span>
-                <span class="d">Av. Facundo Zuviría 8002 / Azcuénaga</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.68433875" data-lat="-31.5785339">
-              <a
-                class="punto"
-                href="geo:-31.5785339,-60.68433875?q=-31.5785339,-60.68433875(CIC%20Roca)"
-              >
-                <span class="n">CIC Roca</span>
-                <span class="d">Pasaje Roca y República de Siria</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.73261501" data-lat="-31.66508848">
-              <a
-                class="punto"
-                href="geo:-31.66508848,-60.73261501?q=-31.66508848,-60.73261501(Cilsa)"
-              >
-                <span class="n">Cilsa</span>
-                <span class="d">Mar Argentino y R11</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.68928171" data-lat="-31.57358485">
-              <a
-                class="punto"
-                href="geo:-31.57358485,-60.68928171?q=-31.57358485,-60.68928171(Club%20Banco%20Provincia)"
-              >
-                <span class="n">Club Banco Provincia</span>
-                <span class="d">Av. Aristóbulo del Valle 9958</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72944315" data-lat="-31.59893853">
-              <a
-                class="punto"
-                href="geo:-31.59893853,-60.72944315?q=-31.59893853,-60.72944315(Club%20Cabal)"
-              >
-                <span class="n">Club Cabal</span>
-                <span class="d">Servando Bayo 6730</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.60493224" data-lat="-31.62688844">
-              <a
-                class="punto"
-                href="geo:-31.62688844,-60.60493224?q=-31.62688844,-60.60493224(Distrito%20La%20Costa)"
-              >
-                <span class="n">Distrito La Costa</span>
-                <span class="d">RP Nº 1 - km 2.7</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.60814703" data-lat="-31.62364809">
-              <a
-                class="punto"
-                href="geo:-31.62364809,-60.60814703?q=-31.62364809,-60.60814703(Estaci%C3%B3n%20Colastin%C3%A9%20Norte)"
-              >
-                <span class="n">Estación Colastiné Norte</span>
-                <span class="d">Las Macluras y Orquídeas</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72427681" data-lat="-31.65484814">
-              <a
-                class="punto"
-                href="geo:-31.65484814,-60.72427681?q=-31.65484814,-60.72427681(Estaci%C3%B3n%20Mitre%20(Andenes))"
-              >
-                <span class="n">Estación Mitre (Andenes)</span>
-                <span class="d">Gral. López y San Juan</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72986264" data-lat="-31.65645015">
-              <a
-                class="punto"
-                href="geo:-31.65645015,-60.72986264?q=-31.65645015,-60.72986264(Estaci%C3%B3n%20San%20Lorenzo)"
-              >
-                <span class="n">Estación San Lorenzo</span>
-                <span class="d">Entre Ríos 4080</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.70727912" data-lat="-31.58704761">
-              <a
-                class="punto"
-                href="geo:-31.58704761,-60.70727912?q=-31.58704761,-60.70727912(Jard%C3%ADn%20Bot%C3%A1nico%20Ing.%20Lorenzo%20Parodi)"
-              >
-                <span class="n">Jardín Botánico Ing. Lorenzo Parodi</span>
-                <span class="d">Av. Gorriti 3902</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.63365832" data-lat="-31.63972864">
-              <a
-                class="punto"
-                href="geo:-31.63972864,-60.63365832?q=-31.63972864,-60.63365832(La%20Virgencita)"
-              >
-                <span class="n">La Virgencita</span>
-                <span class="d">RN 168 y calle Principal</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72916015" data-lat="-31.64108094">
-              <a
-                class="punto"
-                href="geo:-31.64108094,-60.72916015?q=-31.64108094,-60.72916015(Mediateca)"
-              >
-                <span class="n">Mediateca</span>
-                <span class="d">Pje. Mitre y Tucumán</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.62654115" data-lat="-31.6381007">
-              <a
-                class="punto"
-                href="geo:-31.6381007,-60.62654115?q=-31.6381007,-60.62654115(Parada%20de%20%C3%B3mnibus%20(La%20Guardia%2FColastin%C3%A9))"
-              >
-                <span class="n">Parada de ómnibus (La Guardia/Colastiné)</span>
-                <span class="d">Ruta 1 y Favaloro</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.74551756" data-lat="-31.56381964">
-              <a
-                class="punto"
-                href="geo:-31.56381964,-60.74551756?q=-31.56381964,-60.74551756(Polideportivo%20La%20Tablada)"
-              >
-                <span class="n">Polideportivo La Tablada</span>
-                <span class="d">Teniente Loza 6970</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.71754382" data-lat="-31.63212773">
-              <a
-                class="punto"
-                href="geo:-31.63212773,-60.71754382?q=-31.63212773,-60.71754382(Talleres%20Municipales)"
-              >
-                <span class="n">Talleres Municipales</span>
-                <span class="d">Pte. Perón 3575</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72236452" data-lat="-31.66487521">
-              <a
-                class="punto"
-                href="geo:-31.66487521,-60.72236452?q=-31.66487521,-60.72236452(Vecinal%20Centenario)"
-              >
-                <span class="n">Vecinal Centenario</span>
-                <span class="d">Zavalía 711</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.69540016" data-lat="-31.59617794">
-              <a
-                class="punto"
-                href="geo:-31.59617794,-60.69540016?q=-31.59617794,-60.69540016(Vecinal%20Facundo%20Quiroga)"
-              >
-                <span class="n">Vecinal Facundo Quiroga</span>
-                <span class="d">Almafuerte 7739</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.68367933" data-lat="-31.60310257">
-              <a
-                class="punto"
-                href="geo:-31.60310257,-60.68367933?q=-31.60310257,-60.68367933(Vecinal%20Guadalupe%20Oeste)"
-              >
-                <span class="n">Vecinal Guadalupe Oeste</span>
-                <span class="d">Risso 1745</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.72253068" data-lat="-31.636429">
-              <a
-                class="punto"
-                href="geo:-31.636429,-60.72253068?q=-31.636429,-60.72253068(Vecinal%20Juan%20de%20Garay)"
-              >
-                <span class="n">Vecinal Juan de Garay</span>
-                <span class="d">Salvador Caputto 3955</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.69534873" data-lat="-31.58298864">
-              <a
-                class="punto"
-                href="geo:-31.58298864,-60.69534873?q=-31.58298864,-60.69534873(Vecinal%20Las%20Delicias)"
-              >
-                <span class="n">Vecinal Las Delicias</span>
-                <span class="d">Alfonsina Storni 3100</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.70076676" data-lat="-31.66521436">
-              <a
-                class="punto"
-                href="geo:-31.66521436,-60.70076676?q=-31.66521436,-60.70076676(Vecinal%20Pro%20Mejoras%20Alto%20Verde)"
-              >
-                <span class="n">Vecinal Pro Mejoras Alto Verde</span>
-                <span class="d">Manzana 1, M. Gómez e I. Monzón</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-            <li data-lon="-60.73289024" data-lat="-31.57099227">
-              <a
-                class="punto"
-                href="geo:-31.57099227,-60.73289024?q=-31.57099227,-60.73289024(Vecinal%20Santa%20Marta)"
-              >
-                <span class="n">Vecinal Santa Marta</span>
-                <span class="d">Chubut 6291</span>
-                <span class="ir">Abrir en mapas →</span>
-              </a>
-            </li>
-          </ul>
+          <div class="tarjeta">
+            <ul class="lista-plana" id="lista-puntos">
+              <li data-lon="-60.72546604" data-lat="-31.5965">
+                <a
+                  class="punto"
+                  href="geo:-31.5965,-60.72546604?q=-31.5965,-60.72546604(Asoc.%20Vecinal%20Sarmiento)">
+                  <span class="n">Asoc. Vecinal Sarmiento</span>
+                  <span class="d">Vieytes 5047</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60681828" data-lat="-31.6270493">
+                <a
+                  class="punto"
+                  href="geo:-31.6270493,-60.60681828?q=-31.6270493,-60.60681828(ASOEM%20Camping)">
+                  <span class="n">ASOEM Camping</span>
+                  <span class="d">RP Nº 1 - km 2.5</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72517614" data-lat="-31.66131579">
+                <a
+                  class="punto"
+                  href="geo:-31.66131579,-60.72517614?q=-31.66131579,-60.72517614(Boca%20del%20Tigre)">
+                  <span class="n">Boca del Tigre</span>
+                  <span class="d">J.J. Paso y Zavalla</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72595784" data-lat="-31.65460239">
+                <a
+                  class="punto"
+                  href="geo:-31.65460239,-60.72595784?q=-31.65460239,-60.72595784(Bochas%20Club%20Mitre)">
+                  <span class="n">Bochas Club Mitre</span>
+                  <span class="d">Gral. López 3815</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72689011" data-lat="-31.58001751">
+                <a
+                  class="punto"
+                  href="geo:-31.58001751,-60.72689011?q=-31.58001751,-60.72689011(Bomberos%20Voluntarios%20Las%20Flores)">
+                  <span class="n">Bomberos Voluntarios Las Flores</span>
+                  <span class="d">Av. Blas Parera 8700</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.63433982" data-lat="-31.64234205">
+                <a
+                  class="punto"
+                  href="geo:-31.64234205,-60.63433982?q=-31.64234205,-60.63433982(Capilla%20Nuestra%20Se%C3%B1ora%20de%20la%20Guardia)">
+                  <span class="n">Capilla Nuestra Señora de la Guardia</span>
+                  <span class="d">A. de Petre y H. Serafina</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.71863653" data-lat="-31.61379472">
+                <a
+                  class="punto"
+                  href="geo:-31.61379472,-60.71863653?q=-31.61379472,-60.71863653(Cementerio%20Municipal)">
+                  <span class="n">Cementerio Municipal</span>
+                  <span class="d">Av. Blas Parera 5401</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.66612462" data-lat="-31.5977847">
+                <a
+                  class="punto"
+                  href="geo:-31.5977847,-60.66612462?q=-31.5977847,-60.66612462(Centro%20Comunitario%20Noreste)">
+                  <span class="n">Centro Comunitario Noreste</span>
+                  <span class="d">Defensa y French</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.6988815" data-lat="-31.59267741">
+                <a
+                  class="punto"
+                  href="geo:-31.59267741,-60.6988815?q=-31.59267741,-60.6988815(CIC%20Facundo%20Zuvir%C3%ADa)">
+                  <span class="n">CIC Facundo Zuviría</span>
+                  <span class="d">Av. Facundo Zuviría 8002 / Azcuénaga</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68433875" data-lat="-31.5785339">
+                <a
+                  class="punto"
+                  href="geo:-31.5785339,-60.68433875?q=-31.5785339,-60.68433875(CIC%20Roca)">
+                  <span class="n">CIC Roca</span>
+                  <span class="d">Pasaje Roca y República de Siria</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.73261501" data-lat="-31.66508848">
+                <a
+                  class="punto"
+                  href="geo:-31.66508848,-60.73261501?q=-31.66508848,-60.73261501(Cilsa)">
+                  <span class="n">Cilsa</span>
+                  <span class="d">Mar Argentino y R11</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68928171" data-lat="-31.57358485">
+                <a
+                  class="punto"
+                  href="geo:-31.57358485,-60.68928171?q=-31.57358485,-60.68928171(Club%20Banco%20Provincia)">
+                  <span class="n">Club Banco Provincia</span>
+                  <span class="d">Av. Aristóbulo del Valle 9958</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72944315" data-lat="-31.59893853">
+                <a
+                  class="punto"
+                  href="geo:-31.59893853,-60.72944315?q=-31.59893853,-60.72944315(Club%20Cabal)">
+                  <span class="n">Club Cabal</span>
+                  <span class="d">Servando Bayo 6730</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60493224" data-lat="-31.62688844">
+                <a
+                  class="punto"
+                  href="geo:-31.62688844,-60.60493224?q=-31.62688844,-60.60493224(Distrito%20La%20Costa)">
+                  <span class="n">Distrito La Costa</span>
+                  <span class="d">RP Nº 1 - km 2.7</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60814703" data-lat="-31.62364809">
+                <a
+                  class="punto"
+                  href="geo:-31.62364809,-60.60814703?q=-31.62364809,-60.60814703(Estaci%C3%B3n%20Colastin%C3%A9%20Norte)">
+                  <span class="n">Estación Colastiné Norte</span>
+                  <span class="d">Las Macluras y Orquídeas</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72427681" data-lat="-31.65484814">
+                <a
+                  class="punto"
+                  href="geo:-31.65484814,-60.72427681?q=-31.65484814,-60.72427681(Estaci%C3%B3n%20Mitre%20(Andenes))">
+                  <span class="n">Estación Mitre (Andenes)</span>
+                  <span class="d">Gral. López y San Juan</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72986264" data-lat="-31.65645015">
+                <a
+                  class="punto"
+                  href="geo:-31.65645015,-60.72986264?q=-31.65645015,-60.72986264(Estaci%C3%B3n%20San%20Lorenzo)">
+                  <span class="n">Estación San Lorenzo</span>
+                  <span class="d">Entre Ríos 4080</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.70727912" data-lat="-31.58704761">
+                <a
+                  class="punto"
+                  href="geo:-31.58704761,-60.70727912?q=-31.58704761,-60.70727912(Jard%C3%ADn%20Bot%C3%A1nico%20Ing.%20Lorenzo%20Parodi)">
+                  <span class="n">Jardín Botánico Ing. Lorenzo Parodi</span>
+                  <span class="d">Av. Gorriti 3902</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.63365832" data-lat="-31.63972864">
+                <a
+                  class="punto"
+                  href="geo:-31.63972864,-60.63365832?q=-31.63972864,-60.63365832(La%20Virgencita)">
+                  <span class="n">La Virgencita</span>
+                  <span class="d">RN 168 y calle Principal</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72916015" data-lat="-31.64108094">
+                <a
+                  class="punto"
+                  href="geo:-31.64108094,-60.72916015?q=-31.64108094,-60.72916015(Mediateca)">
+                  <span class="n">Mediateca</span>
+                  <span class="d">Pje. Mitre y Tucumán</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.62654115" data-lat="-31.6381007">
+                <a
+                  class="punto"
+                  href="geo:-31.6381007,-60.62654115?q=-31.6381007,-60.62654115(Parada%20de%20%C3%B3mnibus%20(La%20Guardia%2FColastin%C3%A9))">
+                  <span class="n"
+                    >Parada de ómnibus (La Guardia/Colastiné)</span
+                  >
+                  <span class="d">Ruta 1 y Favaloro</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.74551756" data-lat="-31.56381964">
+                <a
+                  class="punto"
+                  href="geo:-31.56381964,-60.74551756?q=-31.56381964,-60.74551756(Polideportivo%20La%20Tablada)">
+                  <span class="n">Polideportivo La Tablada</span>
+                  <span class="d">Teniente Loza 6970</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.71754382" data-lat="-31.63212773">
+                <a
+                  class="punto"
+                  href="geo:-31.63212773,-60.71754382?q=-31.63212773,-60.71754382(Talleres%20Municipales)">
+                  <span class="n">Talleres Municipales</span>
+                  <span class="d">Pte. Perón 3575</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72236452" data-lat="-31.66487521">
+                <a
+                  class="punto"
+                  href="geo:-31.66487521,-60.72236452?q=-31.66487521,-60.72236452(Vecinal%20Centenario)">
+                  <span class="n">Vecinal Centenario</span>
+                  <span class="d">Zavalía 711</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.69540016" data-lat="-31.59617794">
+                <a
+                  class="punto"
+                  href="geo:-31.59617794,-60.69540016?q=-31.59617794,-60.69540016(Vecinal%20Facundo%20Quiroga)">
+                  <span class="n">Vecinal Facundo Quiroga</span>
+                  <span class="d">Almafuerte 7739</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68367933" data-lat="-31.60310257">
+                <a
+                  class="punto"
+                  href="geo:-31.60310257,-60.68367933?q=-31.60310257,-60.68367933(Vecinal%20Guadalupe%20Oeste)">
+                  <span class="n">Vecinal Guadalupe Oeste</span>
+                  <span class="d">Risso 1745</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72253068" data-lat="-31.636429">
+                <a
+                  class="punto"
+                  href="geo:-31.636429,-60.72253068?q=-31.636429,-60.72253068(Vecinal%20Juan%20de%20Garay)">
+                  <span class="n">Vecinal Juan de Garay</span>
+                  <span class="d">Salvador Caputto 3955</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.69534873" data-lat="-31.58298864">
+                <a
+                  class="punto"
+                  href="geo:-31.58298864,-60.69534873?q=-31.58298864,-60.69534873(Vecinal%20Las%20Delicias)">
+                  <span class="n">Vecinal Las Delicias</span>
+                  <span class="d">Alfonsina Storni 3100</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.70076676" data-lat="-31.66521436">
+                <a
+                  class="punto"
+                  href="geo:-31.66521436,-60.70076676?q=-31.66521436,-60.70076676(Vecinal%20Pro%20Mejoras%20Alto%20Verde)">
+                  <span class="n">Vecinal Pro Mejoras Alto Verde</span>
+                  <span class="d">Manzana 1, M. Gómez e I. Monzón</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.73289024" data-lat="-31.57099227">
+                <a
+                  class="punto"
+                  href="geo:-31.57099227,-60.73289024?q=-31.57099227,-60.73289024(Vecinal%20Santa%20Marta)">
+                  <span class="n">Vecinal Santa Marta</span>
+                  <span class="d">Chubut 6291</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -912,8 +877,7 @@
           id="sug-texto"
           data-input="sug-texto"
           maxlength="600"
-          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."
-        ></textarea>
+          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."></textarea>
       </label>
       <p class="chico" id="sug-cuenta" style="margin: -8px 0 12px"></p>
 
@@ -936,8 +900,7 @@
         class="chico"
         id="sug-estado"
         role="status"
-        style="margin: 4px 0 0"
-      ></p>
+        style="margin: 4px 0 0"></p>
     </details>
 
     <div class="pie">

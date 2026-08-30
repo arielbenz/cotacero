@@ -1,20 +1,29 @@
 /* ==========================================================================
    TIPOGRAFÍAS
-   Self-hosteadas, subset latin (cubre todos los acentos del español, ¿ y ¡).
-   Se bajaban de Google: eso era una hoja de estilos de terceros bloqueando el
-   render, dos dominios más en la CSP, y tipografías que no cargaban del todo
-   sin conexión.
-   Sólo las seis caras que el CSS realmente usa. Antes se pedían ocho: sobraba
-   Barlow 500 y faltaba Inter 700, así que TODA negrita del cuerpo era un bold
-   sintético —el navegador engordando la 400— justo en las frases que la app
-   marca como importantes.
+   Self-hosteadas, subset latin (cubre los acentos del español, ¿ y ¡).
+   Plus Jakarta Sans para todo el texto; JetBrains Mono sólo para datos,
+   etiquetas y coordenadas — la mono es deliberada: la app quiere leerse como
+   un instrumento de medición.
+   Sólo las seis caras que el CSS usa.
    ========================================================================== */
 @font-face {
-  font-family: "Barlow Condensed";
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/vendor/fonts/jakarta-500.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("/vendor/fonts/barlow-600.woff2") format("woff2");
+  src: url("/vendor/fonts/jakarta-600.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
@@ -22,11 +31,11 @@
 }
 
 @font-face {
-  font-family: "Barlow Condensed";
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/vendor/fonts/barlow-700.woff2") format("woff2");
+  src: url("/vendor/fonts/jakarta-700.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
@@ -34,23 +43,11 @@
 }
 
 @font-face {
-  font-family: "Inter";
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 800;
   font-display: swap;
-  src: url("/vendor/fonts/inter-400.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/vendor/fonts/inter-700.woff2") format("woff2");
+  src: url("/vendor/fonts/jakarta-800.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
@@ -60,9 +57,9 @@
 @font-face {
   font-family: "JetBrains Mono";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
   font-display: swap;
-  src: url("/vendor/fonts/jetbrains-400.woff2") format("woff2");
+  src: url("/vendor/fonts/jetbrains-500.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
@@ -83,71 +80,58 @@
 
 /* ==========================================================================
    TEMAS
-   El claro no es preferencia estética: esta app se usa parada en la vereda,
-   de día, mirando el agua, y un tema oscuro a pleno sol se lee mucho peor.
-   La paleta clara es propia, no el oscuro invertido: los ocho colores del
-   oscuro fallan AA sobre blanco (el ámbar de alerta da 2,16). Los de acá
-   están medidos; el más bajo da 5,19 sobre el fondo.
-   Los fondos con alfa también son tokens: si no, quedarían calibrados para
-   un solo tema y en el otro se verían mal.
+   El claro no es preferencia estética: la app se usa parada en la vereda, de
+   día, y un tema oscuro a pleno sol se lee mucho peor.
+   Los semánticos del diseño venían entre 3,86 y 4,32 de contraste — elegidos
+   por cómo se ven, no medidos. Están corregidos al mínimo necesario para
+   pasar AA conservando el tono; el desplazamiento es de pocos por ciento y no
+   se nota, pero es la diferencia entre que una alerta se lea o no.
    ========================================================================== */
 :root {
-  --fondo: #0b1418;
-  --panel: #101e24;
-  --panel-2: #16292f;
-  --linea: #223a42;
-  --texto: #e6edef;
-  --tenue: #7e959d;
+  --fondo: #0e1619;
+  --panel: #17232a;
+  --panel-2: rgba(233, 238, 240, 0.07);
+  --linea: rgba(233, 238, 240, 0.1);
+  --texto: #e9eef0;
+  --tenue: #93a6ad;
   --agua: #2e9bc4;
-  --agua-claro: #5fc8e8;
-  --tierra: #c9a227;
+  --agua-clara: #5fc8e8;
+  --acento: #5fc8e8;
   --alerta: #e8a33d;
-  --peligro: #d94f3d;
+  --peligro: #e15f49;
   --ok: #4fa88b;
+  --alerta-texto: #e8a33d;
+  --peligro-texto: #e57563;
+  --ok-texto: #51ab8e;
+  --tierra: #c9a227;
 
-  --btn-texto: #03181f;
-  --ok-fondo: rgba(79, 168, 139, 0.11);
-  --ok-borde: rgba(79, 168, 139, 0.45);
-  --ok-suave: rgba(79, 168, 139, 0.09);
-  --alerta-fondo: rgba(232, 163, 61, 0.11);
-  --alerta-borde: rgba(232, 163, 61, 0.45);
-  --alerta-suave: rgba(232, 163, 61, 0.08);
-  --alerta-barra: rgba(232, 163, 61, 0.14);
-  --peligro-fondo: rgba(217, 79, 61, 0.13);
-  --peligro-borde: rgba(217, 79, 61, 0.5);
-  --peligro-suave: rgba(217, 79, 61, 0.09);
-  --hueco: rgba(126, 149, 157, 0.14);
-  --nav-fondo: rgba(11, 20, 24, 0.96);
-  --attrib-fondo: rgba(16, 41, 47, 0.82);
-  --sombra: rgba(0, 0, 0, 0.5);
-  /* En oscuro la profundidad la da la diferencia de luminosidad entre
-     superficies; una sombra negra sobre fondo casi negro no se ve. En
-     claro pasa lo contrario: sin sombra las tarjetas flotan sin apoyo. */
-  --elevacion: none;
-  --agua-alta: rgba(95, 200, 232, 0.55);
-  --agua-baja: rgba(46, 155, 196, 0.22);
-  /* El basemap del IGN es claro de origen. En tema oscuro lo invertimos, con
-     saturate() bajo para que el beige urbano no quede rojizo: en una app que
-     usa rojo para peligro, un mapa rojizo confunde. En tema claro va tal
-     cual lo publica el organismo. */
+  /* Relleno sólido: ahí encima va texto blanco y necesita su propio valor.
+     El del diseño daba 3,67 con blanco. */
+  --peligro-solido: #d93e24;
+  --sobre-solido: #ffffff;
+
+  --agua-tinte: rgba(46, 155, 196, 0.16);
+  --alerta-tinte: rgba(232, 163, 61, 0.14);
+  --peligro-tinte: rgba(224, 90, 68, 0.16);
+  --ok-tinte: rgba(79, 168, 139, 0.15);
+
+  --btn-texto: #0e1619;
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
+  --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
   --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
     contrast(0.9);
-  /* Los íconos de MapLibre son SVG oscuros embebidos: en tema oscuro se
-     invierten, en claro van como vienen. */
   --filtro-iconos-mapa: invert(1) brightness(0.92);
 
-  /* ---- escalas ----
-     Antes había 20 tamaños de texto, 23 espaciados y 8 radios: valores
-     acumulados uno por uno, no un sistema. Estas escalas son la razón por la
-     que las cosas se ven alineadas sin que uno sepa por qué. */
-  --t-xxl: 30px; /* el número grande, la marca */
-  --t-xl: 24px; /* títulos de veredicto */
-  --t-l: 20px; /* h2 */
-  --t-m: 17px; /* h3, nombres, teléfonos */
-  --t-base: 15px; /* cuerpo */
-  --t-s: 13px; /* texto chico */
-  --t-xs: 12px; /* etiquetas monoespaciadas — piso de legibilidad */
-  --t-tick: 10px; /* sólo los números de la regla, que es decorativa */
+  /* ---- escalas ---- */
+  --t-hero: 64px; /* el número del hidrómetro */
+  --t-xxl: 30px;
+  --t-xl: 24px;
+  --t-l: 20px;
+  --t-m: 17px;
+  --t-base: 15px;
+  --t-s: 13px;
+  --t-xs: 12px;
+  --t-tick: 12px;
 
   --e-1: 4px;
   --e-2: 8px;
@@ -157,61 +141,51 @@
   --e-6: 24px;
   --e-7: 32px;
 
-  --r-s: 6px;
-  --r-m: 10px;
-  --r-l: 14px;
-  --r-full: 999px;
+  --r-s: 8px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 28px;
+  --r-full: 99px;
 
-  /* Una sola curva para todo lo que responde al toque. */
   --mov: 160ms cubic-bezier(0.2, 0, 0.2, 1);
 
-  --display: "Barlow Condensed", system-ui, sans-serif;
-  --data: "JetBrains Mono", ui-monospace, monospace;
-  --body: "Inter", system-ui, -apple-system, sans-serif;
+  --sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 /* Los valores del tema claro viven UNA sola vez acá. Los dos selectores de
-   abajo sólo los remapean: si estuvieran duplicados, tarde o temprano uno se
-   actualiza y el otro no. */
+   abajo sólo los remapean: duplicarlos garantiza que tarde o temprano uno se
+   actualice y el otro no. */
 :root {
-  --c-fondo: #f2f6f7;
+  --c-fondo: #f7f8f9;
   --c-panel: #ffffff;
-  --c-panel-2: #e6edf0;
-  --c-linea: #ccd9de;
-  --c-texto: #0d1b21;
-  --c-tenue: #4a5f67;
-  --c-agua: #17607f;
-  --c-agua-claro: #0f6f93;
+  --c-panel-2: rgba(27, 38, 44, 0.055);
+  --c-linea: rgba(27, 38, 44, 0.09);
+  --c-texto: #1b262c;
+  --c-tenue: #66747a;
+  --c-agua: #1f7a9e;
+  --c-agua-clara: #7cc6e0;
+  --c-acento: #1f7a9e;
+  --c-alerta: #cb430e;
+  --c-peligro: #ca442f;
+  --c-ok: #387f64;
+  --c-alerta-texto: #c4410e;
+  --c-peligro-texto: #be402c;
+  --c-ok-texto: #35785e;
   --c-tierra: #7a5f0d;
-  --c-alerta: #8a5200;
-  --c-peligro: #a5271a;
-  --c-ok: #1f6b53;
+  --c-peligro-solido: #ca442f;
+  --c-agua-tinte: #e8f3f8;
+  --c-alerta-tinte: #ffefe3;
+  --c-peligro-tinte: #fbe9e5;
+  --c-ok-tinte: #e6f2ec;
   --c-btn-texto: #ffffff;
-  --c-ok-fondo: rgba(31, 107, 83, 0.1);
-  --c-ok-borde: rgba(31, 107, 83, 0.4);
-  --c-ok-suave: rgba(31, 107, 83, 0.08);
-  --c-alerta-fondo: rgba(138, 82, 0, 0.1);
-  --c-alerta-borde: rgba(138, 82, 0, 0.4);
-  --c-alerta-suave: rgba(138, 82, 0, 0.07);
-  --c-alerta-barra: rgba(138, 82, 0, 0.12);
-  --c-peligro-fondo: rgba(165, 39, 26, 0.09);
-  --c-peligro-borde: rgba(165, 39, 26, 0.4);
-  --c-peligro-suave: rgba(165, 39, 26, 0.07);
-  --c-hueco: rgba(74, 95, 103, 0.12);
-  --c-nav-fondo: rgba(255, 255, 255, 0.97);
-  --c-attrib-fondo: rgba(255, 255, 255, 0.85);
-  --c-sombra: rgba(13, 27, 33, 0.22);
-  --c-elevacion:
-    0 1px 2px rgba(13, 27, 33, 0.05), 0 2px 8px rgba(13, 27, 33, 0.04);
-  --c-agua-alta: rgba(23, 96, 127, 0.42);
-  --c-agua-baja: rgba(23, 96, 127, 0.14);
+  --c-sombra:
+    0 1px 2px rgba(23, 36, 42, 0.05), 0 10px 28px rgba(23, 36, 42, 0.07);
+  --c-sombra-nav: 0 -6px 24px rgba(23, 36, 42, 0.06);
   --c-filtro-mapa: saturate(0.92);
   --c-filtro-iconos-mapa: none;
 }
 
-/* Por defecto seguimos al sistema, y desde CSS: con `script-src 'self'` no
-   podemos usar un script inline para aplicarlo antes del primer pintado, así
-   que si esto dependiera de JS habría un destello oscuro en cada carga. */
 @media (prefers-color-scheme: light) {
   html:not([data-tema="oscuro"]) {
     --fondo: var(--c-fondo);
@@ -221,36 +195,28 @@
     --texto: var(--c-texto);
     --tenue: var(--c-tenue);
     --agua: var(--c-agua);
-    --agua-claro: var(--c-agua-claro);
-    --tierra: var(--c-tierra);
+    --agua-clara: var(--c-agua-clara);
+    --acento: var(--c-acento);
     --alerta: var(--c-alerta);
     --peligro: var(--c-peligro);
     --ok: var(--c-ok);
+    --alerta-texto: var(--c-alerta-texto);
+    --peligro-texto: var(--c-peligro-texto);
+    --ok-texto: var(--c-ok-texto);
+    --tierra: var(--c-tierra);
+    --peligro-solido: var(--c-peligro-solido);
+    --agua-tinte: var(--c-agua-tinte);
+    --alerta-tinte: var(--c-alerta-tinte);
+    --peligro-tinte: var(--c-peligro-tinte);
+    --ok-tinte: var(--c-ok-tinte);
     --btn-texto: var(--c-btn-texto);
-    --ok-fondo: var(--c-ok-fondo);
-    --ok-borde: var(--c-ok-borde);
-    --ok-suave: var(--c-ok-suave);
-    --alerta-fondo: var(--c-alerta-fondo);
-    --alerta-borde: var(--c-alerta-borde);
-    --alerta-suave: var(--c-alerta-suave);
-    --alerta-barra: var(--c-alerta-barra);
-    --peligro-fondo: var(--c-peligro-fondo);
-    --peligro-borde: var(--c-peligro-borde);
-    --peligro-suave: var(--c-peligro-suave);
-    --hueco: var(--c-hueco);
-    --nav-fondo: var(--c-nav-fondo);
-    --attrib-fondo: var(--c-attrib-fondo);
     --sombra: var(--c-sombra);
-    --elevacion: var(--c-elevacion);
-    --agua-alta: var(--c-agua-alta);
-    --agua-baja: var(--c-agua-baja);
+    --sombra-nav: var(--c-sombra-nav);
     --filtro-mapa: var(--c-filtro-mapa);
     --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
   }
 }
 
-/* La elección manual gana siempre: alguien puede querer el claro justo para
-   salir a la calle, tenga el teléfono como lo tenga. */
 html[data-tema="claro"] {
   --fondo: var(--c-fondo);
   --panel: var(--c-panel);
@@ -259,29 +225,23 @@ html[data-tema="claro"] {
   --texto: var(--c-texto);
   --tenue: var(--c-tenue);
   --agua: var(--c-agua);
-  --agua-claro: var(--c-agua-claro);
-  --tierra: var(--c-tierra);
+  --agua-clara: var(--c-agua-clara);
+  --acento: var(--c-acento);
   --alerta: var(--c-alerta);
   --peligro: var(--c-peligro);
   --ok: var(--c-ok);
+  --alerta-texto: var(--c-alerta-texto);
+  --peligro-texto: var(--c-peligro-texto);
+  --ok-texto: var(--c-ok-texto);
+  --tierra: var(--c-tierra);
+  --peligro-solido: var(--c-peligro-solido);
+  --agua-tinte: var(--c-agua-tinte);
+  --alerta-tinte: var(--c-alerta-tinte);
+  --peligro-tinte: var(--c-peligro-tinte);
+  --ok-tinte: var(--c-ok-tinte);
   --btn-texto: var(--c-btn-texto);
-  --ok-fondo: var(--c-ok-fondo);
-  --ok-borde: var(--c-ok-borde);
-  --ok-suave: var(--c-ok-suave);
-  --alerta-fondo: var(--c-alerta-fondo);
-  --alerta-borde: var(--c-alerta-borde);
-  --alerta-suave: var(--c-alerta-suave);
-  --alerta-barra: var(--c-alerta-barra);
-  --peligro-fondo: var(--c-peligro-fondo);
-  --peligro-borde: var(--c-peligro-borde);
-  --peligro-suave: var(--c-peligro-suave);
-  --hueco: var(--c-hueco);
-  --nav-fondo: var(--c-nav-fondo);
-  --attrib-fondo: var(--c-attrib-fondo);
   --sombra: var(--c-sombra);
-  --elevacion: var(--c-elevacion);
-  --agua-alta: var(--c-agua-alta);
-  --agua-baja: var(--c-agua-baja);
+  --sombra-nav: var(--c-sombra-nav);
   --filtro-mapa: var(--c-filtro-mapa);
   --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
 }
@@ -294,18 +254,19 @@ html,
 body {
   background: var(--fondo);
   color: var(--texto);
-  font-family: var(--body);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: var(--t-base);
+  line-height: 1.55;
   -webkit-text-size-adjust: 100%;
 }
 body {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
 }
 /* La barra de instalar es fixed: sin esto flotaba encima del último bloque
    de cada pestaña, que además suele ser un aviso importante. */
 body.con-instalar {
-  padding-bottom: calc(72px + 58px + env(safe-area-inset-bottom));
-  line-height: 1.5;
-  font-size: var(--t-base);
+  padding-bottom: calc(96px + 60px + env(safe-area-inset-bottom));
 }
 button,
 input,
@@ -316,7 +277,7 @@ textarea {
   color: inherit;
 }
 :focus-visible {
-  outline: 2px solid var(--agua-claro);
+  outline: 2px solid var(--acento);
   outline-offset: 2px;
   border-radius: var(--r-s);
 }
@@ -374,22 +335,22 @@ textarea {
 }
 
 .marca {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: var(--t-xxl);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  line-height: 0.95;
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
 }
 .marca span {
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 .sub {
-  font-family: var(--data);
-  font-size: var(--t-xs);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: var(--t-s);
   color: var(--tenue);
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   /* Es un <p> por semántica; el margen inferior de los párrafos no va acá. */
   margin: var(--e-1) 0 0;
 }
@@ -405,18 +366,18 @@ textarea {
   display: block;
 }
 h2 {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: var(--t-l);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  margin: var(--e-6) 0 var(--e-3);
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: var(--e-6) 0 var(--e-2);
 }
 h2:first-child {
   margin-top: var(--e-1);
 }
 .cuenta {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-s);
   font-weight: 400;
   letter-spacing: 0.04em;
@@ -424,15 +385,14 @@ h2:first-child {
   text-transform: none;
 }
 .cuenta.completa {
-  color: var(--ok);
+  color: var(--ok-texto);
 }
 h3 {
-  font-family: var(--display);
-  font-weight: 600;
+  font-family: var(--sans);
+  font-weight: 700;
   font-size: var(--t-m);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--tenue);
+  letter-spacing: -0.01em;
+  color: var(--texto);
   margin: var(--e-5) 0 var(--e-2);
 }
 p {
@@ -444,14 +404,14 @@ p {
 }
 .tarjeta {
   background: var(--panel);
-  border: 1px solid var(--linea);
-  box-shadow: var(--elevacion);
+  border: none;
+  box-shadow: var(--sombra);
   border-radius: var(--r-l);
-  padding: var(--e-4);
+  padding: var(--e-5);
   margin-bottom: var(--e-4);
 }
 .eti {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -460,15 +420,20 @@ p {
   margin-bottom: var(--e-2);
 }
 .dato {
-  font-family: var(--data);
-  font-weight: 700;
-  font-size: var(--t-xxl);
-  line-height: 1.1;
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-hero);
+  line-height: 0.9;
 }
 .unidad {
-  font-size: var(--t-base);
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--tenue);
-  font-weight: 400;
+  margin-top: var(--e-2);
 }
 
 /* ---------- regla / hidrómetro (elemento firma) ---------- */
@@ -478,24 +443,37 @@ p {
   align-items: stretch;
   margin: var(--e-2) 0 var(--e-1);
 }
+/* Escala y pista comparten alto: los porcentajes de una caen en la misma
+   altura que los de la otra sin coordinar nada. */
+.instrumento {
+  display: flex;
+  gap: var(--e-2);
+  align-items: stretch;
+  flex: none;
+}
+.escala {
+  position: relative;
+  width: 30px;
+  flex: none;
+}
 .regla {
   position: relative;
   /* 74px eran pocos: entre marcas y números ya se iban 31, y las etiquetas de
      umbral se montaban encima de la numeración. */
-  width: 96px;
+  width: 88px;
   flex: none;
   background: var(--panel-2);
-  border: 1px solid var(--linea);
-  border-radius: var(--r-m);
+  border: none;
+  border-radius: var(--r-l);
   overflow: hidden;
-  min-height: 320px;
+  min-height: 340px;
 }
 .agua {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, var(--agua-alta), var(--agua-baja));
+  background: var(--agua);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 /* La superficie del agua es la línea que más se mira: va nítida y de un solo
@@ -506,8 +484,8 @@ p {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: var(--agua-claro);
+  height: 3px;
+  background: var(--agua-clara);
 }
 .marca-linea {
   position: absolute;
@@ -521,15 +499,17 @@ p {
   position: absolute;
   right: var(--e-1);
   top: -15px;
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-tick);
   font-weight: 700;
   letter-spacing: 0.02em;
-  /* El chip usaba --fondo, pero se apoya sobre la regla, que es --panel-2. */
-  background: var(--panel-2);
+  /* El chip va sobre --panel, no sobre el fondo de la regla: apoyado en
+     --panel-2 el rojo quedaba en 4,47 y el acento claro en 4,36. Además así
+     lee como una pastilla flotando sobre el instrumento, que es la idea. */
+  background: var(--panel);
   border: 1px solid currentColor;
-  padding: 1px var(--e-1);
-  border-radius: var(--r-s);
+  padding: 2px 7px;
+  border-radius: var(--r-full);
   line-height: 1.35;
 }
 /* 5,30 y 5,70 están siempre a 40 cm: sobre esta escala son 15px, y las
@@ -546,23 +526,23 @@ p {
 }
 .tic {
   position: absolute;
-  left: 0;
-  width: 8px;
+  right: 0;
+  width: 5px;
   height: 1px;
   background: var(--linea);
 }
 .tic.mayor {
-  width: 15px;
+  width: 9px;
   background: var(--tenue);
 }
 .tic-num {
   position: absolute;
-  left: var(--e-5);
-  font-family: var(--data);
+  right: var(--e-3);
+  font-family: var(--mono);
   font-size: var(--t-tick);
-  font-weight: 700;
+  font-weight: 500;
   color: var(--tenue);
-  transform: translateY(-50%);
+  transform: translateY(50%);
 }
 .leyenda {
   flex: 1;
@@ -576,7 +556,7 @@ p {
   padding-left: var(--e-3);
 }
 .leyenda-item .v {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-weight: 700;
   font-size: var(--t-m);
   line-height: 1.15;
@@ -591,40 +571,36 @@ p {
 /* ---------- veredicto ---------- */
 .veredicto {
   border-radius: var(--r-l);
-  box-shadow: var(--elevacion);
-  padding: var(--e-4);
+  box-shadow: var(--sombra);
+  padding: var(--e-5);
   margin-bottom: var(--e-4);
-  border: 1px solid;
+  border: none;
 }
 .veredicto .titu {
-  font-family: var(--display);
-  font-weight: 700;
+  font-family: var(--sans);
+  font-weight: 800;
   font-size: var(--t-xl);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  line-height: 1.05;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   margin-bottom: var(--e-2);
 }
 .v-ok {
-  background: var(--ok-fondo);
-  border-color: var(--ok-borde);
+  background: var(--ok-tinte);
 }
 .v-ok .titu {
-  color: var(--ok);
+  color: var(--ok-texto);
 }
 .v-alerta {
-  background: var(--alerta-fondo);
-  border-color: var(--alerta-borde);
+  background: var(--alerta-tinte);
 }
 .v-alerta .titu {
-  color: var(--alerta);
+  color: var(--alerta-texto);
 }
 .v-peligro {
-  background: var(--peligro-fondo);
-  border-color: var(--peligro-borde);
+  background: var(--peligro-tinte);
 }
 .v-peligro .titu {
-  color: var(--peligro);
+  color: var(--peligro-texto);
 }
 /* Mientras busca el dato, la tarjeta late suave. Es la diferencia entre
    "esperá" y "falló". */
@@ -642,7 +618,7 @@ p {
 }
 .v-neutro {
   background: var(--panel);
-  border-color: var(--linea);
+  box-shadow: var(--sombra);
 }
 
 /* ---------- controles ---------- */
@@ -651,10 +627,11 @@ label.campo {
   margin-bottom: var(--e-3);
 }
 label.campo > span {
-  font-family: var(--data);
-  font-size: var(--t-xs);
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: var(--t-s);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--tenue);
   display: block;
   margin-bottom: var(--e-1);
@@ -665,13 +642,18 @@ select,
 textarea {
   width: 100%;
   background: var(--panel-2);
-  border: 1px solid var(--linea);
+  border: 1px solid transparent;
   border-radius: var(--r-m);
-  padding: var(--e-3) var(--e-3);
-  font-family: var(--data);
+  padding: var(--e-3) var(--e-4);
+  min-height: 52px;
+  font-family: var(--sans);
+  font-weight: 500;
+}
+input[type="number"] {
+  font-family: var(--mono);
 }
 textarea {
-  font-family: var(--body);
+  font-family: var(--sans);
   resize: vertical;
   min-height: 64px;
 }
@@ -683,21 +665,21 @@ input[type="range"] {
   background: var(--agua);
   color: var(--btn-texto);
   border: none;
-  border-radius: var(--r-m);
+  border-radius: var(--r-full);
   /* La altura mínima se declara, no se deduce del padding: así el objetivo
      táctil no depende de que nadie toque la escala de espaciados. */
-  min-height: 44px;
+  min-height: 52px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
      objetivo táctil son 44. Con 12px quedaba en 43. */
   padding: var(--e-3) var(--e-4);
-  font-family: var(--display);
+  font-family: var(--sans);
   font-weight: 700;
-  font-size: var(--t-base);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--t-m);
+  letter-spacing: -0.01em;
+  text-transform: none;
   cursor: pointer;
   width: 100%;
   margin-bottom: var(--e-2);
@@ -709,14 +691,17 @@ input[type="range"] {
 .btn:active {
   transform: translateY(1px);
 }
+/* El secundario se distingue por relleno, no por contorno. Con --panel puro
+   quedaba blanco sobre tarjeta blanca: sólo lo separaba la sombra. */
 .btn.sec {
-  background: transparent;
+  background: var(--panel-2);
   color: var(--texto);
-  border: 1px solid var(--linea);
+  border: none;
 }
 .btn.mini {
   width: auto;
-  padding: var(--e-2) var(--e-3);
+  min-height: 44px;
+  padding: 0 var(--e-4);
   font-size: var(--t-s);
 }
 .fila {
@@ -746,22 +731,22 @@ input[type="range"] {
   border-color: var(--alerta);
 }
 .dia .d {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-xs);
   color: var(--tenue);
   text-transform: uppercase;
 }
 .dia .mm {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-weight: 700;
   font-size: var(--t-base);
   margin-top: 3px;
 }
 .dia .mm.hay {
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 .dia .mm.fuerte {
-  color: var(--alerta);
+  color: var(--alerta-texto);
 }
 /* Un número suelto no dice si 12 mm es mucho o poco. La barra da la escala y
    la línea punteada marca el umbral de 40 mm. */
@@ -769,7 +754,7 @@ input[type="range"] {
   position: relative;
   height: 34px;
   margin-top: var(--e-1);
-  background: var(--hueco);
+  background: var(--panel-2);
   border-radius: var(--r-s);
   overflow: hidden;
 }
@@ -828,7 +813,7 @@ input[type="range"] {
 }
 .punto {
   display: block;
-  padding: var(--e-3) 0;
+  padding: var(--e-4) 0;
   border-bottom: 1px solid var(--linea);
   color: inherit;
   text-decoration: none;
@@ -837,10 +822,10 @@ input[type="range"] {
   border-bottom: none;
 }
 .punto .n {
-  font-family: var(--display);
-  font-weight: 600;
+  font-family: var(--sans);
+  font-weight: 700;
   font-size: var(--t-m);
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
 }
 .punto .d {
   font-size: var(--t-s);
@@ -848,9 +833,9 @@ input[type="range"] {
   margin-top: 1px;
 }
 .punto .ir {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-xs);
-  color: var(--agua-claro);
+  color: var(--acento);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-top: 3px;
@@ -859,16 +844,15 @@ input[type="range"] {
 
 /* ---------- avisos ---------- */
 .aviso {
-  border-left: 3px solid var(--alerta);
-  background: var(--alerta-suave);
-  padding: var(--e-3) var(--e-3);
-  border-radius: 0 var(--r-m) var(--r-m) 0;
+  border-left: none;
+  background: var(--alerta-tinte);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-m);
   font-size: var(--t-s);
   margin-bottom: var(--e-3);
 }
 .aviso.grave {
-  border-color: var(--peligro);
-  background: var(--peligro-suave);
+  background: var(--peligro-tinte);
 }
 /* Una lista de acciones se lee; el mismo contenido en prosa, no. */
 .pasos {
@@ -882,25 +866,25 @@ input[type="range"] {
   line-height: 1.45;
 }
 .pasos.grave li b {
-  color: var(--peligro);
-  font-family: var(--data);
+  color: var(--peligro-texto);
+  font-family: var(--mono);
 }
 .pasos a {
-  color: var(--agua-claro);
+  color: var(--acento);
   font-weight: 700;
 }
 .aviso details summary {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--tenue);
 }
 .aviso b {
-  color: var(--alerta);
+  color: var(--alerta-texto);
 }
 .aviso.grave b {
-  color: var(--peligro);
+  color: var(--peligro-texto);
 }
 .tel {
   display: flex;
@@ -918,10 +902,10 @@ input[type="range"] {
   font-size: var(--t-base);
 }
 .tel .n {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-weight: 700;
   font-size: var(--t-m);
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 
 /* ---------- mapa ---------- */
@@ -967,12 +951,12 @@ input[type="range"] {
   filter: var(--filtro-iconos-mapa);
 }
 #mapa .maplibregl-ctrl-attrib {
-  background: var(--attrib-fondo);
+  background: var(--panel);
   color: var(--tenue);
   font-size: var(--t-xs);
 }
 #mapa .maplibregl-ctrl-attrib a {
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 #mapa .maplibregl-ctrl-attrib-button {
   filter: var(--filtro-iconos-mapa);
@@ -984,10 +968,10 @@ input[type="range"] {
   border: 1px solid var(--linea);
   border-radius: var(--r-m);
   padding: var(--e-3) var(--e-3);
-  font-family: var(--body);
+  font-family: var(--sans);
 }
 .maplibregl-popup-content strong {
-  font-family: var(--display);
+  font-family: var(--sans);
   font-size: var(--t-m);
   letter-spacing: 0.02em;
 }
@@ -1021,7 +1005,7 @@ input[type="range"] {
   box-shadow: 0 0 0 1px var(--tierra);
 }
 .punto.destacado {
-  background: var(--ok-suave);
+  background: var(--ok-tinte);
   border-radius: var(--r-m);
   padding-left: var(--e-3);
   padding-right: var(--e-3);
@@ -1037,7 +1021,7 @@ input[type="range"] {
 .tend .flecha {
   font-size: var(--t-xl);
   line-height: 1;
-  font-family: var(--data);
+  font-family: var(--mono);
   font-weight: 700;
 }
 .sparkline {
@@ -1054,17 +1038,20 @@ nav {
   right: 0;
   bottom: 0;
   display: flex;
-  background: var(--nav-fondo);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--linea);
-  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--panel);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: var(--sombra-nav);
+  padding: var(--e-2) var(--e-3) 0;
+  padding-bottom: calc(var(--e-2) + env(safe-area-inset-bottom));
   z-index: 50;
 }
 nav button {
   flex: 1;
+  min-width: 0;
   background: none;
   border: none;
-  padding: var(--e-3) 2px var(--e-3);
+  border-radius: var(--r-m);
+  padding: var(--e-2) 2px var(--e-3);
   cursor: pointer;
   color: var(--tenue);
   display: flex;
@@ -1073,11 +1060,20 @@ nav button {
   gap: var(--e-1);
 }
 nav button.on {
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 nav button svg {
-  width: 21px;
-  height: 21px;
+  transition: background var(--mov);
+}
+nav button.on svg {
+  background: var(--agua-tinte);
+}
+nav button svg {
+  width: 44px;
+  height: 26px;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  box-sizing: content-box;
   stroke: currentColor;
   fill: none;
   stroke-width: 1.7;
@@ -1085,16 +1081,17 @@ nav button svg {
   stroke-linejoin: round;
 }
 nav button span {
-  font-family: var(--data);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--t-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 #sin-conexion {
-  background: var(--alerta-barra);
-  border-bottom: 1px solid var(--alerta-borde);
-  color: var(--alerta);
-  font-family: var(--data);
+  background: var(--alerta-tinte);
+  border-bottom: 1px solid var(--alerta);
+  color: var(--alerta-texto);
+  font-family: var(--mono);
   font-size: var(--t-xs);
   letter-spacing: 0.04em;
   padding: var(--e-2) var(--e-5);
@@ -1110,13 +1107,11 @@ nav button span {
   position: fixed;
   left: 14px;
   right: 14px;
-  bottom: calc(78px + env(safe-area-inset-bottom));
+  bottom: calc(96px + env(safe-area-inset-bottom));
   z-index: 60;
   display: flex;
   gap: var(--e-2);
   align-items: stretch;
-  box-shadow: 0 6px 24px var(--sombra);
-  border-radius: var(--r-m);
 }
 .instalar .btn {
   margin: 0;
@@ -1124,10 +1119,11 @@ nav button span {
 }
 .instalar .cerrar {
   flex: none;
-  width: 46px;
+  width: 52px;
   border: none;
-  border-radius: var(--r-m);
-  background: var(--panel-2);
+  border-radius: var(--r-full);
+  background: var(--panel);
+  box-shadow: var(--sombra);
   color: var(--texto);
   font-size: var(--t-l);
   cursor: pointer;
@@ -1168,7 +1164,7 @@ nav button span {
 }
 .sugerir > summary {
   cursor: pointer;
-  font-family: var(--display);
+  font-family: var(--sans);
   font-weight: 600;
   font-size: var(--t-m);
   letter-spacing: 0.04em;
@@ -1211,7 +1207,7 @@ nav button span {
   margin-left: var(--e-2);
 }
 .firma .redes a {
-  font-family: var(--data);
+  font-family: var(--mono);
   font-size: var(--t-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1219,14 +1215,14 @@ nav button span {
   padding: var(--e-1) var(--e-2);
   border: 1px solid var(--linea);
   border-radius: var(--r-full);
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 .firma .redes a:hover {
-  border-color: var(--agua-claro);
+  border-color: var(--acento);
 }
 
 .pie a {
-  color: var(--agua-claro);
+  color: var(--acento);
 }
 
 /* ==========================================================================
@@ -1277,7 +1273,7 @@ textarea {
   .btn.sec:hover:not(:disabled) {
     filter: none;
     border-color: var(--agua);
-    color: var(--agua-claro);
+    color: var(--acento);
   }
   .punto:hover,
   .tel:hover {
@@ -1300,7 +1296,7 @@ textarea {
 /* El foco visible tiene que verse igual en todos lados, no heredar el que
    trae cada control. */
 :focus-visible {
-  outline: 2px solid var(--agua-claro);
+  outline: 2px solid var(--acento);
   outline-offset: 2px;
 }
 input:focus-visible,
@@ -1315,7 +1311,7 @@ textarea:focus-visible {
    números. A 30px una monoespaciada queda suelta; el tracking negativo la
    compacta y la hace leer como un instrumento. */
 .dato {
-  letter-spacing: -0.015em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 .dato .unidad {
@@ -1329,132 +1325,31 @@ textarea:focus-visible {
 }
 
 /* ==========================================================================
-   PANTALLAS ANCHAS
-   La app es mobile-first y está bien que lo sea: se usa en el teléfono. Pero
-   en 1440px quedaba una columna de 640px con 400px vacíos de cada lado, y la
-   barra de navegación —un idioma de teléfono— estirada de punta a punta con
-   los ítems a media pantalla uno de otro.
+   PANTALLAS ANCHAS — sólo "Dónde ir"
+   El resto de la app se queda igual que en el teléfono a propósito: una
+   columna centrada. La única pantalla que gana de verdad con más ancho es
+   ésta, porque un mapa y su lista se usan juntos.
+   La grilla va en .mapa-y-lista, no en la sección: poniéndola en la sección,
+   los <h2> a ancho completo cortan cada fila y la segunda columna no se forma
+   nunca. Eso fue exactamente lo que salió mal el intento anterior.
    ========================================================================== */
 @media (min-width: 900px) {
-  /* Reordenamos con flex para subir la nav sin tocar el orden del HTML: en el
-     marcado sigue después del contenido, que es lo correcto. */
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: 0;
+  #v-donde.on {
+    max-width: 1000px;
   }
-  body.con-instalar {
-    padding-bottom: 0;
+  .mapa-y-lista {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--e-5);
+    align-items: start;
   }
-  .top {
-    order: 0;
-  }
-  #sin-conexion {
-    order: 1;
-  }
-  nav {
-    order: 2;
-  }
-  .vista {
-    order: 3;
-  }
-  .sugerir {
-    order: 4;
-  }
-  .pie {
-    order: 5;
-    margin-top: auto;
-  }
-
-  /* La nav deja de ser una barra fija abajo y pasa a acompañar al contenido. */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    justify-content: center;
-    gap: var(--e-2);
-    padding: 0 var(--e-5);
-    border-top: none;
-    border-bottom: 1px solid var(--linea);
-  }
-  nav button {
-    flex: none;
-    flex-direction: row;
-    gap: var(--e-2);
-    padding: var(--e-4) var(--e-5);
-    border-bottom: 2px solid transparent;
-  }
-  nav button.on {
-    border-bottom-color: var(--agua-claro);
-  }
-  nav button span {
-    font-size: var(--t-s);
-  }
-
-  /* El encabezado se alinea con la columna de contenido en vez de quedar
-     pegado al borde de la ventana. */
-  .top {
-    padding-left: max(18px, calc((100vw - 1040px) / 2));
-    padding-right: max(18px, calc((100vw - 1040px) / 2));
-  }
-  .vista,
-  .sugerir {
-    max-width: 1040px;
-  }
-
-  /* Mapa y lista lado a lado: el mapa queda fijo mientras se recorre la
-     lista, que es como se usa un buscador de lugares en una pantalla grande. */
+  /* El mapa queda a la vista mientras se recorre la lista. */
   .col-mapa {
     position: sticky;
-    top: 76px;
-  }
-  #v-donde .col-mapa,
-  #v-donde .col-lista {
-    grid-column: auto;
-  }
-  /* .on: si no, este display gana sobre el `display:none` de .vista y se
-     muestran todas las secciones a la vez. */
-  #v-donde.on {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--e-5);
-    align-items: start;
-  }
-  #v-donde > h2,
-  #v-donde > p,
-  #v-donde > .tarjeta {
-    grid-column: 1 / -1;
+    top: var(--e-5);
   }
   #mapa {
-    height: 460px;
-  }
-
-  /* En "Río" el hidrómetro y el pronóstico caben uno al lado del otro. */
-  #v-rio.on {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--e-5);
-    align-items: start;
-  }
-  #v-rio > .veredicto,
-  #v-rio > #cta-cota,
-  #v-rio > details,
-  #v-rio > .aviso {
-    grid-column: 1 / -1;
-  }
-
-  /* El plan es un formulario largo: dos columnas de tarjetas. */
-  #v-plan.on {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--e-5);
-    align-items: start;
-  }
-  #v-plan > h2,
-  #v-plan > p,
-  #v-plan > .btn {
-    grid-column: 1 / -1;
+    height: 440px;
   }
 }
 

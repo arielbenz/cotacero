@@ -192,6 +192,41 @@ const guardado = (() => {
   };
 })();
 
+/* ---------- cuántos la usan ----------
+   Un número al azar por instalación, guardado en el teléfono. No se manda con
+   él ninguna otra cosa: ni la cota, ni la zona, ni el plan. Del lado del
+   servidor entra a un HyperLogLog, que sabe cuántos distintos vio pero no
+   guarda ninguno (ver lib/metricas.js).
+   Sirve para una sola pregunta: si 500 aperturas son 500 personas o 30. */
+function idInstalacion() {
+  let id = guardado.get("cc_id");
+  if (!/^[0-9a-f]{24}$/.test(id || "")) {
+    const b = new Uint8Array(12);
+    crypto.getRandomValues(b);
+    id = [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+    guardado.set("cc_id", id);
+  }
+  return id;
+}
+
+/* Una sola vez por sesión, y sin bloquear nada: si falla, falla en silencio.
+   Que no se pueda contar no es un problema de quien está usando la app. */
+function contarVisita() {
+  try {
+    if (sessionStorage.getItem("cc_visita") === "1") return;
+    sessionStorage.setItem("cc_visita", "1");
+  } catch (e) {
+    /* en modo privado no hay sessionStorage: se cuenta igual */
+  }
+  if (navigator.onLine === false) return;
+  fetch("/api/visita", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: idInstalacion() }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 /* Las versiones anteriores cacheaban las coordenadas de los 30 puntos en
    localStorage, con prefijos que ya no se usan. Ahora las coordenadas son las
    oficiales del municipio y viven en el código: esas entradas quedaron
@@ -399,7 +434,7 @@ async function cargarRio() {
     estado.rio = null;
     estado.rioOrigen = "";
     document.getElementById("origen-dato").innerHTML =
-      '<b style="color:var(--alerta)">Sin dato automático.</b> Cargá la altura a mano acá abajo. ' +
+      '<b style="color:var(--alerta-texto)">Sin dato automático.</b> Cargá la altura a mano acá abajo. ' +
       "La publican el INA, Prefectura y la FICH-UNL todos los días.";
     document.getElementById("det-manual").open = true;
   } else {
@@ -407,7 +442,7 @@ async function cargarRio() {
     estado.rioOrigen = origen;
     document.getElementById("origen-dato").innerHTML =
       (estado.rioVencido
-        ? '<b style="color:var(--alerta)">Dato vencido.</b> '
+        ? '<b style="color:var(--alerta-texto)">Dato vencido.</b> '
         : "") +
       "Fuente: " +
       origen +
@@ -489,7 +524,7 @@ async function cargarTendencia() {
 <div class="tend">
   <div class="flecha" style="color:${color}">${flecha}</div>
   <div>
-    <div style="font-family:var(--display);font-weight:700;font-size: var(--t-l);
+    <div style="font-family:var(--sans);font-weight:700;font-size: var(--t-l);
       letter-spacing:.03em;text-transform:uppercase;color:${color}">${txt}</div>
     <div class="chico">${camb >= 0 ? "+" : ""}${camb.toFixed(0)}% en los últimos 7 días${
       proy === null
@@ -528,7 +563,7 @@ function sparkline(serie, corte) {
     role="img" aria-label="Curva del caudal: ${corte + 1} días pasados y la proyección
     de los ${serie.length - corte - 1} siguientes. Los números están en el texto de arriba.">
     <polyline points="${pasado}" fill="none" stroke="var(--agua)" stroke-width="2"/>
-    <polyline points="${futuro}" fill="none" stroke="var(--agua-claro)"
+    <polyline points="${futuro}" fill="none" stroke="var(--acento)"
 stroke-width="2" stroke-dasharray="4 3"/>
     <line x1="${px(corte)}" y1="0" x2="${px(corte)}" y2="${h}"
 stroke="var(--linea)" stroke-width="1"/></svg>`;
@@ -542,13 +577,13 @@ function fijarRioManual() {
   // fuera de contexto. #origen-dato ya es una región viva.
   if (isNaN(v)) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">Escribí un número</b>, por ejemplo 3,40.';
+      '<b style="color:var(--alerta-texto)">Escribí un número</b>, por ejemplo 3,40.';
     campo.focus();
     return;
   }
   if (v < -1 || v > 10) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">Ese valor está fuera de la escala del hidrómetro</b> ' +
+      '<b style="color:var(--alerta-texto)">Ese valor está fuera de la escala del hidrómetro</b> ' +
       "(−1 a 10 m). El récord de 1992 fue 7,43 m.";
     campo.focus();
     return;
@@ -570,21 +605,24 @@ function fijarRioManual() {
 function pintarRio() {
   const regla = document.getElementById("regla");
   const pct = (v) => ((v - ESCALA_MIN) / (ESCALA_MAX - ESCALA_MIN)) * 100;
-  let html = "";
 
+  // La escala vive en su propia columna, al lado de la pista y no encima.
+  let escala = "";
   for (let t = ESCALA_MIN; t <= ESCALA_MAX; t += 0.5) {
     const mayor = Number.isInteger(t);
-    html += `<div class="tic ${mayor ? "mayor" : ""}" style="bottom:${pct(t)}%"></div>`;
+    escala += `<div class="tic ${mayor ? "mayor" : ""}" style="bottom:${pct(t)}%"></div>`;
     if (mayor)
-      html += `<div class="tic-num" style="bottom:${pct(t)}%">${t}</div>`;
+      escala += `<div class="tic-num" style="bottom:${pct(t)}%">${t}</div>`;
   }
+  document.getElementById("escala").innerHTML = escala;
 
+  let html = "";
   const r = estado.rio;
   html += `<div class="agua" style="height:${r == null ? 0 : Math.max(0, Math.min(100, pct(r)))}%"></div>`;
   // "debajo": la etiqueta de alerta va del otro lado de su línea porque si no
   // se monta con la de evacuación, que está a 40 cm — 15px en esta escala.
-  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta)"><b style="color:var(--alerta)">5,30</b></div>`;
-  html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro)"><b style="color:var(--peligro)">5,70</b></div>`;
+  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta-texto)"><b style="color:var(--alerta-texto)">5,30</b></div>`;
+  html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro-texto)"><b style="color:var(--peligro-texto)">5,70</b></div>`;
 
   // tu cota, traducida a lectura de hidrómetro
   const critico = cotaEnHidrometro();
@@ -660,7 +698,7 @@ function pintarVeredictoRio() {
       '<p class="chico" style="margin:0 0 10px">Te dice <b>a qué altura del río ' +
       "el agua llega a tu terreno</b>. En muchas zonas eso pasa antes que la " +
       "alerta general de 5,30 m.</p>" +
-      '<p class="chico" style="margin:0"><b style="color:var(--alerta)">Ahora mismo ' +
+      '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">Ahora mismo ' +
       "no pudimos leer el nivel del INA.</b> Cargalo a mano acá abajo, o probá de " +
       "nuevo en un rato.</p>";
     return;
@@ -780,7 +818,7 @@ function pintarLluvia() {
     res.textContent = "Semana seca: " + Math.round(total) + " mm acumulados.";
   else if (pico >= 40)
     res.innerHTML =
-      '<b style="color:var(--alerta)">Se esperan ' +
+      '<b style="color:var(--alerta-texto)">Se esperan ' +
       Math.round(pico) +
       " mm en un solo día.</b> Con el río alto, las bombas tardan más en desagotar.";
   else res.textContent = Math.round(total) + " mm acumulados en la semana.";
@@ -848,7 +886,7 @@ function pintarOrigenCota() {
     m(estado.cota) +
     "</b>, tomada de " +
     (o.ojo
-      ? '<b style="color:var(--alerta)">' + o.corto + "</b>"
+      ? '<b style="color:var(--alerta-texto)">' + o.corto + "</b>"
       : "<b>" + o.corto + "</b>") +
     "." +
     (o.largo ? " " + o.largo : "");
@@ -860,12 +898,12 @@ function marcarCotaManual() {
   const est = document.getElementById("estado-cota");
   if (campo.value.trim() && isNaN(v)) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">No entiendo ese número.</b> Escribilo así: 16,40.';
+      '<b style="color:var(--alerta-texto)">No entiendo ese número.</b> Escribilo así: 16,40.';
     return;
   }
   if (!isNaN(v) && (v < 0 || v > 40)) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">Esa cota está fuera de rango</b> (0 a 40 m sobre el nivel del mar).';
+      '<b style="color:var(--alerta-texto)">Esa cota está fuera de rango</b> (0 a 40 m sobre el nivel del mar).';
     return;
   }
   estado.cota = isNaN(v) ? null : v;
@@ -901,7 +939,7 @@ async function estimarCota() {
         // terreno, no del tuyo, y el número parece igual de firme.
         if (typeof prec === "number" && prec > PRECISION_MAX) {
           e.innerHTML =
-            '<b style="color:var(--alerta)">La ubicación llegó con ±' +
+            '<b style="color:var(--alerta-texto)">La ubicación llegó con ±' +
             Math.round(prec) +
             " m de error.</b> A esa distancia el modelo mide otro terreno. " +
             "Probá al aire libre, buscá la dirección, o cargá la cota a mano.";
@@ -953,7 +991,7 @@ function calcular() {
   const nz = document.getElementById("nota-zona");
   if (!estado.zona) {
     nz.innerHTML =
-      '<span style="color:var(--alerta)">Elegí tu zona</span>: la distancia ' +
+      '<span style="color:var(--alerta-texto)">Elegí tu zona</span>: la distancia ' +
       "río arriba cambia el resultado hasta 1,80 m.";
     document.getElementById("resultado").innerHTML =
       '<div class="veredicto v-neutro"><div class="titu">Falta tu zona</div>' +
@@ -981,7 +1019,7 @@ function calcular() {
       " km del hidrómetro, aguas arriba." +
       (KM_PUBLICADO.has(estado.zona)
         ? ""
-        : ' <span style="color:var(--alerta)">Esa distancia es una estimación ' +
+        : ' <span style="color:var(--alerta-texto)">Esa distancia es una estimación ' +
           "propia, no una medición sobre el cauce.</span>");
   }
 
@@ -1055,14 +1093,14 @@ function calcular() {
 
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
-    <table style="width:100%;font-family:var(--data);font-size: var(--t-s);border-collapse:collapse">
+    <table style="width:100%;font-family:var(--mono);font-size: var(--t-s);border-collapse:collapse">
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno<br>
         <span style="font-size: var(--t-xs)">según ${(origenCota() || {}).corto || "—"}</span></td>
   <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr><td style="padding:6px 0;color:var(--alerta)">Margen de error satelital</td>
-  <td style="text-align:right;color:var(--alerta)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
+        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen de error satelital</td>
+  <td style="text-align:right;color:var(--alerta-texto)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota usada (la pesimista)</td>
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
         : ""
@@ -1072,12 +1110,12 @@ function calcular() {
     <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""
-        : '<br><span style="color:var(--alerta);font-size: var(--t-xs)">distancia estimada, no medida</span>'
+        : '<br><span style="color:var(--alerta-texto);font-size: var(--t-xs)">distancia estimada, no medida</span>'
     }</td>
   <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
   <td style="padding:9px 0;font-weight:700">Lectura crítica</td>
-  <td style="text-align:right;font-weight:700;color:var(--agua-claro)">${m(ref)}</td></tr>
+  <td style="text-align:right;font-weight:700;color:var(--acento)">${m(ref)}</td></tr>
     </table>`;
 
   if (r != null) {
@@ -1086,7 +1124,7 @@ function calcular() {
 ${
   falta > 0
     ? "Faltan <b>" + m(falta) + "</b> para llegar a tu cota."
-    : '<b style="color:var(--peligro)">Ya lo superó.</b>'
+    : '<b style="color:var(--peligro-texto)">Ya lo superó.</b>'
 }</p>`;
   }
   html += "</div>";
@@ -1148,7 +1186,7 @@ function pintarListas() {
 
   if (!guardado.ok) {
     document.getElementById("estado-guardado").innerHTML =
-      '<b style="color:var(--alerta)">Este navegador no deja guardar.</b> ' +
+      '<b style="color:var(--alerta-texto)">Este navegador no deja guardar.</b> ' +
       "Descargá el plan antes de cerrar la página.";
   }
 }
@@ -1165,7 +1203,7 @@ function pintarProgreso() {
     const total = MOCHILA.length + PREVIA.length;
     res.innerHTML =
       hechos === total
-        ? '<b style="color:var(--ok)">Tu plan está completo.</b> Revisalo cada tanto.'
+        ? '<b style="color:var(--ok-texto)">Tu plan está completo.</b> Revisalo cada tanto.'
         : "Llevás <b>" +
           hechos +
           " de " +
@@ -1383,7 +1421,7 @@ async function buscarDireccion() {
   pintarOrigenCota();
   if (!r.exacta)
     e.innerHTML +=
-      ' <b style="color:var(--alerta)">Ubicó la calle, no la altura exacta</b>, ' +
+      ' <b style="color:var(--alerta-texto)">Ubicó la calle, no la altura exacta</b>, ' +
       "así que puede estar a varias cuadras. Si no es tu casa, cargá la cota a mano.";
   calcular();
   pintarRio();
@@ -1643,7 +1681,7 @@ function pintarPuntos(filtro = "", destacar = null) {
         miPos && c ? " · " + distanciaKm(miPos, c).toFixed(1) + " km" : "";
       return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
-<div class="n">${n}${destacar === n ? ' <span style="color:var(--ok);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
+<div class="n">${n}${destacar === n ? ' <span style="color:var(--ok-texto);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
 <div class="d">${d}${km}</div>
 <span class="ir">Abrir en mapas →</span></a>`;
     })
@@ -1796,7 +1834,7 @@ async function enviarSugerencia() {
   const texto = document.getElementById("sug-texto").value.trim();
   if (texto.length < 10) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">Contanos un poco más</b>, con diez caracteres no se entiende.';
+      '<b style="color:var(--alerta-texto)">Contanos un poco más</b>, con diez caracteres no se entiende.';
     document.getElementById("sug-texto").focus();
     return;
   }
@@ -1818,11 +1856,11 @@ async function enviarSugerencia() {
     document.getElementById("sug-contacto").value = "";
     contarSugerencia();
     est.innerHTML =
-      '<b style="color:var(--ok)">Gracias, llegó.</b> Lo va a leer una persona. ' +
+      '<b style="color:var(--ok-texto)">Gracias, llegó.</b> Lo va a leer una persona. ' +
       "Si dejaste contacto y hace falta, te escribimos.";
   } catch (e) {
     est.innerHTML =
-      '<b style="color:var(--alerta)">' +
+      '<b style="color:var(--alerta-texto)">' +
       atr(e.message) +
       "</b> Podés intentar de nuevo más tarde.";
   } finally {
@@ -1942,7 +1980,7 @@ async function activarAvisos() {
     const permiso = await Notification.requestPermission();
     if (permiso === "denied") {
       tarjeta(
-        '<p class="chico" style="margin:0"><b style="color:var(--alerta)">Bloqueaste los avisos.</b> ' +
+        '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">Bloqueaste los avisos.</b> ' +
           "Se vuelven a habilitar desde los ajustes del navegador para este sitio.</p>",
       );
       return;
@@ -1976,7 +2014,7 @@ async function activarAvisos() {
     aLaVista(caja);
   } catch (e) {
     tarjeta(
-      '<p class="chico" style="margin:0"><b style="color:var(--alerta)">No se pudieron ' +
+      '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">No se pudieron ' +
         "activar los avisos.</b> Probá de nuevo más tarde.</p>" +
         '<button class="btn mini" style="margin-top:11px;display:block" ' +
         'data-accion="avisos-on">Reintentar</button>',
@@ -2044,7 +2082,7 @@ async function pintarAvisos() {
   const sub = await suscripcionActual();
   if (sub) {
     caja.innerHTML = envoltura(
-      '<p class="chico" style="margin:0"><b style="color:var(--ok)">Avisos activados.</b> ' +
+      '<p class="chico" style="margin:0"><b style="color:var(--ok-texto)">Avisos activados.</b> ' +
         "Te avisamos cuando el río llegue a <b>" +
         m(umbral) +
         "</b>, y también si cruza los umbrales oficiales de 5,30 y 5,70 m.</p>" +
@@ -2203,4 +2241,5 @@ document.addEventListener("DOMContentLoaded", () => {
   conectarEventos();
   iniciar();
   abrirDesdeURL();
+  contarVisita();
 });

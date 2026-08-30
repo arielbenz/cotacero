@@ -6,13 +6,19 @@
 import crypto from "node:crypto";
 
 const b64url = (b) =>
-  Buffer.from(b).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  Buffer.from(b)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 
 const { publicKey, privateKey } = crypto.generateKeyPairSync("ec", {
   namedCurve: "prime256v1",
 });
 const pub = publicKey.export({ type: "spki", format: "der" }).subarray(-65);
-const priv = privateKey.export({ type: "pkcs8", format: "der" }).subarray(36, 68);
+const priv = privateKey
+  .export({ type: "pkcs8", format: "der" })
+  .subarray(36, 68);
 
 console.log("Pegá esto en las variables de entorno de Vercel:\n");
 console.log("VAPID_PUBLIC_KEY  =", b64url(pub));

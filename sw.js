@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v28";
+const VERSION = "cota-cero-v31";
 const ESENCIALES = [
   "/",
   "/index.html",
@@ -26,11 +26,11 @@ const ESENCIALES = [
   "/vendor/maplibre-gl.css",
   // Las tipografías ahora son nuestras: precacheadas andan sin conexión de
   // verdad, no con los fallbacks del sistema.
-  "/vendor/fonts/barlow-600.woff2",
-  "/vendor/fonts/barlow-700.woff2",
-  "/vendor/fonts/inter-400.woff2",
-  "/vendor/fonts/inter-700.woff2",
-  "/vendor/fonts/jetbrains-400.woff2",
+  "/vendor/fonts/jakarta-500.woff2",
+  "/vendor/fonts/jakarta-600.woff2",
+  "/vendor/fonts/jakarta-700.woff2",
+  "/vendor/fonts/jakarta-800.woff2",
+  "/vendor/fonts/jetbrains-500.woff2",
   "/vendor/fonts/jetbrains-700.woff2",
   "/manifest.webmanifest",
   "/icon-192.png",

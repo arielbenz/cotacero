@@ -12,7 +12,9 @@ export default async function handler(req, res) {
 
   try {
     const datos = await leerNivelINA();
-    return res.status(200).json({ ...datos, consultado: new Date().toISOString() });
+    return res
+      .status(200)
+      .json({ ...datos, consultado: new Date().toISOString() });
   } catch (e) {
     // El Cache-Control de arriba se fija antes del try: sin pisarlo acá, una
     // falla pasajera del INA se quedaría cacheada en el CDN durante una hora.
