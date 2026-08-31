@@ -14,10 +14,14 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v34";
+const VERSION = "cota-cero-v35";
 const ESENCIALES = [
+  // La landing y la app son dos documentos distintos: la primera es la puerta
+  // de entrada desde un buscador, la segunda es la herramienta.
   "/",
   "/index.html",
+  "/app",
+  "/app/index.html",
   "/app.css",
   "/app.js",
   // Con esto el mapa abre sin conexión. Los tiles no se cachean (son muchos
@@ -125,11 +129,32 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(
       fetch(req)
         .then((r) => {
-          const copia = r.clone();
-          caches.open(VERSION).then((c) => c.put("/index.html", copia));
+          // Se guarda bajo SU propia URL. Antes TODA navegación se guardaba
+          // como "/index.html": con la landing y la app en documentos
+          // distintos, visitar una dejaba su HTML como copia offline de la
+          // otra.
+          if (r.ok) {
+            const copia = r.clone();
+            caches.open(VERSION).then((c) => c.put(req, copia));
+          }
           return r;
         })
-        .catch(() => caches.match("/index.html")),
+        .catch(async () => {
+          // ignoreSearch porque la app navega a /app?ir=cota, ?ir=plan y
+          // ?ir=donde: sin esto cada deep link sería un fallo de caché.
+          const propia = await caches.match(req, { ignoreSearch: true });
+          if (propia) return propia;
+          // Último recurso: la app para sus rutas, la landing para el resto.
+          const alApp =
+            url.pathname === "/app" || url.pathname.startsWith("/app/");
+          return (
+            (await caches.match(alApp ? "/app" : "/")) ||
+            new Response("Sin conexión y sin copia guardada.", {
+              status: 504,
+              headers: { "Content-Type": "text/plain; charset=utf-8" },
+            })
+          );
+        }),
     );
     return;
   }
@@ -206,7 +231,7 @@ function armarAviso(nivel, umbral) {
       titulo: "El río se movió",
       cuerpo: "Abrí Cota Cero para ver el nivel de hoy.",
       urgente: false,
-      ir: "/",
+      ir: "/app",
     };
   if (umbral != null && nivel >= umbral)
     return {
@@ -215,21 +240,21 @@ function armarAviso(nivel, umbral) {
         `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m. ` +
         "Si Defensa Civil indica evacuar, evacuá.",
       urgente: true,
-      ir: "/?ir=plan",
+      ir: "/app?ir=plan",
     };
   if (nivel >= EVACUACION_OFICIAL)
     return {
       titulo: "Nivel de evacuación",
       cuerpo: `El río superó los 5,70 m (${dosDec(nivel)} m). Seguí las indicaciones del municipio.`,
       urgente: true,
-      ir: "/?ir=donde",
+      ir: "/app?ir=donde",
     };
   if (nivel >= ALERTA_OFICIAL)
     return {
       titulo: "Nivel de alerta",
       cuerpo: `El río superó los 5,30 m (${dosDec(nivel)} m). Arrancan las evacuaciones fuera del anillo.`,
       urgente: true,
-      ir: "/?ir=donde",
+      ir: "/app?ir=donde",
     };
   if (umbral != null) {
     const falta = umbral - nivel;
@@ -237,14 +262,14 @@ function armarAviso(nivel, umbral) {
       titulo: `El río subió a ${dosDec(nivel)} m`,
       cuerpo: `Faltan ${dosDec(falta)} m para llegar a tu cota.`,
       urgente: false,
-      ir: "/",
+      ir: "/app",
     };
   }
   return {
     titulo: `El río subió a ${dosDec(nivel)} m`,
     cuerpo: "Cargá tu cota en la app para saber qué significa para tu casa.",
     urgente: false,
-    ir: "/?ir=cota",
+    ir: "/app?ir=cota",
   };
 }
 
@@ -281,7 +306,7 @@ self.addEventListener("push", (e) => {
 
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();
-  const destino = (e.notification.data && e.notification.data.ir) || "/";
+  const destino = (e.notification.data && e.notification.data.ir) || "/app";
   e.waitUntil(
     (async () => {
       const abiertas = await self.clients.matchAll({

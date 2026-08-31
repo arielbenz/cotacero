@@ -822,12 +822,14 @@ input[type="range"] {
   border-bottom: none;
 }
 .punto .n {
+  display: block;
   font-family: var(--sans);
   font-weight: 700;
   font-size: var(--t-m);
   letter-spacing: -0.01em;
 }
 .punto .d {
+  display: block;
   font-size: var(--t-s);
   color: var(--tenue);
   margin-top: 1px;
@@ -1179,6 +1181,71 @@ nav button span {
   align-items: center;
   gap: var(--e-2);
   margin: 0 0 var(--e-5);
+}
+
+/* ---------- portada y páginas de contenido ----------
+   La app esconde 3 de sus 4 secciones detrás de pestañas, y eso a un buscador
+   le llega como contenido oculto. Estas páginas son texto visible y plano:
+   mismo sistema de diseño, sin pestañas. */
+.pagina {
+  padding: var(--e-5);
+  max-width: 640px;
+  margin: 0 auto;
+}
+body.landing {
+  /* No hay barra de navegación fija abajo, así que el hueco reservado para
+     ella sobra. */
+  padding-bottom: var(--e-7);
+}
+.pagina p {
+  margin-bottom: var(--e-4);
+}
+.pagina h2 {
+  margin-top: var(--e-7);
+}
+.pagina a {
+  color: var(--acento);
+}
+/* Un <a class="btn"> es un botón, no un enlace: sin esto la regla de arriba
+   le gana por especificidad y lo pinta del color de enlace, subrayado y
+   encima del relleno azul. */
+.btn {
+  text-decoration: none;
+}
+.pagina a.btn,
+.landing a.btn {
+  color: var(--btn-texto);
+  text-decoration: none;
+}
+
+/* La tarjeta del nivel del río, arriba de todo. */
+.hero {
+  text-align: center;
+  padding: var(--e-6) var(--e-5);
+}
+.hero .eti {
+  margin-bottom: var(--e-3);
+}
+.hero .dato {
+  margin-bottom: var(--e-5);
+}
+.hero .btn {
+  width: 100%;
+}
+
+/* Un h1 que dice sólo la marca no le sirve a nadie que busque "hasta dónde
+   llega el agua". El complemento existe para el buscador y para un lector de
+   pantalla; no se ve. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------- impresión ---------- */

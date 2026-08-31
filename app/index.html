@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Cota Cero — el nivel del río y tu cota, Santa Fe</title>
+    <!-- La app genera ?ir=cota, ?ir=plan y ?ir=donde al navegar entre
+         pestañas: son la misma página. Sin canonical, un buscador las trata
+         como cuatro y reparte la señal. -->
+    <link rel="canonical" href="https://cotacerosf.com/app" />
+    <meta
+      name="description"
+      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe."
+    />
+    <meta name="theme-color" content="#0B1418" />
+    <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
+         difundir esto. Las URL van absolutas: los rastreadores de vista previa
+         no siempre resuelven las relativas. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta
+      property="og:title"
+      content="Cota Cero — ¿hasta dónde llega el agua?"
+    />
+    <meta
+      property="og:description"
+      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
+    />
+    <meta property="og:image" content="https://cotacerosf.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Cota Cero — herramienta ciudadana para la emergencia hídrica de Santa Fe"
+    />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/app" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Los controles nativos (select, scrollbars) siguen al tema. -->
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Cota Cero — la app",
+        "url": "https://cotacerosf.com/app",
+        "inLanguage": "es-AR",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Cota Cero",
+          "url": "https://cotacerosf.com/"
+        }
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Cota Cero" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Las tipografías van self-hosteadas en /vendor/fonts. Precargamos las
+         dos que se ven arriba de todo, para que el encabezado no parpadee. -->
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta-800.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- El motor del mapa (MapLibre, self-hosteado en /vendor) no va acá:
+         bloqueaba la primera pintura de toda la app, teléfonos de emergencia
+         incluidos, por una pestaña que quizá nadie abra. Se carga recién al
+         entrar a "Dónde ir". -->
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="marca-bloque">
+        <h1 class="marca">Cota<span>Cero</span></h1>
+        <p class="sub" id="subtitulo">
+          Emergencia hídrica · Santa Fe · vigente hasta 30/04/2027
+        </p>
+      </div>
+      <button
+        id="btn-tema"
+        class="tema"
+        type="button"
+        data-accion="tema"
+        aria-label="Cambiar entre tema claro y oscuro"
+      ></button>
+    </header>
+
+    <!-- La app anda sin conexión, pero no lo decía: sólo avisaba que el dato
+         del río estaba vencido. -->
+    <div id="sin-conexion" role="status" hidden></div>
+
+    <noscript>
+      <style>
+        .vista,
+        nav {
+          display: none !important;
+        }
+      </style>
+      <div style="padding: 18px; max-width: 640px; margin: 0 auto">
+        <div class="aviso grave">
+          <b>Esta página necesita JavaScript</b> para leer el nivel del río y
+          calcular tu cota. Lo que no puede depender de eso es esto:
+        </div>
+        <h2>Teléfonos</h2>
+        <div class="tarjeta">
+          <a class="tel" href="tel:911"
+            ><span class="q"
+              >Emergencias (centraliza Bomberos, Defensa Civil, Policía)</span
+            ><span class="n">911</span></a
+          >
+          <a class="tel" href="tel:100"
+            ><span class="q">Bomberos</span><span class="n">100</span></a
+          >
+          <a class="tel" href="tel:103"
+            ><span class="q">Defensa Civil</span><span class="n">103</span></a
+          >
+          <a class="tel" href="tel:106"
+            ><span class="q">Emergencias náuticas — Prefectura</span
+            ><span class="n">106</span></a
+          >
+          <a class="tel" href="tel:3424562400"
+            ><span class="q">Prefectura Santa Fe</span
+            ><span class="n">342 456-2400</span></a
+          >
+          <a class="tel" href="tel:08007775000"
+            ><span class="q">Atención Ciudadana — Municipalidad</span
+            ><span class="n">0800-777-5000</span></a
+          >
+          <a class="tel" href="tel:08007770801"
+            ><span class="q">Gobierno de la Provincia</span
+            ><span class="n">0800-777-0801</span></a
+          >
+        </div>
+        <h2>Si tenés que salir</h2>
+        <div class="aviso grave">
+          <b>No cruces agua en movimiento</b>, ni a pie ni en auto.
+          <ul class="pasos grave">
+            <li><b>30 cm</b> de corriente arrastran a una persona.</li>
+            <li><b>60 cm</b> arrastran un vehículo.</li>
+            <li>
+              Abajo no se ve el pozo, la cloaca abierta ni el cable caído.
+            </li>
+          </ul>
+        </div>
+        <p class="chico">
+          Cortá la llave general de luz y la del gas antes de irte. Llevá los
+          documentos en bolsa de nylon cerrada. Avisale a un vecino hacia dónde
+          vas. Si Defensa Civil o el municipio te dicen que salgas, salí.
+        </p>
+      </div>
+    </noscript>
+
+    <!-- ======================= RÍO ======================= -->
+    <section
+      class="vista on"
+      id="v-rio"
+      aria-label="Nivel del río"
+      tabindex="-1"
+    >
+      <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
+        <div class="titu">¿Hasta dónde llega el agua?</div>
+        <p class="chico" style="margin: 0">
+          Buscando el nivel del río en el INA…
+        </p>
+      </div>
+
+      <div class="tarjeta">
+        <span class="eti">Hidrómetro · Dique 2, Puerto de Santa Fe</span>
+        <div class="regla-caja">
+          <!-- Puro gráfico. Cada número que dibuja está como texto en la
+               leyenda de al lado, así que para un lector de pantalla esto
+               sólo sería ruido.
+               La numeración va en su propia columna, fuera de la pista: con
+               los números adentro se montaban con las pastillas de umbral,
+               que están a 40 cm una de otra. -->
+          <div class="instrumento" aria-hidden="true">
+            <div class="escala" id="escala"></div>
+            <div class="regla" id="regla"></div>
+          </div>
+          <div class="leyenda">
+            <div class="leyenda-item" style="border-color: var(--acento)">
+              <div class="v" id="lg-actual">—</div>
+              <div class="k">Nivel actual del río</div>
+            </div>
+            <div class="leyenda-item" style="border-color: var(--alerta)">
+              <div class="v">5,30 m</div>
+              <div class="k">
+                Alerta. Empiezan evacuaciones fuera del anillo de defensas
+              </div>
+            </div>
+            <div class="leyenda-item" style="border-color: var(--peligro)">
+              <div class="v">5,70 m</div>
+              <div class="k">Evacuación</div>
+            </div>
+            <div
+              class="leyenda-item"
+              id="lg-cota-wrap"
+              style="border-color: var(--tierra); display: none"
+            >
+              <div class="v" id="lg-cota">—</div>
+              <div class="k" id="lg-cota-k">
+                Tu cota, traducida a lectura de hidrómetro
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="chico"
+          id="origen-dato"
+          role="status"
+          style="margin-top: 10px"
+        ></div>
+      </div>
+
+      <!-- Sin cota cargada, la app no puede responder su propia pregunta.
+           Antes no lo decía en esta pestaña: el renglón "tu cota" simplemente
+           no aparecía. -->
+      <div id="cta-cota"></div>
+
+      <details class="tarjeta" id="det-manual">
+        <summary
+          style="
+            cursor: pointer;
+            font-family: var(--sans);
+            font-weight: 600;
+            font-size: var(--t-m);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          "
+        >
+          Cargar el nivel a mano
+        </summary>
+        <p class="chico" style="margin: 11px 0">
+          Si el dato automático falla o querés simular un escenario, escribí la
+          altura que informa Prefectura, el INA o la FICH-UNL.
+        </p>
+        <label class="campo"
+          ><span>Altura del hidrómetro (m)</span>
+          <!-- type=text + inputmode: con type=number el navegador descarta
+               "3,40" y dejaba el campo vacío sin avisar nada. La app muestra
+               coma en todos lados; el campo tiene que aceptarla. -->
+          <input
+            type="text"
+            inputmode="decimal"
+            id="in-rio"
+            autocomplete="off"
+            placeholder="3,40"
+        /></label>
+        <button class="btn" data-accion="rio-manual">Usar este valor</button>
+        <button class="btn sec" data-accion="rio-auto">
+          Volver al dato automático
+        </button>
+      </details>
+
+      <h2>Lluvia prevista</h2>
+      <div class="tarjeta">
+        <span class="eti">Milímetros por día · próximos 7 días</span>
+        <div class="dias" id="dias"></div>
+        <p class="chico" style="margin: 11px 0 0" id="lluvia-resumen"></p>
+        <p class="chico" style="margin: 7px 0 0; color: var(--tenue)">
+          Las barras están a escala. La línea marca los <b>40 mm en un día</b>,
+          desde donde el desagote empieza a complicarse.
+        </p>
+      </div>
+
+      <!-- La tendencia va después de la lluvia: es caudal simulado en m³/s y
+           la propia tarjeta aclara que no sirve para decidir. Estaba arriba,
+           en el lugar de la información accionable. -->
+      <h2>Tendencia del caudal</h2>
+      <div class="tarjeta" id="tendencia">
+        <span class="eti">Tendencia</span>
+        <p class="chico" style="margin: 0">Cargando el modelo de caudal…</p>
+      </div>
+
+      <div class="aviso">
+        <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
+        Los dos juntos, no por separado: con el río alto las bombas no
+        desagotan.
+      </div>
+    </section>
+
+    <!-- ======================= MI COTA ======================= -->
+    <section class="vista" id="v-cota" aria-label="Mi cota" tabindex="-1">
+      <h2>¿Hasta dónde llega el agua?</h2>
+      <p class="chico">
+        El hidrómetro dice cuánto subió el agua. Tu cota dice si esa agua llega
+        a tu casa. Acá se cruzan los dos.
+      </p>
+
+      <div class="tarjeta">
+        <h3 style="margin-top: 0">1 · Dónde vivís</h3>
+        <label class="campo"
+          ><span>Zona</span>
+          <select id="sel-zona"></select
+        ></label>
+        <p class="chico" id="nota-zona"></p>
+      </div>
+
+      <div class="tarjeta">
+        <h3 style="margin-top: 0">2 · La cota de tu terreno</h3>
+
+        <label class="campo"
+          ><span>Cota IGN (metros sobre el nivel del mar)</span>
+          <input
+            type="text"
+            inputmode="decimal"
+            id="in-cota"
+            autocomplete="off"
+            placeholder="16,00"
+            data-input="cota-manual"
+        /></label>
+
+        <div class="fila">
+          <button class="btn sec" data-accion="cota-gps">
+            Usar mi ubicación
+          </button>
+          <button class="btn sec" data-accion="abrir-dir">
+            Buscar dirección
+          </button>
+        </div>
+
+        <div id="caja-dir" style="display: none">
+          <label class="campo"
+            ><span>Dirección</span>
+            <input
+              type="text"
+              id="in-dir"
+              placeholder="Ej: Risso 1745, Santa Fe"
+          /></label>
+          <button class="btn sec" data-accion="buscar-dir">Buscar</button>
+        </div>
+
+        <p class="chico" id="estado-cota" role="status"></p>
+
+        <div class="aviso" style="margin-top: 12px">
+          <b>Ni la mejor cota reemplaza un relevamiento de tu terreno.</b>
+          La cota sale de las curvas de nivel del municipio, que pasan cerca de
+          tu casa pero no por tu puerta. El número que vale es el de un
+          relevamiento topográfico, la escritura, o el que te dé el municipio.
+          <details style="margin-top: 8px">
+            <summary style="cursor: pointer">
+              De dónde sale y qué le falta
+            </summary>
+            <p style="margin: 8px 0 0">
+              Son las curvas de nivel de la Municipalidad de Santa Fe, de la
+              Secretaría de Recursos Hídricos: cada 50 cm y en metros IGN, el
+              mismo sistema en que está el cero del hidrómetro. Tu cota se
+              calcula interpolando entre las dos curvas más cercanas.
+            </p>
+            <p style="margin: 8px 0 0">
+              Lo que no sabe: si tu terreno está elevado sobre la vereda, si la
+              casa tiene escalones, si el fondo es más bajo. Entre curva y curva
+              hay medio metro de altura y a veces cientos de metros de
+              distancia. Por eso el cálculo va siempre medio metro por debajo.
+            </p>
+            <p style="margin: 8px 0 0">
+              Antes esto salía de un modelo satelital. Se lo comparó con estas
+              curvas y con los puntos de nivelación del IGN: medía techos y
+              arbolado, sobreestimaba dos metros de media y se desviaba hasta
+              siete. Se dejó de usar.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div id="resultado" role="status"></div>
+      <div id="avisos"></div>
+    </section>
+
+    <!-- ======================= MI PLAN ======================= -->
+    <section
+      class="vista"
+      id="v-plan"
+      aria-label="Mi plan familiar"
+      tabindex="-1"
+    >
+      <h2>Plan familiar</h2>
+      <p class="chico" id="resumen-plan" role="status"></p>
+      <p class="chico">
+        Se guarda en este teléfono. No se envía a ningún lado. Llenalo ahora,
+        con tiempo, no cuando el agua ya esté en la puerta.
+      </p>
+
+      <div class="tarjeta">
+        <h3 style="margin-top: 0">Acuerdos de la familia</h3>
+        <label class="campo"
+          ><span>Punto de encuentro (si nos separamos)</span>
+          <input
+            type="text"
+            id="p-punto"
+            placeholder="Ej: Vecinal Guadalupe Oeste, Risso 1745"
+        /></label>
+        <label class="campo"
+          ><span>Contacto de referencia fuera de la zona inundable</span>
+          <input type="text" id="p-contacto" placeholder="Nombre y teléfono"
+        /></label>
+        <label class="campo"
+          ><span>Quién se ocupa de qué</span>
+          <textarea
+            id="p-roles"
+            placeholder="Ej: Bet agarra la mochila y los documentos. Yo corto la luz y el gas. La perra va con Bet."
+          ></textarea>
+        </label>
+        <label class="campo"
+          ><span>Personas que necesitan ayuda para salir</span>
+          <textarea
+            id="p-ayuda"
+            placeholder="Ej: Mi vieja, 82 años, camina con andador. Vive a dos casas."
+          ></textarea>
+        </label>
+        <label class="campo"
+          ><span>Animales</span>
+          <input
+            type="text"
+            id="p-animales"
+            placeholder="Ej: 2 perros, 1 gato. Transportadora en el galpón."
+        /></label>
+      </div>
+
+      <h2>
+        Mochila de emergencia <span class="cuenta" id="prog-mochila"></span>
+      </h2>
+      <p class="chico">
+        Preparada durante toda la temporada de lluvias, en un lugar que todos
+        conozcan.
+      </p>
+      <div class="tarjeta" id="lista-mochila"></div>
+
+      <h2>Antes de que suba <span class="cuenta" id="prog-previa"></span></h2>
+      <div class="tarjeta" id="lista-previa"></div>
+
+      <button class="btn" data-accion="compartir">
+        Compartir por WhatsApp
+      </button>
+      <button class="btn sec" data-accion="exportar">
+        Descargar el plan (.txt)
+      </button>
+      <button class="btn sec" data-accion="imprimir">Imprimir el plan</button>
+      <p
+        class="chico"
+        id="estado-guardado"
+        role="status"
+        style="text-align: center"
+      ></p>
+    </section>
+
+    <!-- ======================= DÓNDE IR ======================= -->
+    <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
+      <h2>Puntos de encuentro</h2>
+      <p class="chico">
+        Los 30 espacios del Plan de Contingencia municipal, con responsables
+        capacitados. Identificá el tuyo <b>antes</b> de necesitarlo.
+      </p>
+
+      <!-- La grilla de dos columnas va acá, en un envoltorio propio, y NO en
+           la sección: si estuviera en la sección, los <h2> a ancho completo
+           cortarían cada fila y la segunda columna nunca se formaría. -->
+      <div class="mapa-y-lista">
+        <div class="col-mapa">
+          <div id="mapa"></div>
+          <button class="btn sec" data-accion="ubicarme">
+            Mostrar el más cercano a mí
+          </button>
+          <p class="chico" id="estado-mapa" role="status"></p>
+        </div>
+
+        <div class="col-lista">
+          <label class="campo"
+            ><span>Buscar</span>
+            <input
+              type="text"
+              id="buscar-punto"
+              placeholder="Nombre o calle"
+              data-input="filtrar-puntos"
+          /></label>
+
+          <!-- Los 30 puntos van en el HTML, no inyectados por JS: así los indexa
+           un buscador y se ven aunque el script no arranque. app.js los lee de
+           acá, así que esto es la ÚNICA fuente de verdad — no hay copia en el
+           JS que se pueda desincronizar. -->
+          <div class="tarjeta">
+            <ul class="lista-plana" id="lista-puntos">
+              <li data-lon="-60.72546604" data-lat="-31.5965">
+                <a
+                  class="punto"
+                  href="geo:-31.5965,-60.72546604?q=-31.5965,-60.72546604(Asoc.%20Vecinal%20Sarmiento)"
+                >
+                  <span class="n">Asoc. Vecinal Sarmiento</span>
+                  <span class="d">Vieytes 5047</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60681828" data-lat="-31.6270493">
+                <a
+                  class="punto"
+                  href="geo:-31.6270493,-60.60681828?q=-31.6270493,-60.60681828(ASOEM%20Camping)"
+                >
+                  <span class="n">ASOEM Camping</span>
+                  <span class="d">RP Nº 1 - km 2.5</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72517614" data-lat="-31.66131579">
+                <a
+                  class="punto"
+                  href="geo:-31.66131579,-60.72517614?q=-31.66131579,-60.72517614(Boca%20del%20Tigre)"
+                >
+                  <span class="n">Boca del Tigre</span>
+                  <span class="d">J.J. Paso y Zavalla</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72595784" data-lat="-31.65460239">
+                <a
+                  class="punto"
+                  href="geo:-31.65460239,-60.72595784?q=-31.65460239,-60.72595784(Bochas%20Club%20Mitre)"
+                >
+                  <span class="n">Bochas Club Mitre</span>
+                  <span class="d">Gral. López 3815</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72689011" data-lat="-31.58001751">
+                <a
+                  class="punto"
+                  href="geo:-31.58001751,-60.72689011?q=-31.58001751,-60.72689011(Bomberos%20Voluntarios%20Las%20Flores)"
+                >
+                  <span class="n">Bomberos Voluntarios Las Flores</span>
+                  <span class="d">Av. Blas Parera 8700</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.63433982" data-lat="-31.64234205">
+                <a
+                  class="punto"
+                  href="geo:-31.64234205,-60.63433982?q=-31.64234205,-60.63433982(Capilla%20Nuestra%20Se%C3%B1ora%20de%20la%20Guardia)"
+                >
+                  <span class="n">Capilla Nuestra Señora de la Guardia</span>
+                  <span class="d">A. de Petre y H. Serafina</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.71863653" data-lat="-31.61379472">
+                <a
+                  class="punto"
+                  href="geo:-31.61379472,-60.71863653?q=-31.61379472,-60.71863653(Cementerio%20Municipal)"
+                >
+                  <span class="n">Cementerio Municipal</span>
+                  <span class="d">Av. Blas Parera 5401</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.66612462" data-lat="-31.5977847">
+                <a
+                  class="punto"
+                  href="geo:-31.5977847,-60.66612462?q=-31.5977847,-60.66612462(Centro%20Comunitario%20Noreste)"
+                >
+                  <span class="n">Centro Comunitario Noreste</span>
+                  <span class="d">Defensa y French</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.6988815" data-lat="-31.59267741">
+                <a
+                  class="punto"
+                  href="geo:-31.59267741,-60.6988815?q=-31.59267741,-60.6988815(CIC%20Facundo%20Zuvir%C3%ADa)"
+                >
+                  <span class="n">CIC Facundo Zuviría</span>
+                  <span class="d">Av. Facundo Zuviría 8002 / Azcuénaga</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68433875" data-lat="-31.5785339">
+                <a
+                  class="punto"
+                  href="geo:-31.5785339,-60.68433875?q=-31.5785339,-60.68433875(CIC%20Roca)"
+                >
+                  <span class="n">CIC Roca</span>
+                  <span class="d">Pasaje Roca y República de Siria</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.73261501" data-lat="-31.66508848">
+                <a
+                  class="punto"
+                  href="geo:-31.66508848,-60.73261501?q=-31.66508848,-60.73261501(Cilsa)"
+                >
+                  <span class="n">Cilsa</span>
+                  <span class="d">Mar Argentino y R11</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68928171" data-lat="-31.57358485">
+                <a
+                  class="punto"
+                  href="geo:-31.57358485,-60.68928171?q=-31.57358485,-60.68928171(Club%20Banco%20Provincia)"
+                >
+                  <span class="n">Club Banco Provincia</span>
+                  <span class="d">Av. Aristóbulo del Valle 9958</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72944315" data-lat="-31.59893853">
+                <a
+                  class="punto"
+                  href="geo:-31.59893853,-60.72944315?q=-31.59893853,-60.72944315(Club%20Cabal)"
+                >
+                  <span class="n">Club Cabal</span>
+                  <span class="d">Servando Bayo 6730</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60493224" data-lat="-31.62688844">
+                <a
+                  class="punto"
+                  href="geo:-31.62688844,-60.60493224?q=-31.62688844,-60.60493224(Distrito%20La%20Costa)"
+                >
+                  <span class="n">Distrito La Costa</span>
+                  <span class="d">RP Nº 1 - km 2.7</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.60814703" data-lat="-31.62364809">
+                <a
+                  class="punto"
+                  href="geo:-31.62364809,-60.60814703?q=-31.62364809,-60.60814703(Estaci%C3%B3n%20Colastin%C3%A9%20Norte)"
+                >
+                  <span class="n">Estación Colastiné Norte</span>
+                  <span class="d">Las Macluras y Orquídeas</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72427681" data-lat="-31.65484814">
+                <a
+                  class="punto"
+                  href="geo:-31.65484814,-60.72427681?q=-31.65484814,-60.72427681(Estaci%C3%B3n%20Mitre%20(Andenes))"
+                >
+                  <span class="n">Estación Mitre (Andenes)</span>
+                  <span class="d">Gral. López y San Juan</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72986264" data-lat="-31.65645015">
+                <a
+                  class="punto"
+                  href="geo:-31.65645015,-60.72986264?q=-31.65645015,-60.72986264(Estaci%C3%B3n%20San%20Lorenzo)"
+                >
+                  <span class="n">Estación San Lorenzo</span>
+                  <span class="d">Entre Ríos 4080</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.70727912" data-lat="-31.58704761">
+                <a
+                  class="punto"
+                  href="geo:-31.58704761,-60.70727912?q=-31.58704761,-60.70727912(Jard%C3%ADn%20Bot%C3%A1nico%20Ing.%20Lorenzo%20Parodi)"
+                >
+                  <span class="n">Jardín Botánico Ing. Lorenzo Parodi</span>
+                  <span class="d">Av. Gorriti 3902</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.63365832" data-lat="-31.63972864">
+                <a
+                  class="punto"
+                  href="geo:-31.63972864,-60.63365832?q=-31.63972864,-60.63365832(La%20Virgencita)"
+                >
+                  <span class="n">La Virgencita</span>
+                  <span class="d">RN 168 y calle Principal</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72916015" data-lat="-31.64108094">
+                <a
+                  class="punto"
+                  href="geo:-31.64108094,-60.72916015?q=-31.64108094,-60.72916015(Mediateca)"
+                >
+                  <span class="n">Mediateca</span>
+                  <span class="d">Pje. Mitre y Tucumán</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.62654115" data-lat="-31.6381007">
+                <a
+                  class="punto"
+                  href="geo:-31.6381007,-60.62654115?q=-31.6381007,-60.62654115(Parada%20de%20%C3%B3mnibus%20(La%20Guardia%2FColastin%C3%A9))"
+                >
+                  <span class="n"
+                    >Parada de ómnibus (La Guardia/Colastiné)</span
+                  >
+                  <span class="d">Ruta 1 y Favaloro</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.74551756" data-lat="-31.56381964">
+                <a
+                  class="punto"
+                  href="geo:-31.56381964,-60.74551756?q=-31.56381964,-60.74551756(Polideportivo%20La%20Tablada)"
+                >
+                  <span class="n">Polideportivo La Tablada</span>
+                  <span class="d">Teniente Loza 6970</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.71754382" data-lat="-31.63212773">
+                <a
+                  class="punto"
+                  href="geo:-31.63212773,-60.71754382?q=-31.63212773,-60.71754382(Talleres%20Municipales)"
+                >
+                  <span class="n">Talleres Municipales</span>
+                  <span class="d">Pte. Perón 3575</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72236452" data-lat="-31.66487521">
+                <a
+                  class="punto"
+                  href="geo:-31.66487521,-60.72236452?q=-31.66487521,-60.72236452(Vecinal%20Centenario)"
+                >
+                  <span class="n">Vecinal Centenario</span>
+                  <span class="d">Zavalía 711</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.69540016" data-lat="-31.59617794">
+                <a
+                  class="punto"
+                  href="geo:-31.59617794,-60.69540016?q=-31.59617794,-60.69540016(Vecinal%20Facundo%20Quiroga)"
+                >
+                  <span class="n">Vecinal Facundo Quiroga</span>
+                  <span class="d">Almafuerte 7739</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.68367933" data-lat="-31.60310257">
+                <a
+                  class="punto"
+                  href="geo:-31.60310257,-60.68367933?q=-31.60310257,-60.68367933(Vecinal%20Guadalupe%20Oeste)"
+                >
+                  <span class="n">Vecinal Guadalupe Oeste</span>
+                  <span class="d">Risso 1745</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.72253068" data-lat="-31.636429">
+                <a
+                  class="punto"
+                  href="geo:-31.636429,-60.72253068?q=-31.636429,-60.72253068(Vecinal%20Juan%20de%20Garay)"
+                >
+                  <span class="n">Vecinal Juan de Garay</span>
+                  <span class="d">Salvador Caputto 3955</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.69534873" data-lat="-31.58298864">
+                <a
+                  class="punto"
+                  href="geo:-31.58298864,-60.69534873?q=-31.58298864,-60.69534873(Vecinal%20Las%20Delicias)"
+                >
+                  <span class="n">Vecinal Las Delicias</span>
+                  <span class="d">Alfonsina Storni 3100</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.70076676" data-lat="-31.66521436">
+                <a
+                  class="punto"
+                  href="geo:-31.66521436,-60.70076676?q=-31.66521436,-60.70076676(Vecinal%20Pro%20Mejoras%20Alto%20Verde)"
+                >
+                  <span class="n">Vecinal Pro Mejoras Alto Verde</span>
+                  <span class="d">Manzana 1, M. Gómez e I. Monzón</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+              <li data-lon="-60.73289024" data-lat="-31.57099227">
+                <a
+                  class="punto"
+                  href="geo:-31.57099227,-60.73289024?q=-31.57099227,-60.73289024(Vecinal%20Santa%20Marta)"
+                >
+                  <span class="n">Vecinal Santa Marta</span>
+                  <span class="d">Chubut 6291</span>
+                  <span class="ir">Abrir en mapas →</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2>Teléfonos</h2>
+      <div class="tarjeta">
+        <ul class="lista-plana" id="lista-tel">
+          <li>
+            <a class="tel" href="tel:911">
+              <span class="q"
+                >Emergencias (centraliza Bomberos, Defensa Civil, Policía)</span
+              ><span class="n">911</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:100">
+              <span class="q">Bomberos</span><span class="n">100</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:103">
+              <span class="q">Defensa Civil</span><span class="n">103</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:106">
+              <span class="q">Emergencias náuticas — Prefectura</span
+              ><span class="n">106</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:3424562400">
+              <span class="q">Prefectura Santa Fe</span
+              ><span class="n">342 456-2400</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:08007775000">
+              <span class="q">Atención Ciudadana — Municipalidad</span
+              ><span class="n">0800-777-5000</span>
+            </a>
+          </li>
+          <li>
+            <a class="tel" href="tel:08007770801">
+              <span class="q">Gobierno de la Provincia</span
+              ><span class="n">0800-777-0801</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <h2>Si tenés que salir</h2>
+      <div class="tarjeta">
+        <div class="aviso grave">
+          <b>No cruces agua en movimiento</b>, ni a pie ni en auto.
+          <ul class="pasos grave">
+            <li><b>30 cm</b> de corriente arrastran a una persona.</li>
+            <li><b>60 cm</b> arrastran un vehículo.</li>
+            <li>
+              Abajo no se ve el pozo, la cloaca abierta ni el cable caído.
+            </li>
+          </ul>
+        </div>
+        <p class="chico">Antes de salir:</p>
+        <ul class="pasos">
+          <li>Cortá la llave general de luz y la del gas.</li>
+          <li>Llevá los documentos en bolsa de nylon cerrada.</li>
+          <li>Avisale a un vecino y al contacto de referencia adónde vas.</li>
+          <li>
+            Si hay alguien con movilidad reducida en tu cuadra, avisá al
+            <a href="tel:911">911</a> con la dirección exacta.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
+         papel y no se podía imprimir nada decente. -->
+    <pre id="plan-impreso" aria-hidden="true"></pre>
+
+    <!-- Va en el pie: es una acción secundaria, y así queda a mano desde
+         cualquier pestaña sin ocupar un lugar en la nav. -->
+    <details class="sugerir" id="sugerir">
+      <summary>Sugerir algo o avisar de un error</summary>
+
+      <!-- Lo primero, antes que el formulario: cualquier caja de texto en una
+           app de emergencia se puede leer como una vía para pedir auxilio. -->
+      <div class="aviso grave" style="margin: 12px 0">
+        <b>Esto no es una vía para pedir ayuda.</b> Nadie lo lee en el momento.
+        Si necesitás asistencia ahora:
+        <ul class="pasos grave">
+          <li><a href="tel:911">911</a> emergencias</li>
+          <li><a href="tel:103">103</a> Defensa Civil</li>
+        </ul>
+      </div>
+
+      <p class="chico">
+        Lo que sabés vos de tu zona no está en ningún dato: si un punto de
+        encuentro cambió, si los kilómetros de tu zona no cierran, si algo se
+        entiende mal. <b>Lo lee una persona</b>, no hay respuesta automática y
+        puede tardar.
+      </p>
+
+      <label class="campo"
+        ><span>De qué se trata</span>
+        <select id="sug-categoria">
+          <option value="dato">Un dato está mal</option>
+          <option value="falta">Falta algo que me serviría</option>
+          <option value="confuso">No entendí algo</option>
+          <option value="otro">Otra cosa</option>
+        </select></label
+      >
+
+      <label class="campo"
+        ><span>Contanos</span>
+        <textarea
+          id="sug-texto"
+          data-input="sug-texto"
+          maxlength="600"
+          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."
+        ></textarea>
+      </label>
+      <p class="chico" id="sug-cuenta" style="margin: -8px 0 12px"></p>
+
+      <label class="campo"
+        ><span>Cómo contactarte (opcional)</span>
+        <input
+          type="text"
+          id="sug-contacto"
+          maxlength="120"
+          autocomplete="off"
+          placeholder="Sólo si querés respuesta"
+      /></label>
+      <p class="chico" style="margin: -8px 0 12px">
+        <b>No pongas tu dirección.</b> Esto sí sale de tu teléfono: es lo único
+        de la app que se guarda en un servidor junto con lo que escribas.
+      </p>
+
+      <button class="btn" data-accion="sug-enviar">Enviar</button>
+      <p
+        class="chico"
+        id="sug-estado"
+        role="status"
+        style="margin: 4px 0 0"
+      ></p>
+    </details>
+
+    <div class="pie">
+      <p class="chico" style="margin-bottom: 12px">
+        <a href="/">Qué es Cota Cero</a> ·
+        <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
+        <a href="/mi-cota">Cómo saber tu cota</a>
+      </p>
+      <!-- Se muestra sólo si la app no está instalada; lo decide app.js. -->
+      <p id="instalar-pie" class="instalar-pie" hidden>
+        <button class="btn sec mini" type="button" data-accion="instalar">
+          Instalar en el teléfono
+        </button>
+        <span class="chico"
+          >Entra sin buscarla en el navegador y funciona sin señal.</span
+        >
+      </p>
+      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
+      No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
+      dicen que salgas, salí.<br />
+      Niveles de alerta y evacuación según FICH-UNL y Prefectura Naval
+      Argentina.<br />
+      <span id="version"></span>
+
+      <div class="firma">
+        Hecho por <b>Ariel Benz</b>
+        <span class="redes">
+          <a
+            href="https://x.com/arielbenz"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ariel Benz en X"
+            >X</a
+          >
+          <a
+            href="https://www.instagram.com/ariel.front/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ariel Benz en Instagram"
+            >Instagram</a
+          >
+        </span>
+      </div>
+    </div>
+
+    <nav aria-label="Secciones">
+      <button class="on" aria-current="true" data-accion="ver" data-vista="rio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 15c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
+          <path d="M2 9c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
+        </svg>
+        <span>Río</span>
+      </button>
+      <button data-accion="ver" data-vista="cota">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 20h18" />
+          <path d="M3 20l6-11 4 6 3-4 5 9" />
+        </svg>
+        <span>Mi cota</span>
+      </button>
+      <button data-accion="ver" data-vista="plan">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M9 3h6v3H9z" />
+          <path d="M6 6h12v15H6z" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+        <span>Mi plan</span>
+      </button>
+      <button data-accion="ver" data-vista="donde">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+        <span>Dónde ir</span>
+      </button>
+    </nav>
+
+    <script src="/app.js" defer></script>
+    <!-- Vercel Web Analytics. Va sólo el script externo: el snippet oficial
+         incluye además un <script> inline que nuestra CSP bloquea, y que sólo
+         sirve para encolar custom events (que son de plan Pro). Al ser
+         mismo-origen entra en `script-src 'self'` sin abrir la política.
+         En local da 404: la ruta la crea Vercel al desplegar. -->
+    <script defer src="/_vercel/insights/script.js"></script>
+  </body>
+</html>

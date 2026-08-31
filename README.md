@@ -22,9 +22,13 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
 
 ## Estructura
 
-    index.html               marcado
-    app.css                  estilos
-    app.js                   lógica
+    index.html               portada (landing) — la puerta de entrada
+    landing.js               nivel del río en vivo + salto a /app si está instalada
+    app/index.html           la app
+    puntos-de-encuentro/     página de contenido (generada)
+    mi-cota/                 página de contenido (generada)
+    app.css                  estilos, compartidos por todo
+    app.js                   lógica de la app
     vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
     api/nivel.js             lee el reporte diario del INA (CORS proxy)
     api/suscribir.js         alta de un endpoint de push
@@ -37,6 +41,8 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     lib/metricas.js          claves y días del contador (módulo, NO endpoint)
     scripts/vapid.js         genera las claves, se corre una vez
+    scripts/curvas.js        baja las curvas de nivel del municipio
+    scripts/paginas.js       genera las páginas de contenido
     scripts/servir.js        servidor de desarrollo
     sw.js                    service worker
     manifest.webmanifest     PWA
@@ -211,6 +217,48 @@ tablero (abajo), o a mano desde la consola de Upstash:
     LRANGE cc:sugerencias 0 49
 
 Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
+
+## Estructura del sitio
+
+Cuatro URLs, no una:
+
+| URL | Qué es |
+|---|---|
+| `/` | Portada. Muestra el nivel del río en vivo y explica la herramienta |
+| `/app` | La app |
+| `/puntos-de-encuentro` | Los 30 puntos oficiales, generada |
+| `/mi-cota` | Cómo se calcula la cota, generada |
+
+**Por qué.** La app esconde 3 de sus 4 secciones detrás de pestañas
+(`.vista { display: none }`), así que ~800 de sus ~975 palabras —los 30 puntos
+de encuentro y los teléfonos incluidos— le llegan a un buscador como contenido
+oculto: lo indexa, pero lo pondera menos y no lo usa en el fragmento. Una app
+con pestañas nunca va a presentar bien su material a un buscador; estas
+páginas sí.
+
+**La portada no es folletería**: lee `/api/nivel` y muestra la altura del río
+arriba de todo. Alguien que entra en plena crecida tiene el dato ahí, sin abrir
+nada. Y quien tiene la PWA instalada nunca la ve: `landing.js` detecta
+`display-mode: standalone` y salta a `/app`, lo que además cubre a las
+instalaciones viejas cuyo `start_url` todavía apunta a `/`.
+
+**Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
+30 puntos se leen de `app/index.html`, que es la fuente de verdad —`app.js`
+hace lo mismo— para que no existan dos listas que se puedan desincronizar.
+Volver a correrlo cuando cambien los puntos o los textos.
+
+**El bug que esto destapó.** El service worker guardaba TODA respuesta de
+navegación bajo la clave `/index.html`. Con un solo documento no se notaba;
+con dos, visitar la portada dejaba su HTML como copia offline de la app. Ahora
+cada navegación se guarda bajo su propia URL, y el respaldo sin conexión usa
+`ignoreSearch` (por los deep links `/app?ir=cota`) antes de caer a `/app` o `/`
+según la ruta.
+
+**Cuidado al mover la app.** Cinco lugares apuntaban a `/` y fallan en
+silencio si se olvida uno: `start_url` y los `shortcuts` del manifest, el
+precache del service worker, los destinos `ir` de las notificaciones push (un
+aviso de evacuación abriría la portada), `scripts/servir.js` —que no servía
+`index.html` para directorios— y las cabeceras de `vercel.json`.
 
 ## La cota del terreno
 
