@@ -117,8 +117,8 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <header class="top">
-      <div class="marca-bloque">
+    <div class="ancho angosto">
+      <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
             <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
@@ -128,12 +128,19 @@
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
-        <p class="sub">Emergencia hídrica · Santa Fe</p>
-      </div>
-    </header>
-    <main class="pagina">
-      <h1>Preguntas frecuentes</h1>
-      <div class="tarjeta">
+        <div class="nav-enlaces">
+          <a href="/">← Volver a la portada</a>
+          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+        </div>
+      </nav>
+
+      <header class="pg-cabecera">
+        <h1>Preguntas frecuentes</h1>
+        <p class="pg-lead">Las dudas que más aparecen, contestadas sin vueltas.</p>
+      </header>
+
+      <main>
+      <section class="bloque">
         <details class="faq">
           <summary>¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?</summary>
           <p>La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu cota es baja o vivís río arriba, el agua puede llegarte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.</p>
@@ -166,34 +173,52 @@
           <summary>¿Cada cuánto se actualiza el nivel?</summary>
           <p>El INA publica una lectura por día del hidrómetro del Puerto. La app la toma de ese reporte y muestra siempre la fecha del dato, así sabés qué tan fresco es.</p>
         </details>
-      </div>
-      <p class="chico">
-        ¿Tu pregunta no está? En la app hay un formulario de sugerencias al
-        pie. Ojo: no es una vía de auxilio — ante una emergencia llamá al
-        <b>103</b>.
-      </p>
-      <p style="margin-top: 32px"><a class="btn" href="/app">Abrir Cota Cero</a></p>
-    </main>
-    <div class="pie">
-      <p class="chico" style="margin-bottom: 12px">
-        <a href="/">Qué es Cota Cero</a> ·
-        <a href="/app">Abrir la app</a> ·
-        <a href="/mi-cota">Cómo se calcula tu cota</a> ·
-        <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/preguntas">Preguntas</a> ·
-        <a href="/datos">De dónde salen los datos</a> ·
-        <a href="/legal">Legal y privacidad</a>
-      </p>
-      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
-      No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
-      dicen que salgas, salí.
-      <div class="firma">
-        Hecho por <b>Ariel Benz</b>
-        <span class="redes">
-          <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
-          <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
-        </span>
-      </div>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>¿Tu pregunta no está?</h2>
+        <p>
+          Dentro de la app hay un formulario de sugerencias al pie. Ojo: no es
+          una vía de auxilio — ante una emergencia llamá al <b>103</b>.
+        </p>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+
+      <footer class="pie-sitio pie-simple">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+      </footer>
     </div>
   </body>
 </html>

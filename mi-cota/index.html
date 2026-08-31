@@ -40,13 +40,9 @@
       {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": "Cómo saber la cota de tu terreno en Santa Fe",
+        "headline": "Cómo se calcula la cota de tu terreno en Santa Fe",
         "inLanguage": "es-AR",
         "author": {
-          "@type": "Person",
-          "name": "Ariel Benz"
-        },
-        "publisher": {
           "@type": "Person",
           "name": "Ariel Benz"
         },
@@ -62,8 +58,8 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <header class="top">
-      <div class="marca-bloque">
+    <div class="ancho angosto">
+      <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
             <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
@@ -73,65 +69,82 @@
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
-        <p class="sub">Emergencia hídrica · Santa Fe</p>
-      </div>
-    </header>
-    <main class="pagina">
-      <h1>Cómo saber la cota de tu terreno en Santa Fe</h1>
-      <p>
-        Cuando informan que el río Paraná está a 5,30 m en el puerto de Santa
-        Fe, ese número no dice nada sobre tu casa. Para que diga algo hay que
-        traducirlo, y para eso hacen falta tres datos: <b>a qué altura está tu
-        terreno</b>, <b>dónde está el cero de la regla</b> y <b>a qué distancia
-        del puerto estás</b>.
-      </p>
+        <div class="nav-enlaces">
+          <a href="/">← Volver a la portada</a>
+          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+        </div>
+      </nav>
 
-      <h2>1. El cero del hidrómetro está a 8,20 metros</h2>
-      <p>
-        El hidrómetro del Puerto de Santa Fe no mide desde el nivel del mar:
-        mide desde un cero convencional que está <b>8,20 m por encima</b> del
-        cero del Instituto Geográfico Nacional, que a su vez está referido al
-        mareógrafo de Mar del Plata.
-      </p>
-      <p>
-        Entonces, cuando la regla marca 5,30 m, la superficie del agua está en
-        realidad a 13,50 m IGN. Si tu terreno está a 15 m, todavía te sobra
-        metro y medio.
-      </p>
-      <p class="chico">
-        Cada puerto tiene su propio cero. El de Paraná está a 9,57 m y el de
-        Rosario a 3,03 m: las alturas de distintas ciudades no se comparan
-        entre sí.
-      </p>
+      <header class="pg-cabecera">
+        <p class="chip-tinte">El cálculo, paso a paso</p>
+        <h1>Cómo se calcula tu cota</h1>
+        <p class="pg-lead">No es una caja negra: son tres números que se suman y se restan. Acá está la cuenta completa, con un ejemplo, para que la puedas rehacer a mano.</p>
+      </header>
 
-      <h2>2. El río no está horizontal</h2>
-      <p>
-        La superficie del agua tiene pendiente: baja unos <b>4,5 cm por
-        kilómetro</b> aguas abajo. Con la misma lectura en el puerto, un barrio
-        río arriba tiene el agua más alta que uno río abajo.
-      </p>
-      <p>
-        Un caso real: en la crecida de 1992 el hidrómetro llegó a 7,43 m, y en
-        Arroyo Leyes —24 km río arriba— el agua alcanzó los 16,70 m IGN. La
-        cuenta da 8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de
-        diferencia.
-      </p>
+      <main>
+      <section class="bloque">
+        <p>
+          Cuando informan que el río Paraná está a 5,30 m en el puerto de Santa
+          Fe, ese número no dice nada sobre tu casa. Para que diga algo hacen
+          falta tres datos: <b>a qué altura está tu terreno</b>, <b>dónde está
+          el cero de la regla</b> y <b>a qué distancia del puerto estás</b>.
+        </p>
+      </section>
 
-      <h2>3. Tu terreno, y cuánto margen tiene</h2>
-      <p>
-        La altura sale de las <b>curvas de nivel de la Municipalidad de Santa
-        Fe</b>, publicadas por la Secretaría de Recursos Hídricos: 169 curvas
-        cada 50 centímetros, en metros IGN. Tu cota se calcula interpolando
-        entre las dos más cercanas, y por eso el margen declarado es de
-        <b>0,5 m</b>: la mitad del intervalo entre curvas.
-      </p>
+      <section class="bloque">
+        <p class="kicker">1 · El cero de la regla</p>
+        <h2>Está a 8,20 metros</h2>
+        <p>
+          El hidrómetro del Puerto de Santa Fe no mide desde el nivel del mar:
+          mide desde un cero convencional que está <b>8,20 m por encima</b> del
+          cero del Instituto Geográfico Nacional, referido al mareógrafo de Mar
+          del Plata.
+        </p>
+        <p>
+          Cuando la regla marca 5,30 m, la superficie del agua está en realidad
+          a 13,50 m IGN. Si tu terreno está a 15 m, todavía te sobra metro y
+          medio.
+        </p>
+        <p class="chico">
+          Cada puerto tiene su propio cero: el de Paraná está a 9,57 m y el de
+          Rosario a 3,03 m. Las alturas de distintas ciudades no se comparan
+          entre sí.
+        </p>
+      </section>
 
-      <h2>La cuenta completa</h2>
-      <p>
-        Un terreno a 15,80 m IGN en Colastiné Norte, que está a 11 km del
-        puerto:
-      </p>
-      <div class="tarjeta">
+      <section class="bloque">
+        <p class="kicker">2 · La pendiente</p>
+        <h2>El río no está horizontal</h2>
+        <p>
+          La superficie del agua baja unos <b>4,5 cm por kilómetro</b> aguas
+          abajo. Con la misma lectura en el puerto, un barrio río arriba tiene
+          el agua más alta que uno río abajo.
+        </p>
+        <p>
+          Un caso real: en 1992 el hidrómetro llegó a 7,43 m y en Arroyo Leyes
+          —24 km río arriba— el agua alcanzó los 16,70 m IGN. La cuenta da
+          8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de diferencia.
+        </p>
+      </section>
+
+      <section class="bloque">
+        <p class="kicker">3 · Tu terreno</p>
+        <h2>Y cuánto margen tiene</h2>
+        <p>
+          La altura sale de las <b>curvas de nivel de la Municipalidad de Santa
+          Fe</b>, publicadas por la Secretaría de Recursos Hídricos: 169 curvas
+          cada 50 centímetros, en metros IGN. Tu cota se calcula interpolando
+          entre las dos más cercanas, y por eso el margen declarado es de
+          <b>0,5 m</b>: la mitad del intervalo entre curvas.
+        </p>
+      </section>
+
+      <section class="bloque">
+        <p class="kicker">La cuenta completa</p>
+        <h2>Un terreno en Colastiné Norte</h2>
+        <p>
+          A 15,80 m IGN, y a 11 km del puerto:
+        </p>
         <table class="cuenta">
           <tr><td>Cota del terreno</td><td>15,80 m</td></tr>
           <tr><td>Margen de las curvas</td><td>− 0,50 m</td></tr>
@@ -139,70 +152,90 @@
           <tr><td>Pendiente: 11 km × 0,045</td><td>− 0,50 m</td></tr>
           <tr class="total"><td>El agua llega cuando el hidrómetro marque</td><td>6,61 m</td></tr>
         </table>
-      </div>
-      <p>
-        Con el récord histórico en 7,43 m, ese terreno se mojó en 1992 —
-        <b>82 centímetros antes</b> del pico. Y está bastante por encima de la
-        alerta oficial de 5,30 m, así que cuando la ciudad entra en alerta a
-        esa casa todavía le queda margen. Ese es el punto: el número que te
-        toca no es el que sale en las noticias.
-      </p>
+        <p style="margin-top:20px">
+          Con el récord histórico en 7,43 m, ese terreno se mojó en 1992 —
+          <b>82 centímetros antes</b> del pico. Y está bastante por encima de la
+          alerta oficial de 5,30 m, así que cuando la ciudad entra en alerta a
+          esa casa todavía le queda margen. Ese es el punto: el número que te
+          toca no es el que sale en las noticias.
+        </p>
+      </section>
 
-      <h2>Por qué no alcanza un modelo satelital</h2>
-      <p>
-        Es la forma fácil de resolverlo y no sirve. Los modelos de elevación
-        globales son modelos de <b>superficie</b>: miden techos y copas de
-        árboles, no el piso.
-      </p>
-      <p>
-        Lo medimos. Contra 36 puntos de nivelación del IGN alrededor de Santa
-        Fe —cotas medidas en campo, al milímetro— el modelo satelital tenía un
-        sesgo chico, de 0,89 m, pero un <b>desvío estándar de 7,46 m</b>, con
-        casos de hasta 23 m de error. Y dentro de la ciudad, contra las curvas
-        municipales, sobreestimaba 2,15 m de media.
-      </p>
-      <p>
-        Para dimensionarlo: entre el nivel de alerta (5,30 m) y el récord de
-        1992 (7,43 m) hay <b>2,13 metros</b>. El error de la fuente era más
-        grande que toda la escala de la decisión. Por eso dejamos de usarla.
-      </p>
+      <section class="bloque">
+        <p class="kicker">Por qué no un satélite</p>
+        <h2>Se midió, y no alcanzaba</h2>
+        <p>
+          Los modelos de elevación globales son modelos de <b>superficie</b>:
+          miden techos y copas de árboles, no el piso.
+        </p>
+        <p>
+          Contra 36 puntos de nivelación del IGN alrededor de Santa Fe —cotas
+          medidas en campo, al milímetro— el modelo satelital tenía un sesgo
+          chico, de 0,89 m, pero un <b>desvío estándar de 7,46 m</b>, con casos
+          de hasta 23 m. Dentro de la ciudad, contra las curvas municipales,
+          sobreestimaba 2,15 m de media.
+        </p>
+        <p>
+          Entre el nivel de alerta (5,30 m) y el récord de 1992 (7,43 m) hay
+          <b>2,13 metros</b>: el error de la fuente era más grande que toda la
+          escala de la decisión. Por eso dejamos de usarla.
+        </p>
+      </section>
 
-      <h2>Qué sigue sin saber</h2>
-      <p>
-        Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
-        pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
-        metro de altura. Tampoco sabe si tu terreno está elevado sobre la
-        vereda, si la casa tiene escalones, ni si hay defensas, terraplenes o
-        bombeo entre el río y tu barrio: el agua puede llegar antes por
-        desagüe.
-      </p>
-      <p>
-        El número que vale de verdad es el de un relevamiento topográfico, la
-        escritura de tu terreno, o el que te dé el municipio. Si lo conseguís,
-        cargalo a mano en la app.
-      </p>
-      <p style="margin-top: 32px"><a class="btn" href="/app">Abrir Cota Cero</a></p>
-    </main>
-    <div class="pie">
-      <p class="chico" style="margin-bottom: 12px">
-        <a href="/">Qué es Cota Cero</a> ·
-        <a href="/app">Abrir la app</a> ·
-        <a href="/mi-cota">Cómo se calcula tu cota</a> ·
-        <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/preguntas">Preguntas</a> ·
-        <a href="/datos">De dónde salen los datos</a> ·
-        <a href="/legal">Legal y privacidad</a>
-      </p>
-      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
-      No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
-      dicen que salgas, salí.
-      <div class="firma">
-        Hecho por <b>Ariel Benz</b>
-        <span class="redes">
-          <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
-          <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
-        </span>
-      </div>
+      <section class="bloque oscuro">
+        <p class="kicker">Lo que este número no sabe</p>
+        <h2>Honestidad también acá</h2>
+        <p>
+          Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
+          pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
+          metro de altura. Tampoco sabe si tu terreno está elevado sobre la
+          vereda, si la casa tiene escalones, ni si hay defensas, terraplenes o
+          bombeo entre el río y tu barrio: el agua puede llegar antes por
+          desagüe.
+        </p>
+        <p>
+          El número que vale de verdad es el de un relevamiento topográfico, la
+          escritura de tu terreno, o el que te dé el municipio. Si lo conseguís,
+          cargalo a mano en la app.
+        </p>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+
+      <footer class="pie-sitio pie-simple">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+      </footer>
     </div>
   </body>
 </html>

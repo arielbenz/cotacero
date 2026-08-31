@@ -1233,6 +1233,95 @@ input[type="range"] {
   margin: 0 auto;
   padding: 0 var(--e-5);
 }
+/* Las páginas de contenido usan una medida más angosta que la portada: son
+   para leer, no para recorrer. */
+.ancho.angosto {
+  max-width: 880px;
+}
+
+/* ---------- cabecera de página ---------- */
+.pg-cabecera {
+  padding: var(--e-7) 0 var(--e-5);
+}
+.pg-cabecera h1 {
+  font-size: var(--t-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: var(--e-4) 0 0;
+}
+.pg-lead {
+  max-width: 40em;
+  margin: var(--e-4) 0 0;
+  font-size: var(--t-m);
+  line-height: 1.6;
+  color: var(--tenue);
+}
+.chip-tinte {
+  display: inline-block;
+  margin: 0;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- bloques de contenido ---------- */
+/* Cada sección es una tarjeta, como en el diseño: separa los temas sin
+   necesidad de líneas divisorias. */
+.landing .bloque {
+  background: var(--panel);
+  border-radius: var(--r-l);
+  box-shadow: var(--sombra);
+  padding: var(--e-7);
+  margin-bottom: var(--e-5);
+}
+.bloque > *:last-child {
+  margin-bottom: 0;
+}
+.bloque h2 {
+  font-size: var(--t-xl);
+  margin: var(--e-2) 0 var(--e-4);
+}
+.bloque .kicker {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+.bloque.oscuro {
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  box-shadow: none;
+}
+.bloque.oscuro .kicker {
+  color: var(--alerta);
+}
+.bloque.oscuro .chico,
+.bloque.oscuro .pasos {
+  color: var(--tenue-invertido);
+}
+.bloque .pasos:last-child,
+.bloque table:last-child {
+  margin-bottom: 0;
+}
+.pg-cta {
+  margin: var(--e-6) 0 var(--e-7);
+}
+.pg-cta .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+.pie-simple {
+  grid-template-columns: 1.4fr 1fr;
+}
+
 .pagina {
   padding: var(--e-5) 0 var(--e-7);
   max-width: 720px;
@@ -1368,6 +1457,12 @@ body.landing {
 }
 
 /* ---------- el mockup con el dato en vivo ---------- */
+/* La pastilla se sale del mockup a la izquierda, como en el diseño: rompe el
+   rectángulo y le da profundidad. Va como hermana y no como hija, porque el
+   mockup recorta con overflow:hidden para que la regla respete las esquinas. */
+.mockup-envoltura {
+  position: relative;
+}
 .mockup {
   background: var(--panel);
   border-radius: var(--r-xl);
@@ -1404,6 +1499,33 @@ body.landing {
 }
 .mockup .chico {
   margin: var(--e-3) 0 0;
+}
+.globo[hidden] {
+  display: none;
+}
+.globo {
+  position: absolute;
+  left: calc(var(--e-7) * -1);
+  bottom: var(--e-6);
+  z-index: 2;
+  margin: 0;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  font-weight: 700;
+  font-size: var(--t-s);
+  line-height: 1.35;
+}
+.globo b {
+  color: var(--alerta-texto);
+}
+@media (max-width: 900px) {
+  /* Fuera del escritorio no hay lugar a la izquierda: se mete adentro. */
+  .globo {
+    left: var(--e-4);
+    bottom: var(--e-4);
+  }
 }
 /* La regla del mockup representa de 0 a 8 m; las alturas las fija landing.js
    sobre esa escala. */
@@ -1979,6 +2101,15 @@ html.texto-grande {
 
 /* ---------- angosto ---------- */
 @media (max-width: 900px) {
+  .landing .bloque {
+    padding: var(--e-5);
+  }
+  .pg-cabecera h1 {
+    font-size: var(--t-xxl);
+  }
+  .pie-simple {
+    grid-template-columns: 1fr;
+  }
   .hero,
   .dosc,
   .cta {

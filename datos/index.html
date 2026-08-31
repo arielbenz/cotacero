@@ -58,8 +58,8 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <header class="top">
-      <div class="marca-bloque">
+    <div class="ancho angosto">
+      <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
             <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
@@ -69,155 +69,163 @@
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
-        <p class="sub">Emergencia hídrica · Santa Fe</p>
-      </div>
-    </header>
-    <main class="pagina">
-      <h1>De dónde salen los datos</h1>
-      <p>
-        Cada número que muestra Cota Cero tiene una fuente pública y un método
-        que se puede repetir. Esta página los recorre uno por uno, incluido lo
-        que la app <b>no</b> sabe.
-      </p>
+        <div class="nav-enlaces">
+          <a href="/">← Volver a la portada</a>
+          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+        </div>
+      </nav>
 
-      <h2>1 · El nivel del río</h2>
-      <p>
-        La lectura viene del <b>reporte diario del INA</b> (Instituto Nacional
-        del Agua) para el hidrómetro del Puerto de Santa Fe, que publica un
-        valor por día. Los umbrales de alerta (5,30 m) y evacuación (5,70 m)
-        son los oficiales de ese hidrómetro. La app no mide nada: lee, muestra
-        y compara.
-      </p>
-      <div class="aviso">
-        Si el INA no publica o cambia el formato del reporte, la app muestra la
-        última lectura con su fecha. Nunca inventa un valor.
-      </div>
+      <header class="pg-cabecera">
+        <p class="chip-tinte">Respaldo</p>
+        <h1>De dónde salen los datos</h1>
+        <p class="pg-lead">Cada número que muestra Cota Cero tiene una fuente pública y un método que se puede repetir. Esta página los recorre uno por uno, incluido lo que la app <b>no</b> sabe.</p>
+      </header>
 
-      <h2>2 · Las dos constantes del modelo</h2>
-      <p>
-        <b>El cero del hidrómetro está a 8,20 m IGN.</b> Sumarlo a la lectura
-        convierte el número del puerto en cota de agua, en el mismo sistema de
-        alturas que tu terreno.
-      </p>
-      <p>
-        <b>La pendiente es de 0,045 m por kilómetro.</b> Río arriba el agua
-        está más alta: la pendiente corrige el nivel según la distancia de tu
-        zona al puerto.
-      </p>
-      <p>
-        Esa segunda constante se contrastó con un dato independiente publicado
-        en prensa sobre la crecida de 1992, la mayor registrada:
-      </p>
-      <div class="tarjeta">
+      <main>
+      <section class="bloque">
+        <p class="kicker">1 · El nivel del río</p>
+        <h2>La lectura es oficial, no nuestra</h2>
+        <p>
+          Viene del <b>reporte diario del INA</b> (Instituto Nacional del Agua)
+          para el hidrómetro del Puerto de Santa Fe, que publica un valor por
+          día. Los umbrales de alerta (5,30 m) y evacuación (5,70 m) son los
+          oficiales de ese hidrómetro. La app no mide nada: lee, muestra y
+          compara.
+        </p>
+        <div class="aviso">
+          Si el INA no publica o cambia el formato del reporte, la app muestra
+          la última lectura con su fecha. Nunca inventa un valor.
+        </div>
+      </section>
+
+      <section class="bloque">
+        <p class="kicker">2 · El modelo</p>
+        <h2>Dos constantes, validadas contra 1992</h2>
+        <p>
+          <b>El cero del hidrómetro está a 8,20 m IGN.</b> Sumarlo a la lectura
+          convierte el número del puerto en cota de agua, en el mismo sistema de
+          alturas que tu terreno.
+        </p>
+        <p>
+          <b>La pendiente es de 0,045 m por kilómetro.</b> Río arriba el agua
+          está más alta: la pendiente corrige el nivel según la distancia de tu
+          zona al puerto.
+        </p>
+        <p>
+          La segunda se contrastó con un dato independiente publicado en prensa
+          sobre la crecida de 1992, la mayor registrada:
+        </p>
         <table class="cuenta">
-          <tr><td>Puerto de Santa Fe, 1992</td><td>7,43 m de hidrómetro</td></tr>
+          <tr><td>Puerto de Santa Fe, 1992</td><td>7,43 m</td></tr>
           <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
           <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
         </table>
-      </div>
-      <p>Un centímetro de diferencia.</p>
+        <p style="margin-top:20px">Un centímetro de diferencia.</p>
+      </section>
 
-      <h2>3 · La cota de tu terreno</h2>
-      <p>
-        Sale de las <b>169 curvas de nivel de la Municipalidad de Santa Fe</b>,
-        publicadas por la Secretaría de Recursos Hídricos, trazadas cada 50 cm
-        y en metros IGN — el mismo sistema que el cero del hidrómetro. Por eso
-        el margen que se informa es de <b>±0,5 m</b>: la mitad del intervalo
-        entre curvas.
-      </p>
-      <p>
-        Antes se usaba un modelo satelital de elevación y se descartó
-        midiendo, no por intuición. Contra 36 puntos de nivelación de campo del
-        IGN alrededor de la ciudad:
-      </p>
-      <div class="tarjeta">
+      <section class="bloque">
+        <p class="kicker">3 · La cota de tu terreno</p>
+        <h2>Curvas municipales, no un satélite</h2>
+        <p>
+          Sale de las <b>169 curvas de nivel de la Municipalidad de Santa Fe</b>,
+          publicadas por la Secretaría de Recursos Hídricos, trazadas cada 50 cm
+          y en metros IGN — el mismo sistema que el cero del hidrómetro. Por eso
+          el margen informado es de <b>±0,5 m</b>: la mitad del intervalo entre
+          curvas.
+        </p>
+        <p>
+          Antes se usaba un modelo satelital y se descartó midiendo, no por
+          intuición. Contra 36 puntos de nivelación de campo del IGN:
+        </p>
         <table class="cuenta">
           <tr><td>Desvío estándar del satélite</td><td>±7,46 m</td></tr>
           <tr><td>Su peor error medido</td><td>−22,9 m</td></tr>
-          <tr class="total"><td>Todo el rango de decisión: de alerta (5,30) al récord de 1992 (7,43)</td><td>2,13 m</td></tr>
+          <tr class="total"><td>Todo el rango de decisión, de alerta al récord de 1992</td><td>2,13 m</td></tr>
         </table>
-      </div>
-      <p>
-        El error de la fuente era más grande que la escala entera de la
-        decisión. Por eso la app no la usa — y donde las curvas municipales no
-        llegan, te pide la cota a mano en vez de caer a algo peor.
-      </p>
+        <p style="margin-top:20px">
+          El error de la fuente era más grande que la escala entera de la
+          decisión. Por eso la app no la usa — y donde las curvas municipales no
+          llegan, te pide la cota a mano en vez de caer a algo peor.
+        </p>
+      </section>
 
-      <h2>4 · Los puntos de encuentro</h2>
-      <p>
-        Salen de la capa pública <code>puntos_de_encuentro</code> del GeoServer
-        de la Municipalidad, la misma que dibuja su GeoPortal. Van guardados
-        dentro de la app con sus coordenadas, así el mapa funciona sin
-        conexión. Son 30, no 29: el listado que circuló en prensa omitía la
-        Vecinal Pro Mejoras Alto Verde.
-      </p>
-      <div class="aviso">
-        La app no sabe en tiempo real cuáles están activos. Eso lo confirma
-        Defensa Civil, al <b>103</b>.
-      </div>
+      <section class="bloque">
+        <p class="kicker">4 · Puntos de encuentro</p>
+        <h2>Los 30 oficiales, del GeoServer municipal</h2>
+        <p>
+          Salen de la capa pública <code>puntos_de_encuentro</code> del
+          GeoServer de la Municipalidad, la misma que dibuja su GeoPortal. Van
+          guardados dentro de la app con sus coordenadas, así el mapa funciona
+          sin conexión. Son 30, no 29: el listado que circuló en prensa omitía
+          la Vecinal Pro Mejoras Alto Verde.
+        </p>
+        <div class="aviso">
+          La app no sabe en tiempo real cuáles están activos. Eso lo confirma
+          Defensa Civil, al <b>103</b>.
+        </div>
+      </section>
 
-      <h2>5 · Las fuentes, para que las verifiques</h2>
-      <ul class="pasos">
-        <li>
-          <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">Reporte diario del INA</a>
-          — alturas hidrométricas del Paraná, Puerto de Santa Fe incluido.
-        </li>
-        <li>
-          <a href="https://www.argentina.gob.ar/prefectura-naval-argentina" target="_blank" rel="noopener">Prefectura Naval Argentina</a>
-          — lecturas de los hidrómetros en los puertos.
-        </li>
-        <li>
-          <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal de la Municipalidad de Santa Fe</a>
-          — curvas de nivel y capa oficial de puntos de encuentro.
-        </li>
-        <li>
-          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a>
-          — sistema de referencia de las cotas, red de nivelación y mapa base.
-        </li>
-      </ul>
-      <p class="chico">
-        Cota Cero no tiene vínculo con ninguno de estos organismos: usa sus
-        datos públicos y los cita para que cualquiera pueda repetir la cuenta.
-      </p>
+      <section class="bloque">
+        <p class="kicker">5 · Las fuentes</p>
+        <h2>No nos creas: mirá el original</h2>
+        <ul class="pasos">
+          <li><a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">Reporte diario del INA</a> — alturas hidrométricas del Paraná, Puerto de Santa Fe incluido.</li>
+          <li><a href="https://www.argentina.gob.ar/prefectura-naval-argentina" target="_blank" rel="noopener">Prefectura Naval Argentina</a> — lecturas de los hidrómetros en los puertos.</li>
+          <li><a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal de la Municipalidad de Santa Fe</a> — curvas de nivel y capa oficial de puntos de encuentro.</li>
+          <li><a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a> — sistema de referencia de las cotas, red de nivelación y mapa base.</li>
+        </ul>
+        <p class="chico">
+          Cota Cero no tiene vínculo con ninguno de estos organismos: usa sus
+          datos públicos y los cita para que cualquiera pueda repetir la cuenta.
+        </p>
+      </section>
 
-      <h2>6 · Lo que todavía no sabe</h2>
-      <ul class="pasos">
-        <li>
-          Los kilómetros río arriba de cada zona son estimaciones propias,
-          salvo Arroyo Leyes, que está publicado.
-        </li>
-        <li>
-          No sabe si hay defensas, terraplenes o bombeo entre el río y tu casa,
-          ni cuánto llueve sobre tu barrio. El agua puede llegar antes por
-          desagüe.
-        </li>
-        <li>
-          Nadie validó este modelo institucionalmente. Es una estimación hecha
-          con datos públicos, no una herramienta oficial.
-        </li>
-      </ul>
-      <p style="margin-top: 32px"><a class="btn" href="/app">Abrir Cota Cero</a></p>
-    </main>
-    <div class="pie">
-      <p class="chico" style="margin-bottom: 12px">
-        <a href="/">Qué es Cota Cero</a> ·
-        <a href="/app">Abrir la app</a> ·
-        <a href="/mi-cota">Cómo se calcula tu cota</a> ·
-        <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/preguntas">Preguntas</a> ·
-        <a href="/datos">De dónde salen los datos</a> ·
-        <a href="/legal">Legal y privacidad</a>
-      </p>
-      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
-      No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
-      dicen que salgas, salí.
-      <div class="firma">
-        Hecho por <b>Ariel Benz</b>
-        <span class="redes">
-          <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
-          <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
-        </span>
-      </div>
+      <section class="bloque oscuro">
+        <p class="kicker">6 · Lo que todavía no sabe</p>
+        <h2>Honestidad también acá</h2>
+        <ul class="pasos">
+          <li>Los kilómetros río arriba de cada zona son estimaciones propias, salvo Arroyo Leyes, que está publicado.</li>
+          <li>No sabe si hay defensas, terraplenes o bombeo entre el río y tu casa, ni cuánto llueve sobre tu barrio. El agua puede llegar antes por desagüe.</li>
+          <li>Nadie validó este modelo institucionalmente. Es una estimación hecha con datos públicos, no una herramienta oficial.</li>
+        </ul>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+
+      <footer class="pie-sitio pie-simple">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+      </footer>
     </div>
   </body>
 </html>

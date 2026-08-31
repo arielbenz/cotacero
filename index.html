@@ -158,22 +158,25 @@
 
         <!-- El mockup no es una ilustración: se alimenta del nivel real que
              trae landing.js de /api/nivel. -->
-        <div class="mockup" aria-label="El nivel del río ahora">
-          <div class="mockup-cabecera">
-            <span class="eti">Hidrómetro · Puerto Santa Fe</span>
-            <div class="mockup-numero">
-              <span class="dato" id="nivel">—</span>
-              <span class="mockup-m">m</span>
-              <span class="chip-delta" id="nivel-delta" hidden></span>
+        <div class="mockup-envoltura">
+          <div class="mockup" aria-label="El nivel del río ahora">
+            <div class="mockup-cabecera">
+              <span class="eti">Hidrómetro · Puerto Santa Fe</span>
+              <div class="mockup-numero">
+                <span class="dato" id="nivel">—</span>
+                <span class="mockup-m">m</span>
+                <span class="chip-delta" id="nivel-delta" hidden></span>
+              </div>
+              <p class="chico" id="nivel-pie">Buscando el último dato…</p>
             </div>
-            <p class="chico" id="nivel-pie">Buscando el último dato…</p>
+            <div class="regla-mini" id="regla-mini">
+              <div class="rm-agua" id="rm-agua"></div>
+              <div class="rm-linea" id="rm-superficie"></div>
+              <div class="rm-umbral rm-alerta"><b>Alerta 5,30</b></div>
+              <div class="rm-umbral rm-evac"><b>Evacuación 5,70</b></div>
+            </div>
           </div>
-          <div class="regla-mini" id="regla-mini">
-            <div class="rm-agua" id="rm-agua"></div>
-            <div class="rm-linea" id="rm-superficie"></div>
-            <div class="rm-umbral rm-alerta"><b>Alerta 5,30</b></div>
-            <div class="rm-umbral rm-evac"><b>Evacuación 5,70</b></div>
-          </div>
+          <p class="globo" id="globo" hidden></p>
         </div>
       </header>
 
@@ -254,7 +257,7 @@
           <b>30</b><span>puntos de encuentro oficiales, por cercanía</span>
         </div>
         <div class="metrica">
-          <b>169</b><span>curvas de nivel del municipio, cada 50 cm</span>
+          <b>7</b><span>días de pronóstico de lluvia y tendencia del río</span>
         </div>
         <div class="metrica">
           <b>0,5 m</b><span>de margen declarado en tu cota, no escondido</span>

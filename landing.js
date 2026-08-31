@@ -55,6 +55,19 @@ async function pintarNivel() {
       }
     }
 
+    // La pastilla flotante del diseño decía "18 cm antes de la alerta", que
+    // depende de una cota que acá nadie cargó. Con el dato del día se puede
+    // decir algo igual de concreto y que además es cierto.
+    const globo = document.getElementById("globo");
+    if (globo) {
+      const cm = Math.round((5.3 - j.altura) * 100);
+      globo.innerHTML =
+        cm > 0
+          ? "Hoy faltan <b>" + cm + " cm</b><br>para la alerta oficial"
+          : "El río ya pasó<br><b>la alerta oficial</b>";
+      globo.hidden = false;
+    }
+
     const alto = Math.max(0, Math.min(1, j.altura / TOPE_REGLA)) * 100;
     const agua = document.getElementById("rm-agua");
     const sup = document.getElementById("rm-superficie");
