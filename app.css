@@ -2158,6 +2158,24 @@ html.texto-grande {
   .metricas {
     grid-template-columns: 1fr;
   }
+  /* 420 px de mapa en un teléfono son media pantalla de un elemento que es
+     ilustrativo: la lista completa está a un toque. */
+  #mapa-landing {
+    height: 280px;
+  }
+  .pg-cabecera {
+    padding: var(--e-5) 0 var(--e-4);
+  }
+  .pg-cta .btn,
+  .nav-sitio .btn {
+    width: 100%;
+  }
+  .nav-sitio {
+    gap: var(--e-2);
+  }
+  .nav-enlaces {
+    width: 100%;
+  }
   .hero-botones .btn,
   .dosc .btn,
   .cta .btn {

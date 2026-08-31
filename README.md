@@ -259,6 +259,19 @@ instalaciones viejas cuyo `start_url` todavía apunta a `/`.
 hace lo mismo— para que no existan dos listas que se puedan desincronizar.
 Volver a correrlo cuando cambien los puntos o los textos.
 
+**El pie está escrito una sola vez.** Vive en `scripts/paginas.js` como la
+constante `PIE`: las páginas generadas lo insertan, y en `index.html` el script
+reemplaza el bloque entre los marcadores `<!-- PIE:inicio -->` y
+`<!-- PIE:fin -->`. Antes eran dos copias y ya se habían desincronizado: a la
+de las páginas le faltaban una columna entera y el teléfono de emergencias.
+
+**Cómo se prueba el ancho de teléfono.** Chrome headless no baja de unos
+485 px de viewport, así que `--window-size=390` no prueba nada: hay que meter
+la página en un `<iframe width="390">` y medir ahí adentro. Y como la CSP lleva
+`frame-ancestors 'none'`, ni siquiera se deja enmarcar a sí misma desde el
+servidor de desarrollo — para eso se levanta un `python3 -m http.server`
+aparte, que no aplica cabeceras.
+
 **El bug que esto destapó.** El service worker guardaba TODA respuesta de
 navegación bajo la clave `/index.html`. Con un solo documento no se notaba;
 con dos, visitar la portada dejaba su HTML como copia offline de la app. Ahora

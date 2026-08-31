@@ -51,12 +51,55 @@ const esc = (t) =>
 /* La marca. El mismo dibujo que scripts/marca.js y que el HTML de la portada
    y la app; el id del clipPath cambia por documento para que dos copias en la
    misma página no compartan recorte. */
-const marcaSvg = (id) => `<svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+const marcaSvg = (
+  id,
+) => `<svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
             <defs><clipPath id="${id}"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
             <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#${id})"/>
             <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
             <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
           </svg>`;
+
+/* El pie, escrito una sola vez. Lo usan las páginas generadas y también la
+   portada: al final de este script se reemplaza el bloque entre los
+   marcadores PIE de index.html. Sin esto eran dos copias que ya se habían
+   desincronizado —a la de las páginas le faltaban una columna y el 103—. */
+const PIE = `      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            ${marcaSvg("mpf")}
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+          <p class="chip-tel">Emergencias <b>103</b></p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefectura-naval-argentina" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>`;
 
 /* Cabecera, pie y esqueleto compartidos, con la estructura del diseño: nav
    con vuelta a la portada, cabecera con chip y título grande, y el cuerpo en
@@ -68,14 +111,29 @@ ${kicker ? `        <p class="kicker">${esc(kicker)}</p>\n` : ""}${titulo ? `   
       </section>`;
 }
 
-function pagina({ ruta, titulo, descripcion, migaja, jsonld, chip, h1, lead, bloques }) {
+function pagina({
+  ruta,
+  titulo,
+  descripcion,
+  migaja,
+  jsonld,
+  chip,
+  h1,
+  lead,
+  bloques,
+}) {
   const url = SITIO + ruta;
   const estructurados = [
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Cota Cero", item: SITIO + "/" },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Cota Cero",
+          item: SITIO + "/",
+        },
         { "@type": "ListItem", position: 2, name: migaja, item: url },
       ],
     },
@@ -131,34 +189,7 @@ ${bloques.map(bloque).join("\n\n")}
 
       <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
 
-      <footer class="pie-sitio pie-simple">
-        <div>
-          <span class="lockup">
-            ${marcaSvg("mpf")}
-            <span class="lockup-nombre">Cota Cero</span>
-          </span>
-          <p class="chico">
-            Herramienta ciudadana, sin vínculo con organismos oficiales. La
-            orden de evacuación la da Defensa Civil.
-          </p>
-          <p class="firma">
-            Hecho por <b>Ariel Benz</b>
-            <span class="redes">
-              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
-              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
-            </span>
-          </p>
-        </div>
-        <div>
-          <span class="eti">La herramienta</span>
-          <a href="/app">Abrir la app</a>
-          <a href="/mi-cota">Cómo se calcula tu cota</a>
-          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
-          <a href="/preguntas">Preguntas frecuentes</a>
-          <a href="/datos">De dónde salen los datos</a>
-          <a href="/legal">Legal y privacidad</a>
-        </div>
-      </footer>
+${PIE}
     </div>
   </body>
 </html>
@@ -180,7 +211,9 @@ const htmlPuntos = pagina({
   ruta: "/puntos-de-encuentro",
   titulo: "Puntos de encuentro ante inundación — Santa Fe",
   descripcion:
-    "Los " + puntos.length + " puntos de encuentro oficiales del Plan de Contingencia de la Municipalidad de Santa Fe, con dirección y cómo llegar a cada uno.",
+    "Los " +
+    puntos.length +
+    " puntos de encuentro oficiales del Plan de Contingencia de la Municipalidad de Santa Fe, con dirección y cómo llegar a cada uno.",
   migaja: "Puntos de encuentro",
   chip: "Santa Fe · oficiales del municipio",
   h1: "Los " + puntos.length + " puntos de encuentro",
@@ -199,7 +232,12 @@ const htmlPuntos = pagina({
       item: {
         "@type": "Place",
         name: p.nombre,
-        address: { "@type": "PostalAddress", streetAddress: p.direccion, addressLocality: "Santa Fe", addressCountry: "AR" },
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: p.direccion,
+          addressLocality: "Santa Fe",
+          addressCountry: "AR",
+        },
         geo: { "@type": "GeoCoordinates", latitude: p.lat, longitude: p.lon },
       },
     })),
@@ -661,6 +699,27 @@ await writeFile(
   JSON.stringify(puntos.map((p) => [p.nombre, p.direccion, p.lon, p.lat])),
 );
 console.log("escrito: /datos/puntos.json  (" + puntos.length + " puntos)");
+
+/* La portada es HTML escrito a mano, pero su pie sale de la misma constante:
+   se reemplaza el bloque entre los marcadores. Si alguien lo edita a mano,
+   la próxima corrida lo pisa — que es exactamente lo que queremos. */
+const portada = join(RAIZ, "index.html");
+const antes = await readFile(portada, "utf8");
+const MARCA_INI = "      <!-- PIE:inicio";
+const MARCA_FIN = "      <!-- PIE:fin -->";
+const i = antes.indexOf(MARCA_INI);
+const f = antes.indexOf(MARCA_FIN);
+if (i === -1 || f === -1)
+  throw new Error("index.html no tiene los marcadores PIE");
+const cabecera = antes.slice(i, antes.indexOf("-->", i) + 4);
+const despues =
+  antes.slice(0, i) + cabecera + "\n" + PIE + "\n" + antes.slice(f);
+if (despues !== antes) {
+  await writeFile(portada, despues);
+  console.log("actualizado: el pie de index.html");
+} else {
+  console.log("index.html: el pie ya estaba al día");
+}
 
 for (const [ruta, html] of [
   ["puntos-de-encuentro", htmlPuntos],
