@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v35";
+const VERSION = "cota-cero-v36";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -109,16 +109,14 @@ self.addEventListener("fetch", (e) => {
           return r;
         })
         .catch(() =>
-          caches
-            .match(req)
-            .then(
-              (hit) =>
-                hit ||
-                new Response("Sin conexión y sin copia guardada.", {
-                  status: 504,
-                  headers: { "Content-Type": "text/plain; charset=utf-8" },
-                }),
-            ),
+          caches.match(req).then(
+            (hit) =>
+              hit ||
+              new Response("Sin conexión y sin copia guardada.", {
+                status: 504,
+                headers: { "Content-Type": "text/plain; charset=utf-8" },
+              }),
+          ),
         ),
     );
     return;
@@ -165,10 +163,7 @@ self.addEventListener("fetch", (e) => {
       if (hit) return hit;
       return fetch(req)
         .then((r) => {
-          if (
-            r.ok &&
-            url.origin === location.origin
-          ) {
+          if (r.ok && url.origin === location.origin) {
             const copia = r.clone();
             caches.open(VERSION).then((c) => c.put(req, copia));
           }
@@ -208,11 +203,34 @@ function abrirBase() {
   });
 }
 
+/* La app espeja acá si la persona quiere aviso anticipado. Con IndexedDB
+   caída se asume que no: mejor avisar de menos que de más. */
+async function leerAvisarCerca() {
+  try {
+    const db = await abrirBase();
+    const v = await new Promise((ok, mal) => {
+      const t = db
+        .transaction("kv", "readonly")
+        .objectStore("kv")
+        .get("avisarCerca");
+      t.onsuccess = () => ok(t.result);
+      t.onerror = () => mal(t.error);
+    });
+    db.close();
+    return v === true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function leerUmbral() {
   try {
     const db = await abrirBase();
     const v = await new Promise((ok, mal) => {
-      const t = db.transaction("kv", "readonly").objectStore("kv").get("umbral");
+      const t = db
+        .transaction("kv", "readonly")
+        .objectStore("kv")
+        .get("umbral");
       t.onsuccess = () => ok(t.result);
       t.onerror = () => mal(t.error);
     });
@@ -225,7 +243,7 @@ async function leerUmbral() {
 
 const dosDec = (v) => v.toFixed(2).replace(".", ",");
 
-function armarAviso(nivel, umbral) {
+function armarAviso(nivel, umbral, cerca) {
   if (nivel == null)
     return {
       titulo: "El río se movió",
@@ -258,6 +276,21 @@ function armarAviso(nivel, umbral) {
     };
   if (umbral != null) {
     const falta = umbral - nivel;
+    // Aviso anticipado, sólo si lo pidió: a 20 cm es urgente, a 50 no.
+    if (cerca && falta <= 0.2)
+      return {
+        titulo: "Falta muy poco para tu cota",
+        cuerpo: `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m: ${Math.round(falta * 100)} cm. Andá preparando el plan.`,
+        urgente: true,
+        ir: "/app?ir=plan",
+      };
+    if (cerca && falta <= 0.5)
+      return {
+        titulo: `Faltan ${Math.round(falta * 100)} cm para tu cota`,
+        cuerpo: `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m.`,
+        urgente: false,
+        ir: "/app?ir=plan",
+      };
     return {
       titulo: `El río subió a ${dosDec(nivel)} m`,
       cuerpo: `Faltan ${dosDec(falta)} m para llegar a tu cota.`,
@@ -286,7 +319,7 @@ self.addEventListener("push", (e) => {
       } catch (err) {
         /* sin red: avisamos igual, en genérico */
       }
-      const a = armarAviso(nivel, await leerUmbral());
+      const a = armarAviso(nivel, await leerUmbral(), await leerAvisarCerca());
       // El navegador exige que todo push muestre algo: si no, muestra un
       // "este sitio se actualizó en segundo plano" y termina revocando el
       // permiso. Por eso siempre notificamos, aunque sea en genérico.
@@ -344,7 +377,8 @@ self.addEventListener("pushsubscriptionchange", (e) => {
         e.newSubscription ||
         (await self.registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: vieja && vieja.options && vieja.options.applicationServerKey,
+          applicationServerKey:
+            vieja && vieja.options && vieja.options.applicationServerKey,
         }));
       if (!nueva) return;
       await fetch("/api/suscribir", {

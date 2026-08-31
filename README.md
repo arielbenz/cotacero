@@ -23,10 +23,15 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
 ## Estructura
 
     index.html               portada (landing) — la puerta de entrada
-    landing.js               nivel del río en vivo + salto a /app si está instalada
+    landing.js               nivel en vivo, mapa perezoso, salto a /app si está instalada
     app/index.html           la app
     puntos-de-encuentro/     página de contenido (generada)
     mi-cota/                 página de contenido (generada)
+    datos/index.html         página de contenido (generada)
+    preguntas/index.html     página de contenido (generada)
+    legal/index.html         página de contenido (generada)
+    datos/curvas.json        curvas de nivel del municipio
+    datos/puntos.json        coordenadas de los 30 puntos, para el mapa de la portada
     app.css                  estilos, compartidos por todo
     app.js                   lógica de la app
     vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
@@ -43,6 +48,8 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     scripts/vapid.js         genera las claves, se corre una vez
     scripts/curvas.js        baja las curvas de nivel del municipio
     scripts/paginas.js       genera las páginas de contenido
+    scripts/marca.js         el logo, en un solo lugar
+    scripts/iconos.js        rasteriza el logo a los PNG de la app
     scripts/servir.js        servidor de desarrollo
     sw.js                    service worker
     manifest.webmanifest     PWA
@@ -226,8 +233,13 @@ Cuatro URLs, no una:
 |---|---|
 | `/` | Portada. Muestra el nivel del río en vivo y explica la herramienta |
 | `/app` | La app |
-| `/puntos-de-encuentro` | Los 30 puntos oficiales, generada |
-| `/mi-cota` | Cómo se calcula la cota, generada |
+| `/mi-cota` | Cómo se calcula la cota, con la cuenta completa |
+| `/puntos-de-encuentro` | Los 30 puntos oficiales |
+| `/datos` | De dónde sale cada número y cómo verificarlo |
+| `/preguntas` | Ocho preguntas, con datos estructurados `FAQPage` |
+| `/legal` | Descargo, privacidad y licencias |
+
+Las cinco últimas las genera `node scripts/paginas.js`.
 
 **Por qué.** La app esconde 3 de sus 4 secciones detrás de pestañas
 (`.vista { display: none }`), así que ~800 de sus ~975 palabras —los 30 puntos
@@ -259,6 +271,51 @@ silencio si se olvida uno: `start_url` y los `shortcuts` del manifest, el
 precache del service worker, los destinos `ir` de las notificaciones push (un
 aviso de evacuación abriría la portada), `scripts/servir.js` —que no servía
 `index.html` para directorios— y las cabeceras de `vercel.json`.
+
+## La marca
+
+Un cero partido por la línea del agua: el círculo es el cero del hidrómetro,
+la mitad de abajo es el agua, la línea que lo cruza es el nivel. El SVG vive
+en `scripts/marca.js` y en el HTML de la portada y la app, escrito a mano.
+
+`node scripts/iconos.js` lo rasteriza a PNG con Chrome headless —sin
+dependencias, el navegador dibuja SVG mejor que cualquier librería que
+pudiéramos instalar— y genera el favicon, los íconos de app, el maskable, el
+de iOS y el `og.png` de las vistas previas.
+
+**Dos cosas que costaron.** El agua llevaba relleno *y* trazo del mismo color,
+así que por debajo de la línea tapaba el anillo y a 512 px la marca se leía
+como una canasta: ahora el agua rellena sólo el interior y el anillo se dibuja
+encima. Y cada corrida de Chrome necesita su propio `--user-data-dir`, o la
+segunda se queda esperando el lock de la primera y el script no termina nunca.
+
+## Las pantallas de la app
+
+Cuatro pestañas —Río, Mi cota, Mi plan, Dónde ir— más:
+
+**Bienvenida.** Primera visita: muestra el río antes de pedir nada. Es un
+overlay y no una vista, para no meter una quinta entrada en el sistema de
+pestañas.
+
+**Ajustes.** Se llega desde el engranaje de la cabecera, **no** desde una
+quinta pestaña: la barra de abajo se deja en cuatro para no tocar los caminos
+que se usan en una emergencia. Trae los avisos —incluido el aviso anticipado a
+50 y 20 cm de tu cota, que el service worker resuelve leyendo `avisarCerca` de
+IndexedDB—, el tema y el tamaño de texto.
+
+**En contexto.** Barras con el nivel de hoy contra los dos umbrales oficiales
+y el récord de 1992. Sólo entran valores con fuente: los máximos de otras
+crecidas no se pudieron verificar y por eso no están.
+
+**Compartir como imagen.** Dibuja una imagen 1080×1920 en un canvas del propio
+teléfono y la pasa a la API de compartir del sistema; donde no existe, la
+descarga. Espera a `document.fonts.ready` o el canvas dibuja con la
+tipografía del sistema en vez de la de la app.
+
+**Un bug que vale recordar.** `[hidden]` del navegador es `display: none`,
+pero pierde contra cualquier regla de autor que fije `display`. El overlay de
+bienvenida tenía `display: flex` y no se ocultaba nunca. Hay una regla
+explícita en `app.css` para eso.
 
 ## La cota del terreno
 

@@ -90,18 +90,67 @@
   <body>
     <header class="top">
       <div class="marca-bloque">
-        <h1 class="marca">Cota<span>Cero</span></h1>
+        <h1 class="marca lockup">
+          <svg width="28" height="28" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="ma">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua)"
+              clip-path="url(#ma)"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7"
+            />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </h1>
         <p class="sub" id="subtitulo">
           Emergencia hídrica · Santa Fe · vigente hasta 30/04/2027
         </p>
       </div>
-      <button
-        id="btn-tema"
-        class="tema"
-        type="button"
-        data-accion="tema"
-        aria-label="Cambiar entre tema claro y oscuro"
-      ></button>
+      <div class="acciones-top">
+        <button
+          id="btn-tema"
+          class="tema"
+          type="button"
+          data-accion="tema"
+          aria-label="Cambiar entre tema claro y oscuro"
+        ></button>
+        <button
+          id="btn-ajustes"
+          class="tema"
+          type="button"
+          data-accion="ajustes"
+          aria-label="Ajustes"
+        >
+          <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.2" />
+            <path
+              d="M12 2.6v2.2M12 19.2v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"
+            />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- La app anda sin conexión, pero no lo decía: sólo avisaba que el dato
@@ -168,6 +217,68 @@
         </p>
       </div>
     </noscript>
+
+    <!-- Primera visita: se muestra el río antes de pedir nada. Es un
+         overlay y no una vista, para no meter una quinta entrada en el
+         sistema de pestañas. Lo maneja app.js. -->
+    <div id="bienvenida" class="bienvenida" hidden>
+      <div class="bienvenida-caja">
+        <span class="lockup" style="margin-bottom: 28px">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="mb">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua)"
+              clip-path="url(#mb)"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7"
+            />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </span>
+        <p class="eti">Hidrómetro · Puerto de Santa Fe</p>
+        <div class="dato" id="bv-nivel">
+          —<span class="unidad" id="bv-pie">buscando el dato…</span>
+        </div>
+        <div class="tarjeta" style="margin: 20px 0 0">
+          <b>¿Y a tu casa cuándo le llega?</b>
+          <p class="chico" style="margin: 6px 0 0">
+            Con tu zona y la altura de tu terreno, la app calcula el número
+            exacto que te toca a vos. Dos minutos, y se guarda sólo en este
+            teléfono.
+          </p>
+        </div>
+        <div class="bienvenida-botones">
+          <button class="btn" type="button" data-accion="bv-calcular">
+            Calcular mi cota
+          </button>
+          <button class="btn sec" type="button" data-accion="bv-despues">
+            Ahora no, ver el río
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ======================= RÍO ======================= -->
     <section
@@ -295,6 +406,33 @@
         <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
         Los dos juntos, no por separado: con el río alto las bombas no
         desagotan.
+      </div>
+
+      <!-- Sólo entran valores con fuente. El récord de 1992 y los dos
+           umbrales oficiales están publicados; los máximos de otras crecidas
+           no los pudimos verificar, así que no están. -->
+      <h2>En contexto</h2>
+      <div class="tarjeta">
+        <span class="eti">Dónde está el río hoy</span>
+        <div class="barras" id="contexto" aria-hidden="true"></div>
+        <p class="chico" id="contexto-texto" style="margin: 12px 0 0"></p>
+      </div>
+
+      <h2>Compartir</h2>
+      <div class="tarjeta">
+        <p class="chico" style="margin: 0 0 12px">
+          Genera una imagen con el nivel de hoy y tu umbral, para mandar por
+          WhatsApp. Se arma en tu teléfono: no se sube nada.
+        </p>
+        <button class="btn sec" type="button" data-accion="compartir-imagen">
+          Crear la imagen
+        </button>
+        <p
+          class="chico"
+          id="compartir-estado"
+          role="status"
+          style="margin: 8px 0 0"
+        ></p>
       </div>
     </section>
 
@@ -878,6 +1016,86 @@
       </div>
     </section>
 
+    <!-- ======================= AJUSTES =======================
+         No es una quinta pestaña: la barra de abajo se deja en cuatro para no
+         tocar los caminos que se usan en una emergencia. Se llega desde el
+         engranaje de la cabecera. -->
+    <section class="vista" id="v-ajustes" aria-label="Ajustes" tabindex="-1">
+      <h2 style="margin-top: 0">Ajustes</h2>
+
+      <div id="ajustes-avisos"></div>
+
+      <h3>Cómo se ve</h3>
+      <div class="tarjeta">
+        <div class="fila-ajuste">
+          <div>
+            <b>Tema</b>
+            <span class="chico"
+              >De día, el claro se lee mucho mejor afuera.</span
+            >
+          </div>
+          <div class="segmentado" id="seg-tema" role="group" aria-label="Tema">
+            <button type="button" data-accion="tema-set" data-tema="">
+              Auto
+            </button>
+            <button type="button" data-accion="tema-set" data-tema="claro">
+              Claro
+            </button>
+            <button type="button" data-accion="tema-set" data-tema="oscuro">
+              Noche
+            </button>
+          </div>
+        </div>
+        <div class="fila-ajuste">
+          <div>
+            <b>Tamaño del texto</b>
+            <span class="chico"
+              >Más grande, para leer con lluvia o sin anteojos.</span
+            >
+          </div>
+          <div
+            class="segmentado"
+            id="seg-texto"
+            role="group"
+            aria-label="Tamaño del texto"
+          >
+            <button type="button" data-accion="texto-set" data-texto="">
+              Normal
+            </button>
+            <button type="button" data-accion="texto-set" data-texto="grande">
+              Grande
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <h3>Sobre esto</h3>
+      <div class="tarjeta">
+        <ul class="lista-plana">
+          <li>
+            <a class="punto" href="/mi-cota"
+              ><span class="n">Cómo se calcula tu cota</span></a
+            >
+          </li>
+          <li>
+            <a class="punto" href="/datos"
+              ><span class="n">De dónde salen los datos</span></a
+            >
+          </li>
+          <li>
+            <a class="punto" href="/preguntas"
+              ><span class="n">Preguntas frecuentes</span></a
+            >
+          </li>
+          <li>
+            <a class="punto" href="/legal"
+              ><span class="n">Legal y privacidad</span></a
+            >
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
          papel y no se podía imprimir nada decente. -->
     <pre id="plan-impreso" aria-hidden="true"></pre>
@@ -992,7 +1210,7 @@
       </div>
     </div>
 
-    <nav aria-label="Secciones">
+    <nav class="barra-app" aria-label="Secciones">
       <button class="on" aria-current="true" data-accion="ver" data-vista="rio">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M2 15c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />

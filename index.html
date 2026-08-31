@@ -30,8 +30,6 @@
     <meta property="og:url" content="https://cotacerosf.com/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="color-scheme" content="dark light" />
-    <!-- El JSON-LD del producto vive acá, que es la página que lo describe.
-         El HTML de la app lleva un WebPage simple. -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -87,124 +85,379 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <header class="top">
-      <div class="marca-bloque">
-        <h1 class="marca">
-          Cota<span>Cero</span>
-          <span class="solo-lectores">
-            — hasta dónde llega el agua del río Paraná en Santa Fe</span
-          >
-        </h1>
-        <p class="sub">Emergencia hídrica · Santa Fe</p>
-      </div>
-    </header>
-
-    <main class="pagina">
-      <!-- El nivel del río va primero y en vivo: si alguien entra en una
-           crecida, tiene el dato acá mismo sin abrir nada. -->
-      <div class="tarjeta hero">
-        <span class="eti">El río en el puerto de Santa Fe</span>
-        <div class="dato" id="nivel">
-          —<span class="unidad" id="nivel-pie">buscando el último dato…</span>
+    <div class="ancho">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="mn">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua)"
+              clip-path="url(#mn)"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7"
+            />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <span class="chip-borde">NO OFICIAL</span>
+        <div class="nav-enlaces">
+          <a href="#como">Cómo funciona</a>
+          <a href="/mi-cota">Mi cota</a>
+          <a href="/puntos-de-encuentro">Dónde ir</a>
+          <a href="/preguntas">Preguntas</a>
+          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
         </div>
-        <a class="btn" href="/app">Ver qué significa para mi casa</a>
-        <p class="chico" style="margin: 12px 0 0">
-          Gratis, sin registro y sin instalar nada. Funciona sin señal.
+      </nav>
+
+      <header class="hero">
+        <div>
+          <p class="chip-vivo">
+            <span class="punto-vivo" aria-hidden="true"></span>SANTA FE ·
+            EMERGENCIA HÍDRICA
+          </p>
+          <h1 class="titulo-hero">
+            El río tiene un número.<br />Tu casa tiene otro.
+          </h1>
+          <p class="bajada">
+            El hidrómetro del Puerto publica el nivel todos los días. Cota Cero
+            lo traduce a lo único que importa:
+            <b>a qué altura el agua llega a tu terreno</b> — que en muchos
+            barrios ocurre antes que la alerta oficial.
+          </p>
+          <div class="hero-botones">
+            <a class="btn btn-oscuro" href="/app">Calcular mi cota</a>
+            <a class="btn sec" href="#como">Ver cómo funciona</a>
+          </div>
+          <p class="chico">
+            Gratis · Funciona sin señal una vez cargada · Tu cota y tu plan
+            quedan en tu teléfono
+          </p>
+        </div>
+
+        <!-- El mockup no es una ilustración: se alimenta del nivel real que
+             trae landing.js de /api/nivel. -->
+        <div class="mockup" aria-label="El nivel del río ahora">
+          <div class="mockup-cabecera">
+            <span class="eti">Hidrómetro · Puerto Santa Fe</span>
+            <div class="mockup-numero">
+              <span class="dato" id="nivel">—</span>
+              <span class="mockup-m">m</span>
+              <span class="chip-delta" id="nivel-delta" hidden></span>
+            </div>
+            <p class="chico" id="nivel-pie">Buscando el último dato…</p>
+          </div>
+          <div class="regla-mini" id="regla-mini">
+            <div class="rm-agua" id="rm-agua"></div>
+            <div class="rm-linea" id="rm-superficie"></div>
+            <div class="rm-umbral rm-alerta"><b>Alerta 5,30</b></div>
+            <div class="rm-umbral rm-evac"><b>Evacuación 5,70</b></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="franja-oscura">
+        <p class="eti">Santa Fe ya sabe lo que es</p>
+        <div class="hitos">
+          <div>
+            <b>1983</b>
+            <p>
+              La gran crecida del Paraná: la Laguna Setúbal se llevó el Puente
+              Colgante, el símbolo de la ciudad.
+            </p>
+          </div>
+          <div>
+            <b>1992</b>
+            <p>
+              El Paraná llevó el hidrómetro a 7,43 m, el récord que sigue
+              vigente. Es la crecida contra la que se validó este modelo.
+            </p>
+          </div>
+          <div>
+            <b>2003</b>
+            <p>
+              El Salado entró a la ciudad y obligó a evacuar a decenas de miles
+              de personas. Muchos barrios se inundaron antes de recibir aviso.
+            </p>
+          </div>
+          <div>
+            <b>2007</b>
+            <p>
+              Las lluvias volvieron a anegar los mismos barrios del oeste. La
+              lección se repitió: el aviso a tiempo vale más que el pronóstico.
+            </p>
+          </div>
+        </div>
+        <p class="franja-cierre">
+          Esta herramienta existe para que la próxima crecida encuentre a cada
+          familia sabiendo su número, su plan y su punto de encuentro.
         </p>
-      </div>
+      </section>
 
-      <h2>El número del río no dice nada por sí solo</h2>
-      <p>
-        Los medios informan que el Paraná está a 5,30 m. ¿Y eso qué significa
-        para tu casa? Nada, hasta que sepas a qué altura del río el agua llega a
-        <b>tu</b> terreno. Esa es la pregunta que contesta Cota Cero.
-      </p>
-      <p>
-        La app toma la lectura del hidrómetro del Puerto de Santa Fe y la
-        traduce a un umbral personal: el número exacto que tenés que mirar en
-        las noticias para saber si te toca a vos.
-      </p>
+      <section id="como">
+        <p class="eti">Cómo funciona</p>
+        <h2>Tres datos, un umbral personal</h2>
+        <div class="tres">
+          <div class="tarjeta">
+            <span class="numerito">1</span>
+            <h3>Elegís tu zona</h3>
+            <p>
+              Once zonas de Santa Fe, cada una con su distancia al Puerto. Río
+              arriba el agua llega antes.
+            </p>
+          </div>
+          <div class="tarjeta">
+            <span class="numerito">2</span>
+            <h3>Cargás tu cota</h3>
+            <p>
+              Por GPS, buscando tu dirección, o a mano si la conocés. Sale de
+              las curvas de nivel del municipio.
+            </p>
+          </div>
+          <div class="tarjeta">
+            <span class="numerito">3</span>
+            <h3>Mirás un solo número</h3>
+            <p>
+              «El agua llega a tu cota cuando el hidrómetro marque tanto». Con
+              el cálculo desglosado, no una caja negra.
+            </p>
+          </div>
+        </div>
+      </section>
 
-      <h2>Cómo funciona</h2>
-      <ol class="pasos">
-        <li>
-          <b>Ubicás tu casa.</b> Con el GPS o buscando la dirección. La app
-          consulta las curvas de nivel de la Municipalidad de Santa Fe para
-          saber a qué altura está tu terreno.
-        </li>
-        <li>
-          <b>Te da tu número.</b> La altura del hidrómetro a la que el agua
-          llega a tu cota, con el margen de error ya descontado.
-        </li>
-        <li>
-          <b>Te avisa.</b> Si querés, te manda una notificación cuando el río
-          sube o cruza un nivel de alerta.
-        </li>
-      </ol>
+      <section class="metricas">
+        <div class="metrica fuerte">
+          <b>4</b><span>pantallas: Río, Mi cota, Mi plan, Dónde ir</span>
+        </div>
+        <div class="metrica">
+          <b>30</b><span>puntos de encuentro oficiales, por cercanía</span>
+        </div>
+        <div class="metrica">
+          <b>169</b><span>curvas de nivel del municipio, cada 50 cm</span>
+        </div>
+        <div class="metrica">
+          <b>0,5 m</b><span>de margen declarado en tu cota, no escondido</span>
+        </div>
+      </section>
 
-      <h2>Qué más incluye</h2>
-      <ul class="pasos">
-        <li>
-          Los
-          <a href="/puntos-de-encuentro">30 puntos de encuentro oficiales</a>
-          del Plan de Contingencia municipal, con mapa y cómo llegar.
-        </li>
-        <li>Los teléfonos de emergencia, que funcionan sin conexión.</li>
-        <li>
-          Un plan familiar y una lista de mochila, guardados en tu teléfono.
-        </li>
-        <li>El pronóstico de lluvia y la tendencia del río.</li>
-      </ul>
+      <section class="dosc">
+        <div>
+          <p class="eti">Dónde ir</p>
+          <h2>30 puntos de encuentro oficiales</h2>
+          <p>
+            Los del municipio, con coordenadas verificadas contra su GeoServer.
+            En la app los ves ordenados por cercanía y funcionan sin conexión:
+            el listado se guarda en tu teléfono.
+          </p>
+          <div class="aviso">
+            Su activación la confirma Defensa Civil: llamá al <b>103</b> antes
+            de salir.
+          </div>
+          <a class="btn btn-oscuro" href="/puntos-de-encuentro"
+            >Ver la lista completa</a
+          >
+        </div>
+        <div class="mapa-caja">
+          <div
+            id="mapa-landing"
+            role="img"
+            aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"
+          ></div>
+        </div>
+      </section>
 
-      <h2>De dónde salen los datos</h2>
-      <p>
-        El nivel del río sale del reporte diario del
-        <b>Instituto Nacional del Agua</b>. La altura de tu terreno, de las
-        <b>curvas de nivel de la Municipalidad de Santa Fe</b>, publicadas por
-        la Secretaría de Recursos Hídricos: van cada 50 cm y están en metros
-        IGN, el mismo sistema en que está el cero del hidrómetro del puerto
-        (8,20 m). Los puntos de encuentro son los oficiales del municipio.
-      </p>
-      <p class="chico">
-        <a href="/mi-cota">Cómo se calcula tu cota, en detalle</a> — incluye por
-        qué no alcanza con un modelo satelital.
-      </p>
+      <section class="dosc">
+        <div>
+          <p class="eti eti-alerta">Honesta por diseño</p>
+          <h2>Te dice lo que sabe.<br />Y lo que no.</h2>
+          <p>
+            Cota Cero no esconde la incertidumbre en la letra chica. Te dice de
+            dónde salió tu cota y cuánto margen tiene. Te avisa que un punto de
+            encuentro puede no estar activo. Y cuando una fuente no alcanza, lo
+            dice en vez de inventar un número.
+          </p>
+          <a href="/datos">De dónde salen los datos →</a>
+        </div>
+        <div class="citas">
+          <div class="cita">
+            <span class="eti eti-alerta">Aviso en la app</span>
+            <p>
+              «Ni la mejor cota reemplaza un relevamiento de tu terreno: la
+              curva pasa cerca de tu casa, pero no por tu puerta.»
+            </p>
+          </div>
+          <div class="cita">
+            <span class="eti eti-alerta">Aviso en la app</span>
+            <p>
+              «Esto es una estimación, no una orden de evacuación. La orden la
+              da Defensa Civil.»
+            </p>
+          </div>
+          <div class="cita neutra">
+            <span class="eti">Sin vínculo oficial</span>
+            <p>
+              Hecha por un vecino. No es una comunicación del municipio, y lo
+              dice en cada pantalla.
+            </p>
+          </div>
+        </div>
+      </section>
 
-      <div class="aviso grave">
-        <b>Esto no reemplaza una orden de evacuación.</b> Es una herramienta
-        ciudadana, sin vínculo con organismos oficiales. Si Defensa Civil o el
-        municipio te dicen que salgas, salí.
-      </div>
+      <section class="cta">
+        <div>
+          <svg width="44" height="44" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="mc">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua-clara)"
+              clip-path="url(#mc)"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7"
+            />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <h2>Conocé tu número antes<br />de que lo diga el río.</h2>
+          <p>
+            Dos minutos para cargar tu cota. Se instala desde el navegador, sin
+            tienda de aplicaciones.
+          </p>
+        </div>
+        <a class="btn btn-claro" href="/app">Abrir Cota Cero</a>
+      </section>
 
-      <p style="margin-top: 24px">
-        <a class="btn" href="/app">Abrir Cota Cero</a>
-      </p>
-    </main>
-
-    <div class="pie">
-      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
-      Niveles de alerta y evacuación según FICH-UNL y Prefectura Naval
-      Argentina.
-
-      <div class="firma">
-        Hecho por <b>Ariel Benz</b>
-        <span class="redes">
-          <a
-            href="https://x.com/arielbenz"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Ariel Benz en X"
-            >X</a
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="24" height="24" viewBox="0 0 60 60" aria-hidden="true">
+              <defs>
+                <clipPath id="mf">
+                  <rect x="0" y="33" width="60" height="27" />
+                </clipPath>
+              </defs>
+              <circle
+                cx="30"
+                cy="30"
+                r="21"
+                fill="var(--agua)"
+                clip-path="url(#mf)"
+              />
+              <circle
+                cx="30"
+                cy="30"
+                r="21"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="7"
+              />
+              <line
+                x1="2"
+                y1="33"
+                x2="58"
+                y2="33"
+                stroke="currentColor"
+                stroke-width="4.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a
+                href="https://x.com/arielbenz"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ariel Benz en X"
+                >X</a
+              >
+              <a
+                href="https://www.instagram.com/ariel.front/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ariel Benz en Instagram"
+                >Instagram</a
+              >
+            </span>
+          </p>
+          <p class="chip-tel">Emergencias <b>103</b></p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener"
+            >INA — reporte diario</a
           >
           <a
-            href="https://www.instagram.com/ariel.front/"
+            href="https://www.argentina.gob.ar/prefectura-naval-argentina"
             target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Ariel Benz en Instagram"
-            >Instagram</a
+            rel="noopener"
+            >Prefectura Naval</a
           >
-        </span>
-      </div>
+          <a
+            href="https://geoportal.santafeciudad.gov.ar/"
+            target="_blank"
+            rel="noopener"
+            >Municipalidad de Santa Fe</a
+          >
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener"
+            >IGN</a
+          >
+        </div>
+      </footer>
     </div>
   </body>
 </html>

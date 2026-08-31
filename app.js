@@ -289,12 +289,16 @@ function ver(id, btn, desdeHistorial) {
   document.querySelectorAll(".vista").forEach((v) => v.classList.remove("on"));
   const panel = document.getElementById("v-" + id);
   panel.classList.add("on");
-  document.querySelectorAll("nav button").forEach((b) => {
+  document.querySelectorAll(".barra-app button").forEach((b) => {
     b.classList.remove("on");
     b.removeAttribute("aria-current");
   });
-  btn.classList.add("on");
-  btn.setAttribute("aria-current", "true");
+  // Ajustes no tiene botón: ninguna pestaña queda marcada, que es lo
+  // correcto — no estás en ninguna de las cuatro.
+  if (btn) {
+    btn.classList.add("on");
+    btn.setAttribute("aria-current", "true");
+  }
   window.scrollTo(0, 0);
   // Sin esto el foco se queda en el botón de abajo y quien navega con
   // lector de pantalla no se entera de que cambió todo el contenido.
@@ -309,9 +313,15 @@ function ver(id, btn, desdeHistorial) {
 }
 
 function irA(id, desdeHistorial) {
+  // Ajustes no tiene botón en la barra: se llega desde el engranaje de la
+  // cabecera, así la barra de emergencia se queda en cuatro.
+  if (id === "ajustes") {
+    ver("ajustes", null, desdeHistorial);
+    return true;
+  }
   const i = { rio: 0, cota: 1, plan: 2, donde: 3 }[id];
   if (i === undefined) return false;
-  const b = document.querySelectorAll("nav button")[i];
+  const b = document.querySelectorAll(".barra-app button")[i];
   if (!b) return false;
   ver(id, b, desdeHistorial);
   return true;
@@ -659,6 +669,10 @@ function pintarRio() {
   pintarCtaCota();
   guardarUmbral();
   pintarAvisos();
+
+  // Las dos leen estado.rio, así que se repintan con el mismo dato.
+  pintarContexto();
+  pintarBienvenida();
 }
 
 /* Sin cota, la app no puede responder su propia pregunta — y en la pestaña
@@ -2014,16 +2028,19 @@ function baseAvisos() {
   });
 }
 
-let ultimoUmbralGuardado;
+let ultimoUmbralGuardado, ultimoCercaGuardado;
 async function guardarUmbral() {
   const u = cotaEnHidrometro();
-  if (u === ultimoUmbralGuardado) return;
+  const cerca = guardado.get("cc_avisar_cerca") === "1";
+  if (u === ultimoUmbralGuardado && cerca === ultimoCercaGuardado) return;
   ultimoUmbralGuardado = u;
+  ultimoCercaGuardado = cerca;
   try {
     const db = await baseAvisos();
     const st = db.transaction("kv", "readwrite").objectStore("kv");
     if (u == null) st.delete("umbral");
     else st.put(u, "umbral");
+    st.put(cerca, "avisarCerca");
     db.close();
   } catch (e) {
     /* sin IndexedDB los avisos salen en genérico, la app anda igual */
@@ -2136,9 +2153,35 @@ const LETRA_CHICA =
   "sólo una dirección anónima de tu navegador. <b>No guarda tu cota, tu " +
   "dirección ni tu plan</b>: el aviso lo arma tu teléfono.</p>";
 
+/* Aviso anticipado: además del cruce del umbral, avisar cuando falten 50 y
+   20 cm. Lo decide el service worker con lo que se espeja a IndexedDB. */
+function conmutadorCerca() {
+  const on = guardado.get("cc_avisar_cerca") === "1";
+  return (
+    '<label class="chk" style="border-bottom:none;padding-bottom:0">' +
+    '<input type="checkbox" data-accion="avisar-cerca" data-on="' +
+    (on ? "0" : "1") +
+    '"' +
+    (on ? " checked" : "") +
+    ">" +
+    "<span>Avisarme también cuando falte poco (50 y 20 cm)</span></label>"
+  );
+}
+
 async function pintarAvisos() {
-  const caja = document.getElementById("avisos");
-  if (!caja) return;
+  // La tarjeta vive en dos lugares: al pie de "Mi cota", que es donde acabás
+  // de fijar tu umbral y es el momento natural para activarlos, y en Ajustes,
+  // que es donde alguien los va a buscar después.
+  const cajas = [
+    document.getElementById("avisos"),
+    document.getElementById("ajustes-avisos"),
+  ].filter(Boolean);
+  if (!cajas.length) return;
+  const caja = {
+    set innerHTML(v) {
+      cajas.forEach((c) => (c.innerHTML = v));
+    },
+  };
   const umbral = cotaEnHidrometro();
   if (umbral == null) return (caja.innerHTML = "");
   // Sin clave VAPID los avisos no están desplegados todavía. No es culpa del
@@ -2178,6 +2221,7 @@ async function pintarAvisos() {
         "Te avisamos cuando el río llegue a <b>" +
         m(umbral) +
         "</b>, y también si cruza los umbrales oficiales de 5,30 y 5,70 m.</p>" +
+        conmutadorCerca() +
         '<button class="btn sec mini" style="margin-top:11px;display:block" ' +
         'data-accion="avisos-off">Desactivar avisos</button>',
     );
@@ -2222,6 +2266,18 @@ const ACCIONES = {
   "ver-todos": () => alternarTodosLosPuntos(),
   "sug-enviar": () => enviarSugerencia(),
   instalar: () => instalar(),
+  ajustes: () => irA("ajustes"),
+  "bv-calcular": () => cerrarBienvenida("cota"),
+  "bv-despues": () => cerrarBienvenida(),
+  "compartir-imagen": () => compartirImagen(),
+  // El despachador ya pasa el elemento que se tocó: estas leen un data- suyo.
+  "tema-set": (el) => {
+    guardado.set("cc_tema", el.dataset.tema || "");
+    aplicarTema(el.dataset.tema || "");
+    pintarSegmentoTema();
+  },
+  "texto-set": (el) => fijarTexto(el.dataset.texto || ""),
+  "avisar-cerca": (el) => fijarAvisarCerca(el.dataset.on === "1"),
   "avisos-on": () => activarAvisos(),
   "avisos-off": () => desactivarAvisos(),
   ver: (el) => ver(el.dataset.vista, el),
@@ -2267,6 +2323,286 @@ function conectarEventos() {
       buscarDireccion();
     }
   });
+}
+
+/* ================= BIENVENIDA =================
+   Primera visita: se muestra el río antes de pedir nada. La app no sirve de
+   nada hasta que cargás tu cota, pero arrancar con un formulario vacío hace
+   que la mayoría se vaya sin ver para qué era. */
+
+const YA_ENTRO = "cc_bienvenida";
+
+function mostrarBienvenida() {
+  const caja = document.getElementById("bienvenida");
+  if (!caja) return;
+  // Si ya cargó su cota alguna vez, esto no tiene nada que ofrecerle.
+  if (guardado.get(YA_ENTRO) === "1" || guardado.get("cc_cota")) return;
+  caja.hidden = false;
+  document.body.classList.add("con-bienvenida");
+}
+
+function cerrarBienvenida(ir) {
+  const caja = document.getElementById("bienvenida");
+  guardado.set(YA_ENTRO, "1");
+  if (caja) caja.hidden = true;
+  document.body.classList.remove("con-bienvenida");
+  if (ir) irA(ir);
+}
+
+/* El número de la bienvenida sale del mismo estado que el resto: no se pide
+   el nivel dos veces. */
+function pintarBienvenida() {
+  const n = document.getElementById("bv-nivel");
+  const pie = document.getElementById("bv-pie");
+  if (!n || !pie || estado.rio == null) return;
+  n.textContent = m(estado.rio);
+  n.appendChild(pie);
+  pie.textContent =
+    estado.rio >= EVACUACION
+      ? "Nivel de evacuación"
+      : estado.rio >= ALERTA
+        ? "Nivel de alerta"
+        : "Por debajo del nivel de alerta";
+}
+
+/* ================= EN CONTEXTO =================
+   Dónde está el río hoy contra las referencias que SÍ tienen fuente: los dos
+   umbrales oficiales y el récord de 1992. Los máximos de otras crecidas no se
+   pudieron verificar y por eso no están: un gráfico de una app de evacuación
+   no es lugar para números de memoria. */
+
+const REFERENCIAS = [
+  ["Alerta", ALERTA, "alerta"],
+  ["Evacuación", EVACUACION, "peligro"],
+  ["Récord 1992", 7.43, "record"],
+];
+
+function pintarContexto() {
+  const caja = document.getElementById("contexto");
+  const txt = document.getElementById("contexto-texto");
+  if (!caja) return;
+  if (estado.rio == null) {
+    caja.innerHTML = "";
+    if (txt) txt.textContent = "";
+    return;
+  }
+  const filas = [["Hoy", estado.rio, "hoy"], ...REFERENCIAS];
+  const tope = Math.max(...filas.map((f) => f[1]));
+  caja.innerHTML = filas
+    .map(
+      ([n, v, cls]) => `<div class="barra-fila">
+      <span class="barra-nom">${atr(n)}</span>
+      <span class="barra-pista"><i class="b-${cls}" style="width:${(v / tope) * 100}%"></i></span>
+      <span class="barra-val">${m(v)}</span>
+    </div>`,
+    )
+    .join("");
+
+  if (!txt) return;
+  const aAlerta = ALERTA - estado.rio;
+  txt.innerHTML =
+    aAlerta > 0
+      ? "Faltan <b>" +
+        Math.round(aAlerta * 100) +
+        " cm</b> para el nivel de alerta, y <b>" +
+        Math.round((7.43 - estado.rio) * 100) +
+        " cm</b> para el récord de 1992."
+      : "El río ya pasó el nivel de alerta. Al récord de 1992 le faltan <b>" +
+        Math.round((7.43 - estado.rio) * 100) +
+        " cm</b>.";
+}
+
+/* ================= AJUSTES ================= */
+
+/* El tamaño de texto es una clase en <html>: así escala todo junto, incluidos
+   los números de la regla, sin tocar cada regla del CSS. */
+function aplicarTexto(t) {
+  document.documentElement.classList.toggle("texto-grande", t === "grande");
+  document.querySelectorAll("#seg-texto button").forEach((b) => {
+    b.classList.toggle("on", (b.dataset.texto || "") === (t || ""));
+  });
+}
+
+function fijarTexto(t) {
+  guardado.set("cc_texto", t || "");
+  aplicarTexto(t);
+}
+
+function pintarSegmentoTema() {
+  const t = guardado.get("cc_tema") || "";
+  document.querySelectorAll("#seg-tema button").forEach((b) => {
+    b.classList.toggle("on", (b.dataset.tema || "") === t);
+  });
+}
+
+/* "Avisame cuando falte poco" necesita que lo sepa el service worker, que no
+   puede leer localStorage: se espeja a IndexedDB junto al umbral. */
+async function fijarAvisarCerca(on) {
+  guardado.set("cc_avisar_cerca", on ? "1" : "0");
+  await guardarUmbral();
+  pintarAvisos();
+}
+
+function pintarAjustes() {
+  pintarSegmentoTema();
+  aplicarTexto(guardado.get("cc_texto") || "");
+}
+
+/* ================= COMPARTIR COMO IMAGEN =================
+   Se dibuja en un canvas del propio teléfono y se comparte con la API del
+   sistema. Nada se sube a ningún lado, que es lo que la app promete en todas
+   las demás pantallas. */
+
+const IMG_ANCHO = 1080;
+const IMG_ALTO = 1920;
+
+function colorDe(nombre) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(nombre)
+    .trim();
+}
+
+async function armarImagen() {
+  // Sin esperar a las fuentes, el canvas dibuja con la de sistema y la imagen
+  // sale con otra tipografía que la app.
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+  const c = document.createElement("canvas");
+  c.width = IMG_ANCHO;
+  c.height = IMG_ALTO;
+  const g = c.getContext("2d");
+  const F = (p, t) => `${p} ${t}px "Plus Jakarta Sans", system-ui, sans-serif`;
+
+  const fondo = "#0e1619";
+  const claro = "#e9eef0";
+  const tenue = "#93a6ad";
+  const agua = "#2e9bc4";
+
+  g.fillStyle = fondo;
+  g.fillRect(0, 0, IMG_ANCHO, IMG_ALTO);
+
+  // Marca
+  g.strokeStyle = claro;
+  g.lineWidth = 11;
+  g.beginPath();
+  g.arc(120, 150, 33, 0, Math.PI * 2);
+  g.stroke();
+  g.save();
+  g.beginPath();
+  g.rect(80, 155, 80, 45);
+  g.clip();
+  g.fillStyle = "#5fc8e8";
+  g.beginPath();
+  g.arc(120, 150, 33, 0, Math.PI * 2);
+  g.fill();
+  g.restore();
+  g.lineWidth = 7;
+  g.lineCap = "round";
+  g.beginPath();
+  g.moveTo(76, 155);
+  g.lineTo(164, 155);
+  g.stroke();
+  g.fillStyle = claro;
+  g.font = F(800, 44);
+  g.fillText("Cota Cero", 180, 166);
+
+  // El dato
+  g.fillStyle = tenue;
+  g.font = F(700, 30);
+  g.fillText("RÍO EN EL PUERTO DE SANTA FE", 76, 300);
+  g.fillStyle = claro;
+  g.font = F(800, 190);
+  g.fillText(m(estado.rio ?? 0), 76, 470);
+
+  const u = cotaEnHidrometro();
+  g.font = F(600, 40);
+  g.fillStyle = tenue;
+  const linea2 =
+    u == null
+      ? "Cargá tu cota en la app para saber qué significa"
+      : estado.rio != null && estado.rio >= u
+        ? "El agua ya llegó a mi cota (" + m(u) + ")"
+        : "A mi cota le faltan " +
+          Math.round(((u ?? 0) - (estado.rio ?? 0)) * 100) +
+          " cm — llega en " +
+          m(u);
+  g.fillText(linea2, 76, 540);
+
+  // La regla, de 0 al récord de 1992
+  const x = 76,
+    y = 640,
+    an = IMG_ANCHO - 152,
+    al = 900;
+  const TOPE = 7.6;
+  g.fillStyle = "rgba(233,238,240,.07)";
+  g.fillRect(x, y, an, al);
+  const hAgua = Math.max(0, Math.min(1, (estado.rio ?? 0) / TOPE)) * al;
+  g.fillStyle = agua;
+  g.fillRect(x, y + al - hAgua, an, hAgua);
+  g.fillStyle = "#5fc8e8";
+  g.fillRect(x, y + al - hAgua - 6, an, 6);
+
+  const marca = (v, texto, color) => {
+    const yy = y + al - (v / TOPE) * al;
+    g.strokeStyle = color;
+    g.lineWidth = 4;
+    g.beginPath();
+    g.moveTo(x, yy);
+    g.lineTo(x + an, yy);
+    g.stroke();
+    g.fillStyle = color;
+    g.font = F(700, 30);
+    g.fillText(texto, x + 18, yy - 16);
+  };
+  marca(ALERTA, "Alerta 5,30", "#e8a33d");
+  marca(EVACUACION, "Evacuación 5,70", "#e15f49");
+  marca(7.43, "Récord 1992   7,43", tenue);
+  if (u != null && u <= TOPE) marca(u, "MI COTA   " + m(u), claro);
+
+  // Pie: fuente y dominio, para que la imagen se defienda sola cuando la
+  // reenvían diez veces sin contexto.
+  g.fillStyle = tenue;
+  g.font = F(500, 27);
+  const fecha = estado.rioFecha ? " · dato del " + estado.rioFecha : "";
+  g.fillText("Estimación personal, no una orden" + fecha, x, y + al + 60);
+  g.fillText(
+    "Lectura oficial: INA. La orden la da Defensa Civil (103). cotacerosf.com",
+    x,
+    y + al + 104,
+  );
+
+  return new Promise((ok) => c.toBlob(ok, "image/png"));
+}
+
+async function compartirImagen() {
+  const e = document.getElementById("compartir-estado");
+  const liberar = ocupar('[data-accion="compartir-imagen"]', "Armando…");
+  try {
+    if (estado.rio == null) throw new Error("todavía no hay nivel del río");
+    const blob = await armarImagen();
+    if (!blob) throw new Error("no se pudo dibujar");
+    const archivo = new File([blob], "cota-cero.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+      await navigator.share({ files: [archivo] });
+      if (e) e.textContent = "";
+    } else {
+      // Sin Web Share con archivos —escritorio, Firefox— se descarga.
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cota-cero.png";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      if (e) e.textContent = "Se descargó la imagen.";
+    }
+  } catch (err) {
+    // Cancelar el diálogo de compartir tira AbortError: no es un error.
+    if (e)
+      e.textContent =
+        err && err.name === "AbortError" ? "" : "No se pudo crear la imagen.";
+  } finally {
+    liberar();
+  }
 }
 
 /* ================= INSTALAR =================
@@ -2465,9 +2801,12 @@ function abrirDesdeURL() {
 
 document.addEventListener("DOMContentLoaded", () => {
   aplicarTema(guardado.get("cc_tema") || "");
+  aplicarTexto(guardado.get("cc_texto") || "");
   conectarEventos();
   iniciar();
   abrirDesdeURL();
   contarVisita();
   ofrecerInstalacion();
+  pintarAjustes();
+  mostrarBienvenida();
 });

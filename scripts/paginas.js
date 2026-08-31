@@ -32,15 +32,21 @@ const puntos = [
 ].map((m) => {
   const trozo = m[3];
   const t = (cls) => {
-    const x = trozo.match(new RegExp(`class="${cls}"[^>]*>([\\s\\S]*?)<\\/span>`));
+    const x = trozo.match(
+      new RegExp(`class="${cls}"[^>]*>([\\s\\S]*?)<\\/span>`),
+    );
     return x ? x[1].replace(/<[^>]+>/g, "").trim() : "";
   };
   return { lon: +m[1], lat: +m[2], nombre: t("n"), direccion: t("d") };
 });
-if (puntos.length < 25) throw new Error("Se leyeron sólo " + puntos.length + " puntos");
+if (puntos.length < 25)
+  throw new Error("Se leyeron sólo " + puntos.length + " puntos");
 
 const esc = (t) =>
-  String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  String(t).replace(
+    /[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+  );
 
 /* Cabecera, pie y esqueleto compartidos, para que las páginas se vean parte
    del mismo sitio sin duplicar el diseño. */
@@ -51,7 +57,12 @@ function pagina({ ruta, titulo, descripcion, migaja, jsonld, cuerpo }) {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Cota Cero", item: SITIO + "/" },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Cota Cero",
+          item: SITIO + "/",
+        },
         { "@type": "ListItem", position: 2, name: migaja, item: url },
       ],
     },
@@ -87,8 +98,14 @@ ${bloques.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(
   <body class="landing">
     <header class="top">
       <div class="marca-bloque">
-        <a href="/" style="text-decoration: none; color: inherit">
-          <span class="marca">Cota<span>Cero</span></span>
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
         </a>
         <p class="sub">Emergencia hídrica · Santa Fe</p>
       </div>
@@ -100,8 +117,12 @@ ${cuerpo}
     <div class="pie">
       <p class="chico" style="margin-bottom: 12px">
         <a href="/">Qué es Cota Cero</a> ·
+        <a href="/app">Abrir la app</a> ·
+        <a href="/mi-cota">Cómo se calcula tu cota</a> ·
         <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/mi-cota">Cómo saber tu cota</a>
+        <a href="/preguntas">Preguntas</a> ·
+        <a href="/datos">De dónde salen los datos</a> ·
+        <a href="/legal">Legal y privacidad</a>
       </p>
       Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
       No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
@@ -134,7 +155,9 @@ const htmlPuntos = pagina({
   ruta: "/puntos-de-encuentro",
   titulo: "Puntos de encuentro ante inundación — Santa Fe",
   descripcion:
-    "Los " + puntos.length + " puntos de encuentro oficiales del Plan de Contingencia de la Municipalidad de Santa Fe, con dirección y cómo llegar a cada uno.",
+    "Los " +
+    puntos.length +
+    " puntos de encuentro oficiales del Plan de Contingencia de la Municipalidad de Santa Fe, con dirección y cómo llegar a cada uno.",
   migaja: "Puntos de encuentro",
   jsonld: {
     "@context": "https://schema.org",
@@ -147,7 +170,12 @@ const htmlPuntos = pagina({
       item: {
         "@type": "Place",
         name: p.nombre,
-        address: { "@type": "PostalAddress", streetAddress: p.direccion, addressLocality: "Santa Fe", addressCountry: "AR" },
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: p.direccion,
+          addressLocality: "Santa Fe",
+          addressCountry: "AR",
+        },
         geo: { "@type": "GeoCoordinates", latitude: p.lat, longitude: p.lon },
       },
     })),
@@ -220,11 +248,12 @@ const htmlCota = pagina({
       <p>
         Cuando informan que el río Paraná está a 5,30 m en el puerto de Santa
         Fe, ese número no dice nada sobre tu casa. Para que diga algo hay que
-        traducirlo, y para traducirlo hacen falta dos datos: <b>a qué altura
-        está tu terreno</b> y <b>dónde está el cero de la regla</b>.
+        traducirlo, y para eso hacen falta tres datos: <b>a qué altura está tu
+        terreno</b>, <b>dónde está el cero de la regla</b> y <b>a qué distancia
+        del puerto estás</b>.
       </p>
 
-      <h2>El cero del hidrómetro está a 8,20 metros</h2>
+      <h2>1. El cero del hidrómetro está a 8,20 metros</h2>
       <p>
         El hidrómetro del Puerto de Santa Fe no mide desde el nivel del mar:
         mide desde un cero convencional que está <b>8,20 m por encima</b> del
@@ -233,35 +262,57 @@ const htmlCota = pagina({
       </p>
       <p>
         Entonces, cuando la regla marca 5,30 m, la superficie del agua está en
-        realidad a 13,50 m IGN. Y si tu terreno está a 15 m IGN, todavía te
-        sobran metro y medio.
+        realidad a 13,50 m IGN. Si tu terreno está a 15 m, todavía te sobra
+        metro y medio.
       </p>
       <p class="chico">
         Cada puerto tiene su propio cero. El de Paraná está a 9,57 m y el de
-        Rosario a 3,03 m, así que las alturas de distintas ciudades no se
-        comparan entre sí.
+        Rosario a 3,03 m: las alturas de distintas ciudades no se comparan
+        entre sí.
       </p>
 
-      <h2>El río no está horizontal</h2>
+      <h2>2. El río no está horizontal</h2>
       <p>
-        La superficie del agua tiene pendiente: baja unos 4,5 cm por kilómetro
-        aguas abajo. Por eso, con la misma lectura en el puerto, un barrio río
-        arriba tiene el agua más alta que uno río abajo.
+        La superficie del agua tiene pendiente: baja unos <b>4,5 cm por
+        kilómetro</b> aguas abajo. Con la misma lectura en el puerto, un barrio
+        río arriba tiene el agua más alta que uno río abajo.
       </p>
       <p>
-        Un ejemplo real: en la crecida de 1992 el hidrómetro del puerto llegó a
-        7,43 m, y en Arroyo Leyes —24 km río arriba— el agua alcanzó los 16,70
-        m IGN. La cuenta da 8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de
+        Un caso real: en la crecida de 1992 el hidrómetro llegó a 7,43 m, y en
+        Arroyo Leyes —24 km río arriba— el agua alcanzó los 16,70 m IGN. La
+        cuenta da 8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de
         diferencia.
       </p>
 
-      <h2>De dónde sacamos la altura de tu terreno</h2>
+      <h2>3. Tu terreno, y cuánto margen tiene</h2>
       <p>
-        De las <b>curvas de nivel de la Municipalidad de Santa Fe</b>,
-        publicadas por la Secretaría de Recursos Hídricos. Son 169 curvas cada
-        50 centímetros, de 12,5 a 22,5 m, en metros IGN — el mismo sistema que
-        el cero del hidrómetro. Tu cota se calcula interpolando entre las dos
-        curvas más cercanas a tu casa.
+        La altura sale de las <b>curvas de nivel de la Municipalidad de Santa
+        Fe</b>, publicadas por la Secretaría de Recursos Hídricos: 169 curvas
+        cada 50 centímetros, en metros IGN. Tu cota se calcula interpolando
+        entre las dos más cercanas, y por eso el margen declarado es de
+        <b>0,5 m</b>: la mitad del intervalo entre curvas.
+      </p>
+
+      <h2>La cuenta completa</h2>
+      <p>
+        Un terreno a 15,80 m IGN en Colastiné Norte, que está a 11 km del
+        puerto:
+      </p>
+      <div class="tarjeta">
+        <table class="cuenta">
+          <tr><td>Cota del terreno</td><td>15,80 m</td></tr>
+          <tr><td>Margen de las curvas</td><td>− 0,50 m</td></tr>
+          <tr><td>Cero del hidrómetro</td><td>− 8,20 m</td></tr>
+          <tr><td>Pendiente: 11 km × 0,045</td><td>− 0,50 m</td></tr>
+          <tr class="total"><td>El agua llega cuando el hidrómetro marque</td><td>6,61 m</td></tr>
+        </table>
+      </div>
+      <p>
+        Con el récord histórico en 7,43 m, ese terreno se mojó en 1992 —
+        <b>82 centímetros antes</b> del pico. Y está bastante por encima de la
+        alerta oficial de 5,30 m, así que cuando la ciudad entra en alerta a
+        esa casa todavía le queda margen. Ese es el punto: el número que te
+        toca no es el que sale en las noticias.
       </p>
 
       <h2>Por qué no alcanza un modelo satelital</h2>
@@ -271,18 +322,16 @@ const htmlCota = pagina({
         árboles, no el piso.
       </p>
       <p>
-        Lo medimos. Comparado con 36 puntos de nivelación oficiales del IGN
-        alrededor de Santa Fe —cotas medidas en campo, al milímetro— el modelo
-        satelital tenía un sesgo chico, de 0,89 m, pero un
-        <b>desvío estándar de 7,46 m</b>, con casos de hasta 23 m de error. Y
-        dentro de la ciudad, contra las curvas municipales, sobreestimaba 2,15
-        m de media.
+        Lo medimos. Contra 36 puntos de nivelación del IGN alrededor de Santa
+        Fe —cotas medidas en campo, al milímetro— el modelo satelital tenía un
+        sesgo chico, de 0,89 m, pero un <b>desvío estándar de 7,46 m</b>, con
+        casos de hasta 23 m de error. Y dentro de la ciudad, contra las curvas
+        municipales, sobreestimaba 2,15 m de media.
       </p>
       <p>
-        Para dimensionarlo: entre el nivel de alerta (5,30 m) y el récord
-        histórico de 1992 (7,43 m) hay <b>2,13 metros</b>. El error de la
-        fuente era más grande que toda la escala de decisión. Por eso dejamos
-        de usarla.
+        Para dimensionarlo: entre el nivel de alerta (5,30 m) y el récord de
+        1992 (7,43 m) hay <b>2,13 metros</b>. El error de la fuente era más
+        grande que toda la escala de la decisión. Por eso dejamos de usarla.
       </p>
 
       <h2>Qué sigue sin saber</h2>
@@ -290,22 +339,360 @@ const htmlCota = pagina({
         Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
         pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
         metro de altura. Tampoco sabe si tu terreno está elevado sobre la
-        vereda, si la casa tiene escalones o si el fondo es más bajo. Por eso
-        el cálculo va siempre medio metro por debajo, del lado seguro.
+        vereda, si la casa tiene escalones, ni si hay defensas, terraplenes o
+        bombeo entre el río y tu barrio: el agua puede llegar antes por
+        desagüe.
       </p>
       <p>
         El número que vale de verdad es el de un relevamiento topográfico, la
         escritura de tu terreno, o el que te dé el municipio. Si lo conseguís,
-        podés cargarlo a mano en la app.
+        cargalo a mano en la app.
       </p>`,
 });
+
+/* ---------- /datos ---------- */
+const htmlDatos = pagina({
+  ruta: "/datos",
+  titulo: "De dónde salen los datos — Cota Cero",
+  descripcion:
+    "Cada número de Cota Cero tiene una fuente pública y un método verificable: el INA, las curvas del municipio y los puntos de nivelación del IGN.",
+  migaja: "De dónde salen los datos",
+  jsonld: {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "De dónde salen los datos de Cota Cero",
+    inLanguage: "es-AR",
+    author: { "@type": "Person", name: "Ariel Benz" },
+    mainEntityOfPage: SITIO + "/datos",
+  },
+  cuerpo: `      <h1>De dónde salen los datos</h1>
+      <p>
+        Cada número que muestra Cota Cero tiene una fuente pública y un método
+        que se puede repetir. Esta página los recorre uno por uno, incluido lo
+        que la app <b>no</b> sabe.
+      </p>
+
+      <h2>1 · El nivel del río</h2>
+      <p>
+        La lectura viene del <b>reporte diario del INA</b> (Instituto Nacional
+        del Agua) para el hidrómetro del Puerto de Santa Fe, que publica un
+        valor por día. Los umbrales de alerta (5,30 m) y evacuación (5,70 m)
+        son los oficiales de ese hidrómetro. La app no mide nada: lee, muestra
+        y compara.
+      </p>
+      <div class="aviso">
+        Si el INA no publica o cambia el formato del reporte, la app muestra la
+        última lectura con su fecha. Nunca inventa un valor.
+      </div>
+
+      <h2>2 · Las dos constantes del modelo</h2>
+      <p>
+        <b>El cero del hidrómetro está a 8,20 m IGN.</b> Sumarlo a la lectura
+        convierte el número del puerto en cota de agua, en el mismo sistema de
+        alturas que tu terreno.
+      </p>
+      <p>
+        <b>La pendiente es de 0,045 m por kilómetro.</b> Río arriba el agua
+        está más alta: la pendiente corrige el nivel según la distancia de tu
+        zona al puerto.
+      </p>
+      <p>
+        Esa segunda constante se contrastó con un dato independiente publicado
+        en prensa sobre la crecida de 1992, la mayor registrada:
+      </p>
+      <div class="tarjeta">
+        <table class="cuenta">
+          <tr><td>Puerto de Santa Fe, 1992</td><td>7,43 m de hidrómetro</td></tr>
+          <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
+          <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
+        </table>
+      </div>
+      <p>Un centímetro de diferencia.</p>
+
+      <h2>3 · La cota de tu terreno</h2>
+      <p>
+        Sale de las <b>169 curvas de nivel de la Municipalidad de Santa Fe</b>,
+        publicadas por la Secretaría de Recursos Hídricos, trazadas cada 50 cm
+        y en metros IGN — el mismo sistema que el cero del hidrómetro. Por eso
+        el margen que se informa es de <b>±0,5 m</b>: la mitad del intervalo
+        entre curvas.
+      </p>
+      <p>
+        Antes se usaba un modelo satelital de elevación y se descartó
+        midiendo, no por intuición. Contra 36 puntos de nivelación de campo del
+        IGN alrededor de la ciudad:
+      </p>
+      <div class="tarjeta">
+        <table class="cuenta">
+          <tr><td>Desvío estándar del satélite</td><td>±7,46 m</td></tr>
+          <tr><td>Su peor error medido</td><td>−22,9 m</td></tr>
+          <tr class="total"><td>Todo el rango de decisión: de alerta (5,30) al récord de 1992 (7,43)</td><td>2,13 m</td></tr>
+        </table>
+      </div>
+      <p>
+        El error de la fuente era más grande que la escala entera de la
+        decisión. Por eso la app no la usa — y donde las curvas municipales no
+        llegan, te pide la cota a mano en vez de caer a algo peor.
+      </p>
+
+      <h2>4 · Los puntos de encuentro</h2>
+      <p>
+        Salen de la capa pública <code>puntos_de_encuentro</code> del GeoServer
+        de la Municipalidad, la misma que dibuja su GeoPortal. Van guardados
+        dentro de la app con sus coordenadas, así el mapa funciona sin
+        conexión. Son 30, no 29: el listado que circuló en prensa omitía la
+        Vecinal Pro Mejoras Alto Verde.
+      </p>
+      <div class="aviso">
+        La app no sabe en tiempo real cuáles están activos. Eso lo confirma
+        Defensa Civil, al <b>103</b>.
+      </div>
+
+      <h2>5 · Las fuentes, para que las verifiques</h2>
+      <ul class="pasos">
+        <li>
+          <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">Reporte diario del INA</a>
+          — alturas hidrométricas del Paraná, Puerto de Santa Fe incluido.
+        </li>
+        <li>
+          <a href="https://www.argentina.gob.ar/prefectura-naval-argentina" target="_blank" rel="noopener">Prefectura Naval Argentina</a>
+          — lecturas de los hidrómetros en los puertos.
+        </li>
+        <li>
+          <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal de la Municipalidad de Santa Fe</a>
+          — curvas de nivel y capa oficial de puntos de encuentro.
+        </li>
+        <li>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a>
+          — sistema de referencia de las cotas, red de nivelación y mapa base.
+        </li>
+      </ul>
+      <p class="chico">
+        Cota Cero no tiene vínculo con ninguno de estos organismos: usa sus
+        datos públicos y los cita para que cualquiera pueda repetir la cuenta.
+      </p>
+
+      <h2>6 · Lo que todavía no sabe</h2>
+      <ul class="pasos">
+        <li>
+          Los kilómetros río arriba de cada zona son estimaciones propias,
+          salvo Arroyo Leyes, que está publicado.
+        </li>
+        <li>
+          No sabe si hay defensas, terraplenes o bombeo entre el río y tu casa,
+          ni cuánto llueve sobre tu barrio. El agua puede llegar antes por
+          desagüe.
+        </li>
+        <li>
+          Nadie validó este modelo institucionalmente. Es una estimación hecha
+          con datos públicos, no una herramienta oficial.
+        </li>
+      </ul>`,
+});
+
+/* ---------- /preguntas ---------- */
+const PREGUNTAS = [
+  [
+    "¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?",
+    "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu cota es baja o vivís río arriba, el agua puede llegarte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.",
+  ],
+  [
+    "¿La app avisa sola cuando el río sube?",
+    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu cota ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.",
+  ],
+  [
+    "¿De dónde sale la altura de mi terreno?",
+    "De las curvas de nivel de la Municipalidad de Santa Fe, trazadas cada 50 cm en metros IGN: por eso el margen de ±0,5 m. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
+  ],
+  [
+    "¿Qué hago si mi dirección queda fuera de la zona con curvas?",
+    "La app te lo dice y te pide la cota a mano, en vez de usar una fuente peor. Las curvas municipales cubren la ciudad, no toda el área metropolitana.",
+  ],
+  [
+    "¿Funciona sin conexión?",
+    "Sí. Una vez cargada, la app guarda lo esencial: tu cota, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
+  ],
+  [
+    "¿Quién ve mi plan familiar y mis datos?",
+    "Nadie. El plan, tu cota y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
+  ],
+  [
+    "¿Esto reemplaza a la alerta de Defensa Civil?",
+    "No. Es una estimación para prepararte antes, hecha por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si tu umbral se cruza, prepará el plan y consultá los canales oficiales.",
+  ],
+  [
+    "¿Cada cuánto se actualiza el nivel?",
+    "El INA publica una lectura por día del hidrómetro del Puerto. La app la toma de ese reporte y muestra siempre la fecha del dato, así sabés qué tan fresco es.",
+  ],
+];
+
+const htmlPreguntas = pagina({
+  ruta: "/preguntas",
+  titulo: "Preguntas frecuentes — Cota Cero, Santa Fe",
+  descripcion:
+    "Cómo se calcula tu umbral, cómo funcionan los avisos, qué pasa sin conexión y quién ve tus datos. Las dudas más comunes sobre Cota Cero.",
+  migaja: "Preguntas frecuentes",
+  jsonld: {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: PREGUNTAS.map(([q, a]) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  },
+  cuerpo: `      <h1>Preguntas frecuentes</h1>
+      <div class="tarjeta">
+${PREGUNTAS.map(
+  ([q, a]) => `        <details class="faq">
+          <summary>${esc(q)}</summary>
+          <p>${esc(a)}</p>
+        </details>`,
+).join("\n")}
+      </div>
+      <p class="chico">
+        ¿Tu pregunta no está? En la app hay un formulario de sugerencias al
+        pie. Ojo: no es una vía de auxilio — ante una emergencia llamá al
+        <b>103</b>.
+      </p>`,
+});
+
+/* ---------- /legal ---------- */
+const htmlLegal = pagina({
+  ruta: "/legal",
+  titulo: "Legal y privacidad — Cota Cero",
+  descripcion:
+    "Descargo de responsabilidad, qué datos quedan en tu teléfono y cuáles no, y las licencias de todo lo que usa Cota Cero.",
+  migaja: "Legal y privacidad",
+  jsonld: null,
+  cuerpo: `      <h1>Legal y privacidad</h1>
+      <p class="chico">
+        Última actualización: agosto de 2026. Escrito para leerse, no para
+        esconderse: si algo no se entiende, es un defecto — avisanos por el
+        formulario de sugerencias.
+      </p>
+
+      <h2>Qué es esta herramienta, y qué no</h2>
+      <ul class="pasos">
+        <li>
+          <b>Es una herramienta ciudadana de preparación, no un sistema oficial
+          de alerta.</b> No tiene vínculo con la Municipalidad de Santa Fe, la
+          Provincia, Defensa Civil, el INA ni ningún otro organismo. Usa datos
+          públicos de esas fuentes y las cita.
+        </li>
+        <li>
+          <b>Los umbrales personales son estimaciones.</b> Se calculan con un
+          modelo simplificado y con datos que traen margen de error (±0,5 m en
+          la cota del terreno). El modelo no conoce defensas, terraplenes,
+          bombeo ni desagües: el agua puede llegar antes o después.
+        </li>
+        <li>
+          <b>Las decisiones de evacuación son de Defensa Civil (103).</b> Nada
+          de lo que muestra la app es una orden ni un sustituto de las
+          comunicaciones oficiales. Ante cualquier contradicción, vale la
+          indicación oficial.
+        </li>
+        <li>
+          <b>Sin garantías de disponibilidad ni exactitud.</b> La app depende de
+          que el INA publique su reporte y de servicios de terceros que pueden
+          fallar o discontinuarse. Se ofrece tal cual, gratis y sin garantía de
+          ningún tipo.
+        </li>
+      </ul>
+
+      <h2>Tus datos quedan en tu teléfono</h2>
+      <ul class="pasos">
+        <li>
+          <b>Tu cota, tu zona y tu plan familiar</b> se guardan únicamente en tu
+          dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se
+          borran.
+        </li>
+        <li>
+          <b>Avisos.</b> El servidor guarda un solo dato: la dirección técnica
+          opaca que asigna tu navegador. No sabe tu cota ni tu umbral — el
+          aviso se arma en tu teléfono. Al desuscribirte, se borra.
+        </li>
+        <li>
+          <b>Sugerencias.</b> Es lo único que envía texto tuyo a un servidor, y
+          el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar
+          envíos, transformada de modo irreversible.
+        </li>
+        <li>
+          <b>Cuántas personas la usan.</b> El teléfono genera un número al azar
+          y lo guarda; la app lo manda para contar cuánta gente distinta la usa
+          por día. Del lado del servidor entra a una estructura que sabe
+          cuántos distintos vio pero no guarda ninguno. No identifica a nadie y
+          no se cruza con nada más.
+        </li>
+        <li>
+          <b>Estadísticas del sitio</b>, sin cookies y agregadas. La búsqueda
+          de direcciones consulta a Nominatim (OpenStreetMap) sólo cuando vos
+          la iniciás.
+        </li>
+      </ul>
+      <p>
+        No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
+        venta de datos.
+      </p>
+
+      <h2>Licencias y atribuciones</h2>
+      <ul class="pasos">
+        <li>
+          <b>MapLibre GL JS</b> — motor del mapa, licencia BSD de 3 cláusulas,
+          © contribuidores de MapLibre.
+        </li>
+        <li>
+          <b>OpenStreetMap / Nominatim</b> — búsqueda de direcciones. Datos ©
+          colaboradores de
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
+          bajo licencia ODbL.
+        </li>
+        <li>
+          <b>Instituto Geográfico Nacional</b> — mapa base y red de nivelación
+          usada para validar las fuentes de elevación.
+        </li>
+        <li>
+          <b>Municipalidad de Santa Fe</b> — curvas de nivel (Secretaría de
+          Recursos Hídricos) y capa de puntos de encuentro, de sus
+          geoservicios públicos.
+        </li>
+        <li>
+          <b>INA</b> — alturas hidrométricas diarias del Paraná, del reporte
+          público del Instituto Nacional del Agua.
+        </li>
+        <li>
+          <b>Plus Jakarta Sans</b> y <b>JetBrains Mono</b> — tipografías, bajo
+          SIL Open Font License.
+        </li>
+      </ul>
+      <p class="chico">
+        Este texto lo redactó quien hizo la app, con la intención de ser claro
+        y honesto. No es asesoramiento legal ni fue revisado por un
+        profesional del derecho. Si encontrás un error, escribinos.
+      </p>`,
+});
+
+/* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
+   Se emiten desde acá, que ya las leyó de app/index.html, para que no exista
+   una tercera copia de la lista. */
+await mkdir(join(RAIZ, "datos"), { recursive: true });
+await writeFile(
+  join(RAIZ, "datos", "puntos.json"),
+  JSON.stringify(puntos.map((p) => [p.nombre, p.direccion, p.lon, p.lat])),
+);
+console.log("escrito: /datos/puntos.json  (" + puntos.length + " puntos)");
 
 for (const [ruta, html] of [
   ["puntos-de-encuentro", htmlPuntos],
   ["mi-cota", htmlCota],
+  ["datos", htmlDatos],
+  ["preguntas", htmlPreguntas],
+  ["legal", htmlLegal],
 ]) {
   await mkdir(join(RAIZ, ruta), { recursive: true });
   await writeFile(join(RAIZ, ruta, "index.html"), html);
-  console.log("escrito: /" + ruta + "  (" + (html.length / 1024).toFixed(0) + " KB)");
+  console.log(
+    "escrito: /" + ruta + "  (" + (html.length / 1024).toFixed(0) + " KB)",
+  );
 }
 console.log("puntos leídos de app/index.html: " + puntos.length);

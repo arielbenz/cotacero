@@ -112,10 +112,16 @@
 
   --agua-tinte: rgba(46, 155, 196, 0.16);
   --alerta-tinte: rgba(232, 163, 61, 0.14);
+  --alerta-tinte-suave: rgba(232, 163, 61, 0.07);
   --peligro-tinte: rgba(224, 90, 68, 0.16);
   --ok-tinte: rgba(79, 168, 139, 0.15);
 
   --btn-texto: #0e1619;
+  --fondo-invertido: #1b2b33;
+  --btn-fuerte: var(--agua);
+  --btn-fuerte-texto: #0e1619;
+  --texto-invertido: #e9eef0;
+  --tenue-invertido: #93a6ad;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
   --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
   --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
@@ -124,6 +130,7 @@
 
   /* ---- escalas ---- */
   --t-hero: 64px; /* el número del hidrómetro */
+  --t-display: 44px; /* h1 de landing y páginas, sólo en escritorio */
   --t-xxl: 30px;
   --t-xl: 24px;
   --t-l: 20px;
@@ -176,9 +183,15 @@
   --c-peligro-solido: #ca442f;
   --c-agua-tinte: #e8f3f8;
   --c-alerta-tinte: #ffefe3;
+  --c-alerta-tinte-suave: #fff8f3;
   --c-peligro-tinte: #fbe9e5;
   --c-ok-tinte: #e6f2ec;
   --c-btn-texto: #ffffff;
+  --c-fondo-invertido: #0e1619;
+  --c-btn-fuerte: #0e1619;
+  --c-btn-fuerte-texto: #e9eef0;
+  --c-texto-invertido: #e9eef0;
+  --c-tenue-invertido: #93a6ad;
   --c-sombra:
     0 1px 2px rgba(23, 36, 42, 0.05), 0 10px 28px rgba(23, 36, 42, 0.07);
   --c-sombra-nav: 0 -6px 24px rgba(23, 36, 42, 0.06);
@@ -207,9 +220,24 @@
     --peligro-solido: var(--c-peligro-solido);
     --agua-tinte: var(--c-agua-tinte);
     --alerta-tinte: var(--c-alerta-tinte);
+    --alerta-tinte-suave: var(--c-alerta-tinte-suave);
     --peligro-tinte: var(--c-peligro-tinte);
     --ok-tinte: var(--c-ok-tinte);
     --btn-texto: var(--c-btn-texto);
+    --fondo-invertido: var(--c-fondo-invertido);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --texto-invertido: var(--c-texto-invertido);
+    --tenue-invertido: var(--c-tenue-invertido);
+    --fondo-invertido: var(--c-fondo-invertido);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --texto-invertido: var(--c-texto-invertido);
+    --tenue-invertido: var(--c-tenue-invertido);
     --sombra: var(--c-sombra);
     --sombra-nav: var(--c-sombra-nav);
     --filtro-mapa: var(--c-filtro-mapa);
@@ -237,9 +265,15 @@ html[data-tema="claro"] {
   --peligro-solido: var(--c-peligro-solido);
   --agua-tinte: var(--c-agua-tinte);
   --alerta-tinte: var(--c-alerta-tinte);
+  --alerta-tinte-suave: var(--c-alerta-tinte-suave);
   --peligro-tinte: var(--c-peligro-tinte);
   --ok-tinte: var(--c-ok-tinte);
   --btn-texto: var(--c-btn-texto);
+  --fondo-invertido: var(--c-fondo-invertido);
+  --btn-fuerte: var(--c-btn-fuerte);
+  --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+  --texto-invertido: var(--c-texto-invertido);
+  --tenue-invertido: var(--c-tenue-invertido);
   --sombra: var(--c-sombra);
   --sombra-nav: var(--c-sombra-nav);
   --filtro-mapa: var(--c-filtro-mapa);
@@ -334,7 +368,12 @@ textarea {
   color: var(--texto);
 }
 
+/* La marca de la app es ahora símbolo + nombre. El tamaño lo pone
+   .lockup-nombre; acá sólo queda la caja. */
 .marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-3);
   font-family: var(--sans);
   font-weight: 800;
   font-size: var(--t-xl);
@@ -1034,7 +1073,7 @@ input[type="range"] {
 }
 
 /* ---------- navegación ---------- */
-nav {
+.barra-app {
   position: fixed;
   left: 0;
   right: 0;
@@ -1047,7 +1086,7 @@ nav {
   padding-bottom: calc(var(--e-2) + env(safe-area-inset-bottom));
   z-index: 50;
 }
-nav button {
+.barra-app button {
   flex: 1;
   min-width: 0;
   background: none;
@@ -1061,16 +1100,16 @@ nav button {
   align-items: center;
   gap: var(--e-1);
 }
-nav button.on {
+.barra-app button.on {
   color: var(--acento);
 }
-nav button svg {
+.barra-app button svg {
   transition: background var(--mov);
 }
-nav button.on svg {
+.barra-app button.on svg {
   background: var(--agua-tinte);
 }
-nav button svg {
+.barra-app button svg {
   width: 44px;
   height: 26px;
   padding: 4px 12px;
@@ -1082,7 +1121,7 @@ nav button svg {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-nav button span {
+.barra-app button span {
   font-family: var(--sans);
   font-weight: 600;
   font-size: var(--t-xs);
@@ -1183,58 +1222,504 @@ nav button span {
   margin: 0 0 var(--e-5);
 }
 
-/* ---------- portada y páginas de contenido ----------
-   La app esconde 3 de sus 4 secciones detrás de pestañas, y eso a un buscador
-   le llega como contenido oculto. Estas páginas son texto visible y plano:
-   mismo sistema de diseño, sin pestañas. */
+/* ==========================================================================
+   PORTADA Y PÁGINAS DE CONTENIDO
+   La app esconde 3 de sus 4 secciones detrás de pestañas y eso a un buscador
+   le llega como contenido oculto. Estas páginas son texto visible, con el
+   mismo sistema de tokens y sin pestañas.
+   ========================================================================== */
+.ancho {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 var(--e-5);
+}
 .pagina {
-  padding: var(--e-5);
-  max-width: 640px;
+  padding: var(--e-5) 0 var(--e-7);
+  max-width: 720px;
   margin: 0 auto;
 }
 body.landing {
-  /* No hay barra de navegación fija abajo, así que el hueco reservado para
-     ella sobra. */
-  padding-bottom: var(--e-7);
+  /* Sin barra de navegación fija abajo, el hueco reservado para ella sobra. */
+  padding-bottom: 0;
 }
-.pagina p {
+.landing section {
+  padding: var(--e-7) 0;
+}
+.landing h2 {
+  font-size: var(--t-xxl);
+  margin: var(--e-2) 0 var(--e-5);
+}
+.landing p {
   margin-bottom: var(--e-4);
 }
-.pagina h2 {
-  margin-top: var(--e-7);
-}
-.pagina a {
+.landing a:not(.btn):not(.lockup):not(.punto) {
   color: var(--acento);
 }
-/* Un <a class="btn"> es un botón, no un enlace: sin esto la regla de arriba
-   le gana por especificidad y lo pinta del color de enlace, subrayado y
-   encima del relleno azul. */
+
+/* ---------- marca ---------- */
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-3);
+  color: var(--texto);
+  text-decoration: none;
+}
+.lockup svg {
+  display: block;
+  flex: none;
+}
+.lockup-nombre {
+  font-weight: 800;
+  font-size: var(--t-m);
+  letter-spacing: -0.02em;
+}
+
+/* ---------- navegación del sitio ---------- */
+.nav-sitio {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-5) 0;
+  flex-wrap: wrap;
+}
+.nav-enlaces {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--e-5);
+}
+.nav-enlaces a:not(.btn) {
+  font-weight: 600;
+  font-size: var(--t-s);
+  color: var(--texto);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chip-borde {
+  padding: 5px 10px;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-full);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+  color: var(--tenue);
+}
+
+/* ---------- hero ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--e-7);
+  align-items: center;
+  padding: var(--e-6) 0 var(--e-7);
+}
+.titulo-hero {
+  font-size: var(--t-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  margin: var(--e-4) 0 0;
+}
+.bajada {
+  font-size: var(--t-l);
+  line-height: 1.5;
+  color: var(--tenue);
+  max-width: 30em;
+  margin: var(--e-4) 0 0;
+}
+.hero-botones {
+  display: flex;
+  gap: var(--e-3);
+  margin: var(--e-6) 0 var(--e-4);
+  flex-wrap: wrap;
+}
+.hero-botones .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+.chip-vivo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.punto-vivo {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: latir 2.4s ease-in-out infinite;
+}
+@keyframes latir {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- el mockup con el dato en vivo ---------- */
+.mockup {
+  background: var(--panel);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.mockup-cabecera {
+  padding: var(--e-5) var(--e-5) var(--e-4);
+}
+.mockup-numero {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e-2);
+  margin-top: var(--e-2);
+}
+.mockup .dato {
+  font-size: 56px;
+}
+.mockup-m {
+  font-weight: 800;
+  font-size: var(--t-l);
+  color: var(--tenue);
+  padding-bottom: 6px;
+}
+.chip-delta {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: var(--r-full);
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+.mockup .chico {
+  margin: var(--e-3) 0 0;
+}
+/* La regla del mockup representa de 0 a 8 m; las alturas las fija landing.js
+   sobre esa escala. */
+.regla-mini {
+  position: relative;
+  height: 230px;
+  background: var(--panel-2);
+  background-image: linear-gradient(var(--linea) 1px, transparent 1px);
+  background-size: 100% 28px;
+}
+.rm-agua {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  background: var(--agua);
+  transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rm-linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  bottom: 0;
+  background: var(--agua-clara);
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rm-umbral {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+.rm-umbral b {
+  position: absolute;
+  right: var(--e-3);
+  bottom: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+.rm-alerta {
+  bottom: 66.25%; /* 5,30 de 8 m */
+  background: var(--alerta);
+}
+.rm-alerta b {
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+}
+.rm-evac {
+  bottom: 71.25%; /* 5,70 de 8 m */
+  background: var(--peligro);
+}
+.rm-evac b {
+  background: var(--peligro-tinte);
+  color: var(--peligro-texto);
+  right: auto;
+  left: var(--e-3);
+  bottom: 5px;
+}
+.rm-alerta b {
+  /* Debajo de su línea: alerta y evacuación están a 40 cm, que en esta
+     escala son 11 px, y las dos etiquetas se pisaban. */
+  bottom: auto;
+  top: 5px;
+}
+
+/* ---------- franja histórica ---------- */
+.franja-oscura {
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  border-radius: var(--r-xl);
+  padding: var(--e-7);
+  margin: var(--e-6) 0;
+}
+.franja-oscura .eti {
+  color: var(--tenue-invertido);
+}
+.hitos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--e-7);
+  margin-top: var(--e-5);
+}
+.hitos b {
+  display: block;
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.hitos p {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.franja-cierre {
+  margin: var(--e-6) 0 0;
+  font-weight: 600;
+  font-size: var(--t-m);
+}
+
+/* ---------- tres pasos y métricas ---------- */
+.tres {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-5);
+}
+.tres .tarjeta {
+  margin: 0;
+}
+.tres h3 {
+  margin: var(--e-4) 0 var(--e-2);
+}
+.tres p {
+  margin: 0;
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+.numerito {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-s);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-weight: 800;
+}
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--e-5);
+}
+.metrica {
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  border-radius: var(--r-l);
+  padding: var(--e-5);
+}
+.metrica b {
+  display: block;
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  color: var(--acento);
+  font-variant-numeric: tabular-nums;
+}
+.metrica span {
+  display: block;
+  margin-top: var(--e-2);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.metrica.fuerte {
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+}
+.metrica.fuerte b {
+  color: inherit;
+}
+.metrica.fuerte span {
+  color: var(--tenue-invertido);
+}
+
+/* ---------- secciones a dos columnas ---------- */
+.dosc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-7);
+  align-items: center;
+}
+.dosc .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+.mapa-caja {
+  border-radius: var(--r-l);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  background: var(--panel-2);
+}
+#mapa-landing {
+  height: 420px;
+}
+.citas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.cita {
+  border-radius: var(--r-m);
+  background: var(--alerta-tinte-suave);
+  border: 2px solid var(--alerta-tinte);
+  padding: var(--e-4) var(--e-5);
+}
+.cita.neutra {
+  background: transparent;
+  border-color: var(--linea);
+}
+.cita p {
+  margin: var(--e-2) 0 0;
+  font-weight: 600;
+}
+.eti-alerta {
+  color: var(--alerta-texto);
+}
+
+/* ---------- llamada final ---------- */
+.cta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--e-7);
+  align-items: center;
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  border-radius: var(--r-xl);
+  padding: var(--e-7);
+  margin-bottom: var(--e-7);
+}
+.cta h2 {
+  margin: var(--e-4) 0 0;
+}
+.cta p {
+  margin: var(--e-3) 0 0;
+  color: var(--tenue-invertido);
+  max-width: 30em;
+}
+.cta .btn {
+  width: auto;
+  padding: 0 var(--e-7);
+}
+
+/* ---------- pie del sitio ---------- */
+.pie-sitio {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--e-7);
+  border-top: 1.5px solid var(--linea);
+  padding: var(--e-7) 0;
+}
+.pie-sitio > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  align-items: flex-start;
+}
+.pie-sitio a {
+  font-weight: 600;
+  font-size: var(--t-s);
+  color: var(--texto);
+  text-decoration: none;
+}
+.pie-sitio a:hover {
+  text-decoration: underline;
+}
+.pie-sitio .chico {
+  max-width: 32ch;
+  margin: var(--e-2) 0 0;
+}
+.pie-sitio .firma {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-s);
+}
+.chip-tel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: var(--e-3) 0 0;
+  padding: 10px 16px;
+  border-radius: var(--r-m);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.chip-tel b {
+  color: var(--agua-clara);
+  font-size: var(--t-l);
+}
+
+/* Un <a class="btn"> es un botón, no un enlace: sin esto las reglas de enlace
+   le ganan por especificidad y lo pintan subrayado sobre el relleno. */
 .btn {
   text-decoration: none;
 }
-.pagina a.btn,
-.landing a.btn {
-  color: var(--btn-texto);
+.landing a.btn,
+.pagina a.btn {
   text-decoration: none;
+  color: var(--btn-texto);
+}
+/* El secundario no lleva relleno de color: su texto es el del cuerpo. Sin
+   esto quedaba blanco sobre blanco en tema claro. */
+.landing a.btn.sec,
+.pagina a.btn.sec {
+  color: var(--texto);
+}
+.btn-oscuro {
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
+}
+.landing a.btn-oscuro,
+.pagina a.btn-oscuro {
+  color: var(--btn-fuerte-texto);
+}
+.btn-claro {
+  background: var(--agua-clara);
+  color: #0b1418;
+}
+.landing a.btn-claro {
+  color: #0b1418;
 }
 
-/* La tarjeta del nivel del río, arriba de todo. */
-.hero {
-  text-align: center;
-  padding: var(--e-6) var(--e-5);
-}
-.hero .eti {
-  margin-bottom: var(--e-3);
-}
-.hero .dato {
-  margin-bottom: var(--e-5);
-}
-.hero .btn {
-  width: 100%;
-}
-
-/* Un h1 que dice sólo la marca no le sirve a nadie que busque "hasta dónde
-   llega el agua". El complemento existe para el buscador y para un lector de
+/* Un h1 que dice sólo la marca no le sirve a quien busca "hasta dónde llega
+   el agua". El complemento existe para el buscador y para un lector de
    pantalla; no se ve. */
 .solo-lectores {
   position: absolute;
@@ -1246,6 +1731,298 @@ body.landing {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---------- bienvenida ---------- */
+/* Overlay y no vista: la barra de pestañas se queda en cuatro. */
+/* [hidden] del navegador es display:none, pero pierde contra cualquier regla
+   de autor que fije display. Sin esta línea el overlay no se ocultaba nunca.
+   Vale para todo lo que se oculta con el atributo y tiene display propio. */
+.bienvenida[hidden],
+.instalar-pie[hidden] {
+  display: none;
+}
+.bienvenida {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--fondo);
+  display: flex;
+  align-items: center;
+  padding: var(--e-5);
+  overflow-y: auto;
+}
+body.con-bienvenida {
+  overflow: hidden;
+}
+.bienvenida-caja {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.bienvenida .lockup {
+  display: flex;
+}
+.bienvenida .dato {
+  margin-top: var(--e-2);
+}
+.bienvenida-botones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin-top: var(--e-6);
+}
+
+/* ---------- barras de contexto ---------- */
+.barra-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  margin-bottom: var(--e-2);
+}
+.barra-nom {
+  flex: none;
+  width: 92px;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.barra-pista {
+  flex: 1;
+  background: var(--panel-2);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+.barra-pista i {
+  display: block;
+  height: 14px;
+  border-radius: var(--r-full);
+  min-width: 3px;
+}
+.b-hoy {
+  background: var(--agua);
+}
+.b-alerta {
+  background: var(--alerta);
+}
+.b-peligro {
+  background: var(--peligro);
+}
+.b-record {
+  background: var(--linea);
+}
+.barra-val {
+  flex: none;
+  width: 48px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- ajustes ---------- */
+.acciones-top {
+  display: flex;
+  gap: var(--e-2);
+  align-items: center;
+}
+.fila-ajuste {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4) 0;
+  border-bottom: 1px solid var(--linea);
+  flex-wrap: wrap;
+}
+.fila-ajuste:last-child {
+  border-bottom: none;
+}
+.fila-ajuste > div:first-child {
+  flex: 1;
+  min-width: 12em;
+}
+.fila-ajuste b {
+  display: block;
+}
+.fila-ajuste .chico {
+  display: block;
+  margin-top: 2px;
+}
+.segmentado {
+  display: flex;
+  gap: var(--e-1);
+  background: var(--panel-2);
+  border-radius: var(--r-full);
+  padding: 3px;
+}
+.segmentado button {
+  border: none;
+  background: none;
+  border-radius: var(--r-full);
+  padding: 8px 14px;
+  min-height: 40px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  cursor: pointer;
+}
+.segmentado button.on {
+  background: var(--panel);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+}
+
+/* Tamaño de texto: una clase en <html> escala todo junto, incluidos los
+   números de la regla, sin duplicar reglas. */
+html.texto-grande {
+  font-size: 118%;
+}
+
+/* ---------- acordeón de preguntas ---------- */
+/* Va con <details> y no con JavaScript: una página de ayuda que depende de JS
+   es una página que un día no se abre. Además así el buscador lee todas las
+   respuestas, estén abiertas o cerradas. */
+.faq {
+  border-bottom: 1px solid var(--linea);
+}
+.faq:last-child {
+  border-bottom: none;
+}
+.faq summary {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  min-height: 56px;
+  padding: var(--e-3) 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--t-m);
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::after {
+  content: "+";
+  margin-left: auto;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-s);
+  background: var(--panel-2);
+  color: var(--acento);
+  font-weight: 800;
+  font-size: var(--t-m);
+  text-align: center;
+  line-height: 30px;
+}
+.faq[open] summary::after {
+  content: "−";
+}
+.faq p {
+  margin: 0 0 var(--e-4);
+  color: var(--tenue);
+}
+
+/* ---------- tabla de una cuenta ---------- */
+.cuenta {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.cuenta td {
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.cuenta td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  color: var(--texto);
+}
+.cuenta .total td {
+  border-bottom: none;
+  padding-top: var(--e-4);
+  font-weight: 700;
+  color: var(--texto);
+}
+.cuenta .total td:last-child {
+  font-size: var(--t-l);
+  font-weight: 800;
+  color: var(--acento);
+}
+
+/* ---------- pines del mapa de la portada ---------- */
+.pin-landing {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--agua-clara);
+  border: 3px solid var(--fondo-invertido);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.mapa-caido {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mapa-caido::after {
+  content: "El mapa no cargó. La lista completa está más abajo.";
+  padding: var(--e-5);
+  text-align: center;
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+
+/* ---------- angosto ---------- */
+@media (max-width: 900px) {
+  .hero,
+  .dosc,
+  .cta {
+    grid-template-columns: 1fr;
+    gap: var(--e-6);
+  }
+  .hitos,
+  .tres,
+  .metricas {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--e-5);
+  }
+  .pie-sitio {
+    grid-template-columns: 1fr;
+    gap: var(--e-6);
+  }
+  .titulo-hero {
+    font-size: var(--t-xxl);
+  }
+  .bajada {
+    font-size: var(--t-m);
+  }
+  .nav-enlaces a:not(.btn) {
+    display: none;
+  }
+  .franja-oscura,
+  .cta {
+    padding: var(--e-6) var(--e-5);
+  }
+  .landing section {
+    padding: var(--e-6) 0;
+  }
+}
+@media (max-width: 560px) {
+  .hitos,
+  .tres,
+  .metricas {
+    grid-template-columns: 1fr;
+  }
+  .hero-botones .btn,
+  .dosc .btn,
+  .cta .btn {
+    width: 100%;
+  }
 }
 
 /* ---------- impresión ---------- */
@@ -1356,7 +2133,7 @@ body.landing {
 .punto,
 .tel,
 .chk,
-nav button,
+.barra-app button,
 summary,
 input,
 select,
@@ -1404,7 +2181,7 @@ textarea {
   .chk:hover span {
     color: var(--texto);
   }
-  nav button:hover {
+  .barra-app button:hover {
     color: var(--texto);
   }
   summary:hover {

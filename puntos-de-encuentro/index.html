@@ -627,8 +627,14 @@
   <body class="landing">
     <header class="top">
       <div class="marca-bloque">
-        <a href="/" style="text-decoration: none; color: inherit">
-          <span class="marca">Cota<span>Cero</span></span>
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
         </a>
         <p class="sub">Emergencia hídrica · Santa Fe</p>
       </div>
@@ -835,8 +841,12 @@
     <div class="pie">
       <p class="chico" style="margin-bottom: 12px">
         <a href="/">Qué es Cota Cero</a> ·
+        <a href="/app">Abrir la app</a> ·
+        <a href="/mi-cota">Cómo se calcula tu cota</a> ·
         <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/mi-cota">Cómo saber tu cota</a>
+        <a href="/preguntas">Preguntas</a> ·
+        <a href="/datos">De dónde salen los datos</a> ·
+        <a href="/legal">Legal y privacidad</a>
       </p>
       Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
       No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
