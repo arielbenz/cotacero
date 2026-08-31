@@ -212,6 +212,59 @@ tablero (abajo), o a mano desde la consola de Upstash:
 
 Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
+## La cota del terreno
+
+El cálculo tiene dos mitades y las dos están verificadas.
+
+**La hidráulica.** El cero del hidrómetro del Puerto de Santa Fe es 8,20 m
+IGN. La pendiente de la superficie del agua, 0,045 m/km, se validó contra un
+caso independiente: en 1992, con el puerto en 7,43 m, Arroyo Leyes —24 km río
+arriba— llegó a 16,70 IGN según un ingeniero civil citado en prensa. El modelo
+da 16,71. Un centímetro.
+
+**La cota del terreno.** Sale de las curvas de nivel de la Municipalidad de
+Santa Fe, capa `sitmax:curvas_nivel` del GeoServer municipal, subida por la
+Secretaría de Recursos Hídricos. 169 curvas cada 50 cm, de 12,5 a 22,5 m, en
+metros IGN — el mismo sistema que el cero del hidrómetro. Se descargan una vez
+con `node scripts/curvas.js` y quedan en `datos/curvas.json` (72 KB), que la
+app lee localmente: sin API de terceros y sin conexión.
+
+`ERROR_DEM` es 0,5 m, la mitad del intervalo entre curvas, que es la
+convención para interpolar entre ellas.
+
+**Dos trampas del origen**, las dos manejadas en `scripts/curvas.js`:
+
+1. 25 de las 169 curvas traen `Z = 0` en la geometría; la cota verdadera está
+   en el atributo `layer`. Leer la Z daba puntos de encuentro bajo el agua.
+2. `layer` mezcla separador decimal: hay `17,2` y hay `17.2`.
+
+**Y una del cálculo**: la distancia va medida punto-a-segmento, no al vértice
+más cercano. Con vértices, simplificar la geometría movía el resultado 1,85 m;
+con segmentos, 2 cm de media y 42 cm en el peor de los 30 puntos de encuentro.
+
+**Por qué no un modelo satelital.** Hasta acá la elevación salía de Open-Meteo
+(Copernicus GLO-90), un modelo de *superficie*: mide techos y arbolado, no el
+piso. Medido contra 36 puntos de nivelación del IGN alrededor de Santa Fe
+(`ign:nivelacion_topografica`, cotas de campo al milímetro):
+
+    sesgo medio      +0,89 m
+    desvío estándar   7,46 m
+    peor caso       −22,9 / +14,8 m
+
+Y contra las curvas municipales, dentro de la ciudad, sobreestimaba 2,15 m de
+media. Todo el rango de decisión de la app —de 5,30 (alerta) a 7,43 (récord de
+1992)— son 2,13 m: el error era más grande que la escala entera.
+
+**Fuera de cobertura.** Las curvas abarcan la ciudad, no toda el área
+metropolitana (1 de los 30 puntos de encuentro queda afuera). Ahí la app dice
+que no tiene el dato y pide la cota a mano, en vez de caer a una fuente peor.
+
+**Nota sobre los servicios municipales.** `geoservicios.santafeciudad.gov.ar`
+—el endpoint documentado para refrescar los puntos de encuentro— está detrás
+de Cloudflare y devuelve 403 a cualquier cliente que no sea un navegador con
+JS. El que sí responde es `geoserver.santafeciudad.gov.ar/geoserver/sitmax`,
+que es el que usa el GeoVisualizador.
+
 ## Cuántos la usan
 
 Dos fuentes, por si una falla:

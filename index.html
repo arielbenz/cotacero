@@ -370,16 +370,31 @@
         <p class="chico" id="estado-cota" role="status"></p>
 
         <div class="aviso" style="margin-top: 12px">
-          <b>La estimación satelital no alcanza para decidir una evacuación.</b>
-          Sirve para empezar. El número que vale es el de un relevamiento
-          topográfico, la escritura de tu terreno, o el que te dé el municipio.
+          <b>Ni la mejor cota reemplaza un relevamiento de tu terreno.</b>
+          La cota sale de las curvas de nivel del municipio, que pasan cerca de
+          tu casa pero no por tu puerta. El número que vale es el de un
+          relevamiento topográfico, la escritura, o el que te dé el municipio.
           <details style="margin-top: 8px">
-            <summary style="cursor: pointer">Por qué no alcanza</summary>
+            <summary style="cursor: pointer">
+              De dónde sale y qué le falta
+            </summary>
             <p style="margin: 8px 0 0">
-              Tiene un error de varios metros en terreno llano, y acá estamos
-              midiendo márgenes de centímetros. Además está referida al geoide
-              EGM2008 y no al cero del IGN, así que puede arrastrar un desfasaje
-              fijo de decenas de centímetros.
+              Son las curvas de nivel de la Municipalidad de Santa Fe, de la
+              Secretaría de Recursos Hídricos: cada 50 cm y en metros IGN, el
+              mismo sistema en que está el cero del hidrómetro. Tu cota se
+              calcula interpolando entre las dos curvas más cercanas.
+            </p>
+            <p style="margin: 8px 0 0">
+              Lo que no sabe: si tu terreno está elevado sobre la vereda, si la
+              casa tiene escalones, si el fondo es más bajo. Entre curva y curva
+              hay medio metro de altura y a veces cientos de metros de
+              distancia. Por eso el cálculo va siempre medio metro por debajo.
+            </p>
+            <p style="margin: 8px 0 0">
+              Antes esto salía de un modelo satelital. Se lo comparó con estas
+              curvas y con los puntos de nivelación del IGN: medía techos y
+              arbolado, sobreestimaba dos metros de media y se desviaba hasta
+              siete. Se dejó de usar.
             </p>
           </details>
         </div>

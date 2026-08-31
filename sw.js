@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v32";
+const VERSION = "cota-cero-v34";
 const ESENCIALES = [
   "/",
   "/index.html",
@@ -32,6 +32,9 @@ const ESENCIALES = [
   "/vendor/fonts/jakarta-800.woff2",
   "/vendor/fonts/jetbrains-500.woff2",
   "/vendor/fonts/jetbrains-700.woff2",
+  // Las curvas de nivel son el cálculo central de la app: sin esto no hay
+  // cota, y justo el día que importa puede no haber señal.
+  "/datos/curvas.json",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",

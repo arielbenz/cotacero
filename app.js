@@ -32,7 +32,18 @@ const ALERTA = 5.3;
 const EVACUACION = 5.7;
 const ESCALA_MIN = 0;
 const ESCALA_MAX = 8;
-const ERROR_DEM = 3.0; // incertidumbre del modelo satelital, en metros
+/* Incertidumbre de la cota, en metros.
+   Las curvas del municipio vienen cada 50 cm, así que interpolar entre dos
+   deja como mucho medio metro de error: es la convención cartográfica y es lo
+   que se usa acá. Simplificar la geometría para que el archivo pesara 72 KB
+   costó 2 cm de media y 42 cm en el peor de los 30 puntos de encuentro, o sea
+   que cabe dentro del mismo medio metro.
+
+   Historia, para que no vuelva: acá había 3,0 "de estimación satelital", sin
+   medir. Cuando se midió contra 36 puntos de nivelación del IGN, el error de
+   esa fuente resultó ser 7,5 m de desvío — más que todo el rango de decisión
+   de la app. Por eso ya no se usa un modelo satelital. */
+const ERROR_DEM = 0.5;
 const VENCE_HORAS = 48; // a partir de acá el dato guardado no se presenta como vigente
 const REFRESCO_MS = 5 * 60 * 1000; // piso entre refrescos automáticos
 const PRECISION_MAX = 100; // error de GPS, en metros, arriba del cual no consultamos elevación
@@ -639,7 +650,7 @@ function pintarRio() {
     wrap.style.display = "block";
     document.getElementById("lg-cota").textContent = m(critico);
     document.getElementById("lg-cota-k").textContent = estado.cotaEsEstimada
-      ? "Tu cota, traducida a lectura de hidrómetro, con el margen de error satelital ya descontado"
+      ? "Cota interpolada entre las curvas de nivel del municipio, con el margen ya descontado"
       : "Tu cota, traducida a lectura de hidrómetro";
   } else wrap.style.display = "none";
 
@@ -827,7 +838,7 @@ function pintarLluvia() {
 /* ================= CÁLCULO DE COTA ================= */
 /* Traduce una cota IGN a lectura de hidrómetro.
    Por defecto devuelve el escenario PESIMISTA: si la cota vino del modelo
-   satelital le descuenta el margen de error, porque ése es el número con el
+   interpolada le descuenta el margen de error, porque ése es el número con el
    que hay que decidir. Antes la regla usaba el crudo y el veredicto el
    pesimista, así que las dos pantallas mostraban a la vez valores con hasta
    3 m de diferencia para lo mismo — y la regla mostraba el optimista.
@@ -945,12 +956,14 @@ async function estimarCota() {
             "Probá al aire libre, buscá la dirección, o cargá la cota a mano.";
           return;
         }
-        e.textContent = "Consultando el modelo de elevación…";
+        e.textContent = "Buscando entre las curvas de nivel…";
         try {
-          const alt = await elevacionDe(la, lo);
-          if (typeof alt !== "number") throw new Error("sin dato");
+          const r = await elevacionDe(la, lo);
+          if (!r) throw new Error("fuera de cobertura");
+          const alt = Math.round(r.cota * 100) / 100;
           estado.cota = alt;
           estado.cotaEsEstimada = true;
+          estado.cotaDistancia = r.distancia;
           estado.cotaOrigen = "gps";
           estado.cotaDetalle =
             typeof prec === "number" ? "±" + Math.round(prec) + " m" : "";
@@ -963,8 +976,10 @@ async function estimarCota() {
           calcular();
           pintarRio();
         } catch (err) {
-          e.textContent =
-            "No se pudo obtener la elevación. Cargá la cota a mano.";
+          e.innerHTML =
+            "<b>No tenemos la cota de ese punto.</b> Las curvas de nivel del " +
+            "municipio cubren la ciudad, no toda el área metropolitana. " +
+            "Cargá la cota a mano si la conseguís.";
         }
       } finally {
         liberar();
@@ -1034,7 +1049,7 @@ function calcular() {
 
   const km = kmDeZona();
 
-  // Con estimación satelital razonamos siempre con el escenario
+  // Con la cota interpolada razonamos siempre con el escenario
   // pesimista, y sale de cotaEnHidrometro() para que la regla, el
   // veredicto y el plan exportado no puedan volver a divergir.
   const cotaPeor = estado.cotaEsEstimada
@@ -1099,7 +1114,7 @@ function calcular() {
   <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen de error satelital</td>
+        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen por interpolar entre curvas</td>
   <td style="text-align:right;color:var(--alerta-texto)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Cota usada (la pesimista)</td>
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
@@ -1131,12 +1146,18 @@ ${
 
   if (estado.cotaEsEstimada) {
     html +=
-      '<div class="aviso"><b>Estás usando una estimación satelital.</b> ' +
-      "El cálculo se hizo con el escenario pesimista (" +
-      ERROR_DEM.toFixed(0) +
-      " m menos que lo medido) " +
-      "justamente porque el dato no es confiable a este nivel de detalle. " +
-      "Conseguí la cota real y volvé a calcular: puede cambiar todo el resultado.</div>";
+      '<div class="aviso"><b>Cota interpolada entre curvas de nivel.</b> ' +
+      "Sale de las curvas de la Municipalidad de Santa Fe (Secretaría de " +
+      "Recursos Hídricos), que vienen cada 50 cm y están en metros IGN, el " +
+      "mismo sistema que el cero del hidrómetro." +
+      (estado.cotaDistancia != null
+        ? " La curva más cercana a ese punto está a " +
+          Math.round(estado.cotaDistancia) +
+          " m."
+        : "") +
+      " El cálculo usa el escenario pesimista, medio metro por debajo.<br><br>" +
+      "Es un buen dato para orientarte, pero <b>no reemplaza un relevamiento " +
+      "de tu terreno</b>: la curva pasa cerca, no por tu puerta.</div>";
   }
 
   html +=
@@ -1256,9 +1277,9 @@ function textoPlan() {
       "El agua llega a esta cota con el hidrómetro en: " +
       m(cotaEnHidrometro()) +
       (estado.cotaEsEstimada
-        ? " (escenario pesimista: la cota estimada menos " +
-          ERROR_DEM.toFixed(0) +
-          " m de error satelital)"
+        ? " (escenario pesimista: la cota interpolada menos " +
+          ERROR_DEM.toFixed(2).replace(".", ",") +
+          " m)"
         : "") +
       "\n\n";
   }
@@ -1364,17 +1385,84 @@ async function geocodificar(texto, cache = true) {
   }
 }
 
+/* ---------- elevación del terreno ----------
+   Sale de las curvas de nivel de la Municipalidad de Santa Fe (Secretaría de
+   Recursos Hídricos), cada 50 cm y en metros IGN: el mismo sistema que el
+   cero del hidrómetro. Ver scripts/curvas.js.
+
+   Antes esto consultaba un modelo satelital. Medido contra estas curvas
+   sobreestimaba 2,15 m de media, porque mide techos y arbolado en vez del
+   piso; y contra los puntos de nivelación del IGN tenía 7,5 m de desvío. Con
+   un rango de decisión de 2 m entre la alerta y el récord de 1992, ese dato
+   no informaba nada. */
+
+let curvasCache = null;
+async function curvas() {
+  if (curvasCache) return curvasCache;
+  const r = await fetch("/datos/curvas.json");
+  if (!r.ok) throw new Error("no se pudieron cargar las curvas");
+  curvasCache = await r.json();
+  return curvasCache;
+}
+
+const M_POR_GRADO_LAT = 110900;
+const mPorGradoLon = (lat) => 111320 * Math.cos((lat * Math.PI) / 180);
+
+/* Distancia de un punto a un segmento, no a sus extremos. Con la distancia al
+   vértice más cercano, simplificar la geometría movía el resultado casi dos
+   metros; con esto, dos centímetros. */
+function distanciaASegmento(px, py, ax, ay, bx, by) {
+  const dx = bx - ax,
+    dy = by - ay;
+  const l2 = dx * dx + dy * dy;
+  let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+/* Devuelve { cota, distancia } o null si el punto cae fuera de la zona
+   cubierta. Preferimos no dar un número antes que dar uno inventado. */
 async function elevacionDe(lat, lon) {
+  let d;
   try {
-    const r = await fetch(
-      `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`,
-    );
-    const j = await r.json();
-    const a = Array.isArray(j.elevation) ? j.elevation[0] : j.elevation;
-    return typeof a === "number" ? a : null;
+    d = await curvas();
   } catch (e) {
     return null;
   }
+  const [oe, os, on, ono] = [d.area[0], d.area[1], d.area[2], d.area[3]];
+  if (lon < oe || lon > on || lat < os || lat > ono) return null;
+
+  const ml = mPorGradoLon(lat);
+  const px = lon * ml,
+    py = lat * M_POR_GRADO_LAT;
+  // Para cada cota distinta, a qué distancia está su curva más cercana.
+  const cercania = new Map();
+  for (const [z, p] of d.curvas) {
+    let min = Infinity;
+    for (let i = 0; i < p.length - 2; i += 2) {
+      const q = distanciaASegmento(
+        px,
+        py,
+        p[i] * ml,
+        p[i + 1] * M_POR_GRADO_LAT,
+        p[i + 2] * ml,
+        p[i + 3] * M_POR_GRADO_LAT,
+      );
+      if (q < min) min = q;
+    }
+    if (!cercania.has(z) || min < cercania.get(z)) cercania.set(z, min);
+  }
+  const orden = [...cercania.entries()].sort((a, b) => a[1] - b[1]);
+  if (!orden.length) return null;
+  const [z1, d1] = orden[0];
+  // Se interpola entre las dos curvas de cota DISTINTA más cercanas.
+  for (const [z2, d2] of orden.slice(1)) {
+    if (z2 !== z1) {
+      const t = d1 + d2 === 0 ? 0 : d1 / (d1 + d2);
+      return { cota: z1 + (z2 - z1) * t, distancia: d1 };
+    }
+  }
+  return { cota: z1, distancia: d1 };
 }
 
 function abrirBuscadorDireccion() {
@@ -1398,12 +1486,16 @@ async function buscarDireccion() {
       e.textContent = "No se encontró esa dirección. Probá con calle y altura.";
       return;
     }
-    e.textContent = "Consultando la elevación…";
-    var alt = await elevacionDe(r.c[1], r.c[0]);
-    if (alt === null) {
-      e.textContent = "Se encontró la dirección pero no la elevación.";
+    e.textContent = "Buscando entre las curvas de nivel…";
+    var res = await elevacionDe(r.c[1], r.c[0]);
+    if (!res) {
+      e.innerHTML =
+        "<b>Encontramos la dirección, pero no su cota.</b> Las curvas de " +
+        "nivel del municipio cubren la ciudad, no toda el área metropolitana.";
       return;
     }
+    var alt = Math.round(res.cota * 100) / 100;
+    estado.cotaDistancia = res.distancia;
   } finally {
     liberar();
   }
