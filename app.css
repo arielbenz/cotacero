@@ -1596,7 +1596,7 @@ body.landing {
 }
 
 /* ---------- franja histórica ---------- */
-.franja-oscura {
+.landing .franja-oscura {
   background: var(--fondo-invertido);
   color: var(--texto-invertido);
   border-radius: var(--r-xl);
@@ -1736,7 +1736,7 @@ body.landing {
 }
 
 /* ---------- llamada final ---------- */
-.cta {
+.landing .cta {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: var(--e-7);
@@ -1773,6 +1773,15 @@ body.landing {
   flex-direction: column;
   gap: var(--e-2);
   align-items: flex-start;
+}
+/* Las tres columnas empiezan con elementos de distinta altura —la marca mide
+   24 px, las etiquetas menos— y los encabezados quedaban desalineados. Se les
+   da a las tres la misma primera fila. */
+.pie-sitio > div > :first-child {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: var(--e-2);
 }
 .pie-sitio a {
   font-weight: 600;
@@ -2135,8 +2144,8 @@ html.texto-grande {
   .nav-enlaces a:not(.btn) {
     display: none;
   }
-  .franja-oscura,
-  .cta {
+  .landing .franja-oscura,
+  .landing .cta {
     padding: var(--e-6) var(--e-5);
   }
   .landing section {
