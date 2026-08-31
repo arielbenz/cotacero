@@ -105,9 +105,11 @@ const PIE = `      <footer class="pie-sitio">
    con vuelta a la portada, cabecera con chip y título grande, y el cuerpo en
    bloques de tarjeta. `bloques` es una lista de {kicker, titulo, html, oscuro};
    si un bloque no lleva kicker ni título, sale como texto suelto. */
-function bloque({ kicker, titulo, html, oscuro }) {
-  return `      <section class="bloque${oscuro ? " oscuro" : ""}">
-${kicker ? `        <p class="kicker">${esc(kicker)}</p>\n` : ""}${titulo ? `        <h2>${esc(titulo)}</h2>\n` : ""}${html}
+function bloque({ id, kicker, kickerAlerta, titulo, html, oscuro, borde }) {
+  const clases =
+    "bloque" + (oscuro ? " oscuro" : "") + (borde ? " borde" : "");
+  return `      <section class="${clases}"${id ? ` id="${id}"` : ""}>
+${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${esc(kicker)}</p>\n` : ""}${titulo ? `        <h2>${esc(titulo)}</h2>\n` : ""}${html}
       </section>`;
 }
 
@@ -120,6 +122,7 @@ function pagina({
   chip,
   h1,
   lead,
+  anclas,
   bloques,
 }) {
   const url = SITIO + ruta;
@@ -181,7 +184,13 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
 
       <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
-${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}      </header>
+${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${
+        anclas
+          ? `        <nav class="chips-ancla" aria-label="En esta página">\n` +
+            anclas.map((a) => `          <a href="#${a.id}">${esc(a.n)}</a>`).join("\n") +
+            `\n        </nav>\n`
+          : ""
+      }      </header>
 
       <main>
 ${bloques.map(bloque).join("\n\n")}
@@ -632,59 +641,116 @@ const htmlPreguntas = pagina({
 });
 
 /* ---------- /legal ---------- */
+const LICENCIAS = [
+  ["MapLibre GL JS", "Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app."],
+  ["OpenStreetMap / Nominatim", 'Búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.'],
+  ["Instituto Geográfico Nacional", 'Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.'],
+  ["Municipalidad de Santa Fe", 'Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.'],
+  ["INA", 'Alturas hidrométricas diarias del Paraná, del <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">reporte público del Instituto Nacional del Agua</a>.'],
+  ["Plus Jakarta Sans y JetBrains Mono", "Tipografías, bajo SIL Open Font License. Van self-hosteadas: no se consulta ningún servicio de fuentes."],
+];
+
+const PRIVACIDAD = [
+  ["Tu cota, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
+  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe tu cota ni tu umbral — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
+  ["Sugerencias", "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible."],
+  ["Cuántas personas la usan", "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno."],
+];
+
 const htmlLegal = pagina({
   ruta: "/legal",
   titulo: "Legal y privacidad — Cota Cero",
   descripcion:
     "Descargo de responsabilidad, qué datos quedan en tu teléfono y cuáles no, y las licencias de todo lo que usa Cota Cero.",
   migaja: "Legal y privacidad",
-  h1: "Legal y privacidad",
+  h1: "Legal",
   lead:
     "Última actualización: agosto de 2026. Escrito para leerse, no para " +
     "esconderse: si algo no se entiende, es un defecto — avisanos por el " +
     "formulario de sugerencias.",
+  anclas: [
+    { id: "descargo", n: "Descargo de responsabilidad" },
+    { id: "privacidad", n: "Privacidad" },
+    { id: "licencias", n: "Licencias y atribuciones" },
+  ],
   jsonld: null,
   bloques: [
     {
+      id: "descargo",
       kicker: "Descargo de responsabilidad",
-      titulo: "Qué es esta herramienta, y qué no",
-      html: `        <ul class="pasos">
-          <li><b>Es una herramienta ciudadana de preparación, no un sistema oficial de alerta.</b> No tiene vínculo con la Municipalidad de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro organismo. Usa datos públicos de esas fuentes y las cita.</li>
-          <li><b>Los umbrales personales son estimaciones.</b> Se calculan con un modelo simplificado y con datos que traen margen de error (±0,5 m en la cota del terreno). El modelo no conoce defensas, terraplenes, bombeo ni desagües: el agua puede llegar antes o después.</li>
-          <li><b>Las decisiones de evacuación son de Defensa Civil (103).</b> Nada de lo que muestra la app es una orden ni un sustituto de las comunicaciones oficiales. Ante cualquier contradicción, vale la indicación oficial.</li>
-          <li><b>Sin garantías de disponibilidad ni exactitud.</b> La app depende de que el INA publique su reporte y de servicios de terceros que pueden fallar o discontinuarse. Se ofrece tal cual, gratis y sin garantía de ningún tipo.</li>
-        </ul>`,
-    },
-    {
-      kicker: "Privacidad",
-      titulo: "Tus datos quedan en tu teléfono",
-      html: `        <ul class="pasos">
-          <li><b>Tu cota, tu zona y tu plan familiar</b> se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran.</li>
-          <li><b>Avisos.</b> El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe tu cota ni tu umbral — el aviso se arma en tu teléfono. Al desuscribirte, se borra.</li>
-          <li><b>Sugerencias.</b> Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible.</li>
-          <li><b>Cuántas personas la usan.</b> El teléfono genera un número al azar y lo guarda; la app lo manda para contar cuánta gente distinta la usa por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno. No identifica a nadie.</li>
-          <li><b>Estadísticas del sitio</b>, sin cookies y agregadas. La búsqueda de direcciones consulta a Nominatim (OpenStreetMap) sólo cuando vos la iniciás.</li>
-        </ul>
+      kickerAlerta: true,
+      titulo: "Qué es esta herramienta — y qué no",
+      html: `        <p>
+          <b>Cota Cero es una herramienta ciudadana de preparación, no un
+          sistema oficial de alerta.</b> No tiene vínculo con la Municipalidad
+          de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro
+          organismo. Usa datos públicos de esas fuentes y las cita.
+        </p>
         <p>
-          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos.
+          <b>Los umbrales personales son estimaciones.</b> Se calculan con un
+          modelo simplificado y con datos que traen margen de error (±0,5 m en
+          la cota del terreno). El modelo no conoce defensas, terraplenes,
+          bombeo ni desagües: el agua puede llegar antes o después de lo
+          estimado.
+        </p>
+        <p>
+          <b>Las decisiones de evacuación corresponden a Defensa Civil (103).</b>
+          Nada de lo que muestra esta app constituye una orden, recomendación
+          oficial ni sustituto de las comunicaciones de las autoridades. Ante
+          cualquier contradicción, vale la indicación oficial.
+        </p>
+        <p>
+          <b>Sin garantías de disponibilidad ni exactitud.</b> La app depende de
+          que el INA publique su reporte diario y de servicios de terceros que
+          pueden fallar, cambiar o discontinuarse. Se ofrece tal cual, de forma
+          gratuita y sin garantía de ningún tipo.
+        </p>
+        <p>
+          <b>Los datos pueden quedar desactualizados.</b> El nivel se publica
+          una vez por día; los puntos de encuentro reflejan la capa municipal al
+          momento de la última actualización de la app, y su activación en una
+          emergencia la confirma sólo Defensa Civil.
         </p>`,
     },
     {
+      id: "privacidad",
+      kicker: "Privacidad",
+      titulo: "Tus datos quedan en tu teléfono",
+      html: `        <div class="rejilla-2">
+${PRIVACIDAD.map(
+  ([t, d]) => `          <div class="mini-tarjeta">
+            <b>${esc(t)}</b>
+            <p>${esc(d)}</p>
+          </div>`,
+).join("\n")}
+        </div>
+        <p class="chico" style="margin-top:20px">
+          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
+          venta de datos. Las estadísticas del sitio son sin cookies y
+          agregadas, y la búsqueda de direcciones consulta a Nominatim
+          (OpenStreetMap) sólo cuando vos la iniciás.
+        </p>`,
+    },
+    {
+      id: "licencias",
       kicker: "Licencias y atribuciones",
       titulo: "Sobre hombros de otros",
-      html: `        <ul class="pasos">
-          <li><b>MapLibre GL JS</b> — motor del mapa, licencia BSD de 3 cláusulas, © contribuidores de MapLibre.</li>
-          <li><b>OpenStreetMap / Nominatim</b> — búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</li>
-          <li><b>Instituto Geográfico Nacional</b> — mapa base y red de nivelación usada para validar las fuentes de elevación.</li>
-          <li><b>Municipalidad de Santa Fe</b> — curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro.</li>
-          <li><b>INA</b> — alturas hidrométricas diarias del Paraná.</li>
-          <li><b>Plus Jakarta Sans</b> y <b>JetBrains Mono</b> — tipografías, bajo SIL Open Font License.</li>
-        </ul>
-        <p class="chico">
+      html: `        <div class="filas-licencia">
+${LICENCIAS.map(
+  ([n, d]) => `          <div>
+            <b>${esc(n)}</b>
+            <p>${d}</p>
+          </div>`,
+).join("\n")}
+        </div>`,
+    },
+    {
+      borde: true,
+      html: `        <p class="chico" style="margin:0">
           Este texto lo redactó quien hizo la app, con la intención de ser claro
-          y honesto. No es asesoramiento legal ni fue revisado por un
-          profesional del derecho. Si encontrás un error, escribinos.
+          y honesto. No constituye asesoramiento legal ni fue revisado por un
+          profesional del derecho. Si encontrás un error, o algo que debería
+          decir y no dice, escribinos.
         </p>`,
     },
   ],

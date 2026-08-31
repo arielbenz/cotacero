@@ -73,6 +73,13 @@ async function pintarNivel() {
     const sup = document.getElementById("rm-superficie");
     if (agua) agua.style.height = alto + "%";
     if (sup) sup.style.bottom = alto + "%";
+    // La etiqueta va DENTRO del agua, como en el diseño: es lo que convierte
+    // el bloque azul en un dato y no en una decoración.
+    const ahora = document.getElementById("rm-ahora");
+    if (ahora) {
+      ahora.textContent = "Ahora " + m(j.altura);
+      ahora.style.bottom = "calc(" + alto + "% - 26px)";
+    }
   } catch (e) {
     num.textContent = "—";
     pie.textContent = "No se pudo leer el nivel. Abrí la app para reintentar.";

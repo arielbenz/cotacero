@@ -1332,7 +1332,7 @@ body.landing {
   padding-bottom: 0;
 }
 .landing section {
-  padding: var(--e-7) 0;
+  padding: calc(var(--e-7) * 1.25) 0;
 }
 .landing h2 {
   font-size: var(--t-xxl);
@@ -1367,9 +1367,16 @@ body.landing {
 .nav-sitio {
   display: flex;
   align-items: center;
-  gap: var(--e-3);
-  padding: var(--e-5) 0;
+  gap: var(--e-4);
+  padding: var(--e-6) 0;
   flex-wrap: wrap;
+}
+/* En una barra, el botón de 52 px de la portada pesa demasiado. */
+.nav-sitio .btn {
+  min-height: 42px;
+  width: auto;
+  padding: 0 var(--e-5);
+  font-size: var(--t-s);
 }
 .nav-enlaces {
   margin-left: auto;
@@ -1398,9 +1405,9 @@ body.landing {
 .hero {
   display: grid;
   grid-template-columns: 1fr 380px;
-  gap: var(--e-7);
+  gap: calc(var(--e-7) * 1.75);
   align-items: center;
-  padding: var(--e-6) 0 var(--e-7);
+  padding: var(--e-7) 0 calc(var(--e-7) * 1.5);
 }
 .titulo-hero {
   font-size: var(--t-display);
@@ -1506,7 +1513,7 @@ body.landing {
 .globo {
   position: absolute;
   left: calc(var(--e-7) * -1);
-  bottom: var(--e-6);
+  bottom: var(--e-4);
   z-index: 2;
   margin: 0;
   padding: var(--e-3) var(--e-4);
@@ -1572,27 +1579,25 @@ body.landing {
 .rm-alerta {
   bottom: 66.25%; /* 5,30 de 8 m */
   background: var(--alerta);
+  height: 2px;
 }
 .rm-alerta b {
   background: var(--alerta-tinte);
   color: var(--alerta-texto);
 }
-.rm-evac {
-  bottom: 71.25%; /* 5,70 de 8 m */
-  background: var(--peligro);
-}
-.rm-evac b {
-  background: var(--peligro-tinte);
-  color: var(--peligro-texto);
-  right: auto;
-  left: var(--e-3);
-  bottom: 5px;
-}
-.rm-alerta b {
-  /* Debajo de su línea: alerta y evacuación están a 40 cm, que en esta
-     escala son 11 px, y las dos etiquetas se pisaban. */
-  bottom: auto;
-  top: 5px;
+/* La etiqueta del nivel va dentro del agua: es lo que convierte el bloque
+   azul en un dato. Sobre el relleno --agua, el texto va del color del botón,
+   que es el par que ya está medido para ese fondo. */
+.rm-ahora {
+  position: absolute;
+  /* A la derecha: el globo flotante entra por la izquierda y se pisaban. */
+  right: var(--e-4);
+  bottom: 0;
+  color: var(--btn-texto);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---------- franja histórica ---------- */
@@ -2007,6 +2012,100 @@ body.con-bienvenida {
    números de la regla, sin duplicar reglas. */
 html.texto-grande {
   font-size: 118%;
+}
+
+/* ---------- variantes de la página legal ---------- */
+/* Chips de anclaje: la página es larga y la gente entra buscando una sección
+   concreta, no a leerla entera. */
+.chips-ancla {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-top: var(--e-5);
+}
+.chips-ancla a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 var(--e-4);
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--linea);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--texto);
+  text-decoration: none;
+}
+.chips-ancla a:hover {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+/* El ancla no puede quedar debajo del borde superior de la ventana. */
+.bloque[id] {
+  scroll-margin-top: var(--e-5);
+}
+.kicker-alerta {
+  color: var(--alerta-texto) !important;
+}
+
+.rejilla-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+.mini-tarjeta {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4) var(--e-5);
+}
+.mini-tarjeta b {
+  display: block;
+  font-size: var(--t-base);
+}
+.mini-tarjeta p {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
+/* Las licencias son pares nombre/descripción: en dos columnas se leen de un
+   vistazo, apiladas se leerían como prosa. */
+.filas-licencia > div {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: var(--e-5);
+  padding: var(--e-4) 0;
+  border-bottom: 1px solid var(--linea);
+}
+.filas-licencia > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.filas-licencia b {
+  font-size: var(--t-base);
+}
+.filas-licencia p {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
+/* Un bloque de contorno, sin relleno: para lo que acompaña pero no es una
+   sección más. */
+.landing .bloque.borde {
+  background: transparent;
+  box-shadow: none;
+  border: 2px solid var(--linea);
+  padding: var(--e-5) var(--e-6);
+}
+
+@media (max-width: 700px) {
+  .rejilla-2 {
+    grid-template-columns: 1fr;
+  }
+  .filas-licencia > div {
+    grid-template-columns: 1fr;
+    gap: var(--e-2);
+  }
 }
 
 /* ---------- acordeón de preguntas ---------- */
