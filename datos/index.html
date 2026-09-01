@@ -100,7 +100,7 @@
 
       <section class="bloque">
         <p class="kicker">2 · El modelo</p>
-        <h2>Dos constantes, validadas contra 1992</h2>
+        <h2>Dos constantes, contrastadas con 1992</h2>
         <p>
           <b>El cero del hidrómetro está a 8,20 m IGN.</b> Sumarlo a la lectura
           convierte el número del puerto en cota de agua, en el mismo sistema de
@@ -121,12 +121,22 @@
           <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
         </table>
         <p style="margin-top:20px">Un centímetro de diferencia.</p>
+        <p>
+          La concordancia es muy buena, pero es <b>una sola validación
+          independiente</b>. El modelo todavía requiere revisión de especialistas
+          y organismos competentes (Dirección de Gestión de Riesgos, INA,
+          FICH-UNL) antes de considerarse un modelo predictivo de inundación:
+          hasta entonces, los umbrales personales son niveles de referencia
+          estimados.
+        </p>
       </section>
 
       <section class="bloque">
         <p class="kicker">3 · La cota de tu terreno</p>
         <h2>Curvas municipales, no un satélite</h2>
         <p>
+          <b>Hoy la única fuente de elevación de la app son estas curvas
+          municipales.</b>
           Sale de las <b>169 curvas de nivel de la Municipalidad de Santa Fe</b>,
           publicadas por la Secretaría de Recursos Hídricos, trazadas cada 50 cm
           y en metros IGN — el mismo sistema que el cero del hidrómetro. Por eso
@@ -134,8 +144,10 @@
           curvas.
         </p>
         <p>
-          Antes se usaba un modelo satelital y se descartó midiendo, no por
-          intuición. Contra 36 puntos de nivelación de campo del IGN:
+          Antes probamos un modelo satelital (Copernicus GLO-90, vía Open-Meteo)
+          y lo descartamos midiendo, no por intuición. Queda acá sólo como
+          historia de validación. Contra 36 puntos de nivelación de campo del
+          IGN:
         </p>
         <table class="cuenta">
           <tr><td>Desvío estándar del satélite</td><td>±7,46 m</td></tr>
@@ -186,7 +198,7 @@
         <ul class="pasos">
           <li>Los kilómetros río arriba de cada zona son estimaciones propias, salvo Arroyo Leyes, que está publicado.</li>
           <li>No sabe si hay defensas, terraplenes o bombeo entre el río y tu casa, ni cuánto llueve sobre tu barrio. El agua puede llegar antes por desagüe.</li>
-          <li>Nadie validó este modelo institucionalmente. Es una estimación hecha con datos públicos, no una herramienta oficial.</li>
+          <li>La validación con la Dirección de Gestión de Riesgos del municipio sigue pendiente, y es la limitación más importante del estado actual: una buena coincidencia con una sola crecida histórica no prueba un modelo. Hasta entonces: estimación, no predicción.</li>
         </ul>
       </section>
       </main>
@@ -220,7 +232,7 @@
         <div>
           <span class="eti">La herramienta</span>
           <a href="/app">Abrir la app</a>
-          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/mi-cota">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>

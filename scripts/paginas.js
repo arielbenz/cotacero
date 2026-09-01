@@ -86,7 +86,7 @@ const PIE = `      <footer class="pie-sitio">
         <div>
           <span class="eti">La herramienta</span>
           <a href="/app">Abrir la app</a>
-          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/mi-cota">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
@@ -306,19 +306,20 @@ ${lista}
 /* ---------- /mi-cota ---------- */
 const htmlCota = pagina({
   ruta: "/mi-cota",
-  titulo: "Cómo saber la cota de tu terreno en Santa Fe",
+  titulo: "Cómo se calcula tu umbral en Santa Fe",
   descripcion:
-    "Qué es la cota, por qué el cero del hidrómetro está a 8,20 m IGN y cómo traducir la altura del río al nivel en que el agua llega a tu casa.",
-  migaja: "Cómo saber tu cota",
+    "Qué es la cota de tu terreno, por qué el cero del hidrómetro está a 8,20 m IGN y cómo salen de ahí los umbrales estimados de Cota Cero.",
+  migaja: "Cómo se calcula tu umbral",
   chip: "El cálculo, paso a paso",
-  h1: "Cómo se calcula tu cota",
+  h1: "Cómo se calcula tu umbral",
   lead:
     "No es una caja negra: son tres números que se suman y se restan. Acá está " +
-    "la cuenta completa, con un ejemplo, para que la puedas rehacer a mano.",
+    "la cuenta completa, con un ejemplo, para que la puedas rehacer a mano y " +
+    "discutirla con tu vecino.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: "Cómo se calcula la cota de tu terreno en Santa Fe",
+    headline: "Cómo se calcula tu umbral hidráulico estimado en Santa Fe",
     inLanguage: "es-AR",
     author: { "@type": "Person", name: "Ariel Benz" },
     mainEntityOfPage: SITIO + "/mi-cota",
@@ -330,6 +331,12 @@ const htmlCota = pagina({
           Fe, ese número no dice nada sobre tu casa. Para que diga algo hacen
           falta tres datos: <b>a qué altura está tu terreno</b>, <b>dónde está
           el cero de la regla</b> y <b>a qué distancia del puerto estás</b>.
+        </p>
+        <p>
+          De los tres sale <b>tu umbral estimado</b>: la lectura del hidrómetro
+          a partir de la cual el nivel de agua equivalente alcanzaría la cota de
+          tu terreno, según este modelo. Es una referencia para prepararte, no
+          el minuto en que entra el agua.
         </p>`,
     },
     {
@@ -372,9 +379,9 @@ const htmlCota = pagina({
       html: `        <p>
           La altura sale de las <b>curvas de nivel de la Municipalidad de Santa
           Fe</b>, publicadas por la Secretaría de Recursos Hídricos: 169 curvas
-          cada 50 centímetros, en metros IGN. Tu cota se calcula interpolando
-          entre las dos más cercanas, y por eso el margen declarado es de
-          <b>0,5 m</b>: la mitad del intervalo entre curvas.
+          cada 50 centímetros, en metros IGN. La cota de tu terreno se calcula
+          interpolando entre las dos más cercanas, y por eso el margen declarado
+          es de <b>0,5 m</b>: la mitad del intervalo entre curvas.
         </p>`,
     },
     {
@@ -388,11 +395,16 @@ const htmlCota = pagina({
           <tr><td>Margen de las curvas</td><td>− 0,50 m</td></tr>
           <tr><td>Cero del hidrómetro</td><td>− 8,20 m</td></tr>
           <tr><td>Pendiente: 11 km × 0,045</td><td>− 0,50 m</td></tr>
-          <tr class="total"><td>El agua llega cuando el hidrómetro marque</td><td>6,61 m</td></tr>
+          <tr class="total"><td>Tu umbral estimado</td><td>6,61 m</td></tr>
         </table>
         <p style="margin-top:20px">
-          Con el récord histórico en 7,43 m, ese terreno se mojó en 1992 —
-          <b>82 centímetros antes</b> del pico. Y está bastante por encima de la
+          La app lo muestra como <b>≈ 6,6 m</b>: la cota del terreno viene de
+          curvas cada 0,5 m, y más decimales serían una precisión que el dato no
+          tiene. El desglose conserva la cuenta exacta; la pantalla, no.
+        </p>
+        <p>
+          Con el récord histórico en 7,43 m, en 1992 el río pasó ese umbral
+          <b>82 centímetros antes</b> del pico. Y queda bastante por encima de la
           alerta oficial de 5,30 m, así que cuando la ciudad entra en alerta a
           esa casa todavía le queda margen. Ese es el punto: el número que te
           toca no es el que sale en las noticias.
@@ -423,6 +435,12 @@ const htmlCota = pagina({
       kicker: "Lo que este número no sabe",
       titulo: "Honestidad también acá",
       html: `        <p>
+          El umbral es una referencia hidráulica estimada, no una predicción. El
+          modelo coincide bien con la crecida de 1992 — el único caso usado como
+          control: una sola validación no lo convierte en modelo predictivo, y
+          todavía falta la revisión de especialistas y organismos competentes.
+        </p>
+        <p>
           Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
           pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
           metro de altura. Tampoco sabe si tu terreno está elevado sobre la
@@ -478,7 +496,7 @@ const htmlDatos = pagina({
     },
     {
       kicker: "2 · El modelo",
-      titulo: "Dos constantes, validadas contra 1992",
+      titulo: "Dos constantes, contrastadas con 1992",
       html: `        <p>
           <b>El cero del hidrómetro está a 8,20 m IGN.</b> Sumarlo a la lectura
           convierte el número del puerto en cota de agua, en el mismo sistema de
@@ -498,12 +516,22 @@ const htmlDatos = pagina({
           <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
           <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
         </table>
-        <p style="margin-top:20px">Un centímetro de diferencia.</p>`,
+        <p style="margin-top:20px">Un centímetro de diferencia.</p>
+        <p>
+          La concordancia es muy buena, pero es <b>una sola validación
+          independiente</b>. El modelo todavía requiere revisión de especialistas
+          y organismos competentes (Dirección de Gestión de Riesgos, INA,
+          FICH-UNL) antes de considerarse un modelo predictivo de inundación:
+          hasta entonces, los umbrales personales son niveles de referencia
+          estimados.
+        </p>`,
     },
     {
       kicker: "3 · La cota de tu terreno",
       titulo: "Curvas municipales, no un satélite",
       html: `        <p>
+          <b>Hoy la única fuente de elevación de la app son estas curvas
+          municipales.</b>
           Sale de las <b>169 curvas de nivel de la Municipalidad de Santa Fe</b>,
           publicadas por la Secretaría de Recursos Hídricos, trazadas cada 50 cm
           y en metros IGN — el mismo sistema que el cero del hidrómetro. Por eso
@@ -511,8 +539,10 @@ const htmlDatos = pagina({
           curvas.
         </p>
         <p>
-          Antes se usaba un modelo satelital y se descartó midiendo, no por
-          intuición. Contra 36 puntos de nivelación de campo del IGN:
+          Antes probamos un modelo satelital (Copernicus GLO-90, vía Open-Meteo)
+          y lo descartamos midiendo, no por intuición. Queda acá sólo como
+          historia de validación. Contra 36 puntos de nivelación de campo del
+          IGN:
         </p>
         <table class="cuenta">
           <tr><td>Desvío estándar del satélite</td><td>±7,46 m</td></tr>
@@ -561,7 +591,7 @@ const htmlDatos = pagina({
       html: `        <ul class="pasos">
           <li>Los kilómetros río arriba de cada zona son estimaciones propias, salvo Arroyo Leyes, que está publicado.</li>
           <li>No sabe si hay defensas, terraplenes o bombeo entre el río y tu casa, ni cuánto llueve sobre tu barrio. El agua puede llegar antes por desagüe.</li>
-          <li>Nadie validó este modelo institucionalmente. Es una estimación hecha con datos públicos, no una herramienta oficial.</li>
+          <li>La validación con la Dirección de Gestión de Riesgos del municipio sigue pendiente, y es la limitación más importante del estado actual: una buena coincidencia con una sola crecida histórica no prueba un modelo. Hasta entonces: estimación, no predicción.</li>
         </ul>`,
     },
   ],
@@ -571,11 +601,15 @@ const htmlDatos = pagina({
 const PREGUNTAS = [
   [
     "¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?",
-    "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu cota es baja o vivís río arriba, el agua puede llegarte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.",
+    "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.",
+  ],
+  [
+    "¿El agua llega exactamente cuando se cruza mi umbral?",
+    "No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m.",
   ],
   [
     "¿La app avisa sola cuando el río sube?",
-    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu cota ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.",
+    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.",
   ],
   [
     "¿De dónde sale la altura de mi terreno?",
@@ -587,11 +621,11 @@ const PREGUNTAS = [
   ],
   [
     "¿Funciona sin conexión?",
-    "Sí. Una vez cargada, la app guarda lo esencial: tu cota, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
+    "Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
   ],
   [
     "¿Quién ve mi plan familiar y mis datos?",
-    "Nadie. El plan, tu cota y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
+    "Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
   ],
   [
     "¿Esto reemplaza a la alerta de Defensa Civil?",
@@ -651,8 +685,8 @@ const LICENCIAS = [
 ];
 
 const PRIVACIDAD = [
-  ["Tu cota, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
-  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe tu cota ni tu umbral — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
+  ["Tu umbral, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
+  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la cota de tu terreno ni tu umbral — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
   ["Sugerencias", "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible."],
   ["Cuántas personas la usan", "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno."],
 ];
@@ -681,8 +715,9 @@ const htmlLegal = pagina({
       kickerAlerta: true,
       titulo: "Qué es esta herramienta — y qué no",
       html: `        <p>
-          <b>Cota Cero es una herramienta ciudadana de preparación, no un
-          sistema oficial de alerta.</b> No tiene vínculo con la Municipalidad
+          <b>Cota Cero es una herramienta ciudadana que ayuda a interpretar
+          información pública, no un sistema oficial de alerta.</b> No tiene
+          vínculo con la Municipalidad
           de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro
           organismo. Usa datos públicos de esas fuentes y las cita.
         </p>
@@ -691,7 +726,9 @@ const htmlLegal = pagina({
           modelo simplificado y con datos que traen margen de error (±0,5 m en
           la cota del terreno). El modelo no conoce defensas, terraplenes,
           bombeo ni desagües: el agua puede llegar antes o después de lo
-          estimado.
+          estimado. Además, fue contrastado con <b>un solo caso histórico</b>
+          —la crecida de 1992— y todavía no fue validado por especialistas ni
+          organismos competentes.
         </p>
         <p>
           <b>Las decisiones de evacuación corresponden a Defensa Civil (103).</b>

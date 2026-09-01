@@ -46,7 +46,15 @@
             "name": "¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu cota es baja o vivís río arriba, el agua puede llegarte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después."
+              "text": "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿El agua llega exactamente cuando se cruza mi umbral?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m."
             }
           },
           {
@@ -54,7 +62,7 @@
             "name": "¿La app avisa sola cuando el río sube?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu cota ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo."
+              "text": "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo."
             }
           },
           {
@@ -78,7 +86,7 @@
             "name": "¿Funciona sin conexión?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Sí. Una vez cargada, la app guarda lo esencial: tu cota, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado."
+              "text": "Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado."
             }
           },
           {
@@ -86,7 +94,7 @@
             "name": "¿Quién ve mi plan familiar y mis datos?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Nadie. El plan, tu cota y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie."
+              "text": "Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie."
             }
           },
           {
@@ -143,11 +151,15 @@
       <section class="bloque">
         <details class="faq">
           <summary>¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?</summary>
-          <p>La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu cota es baja o vivís río arriba, el agua puede llegarte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.</p>
+          <p>La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.</p>
+        </details>
+        <details class="faq">
+          <summary>¿El agua llega exactamente cuando se cruza mi umbral?</summary>
+          <p>No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m.</p>
         </details>
         <details class="faq">
           <summary>¿La app avisa sola cuando el río sube?</summary>
-          <p>Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu cota ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.</p>
+          <p>Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.</p>
         </details>
         <details class="faq">
           <summary>¿De dónde sale la altura de mi terreno?</summary>
@@ -159,11 +171,11 @@
         </details>
         <details class="faq">
           <summary>¿Funciona sin conexión?</summary>
-          <p>Sí. Una vez cargada, la app guarda lo esencial: tu cota, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.</p>
+          <p>Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.</p>
         </details>
         <details class="faq">
           <summary>¿Quién ve mi plan familiar y mis datos?</summary>
-          <p>Nadie. El plan, tu cota y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.</p>
+          <p>Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.</p>
         </details>
         <details class="faq">
           <summary>¿Esto reemplaza a la alerta de Defensa Civil?</summary>
@@ -213,7 +225,7 @@
         <div>
           <span class="eti">La herramienta</span>
           <a href="/app">Abrir la app</a>
-          <a href="/mi-cota">Cómo se calcula tu cota</a>
+          <a href="/mi-cota">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>

@@ -9,7 +9,21 @@
    Verificación con la crecida de junio 1992:
      puerto 7,43 m -> 15,62 IGN.  Arroyo Leyes, 24 km arriba:
      15,62 + (0,045 x 24) = 16,70 IGN  <- coincide con el valor publicado.
+   Es UNA sola validación independiente. Coincide bien, pero coincidir con una
+   única crecida histórica no convierte esto en un modelo predictivo: falta la
+   revisión de especialistas y organismos competentes (Dirección de Gestión de
+   Riesgos, INA, FICH-UNL). Hasta entonces, lo que la app calcula son niveles
+   de referencia estimados.
    Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m.
+
+   TRES CONCEPTOS, TRES NOMBRES — nunca intercambiarlos en la interfaz:
+     nivel del río     la lectura del hidrómetro del Puerto (dato oficial INA).
+     cota del terreno  la elevación IGN del terreno, de las curvas del
+                       municipio, con +-0,5 m de margen.
+     umbral estimado   la lectura del hidrómetro a partir de la cual el nivel
+                       de agua equivalente alcanzaría esa cota, según el modelo.
+   Llamarle "tu cota" al umbral está prohibido: son cosas distintas y mezclarlas
+   es exactamente lo que hacía sonar esto como una predicción de inundación.
    ========================================================================== */
 
 /* ==========  CONFIGURACIÓN  ==========
@@ -30,6 +44,10 @@ const CERO_IGN = 8.2;
 const PENDIENTE = 0.045;
 const ALERTA = 5.3;
 const EVACUACION = 5.7;
+/* El récord vigente del hidrómetro del Puerto: junio de 1992. Es la única
+   referencia histórica con fuente que entra en la regla, y da la escala real
+   de la decisión: de la alerta (5,30) al récord hay 2,13 m. */
+const RECORD_1992 = 7.43;
 const ESCALA_MIN = 0;
 const ESCALA_MAX = 8;
 /* Incertidumbre de la cota, en metros.
@@ -341,6 +359,26 @@ const atr = (t) =>
     .replace(/>/g, "&gt;");
 const m = (v) =>
   v == null || isNaN(v) ? "—" : v.toFixed(2).replace(".", ",") + " m";
+/* El umbral NUNCA se muestra con dos decimales. La cota del terreno sale de
+   curvas cada 50 cm: el segundo decimal sería precisión inventada, y en un
+   número que se usa para decidir si sacar a alguien de la casa la precisión
+   inventada se lee como certeza. Un decimal y tilde de aproximación.
+   Única excepción: el desglose del cálculo, que conserva la aritmética exacta
+   y aclara al pie por qué la pantalla muestra otra cosa. */
+const mU = (v) =>
+  v == null || isNaN(v)
+    ? "—"
+    : "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
+/* El margen contra el umbral también se presenta como aproximado. Debajo del
+   metro va en centímetros, que es como se habla de esto cuando falta poco;
+   arriba, en metros con un decimal — "217 cm" no lo lee nadie, y el segundo
+   decimal sería la misma precisión inventada que en el umbral. */
+const mCm = (v) => {
+  const a = Math.abs(v);
+  return a < 1
+    ? Math.round(a * 100) + " cm"
+    : (Math.round(a * 10) / 10).toFixed(1).replace(".", ",") + " m";
+};
 /* Acepta coma o punto. La app muestra "16,40" en todos lados y los campos
    pedían "16.40": la persona escribía lo que veía, el navegador descartaba el
    valor y no pasaba nada, sin ningún aviso. */
@@ -644,8 +682,11 @@ function pintarRio() {
   // se monta con la de evacuación, que está a 40 cm — 15px en esta escala.
   html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta-texto)"><b style="color:var(--alerta-texto)">5,30</b></div>`;
   html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro-texto)"><b style="color:var(--peligro-texto)">5,70</b></div>`;
+  // El récord de 1992 en tono tenue: no es un umbral que haya que cruzar, es
+  // la escala. Sin él, 5,70 parece el techo del mundo.
+  html += `<div class="marca-linea" style="bottom:${pct(RECORD_1992)}%;color:var(--tenue)"><b>7,43</b></div>`;
 
-  // tu cota, traducida a lectura de hidrómetro
+  // tu umbral estimado, en la escala del hidrómetro
   const critico = cotaEnHidrometro();
   if (critico !== null && critico >= ESCALA_MIN && critico <= ESCALA_MAX) {
     html += `<div class="marca-linea propia" style="bottom:${pct(critico)}%;color:var(--tierra)">
@@ -658,10 +699,10 @@ function pintarRio() {
   const wrap = document.getElementById("lg-cota-wrap");
   if (critico !== null) {
     wrap.style.display = "block";
-    document.getElementById("lg-cota").textContent = m(critico);
+    document.getElementById("lg-cota").textContent = mU(critico);
     document.getElementById("lg-cota-k").textContent = estado.cotaEsEstimada
-      ? "Cota interpolada entre las curvas de nivel del municipio, con el margen ya descontado"
-      : "Tu cota, traducida a lectura de hidrómetro";
+      ? "Tu umbral estimado, con la cota interpolada entre las curvas del municipio y el margen ya descontado"
+      : "Tu umbral estimado: la lectura de referencia en el puerto para tu terreno";
   } else wrap.style.display = "none";
 
   pintarVeredictoRio();
@@ -676,20 +717,27 @@ function pintarRio() {
 }
 
 /* Sin cota, la app no puede responder su propia pregunta — y en la pestaña
-   Río eso no se decía en ningún lado: el renglón "tu cota" simplemente no
+   Río eso no se decía en ningún lado: el renglón del umbral simplemente no
    aparecía. */
 function pintarCtaCota() {
   const cta = document.getElementById("cta-cota");
   if (!cta) return;
   if (estado.cota != null && estado.zona) {
-    cta.innerHTML = "";
+    /* Con el umbral ya cargado, este hueco no queda vacío: lleva LA línea de
+       contexto de la pantalla. Una sola, no un bloque legal — el descargo
+       completo vive en la pestaña Mi umbral y en /legal. */
+    cta.innerHTML =
+      '<div class="aviso" style="margin-bottom:14px">Tu umbral se estima con la ' +
+      "cota de tu terreno (±0,5 m) y la pendiente del río: una referencia para " +
+      "prepararte, <b>no el momento exacto en que entra el agua</b>.</div>";
     return;
   }
   cta.innerHTML =
     '<div class="aviso" style="margin-bottom:14px"><b>Todavía no sé dónde vivís.</b> ' +
-    "Con tu zona y tu cota te digo a qué altura del río el agua llega a tu casa." +
+    "Con tu zona y la cota de tu terreno estimo tu umbral: la lectura del " +
+    "hidrómetro que te sirve de referencia." +
     '<button class="btn mini" style="margin-top:11px;display:block" data-accion="ir" data-vista="cota">' +
-    "Cargar mi cota</button></div>";
+    "Calcular mi umbral</button></div>";
 }
 
 /* El pie decía "Actualizado <hoy>": la fecha del render, no la del dato. Abajo
@@ -776,6 +824,58 @@ function pintarVeredictoRio() {
   }
   No hay conexión con el INA. Cargá la altura a mano acá abajo antes de decidir nada con este número.</div>`
     : "";
+  /* La fila del umbral. Es lo que convierte esta tarjeta de "cómo está el río"
+     en "qué significa para mí": la lectura oficial grande arriba, y debajo el
+     umbral propio con el margen de hoy, en dos celdas que se leen de un golpe.
+     Sin umbral cargado no se dibuja: la CTA de más abajo se encarga. */
+  const u = cotaEnHidrometro();
+  let celdas = "";
+  if (u != null) {
+    const margen = u - r;
+    const superado = margen <= 0;
+    // El estado del margen manda sobre el color de la tarjeta: si el río pasó
+    // tu umbral, que la ciudad esté en "nivel normal" es un detalle.
+    if (superado) cls = "v-peligro";
+    else if (margen <= 0.5 && cls === "v-ok") cls = "v-alerta";
+    const tono = superado ? "peligro" : cls === "v-ok" ? "ok" : "alerta";
+    celdas =
+      '<div class="celdas-umbral">' +
+      '<div class="celda"><span class="k">Tu umbral estimado</span>' +
+      '<span class="v">' +
+      mU(u) +
+      "</span></div>" +
+      '<div class="celda t-' +
+      tono +
+      '"><span class="k">Margen hoy</span><span class="v">' +
+      (superado ? "superado" : "≈ " + mCm(margen)) +
+      "</span></div></div>";
+    /* Y una oración en prosa, que es como esto se cuenta en la vereda.
+       El ritmo sale del delta que publica el INA, no de una proyección propia:
+       sin delta no se promete ningún plazo. */
+    const dias = typeof d === "number" && d >= 0.02 ? margen / d : null;
+    // Más de diez días de proyección no es información, es ruido: el río no se
+    // mueve en línea recta y prometer un plazo así sería inventar un futuro.
+    const ritmo =
+      !superado && dias != null && dias <= 10
+        ? " Al ritmo de la última medición, unos " +
+          (dias < 1.5
+            ? Math.round(dias * 24) + " horas"
+            : Math.round(dias) + " días") +
+          "."
+        : "";
+    txt = superado
+      ? "El nivel superó tu umbral estimado (" +
+        mU(u) +
+        "). Aunque no veas agua todavía, mové personas y medicación y seguí a Defensa Civil."
+      : "El río está a unos " +
+        mCm(margen) +
+        " de tu umbral estimado (" +
+        mU(u) +
+        ")." +
+        ritmo;
+    if (superado) titu = "El río superó tu umbral";
+    else if (margen <= 0.5) titu = "Cerca de tu umbral";
+  }
   // Con el río en alerta la app tenía todo para decir "te faltan 7 cosas de
   // la mochila" y no lo decía: las dos pestañas no se hablaban.
   const falta = faltanMochila();
@@ -791,6 +891,7 @@ function pintarVeredictoRio() {
   c.innerHTML = `${vencido}<div class="titu">${titu}</div>
     <div class="dato" style="margin-bottom:6px">${m(r)}<span class="unidad"> en el puerto</span></div>
     ${mov}
+    ${celdas}
     <p class="chico" style="margin:0">${txt}</p>${plan}`;
 }
 
@@ -1055,8 +1156,8 @@ function calcular() {
   const cont = document.getElementById("resultado");
   if (estado.cota == null) {
     cont.innerHTML =
-      '<div class="veredicto v-neutro"><div class="titu">Falta tu cota</div>' +
-      '<p class="chico" style="margin:0">Cargala arriba y calculo el resto.</p></div>';
+      '<div class="veredicto v-neutro"><div class="titu">Falta la cota de tu terreno</div>' +
+      '<p class="chico" style="margin:0">Cargala arriba y estimo el resto.</p></div>';
     pintarRio();
     return;
   }
@@ -1081,44 +1182,50 @@ function calcular() {
   const ref = criticoPeor;
   if (r != null && r >= ref) {
     cls = "v-peligro";
-    titu = "El agua ya está en tu cota";
+    titu = "El río superó tu umbral";
     txt =
       "Con el río en " +
       m(r) +
-      ", el nivel en tu zona alcanza o supera la cota que cargaste.";
+      ", el nivel de agua equivalente en tu zona alcanza o supera la cota de tu terreno. " +
+      "Aunque no veas agua todavía, mové personas y medicación y seguí a Defensa Civil.";
   } else if (ref <= ALERTA) {
     cls = "v-peligro";
-    titu = "Te alcanza antes del nivel de alerta";
+    titu = "Tu umbral queda debajo de la alerta";
     txt =
-      "El agua llega a tu cota con el hidrómetro en " +
-      m(ref) +
+      "Tu umbral estimado es " +
+      mU(ref) +
       ", o sea <b>antes</b> de los 5,30 m " +
-      "que disparan el aviso general. No esperes la alerta oficial para moverte.";
+      "que disparan el aviso general: en este terreno conviene prepararse antes " +
+      "de que suene la alerta.";
   } else if (ref <= EVACUACION) {
     cls = "v-alerta";
-    titu = "Te alcanza en zona de evacuación";
-    txt = "El agua llega a tu cota con el hidrómetro entre 5,30 y 5,70 m.";
+    titu = "Tu umbral cae en zona de evacuación";
+    txt =
+      "Tu umbral estimado queda entre los 5,30 y los 5,70 m del hidrómetro: " +
+      "el tramo en el que la ciudad ya está evacuando sectores.";
   } else if (ref <= 6.5) {
     cls = "v-alerta";
     titu = "Margen ajustado";
     txt =
-      "El agua llega a tu cota con el hidrómetro en " +
-      m(ref) +
-      ". Está por encima del nivel de " +
-      "evacuación, pero dentro del escenario que el municipio dice estar planificando.";
+      "Tu umbral estimado es " +
+      mU(ref) +
+      ", por encima del nivel de evacuación, pero dentro del escenario que el " +
+      "municipio dice estar planificando.";
   } else {
     cls = "v-ok";
     titu = "Margen amplio";
     txt =
-      "El agua llegaría a tu cota recién con el hidrómetro en " +
-      m(ref) +
-      ". Para dimensionar: el récord de 1992 fue 7,43 m.";
+      "Tu umbral estimado es " +
+      mU(ref) +
+      ". Para dimensionar: el récord de 1992 fue " +
+      m(RECORD_1992) +
+      ".";
   }
 
   html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
     <p style="margin:0 0 12px;font-size: var(--t-base)">${txt}</p>
-    <span class="eti">El agua llega a tu cota cuando el hidrómetro marque</span>
-    <div class="dato">${m(ref)}</div></div>`;
+    <span class="eti">Tu umbral estimado · lectura de referencia en el puerto</span>
+    <div class="dato">${mU(ref)}</div></div>`;
 
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
@@ -1143,16 +1250,19 @@ function calcular() {
     }</td>
   <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
-  <td style="padding:9px 0;font-weight:700">Lectura crítica</td>
+  <td style="padding:9px 0;font-weight:700">Tu umbral estimado</td>
   <td style="text-align:right;font-weight:700;color:var(--acento)">${m(ref)}</td></tr>
-    </table>`;
+    </table>
+    <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
+la cota del terreno viene de curvas cada 0,5 m, y más decimales serían una
+precisión que el dato no tiene.</p>`;
 
   if (r != null) {
     const falta = ref - r;
     html += `<p class="chico" style="margin:12px 0 0">Hoy el río está en ${m(r)}.
 ${
   falta > 0
-    ? "Faltan <b>" + m(falta) + "</b> para llegar a tu cota."
+    ? "Faltan unos <b>" + mCm(falta) + "</b> hasta tu umbral estimado."
     : '<b style="color:var(--peligro-texto)">Ya lo superó.</b>'
 }</p>`;
   }
@@ -1176,8 +1286,12 @@ ${
 
   html +=
     '<div class="aviso grave"><b>Esto es una estimación, no una orden.</b> ' +
-    "El modelo asume terreno parejo y no contempla el anillo de defensas, las bombas, " +
-    "el viento sur que empuja el agua, ni las lluvias que se acumulan del lado de adentro. " +
+    "El umbral es una referencia hidráulica: el modelo asume terreno parejo y no " +
+    "contempla el anillo de defensas, las bombas, el viento sur que empuja el agua, " +
+    "ni las lluvias que se acumulan del lado de adentro. El agua puede llegar antes " +
+    "por los desagües, o no llegar si las defensas resisten. " +
+    "Y coincide bien con la crecida de 1992 — el único caso usado como control: " +
+    "una sola validación no lo convierte en modelo predictivo. " +
     "Si el municipio o Defensa Civil indican evacuar, evacuá aunque acá diga que tenés margen.</div>";
 
   cont.innerHTML = html;
@@ -1288,14 +1402,15 @@ function textoPlan() {
       ((ZONAS.find((z) => z.id === estado.zona) || {}).n || "sin elegir") +
       "\n";
     t +=
-      "El agua llega a esta cota con el hidrómetro en: " +
-      m(cotaEnHidrometro()) +
+      "Umbral estimado (lectura de referencia en el puerto): " +
+      mU(cotaEnHidrometro()) +
       (estado.cotaEsEstimada
         ? " (escenario pesimista: la cota interpolada menos " +
           ERROR_DEM.toFixed(2).replace(".", ",") +
           " m)"
         : "") +
-      "\n\n";
+      "\n" +
+      "Es una estimación, no una orden: la evacuación la indica Defensa Civil (103).\n\n";
   }
   t += "Punto de encuentro: " + (g("p-punto") || "—") + "\n";
   t += "Contacto fuera de la zona: " + (g("p-contacto") || "—") + "\n";
@@ -1504,7 +1619,7 @@ async function buscarDireccion() {
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
       e.innerHTML =
-        "<b>Encontramos la dirección, pero no su cota.</b> Las curvas de " +
+        "<b>Encontramos la dirección, pero no la cota de ese terreno.</b> Las curvas de " +
         "nivel del municipio cubren la ciudad, no toda el área metropolitana.";
       return;
     }
@@ -2150,8 +2265,8 @@ async function desactivarAvisos() {
 
 const LETRA_CHICA =
   '<p class="chico" style="margin:9px 0 0">Para avisarte, el servidor guarda ' +
-  "sólo una dirección anónima de tu navegador. <b>No guarda tu cota, tu " +
-  "dirección ni tu plan</b>: el aviso lo arma tu teléfono.</p>";
+  "sólo una dirección anónima de tu navegador. <b>No guarda tu umbral, la cota " +
+  "de tu terreno, tu dirección ni tu plan</b>: el aviso lo arma tu teléfono.</p>";
 
 /* Aviso anticipado: además del cruce del umbral, avisar cuando falten 50 y
    20 cm. Lo decide el service worker con lo que se espeja a IndexedDB. */
@@ -2169,7 +2284,7 @@ function conmutadorCerca() {
 }
 
 async function pintarAvisos() {
-  // La tarjeta vive en dos lugares: al pie de "Mi cota", que es donde acabás
+  // La tarjeta vive en dos lugares: al pie de "Mi umbral", que es donde acabás
   // de fijar tu umbral y es el momento natural para activarlos, y en Ajustes,
   // que es donde alguien los va a buscar después.
   const cajas = [
@@ -2327,7 +2442,7 @@ function conectarEventos() {
 
 /* ================= BIENVENIDA =================
    Primera visita: se muestra el río antes de pedir nada. La app no sirve de
-   nada hasta que cargás tu cota, pero arrancar con un formulario vacío hace
+   nada hasta que cargás la cota de tu terreno, pero arrancar con un formulario vacío hace
    que la mayoría se vaya sin ver para qué era. */
 
 const YA_ENTRO = "cc_bienvenida";
@@ -2335,7 +2450,7 @@ const YA_ENTRO = "cc_bienvenida";
 function mostrarBienvenida() {
   const caja = document.getElementById("bienvenida");
   if (!caja) return;
-  // Si ya cargó su cota alguna vez, esto no tiene nada que ofrecerle.
+  // Si ya cargó la cota de su terreno alguna vez, esto no tiene nada que ofrecerle.
   if (guardado.get(YA_ENTRO) === "1" || guardado.get("cc_cota")) return;
   caja.hidden = false;
   document.body.classList.add("con-bienvenida");
@@ -2374,7 +2489,7 @@ function pintarBienvenida() {
 const REFERENCIAS = [
   ["Alerta", ALERTA, "alerta"],
   ["Evacuación", EVACUACION, "peligro"],
-  ["Récord 1992", 7.43, "record"],
+  ["Récord 1992", RECORD_1992, "record"],
 ];
 
 function pintarContexto() {
@@ -2405,10 +2520,10 @@ function pintarContexto() {
       ? "Faltan <b>" +
         Math.round(aAlerta * 100) +
         " cm</b> para el nivel de alerta, y <b>" +
-        Math.round((7.43 - estado.rio) * 100) +
+        Math.round((RECORD_1992 - estado.rio) * 100) +
         " cm</b> para el récord de 1992."
       : "El río ya pasó el nivel de alerta. Al récord de 1992 le faltan <b>" +
-        Math.round((7.43 - estado.rio) * 100) +
+        Math.round((RECORD_1992 - estado.rio) * 100) +
         " cm</b>.";
 }
 
@@ -2519,13 +2634,14 @@ async function armarImagen() {
   g.fillStyle = tenue;
   const linea2 =
     u == null
-      ? "Cargá tu cota en la app para saber qué significa"
+      ? "Cargá tu umbral en la app para saber qué significa"
       : estado.rio != null && estado.rio >= u
-        ? "El agua ya llegó a mi cota (" + m(u) + ")"
-        : "A mi cota le faltan " +
+        ? "El río superó mi umbral estimado (" + mU(u) + ")"
+        : "Unos " +
           Math.round(((u ?? 0) - (estado.rio ?? 0)) * 100) +
-          " cm — llega en " +
-          m(u);
+          " cm hasta mi umbral estimado (" +
+          mU(u) +
+          ")";
   g.fillText(linea2, 76, 540);
 
   // La regla, de 0 al récord de 1992
@@ -2556,15 +2672,19 @@ async function armarImagen() {
   };
   marca(ALERTA, "Alerta 5,30", "#e8a33d");
   marca(EVACUACION, "Evacuación 5,70", "#e15f49");
-  marca(7.43, "Récord 1992   7,43", tenue);
-  if (u != null && u <= TOPE) marca(u, "MI COTA   " + m(u), claro);
+  marca(RECORD_1992, "Récord 1992   7,43", tenue);
+  if (u != null && u <= TOPE) marca(u, "MI UMBRAL   " + mU(u), claro);
 
   // Pie: fuente y dominio, para que la imagen se defienda sola cuando la
   // reenvían diez veces sin contexto.
   g.fillStyle = tenue;
   g.font = F(500, 27);
   const fecha = estado.rioFecha ? " · dato del " + estado.rioFecha : "";
-  g.fillText("Estimación personal, no una orden" + fecha, x, y + al + 60);
+  g.fillText(
+    "Umbral estimado, no una orden de evacuación" + fecha,
+    x,
+    y + al + 60,
+  );
   g.fillText(
     "Lectura oficial: INA. La orden la da Defensa Civil (103). cotacerosf.com",
     x,

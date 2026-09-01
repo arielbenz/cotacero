@@ -1,18 +1,45 @@
 # Cota Cero — Santa Fe
 
 Herramienta ciudadana para la emergencia hídrica (Ley provincial 14.477).
-Traduce la altura del hidrómetro del Puerto de Santa Fe a un umbral personal:
-a qué lectura del río el agua llega a tu terreno.
+Traduce la altura del hidrómetro del Puerto de Santa Fe a un **umbral personal
+estimado**: la lectura del río que sirve de referencia para tu terreno.
 
 ## Modelo
 
     cota del agua (IGN) = lectura del hidrómetro + 8,20
     corrección aguas arriba = 0,045 m por km
 
-Validado contra la crecida de junio 1992: puerto 7,43 m -> 15,62 IGN;
+Contrastado con la crecida de junio 1992: puerto 7,43 m -> 15,62 IGN;
 Arroyo Leyes (24 km arriba) -> 16,70 IGN. El modelo da 15,63 y 16,71.
 
+Un centímetro en cada punto, pero es **una sola validación independiente**.
+Coincidir con una única crecida histórica no convierte esto en un modelo
+predictivo de inundación: falta la revisión de especialistas y organismos
+competentes (Gestión de Riesgos, INA, FICH-UNL). Hasta entonces lo que la app
+calcula son niveles de referencia estimados, y así se nombran en la interfaz.
+
 Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m.
+
+## Tres conceptos, tres nombres
+
+La interfaz los mezclaba y eso era lo que hacía sonar la app como una
+predicción de inundación. Nunca intercambiarlos:
+
+1. **Nivel del río** — la lectura del hidrómetro del Puerto (dato oficial
+   INA / Prefectura). «El río está en 4,86 m».
+2. **Cota del terreno** — la elevación IGN del terreno, de las curvas
+   municipales, ±0,5 m. «Cota del terreno: 17,18 m IGN».
+3. **Umbral hidráulico estimado** («tu umbral estimado» / «mi umbral») — la
+   lectura del hidrómetro a partir de la cual el nivel de agua equivalente
+   alcanzaría esa cota según el modelo. «Tu umbral estimado: ≈ 5,1 m».
+
+Llamarle «tu cota» al umbral está prohibido. La pestaña se llama **Mi umbral**.
+
+**Falsa precisión.** La cota del terreno viene de curvas cada 0,5 m, así que el
+umbral **nunca** se muestra con dos decimales: un decimal y tilde de
+aproximación (`mU()` en `app.js`, `unDec()` en `sw.js`). La única excepción es
+el desglose del cálculo, que conserva la aritmética exacta y aclara al pie por
+qué la pantalla muestra otra cosa.
 
 ## Configuración
 
@@ -304,7 +331,19 @@ segunda se queda esperando el lock de la primera y el script no termina nunca.
 
 ## Las pantallas de la app
 
-Cuatro pestañas —Río, Mi cota, Mi plan, Dónde ir— más:
+Cuatro pestañas —Río, Mi umbral, Mi plan, Dónde ir— más:
+
+**La tarjeta de Río.** Arriba la lectura oficial en grande, y debajo una fila
+de dos celdas —`.celdas-umbral` en `app.css`— con **tu umbral estimado** y el
+**margen de hoy**, más una oración en prosa. Es lo que convierte «cómo está el
+río» en «qué significa para mí» sin un gráfico nuevo. El color del estado va en
+el valor del margen, no en el fondo de la celda: la tarjeta ya está tintada y
+tinte sobre tinte no se distingue. Si el río pasó tu umbral, el margen manda
+sobre el color de la tarjeta aunque la ciudad esté en nivel normal.
+
+**La regla.** Además de alerta (5,30) y evacuación (5,70) lleva la marca del
+**récord de 1992 (7,43)** en tono tenue. Sin ella, 5,70 parece el techo del
+mundo; con ella se ve que todo el rango de decisión son 2,13 m.
 
 **Bienvenida.** Primera visita: muestra el río antes de pedir nada. Es un
 overlay y no una vista, para no meter una quinta entrada en el sistema de
@@ -313,7 +352,7 @@ pestañas.
 **Ajustes.** Se llega desde el engranaje de la cabecera, **no** desde una
 quinta pestaña: la barra de abajo se deja en cuatro para no tocar los caminos
 que se usan en una emergencia. Trae los avisos —incluido el aviso anticipado a
-50 y 20 cm de tu cota, que el service worker resuelve leyendo `avisarCerca` de
+50 y 20 cm de tu umbral, que el service worker resuelve leyendo `avisarCerca` de
 IndexedDB—, el tema y el tamaño de texto.
 
 **En contexto.** Barras con el nivel de hoy contra los dos umbrales oficiales
@@ -332,13 +371,16 @@ explícita en `app.css` para eso.
 
 ## La cota del terreno
 
-El cálculo tiene dos mitades y las dos están verificadas.
+El cálculo tiene dos mitades. Las dos están medidas contra una fuente externa,
+que no es lo mismo que estar validadas por un organismo.
 
 **La hidráulica.** El cero del hidrómetro del Puerto de Santa Fe es 8,20 m
-IGN. La pendiente de la superficie del agua, 0,045 m/km, se validó contra un
+IGN. La pendiente de la superficie del agua, 0,045 m/km, se contrastó con un
 caso independiente: en 1992, con el puerto en 7,43 m, Arroyo Leyes —24 km río
 arriba— llegó a 16,70 IGN según un ingeniero civil citado en prensa. El modelo
-da 16,71. Un centímetro.
+da 16,71. Un centímetro — en **un** punto de **una** crecida. Es el mejor dato
+independiente que hay, y sigue siendo una sola observación: por eso la interfaz
+dice «umbral estimado» y no «cuándo llega el agua».
 
 **La cota del terreno.** Sale de las curvas de nivel de la Municipalidad de
 Santa Fe, capa `sitmax:curvas_nivel` del GeoServer municipal, subida por la
@@ -443,11 +485,19 @@ vieja para siempre.
 - Los km río arriba de cada zona son estimaciones propias, salvo
   Arroyo Leyes (24 km, publicado). Medirlos sobre el cauce.
   La app ya lo aclara en pantalla, pero el número sigue sin medirse.
-- Verificar el datum vertical. El DEM que consulta la app (Copernicus
-  GLO-90, vía Open-Meteo) está referido al geoide EGM2008; el modelo
-  razona en cota IGN. Puede haber un desfasaje sistemático de decenas
-  de centímetros, que en márgenes de centímetros no es despreciable.
-- Validar el modelo con la Dirección de Gestión de Riesgos del municipio.
+- ~~Verificar el datum vertical del DEM satelital (Copernicus GLO-90, vía
+  Open-Meteo, referido al geoide EGM2008).~~ **Resuelto por la migración a las
+  curvas municipales**: las curvas ya vienen en metros IGN, el mismo sistema
+  que el cero del hidrómetro, así que no hay conversión de datum en el camino.
+  La app no consulta ningún DEM satelital; Copernicus queda sólo como historia
+  de validación en `/datos`.
+- **Validar el modelo con la Dirección de Gestión de Riesgos del municipio.**
+  Es la limitación más importante del estado actual, no un pendiente más de la
+  lista. Lo que hay es una coincidencia de un centímetro con la crecida de
+  1992, en dos puntos: buena señal, pero una sola validación independiente no
+  prueba un modelo. Hasta que lo revisen especialistas y organismos competentes
+  (Gestión de Riesgos, INA, FICH-UNL), lo que la app publica son niveles de
+  referencia estimados y así están nombrados en toda la interfaz.
 - El nivel se saca raspando el HTML del reporte diario del INA. Ya se
   rompió una vez (cambiaron <strong> por <b> y fecha_reporte quedó en
   null sin que nada avisara). Averiguar si dan acceso a la API REST de

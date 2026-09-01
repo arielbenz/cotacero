@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v36";
+const VERSION = "cota-cero-v37";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -242,6 +242,10 @@ async function leerUmbral() {
 }
 
 const dosDec = (v) => v.toFixed(2).replace(".", ",");
+/* El umbral se redondea a un decimal en todos lados, avisos incluidos: sale de
+   curvas cada 50 cm y el segundo decimal sería precisión inventada. */
+const unDec = (v) =>
+  "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
 
 function armarAviso(nivel, umbral, cerca) {
   if (nivel == null)
@@ -253,10 +257,10 @@ function armarAviso(nivel, umbral, cerca) {
     };
   if (umbral != null && nivel >= umbral)
     return {
-      titulo: "El agua llegó a tu cota",
+      titulo: "El río superó tu umbral",
       cuerpo:
-        `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m. ` +
-        "Si Defensa Civil indica evacuar, evacuá.",
+        `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}. ` +
+        "Aunque no veas agua, prepará el plan. Si Defensa Civil indica evacuar, evacuá.",
       urgente: true,
       ir: "/app?ir=plan",
     };
@@ -279,28 +283,29 @@ function armarAviso(nivel, umbral, cerca) {
     // Aviso anticipado, sólo si lo pidió: a 20 cm es urgente, a 50 no.
     if (cerca && falta <= 0.2)
       return {
-        titulo: "Falta muy poco para tu cota",
-        cuerpo: `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m: ${Math.round(falta * 100)} cm. Andá preparando el plan.`,
+        titulo: "Falta muy poco para tu umbral",
+        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}: unos ${Math.round(falta * 100)} cm. Andá preparando el plan.`,
         urgente: true,
         ir: "/app?ir=plan",
       };
     if (cerca && falta <= 0.5)
       return {
-        titulo: `Faltan ${Math.round(falta * 100)} cm para tu cota`,
-        cuerpo: `El río está en ${dosDec(nivel)} m y a tu terreno llega en ${dosDec(umbral)} m.`,
+        titulo: `Unos ${Math.round(falta * 100)} cm hasta tu umbral`,
+        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}.`,
         urgente: false,
         ir: "/app?ir=plan",
       };
     return {
       titulo: `El río subió a ${dosDec(nivel)} m`,
-      cuerpo: `Faltan ${dosDec(falta)} m para llegar a tu cota.`,
+      cuerpo: `Faltan unos ${Math.round(falta * 100)} cm hasta tu umbral estimado (${unDec(umbral)}).`,
       urgente: false,
       ir: "/app",
     };
   }
   return {
     titulo: `El río subió a ${dosDec(nivel)} m`,
-    cuerpo: "Cargá tu cota en la app para saber qué significa para tu casa.",
+    cuerpo:
+      "Calculá tu umbral en la app para saber qué significa para tu casa.",
     urgente: false,
     ir: "/app?ir=cota",
   };

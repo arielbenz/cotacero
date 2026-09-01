@@ -623,6 +623,50 @@ p {
   line-height: 1.1;
   margin-bottom: var(--e-2);
 }
+/* La fila del umbral, dentro de la tarjeta de veredicto: la lectura oficial
+   es el número grande de arriba; estas dos celdas responden "¿y para mí?".
+   Van sobre --panel y no sobre otro tinte: la tarjeta ya está tintada por el
+   estado, y tinte sobre tinte no se distingue. El color del estado viaja en
+   el valor de la celda del margen, que es el dato que cambia de significado. */
+.celdas-umbral {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-2);
+  margin: var(--e-3) 0;
+}
+.celdas-umbral .celda {
+  background: var(--panel);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
+  min-width: 0;
+}
+.celdas-umbral .k {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.celdas-umbral .v {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-m);
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+}
+.celdas-umbral .t-ok .v {
+  color: var(--ok-texto);
+}
+.celdas-umbral .t-alerta .v {
+  color: var(--alerta-texto);
+}
+.celdas-umbral .t-peligro .v {
+  color: var(--peligro-texto);
+}
+
 .v-ok {
   background: var(--ok-tinte);
 }
