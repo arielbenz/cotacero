@@ -31,11 +31,17 @@ const puntos = [
   ),
 ].map((m) => {
   const trozo = m[3];
+  /* El cierre va como `</span\\s*>`: prettier parte la etiqueta en dos líneas
+     cuando el atributo es largo, y con `</span>` a secas la captura de un
+     punto se pasaba de largo hasta el siguiente cierre. Resultado: el nombre
+     de la Parada de ómnibus se llevaba puesta su propia dirección, en la
+     página publicada y en datos/puntos.json, que es lo que dibuja el mapa de
+     la portada. También se colapsan los saltos de línea del marcado. */
   const t = (cls) => {
     const x = trozo.match(
-      new RegExp(`class="${cls}"[^>]*>([\\s\\S]*?)<\\/span>`),
+      new RegExp(`class="${cls}"[^>]*>([\\s\\S]*?)<\\/span\\s*>`),
     );
-    return x ? x[1].replace(/<[^>]+>/g, "").trim() : "";
+    return x ? x[1].replace(/<[^>]+>/g, "").replace(/\\s+/g, " ").trim() : "";
   };
   return { lon: +m[1], lat: +m[2], nombre: t("n"), direccion: t("d") };
 });
@@ -90,6 +96,8 @@ const PIE = `      <footer class="pie-sitio">
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
           <a href="/legal">Legal y privacidad</a>
         </div>
         <div>
@@ -113,6 +121,22 @@ ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${e
       </section>`;
 }
 
+/* Un paso del cálculo: número al costado, y el valor del ejemplo en una
+   pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
+   página buscando la cuenta tiene que poder saltar de pastilla en pastilla. */
+function paso({ n, titulo, html, eti, valor }) {
+  return `      <section class="bloque paso">
+        <span class="numerito" aria-hidden="true">${n}</span>
+        <div>
+          <h2>${esc(titulo)}</h2>
+${html}
+          <p class="dato-ejemplo">${
+            eti ? `<span class="k">${esc(eti)}</span>` : ""
+          }<span class="v">${esc(valor)}</span></p>
+        </div>
+      </section>`;
+}
+
 function pagina({
   ruta,
   titulo,
@@ -122,8 +146,12 @@ function pagina({
   chip,
   h1,
   lead,
+  acciones,
   anclas,
   bloques,
+  sueltos,
+  bloquesFinales,
+  script,
 }) {
   const url = SITIO + ruta;
   const estructurados = [
@@ -168,23 +196,33 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/app.css" />
     <script defer src="/_vercel/insights/script.js"></script>
-  </head>
+${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
-    <div class="ancho angosto">
+    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
+         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
+         ése es para leer y se queda en la medida angosta. -->
+    <div class="ancho alineado-lectura">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           ${marcaSvg("mp")}
           <span class="lockup-nombre">Cota Cero</span>
         </a>
-        <div class="nav-enlaces">
-          <a href="/">← Volver a la portada</a>
-          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
-        </div>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/">← Volver a la portada</a>
+          </div>
+        </details>
+        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
       </nav>
+    </div>
 
+    <div class="ancho angosto">
       <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
-${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${
+${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones + "\n" : ""}${
         anclas
           ? `        <nav class="chips-ancla" aria-label="En esta página">\n` +
             anclas.map((a) => `          <a href="#${a.id}">${esc(a.n)}</a>`).join("\n") +
@@ -193,11 +231,17 @@ ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${
       }      </header>
 
       <main>
-${bloques.map(bloque).join("\n\n")}
+${[
+  ...bloques.map(bloque),
+  ...(sueltos || []),
+  ...(bloquesFinales || []).map(bloque),
+].join("\n\n")}
       </main>
 
       <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+    </div>
 
+    <div class="pie-envoltura">
 ${PIE}
     </div>
   </body>
@@ -206,15 +250,73 @@ ${PIE}
 }
 
 /* ---------- /puntos-de-encuentro ---------- */
-const lista = puntos
+/* Los puntos agrupados por dónde caen en el mapa, para que se puedan recorrer
+   buscando el propio barrio en vez de leer treinta renglones alfabéticos.
+
+   OJO: los grupos los deducimos de las coordenadas oficiales, y son una ayuda
+   de orientación — NO son los distritos del Plan de Contingencia municipal, que
+   no publicamos porque no los tenemos. Lo que decide es el punto más cercano a
+   tu casa, y el nombre y la dirección de cada tarjeta salen de la capa oficial
+   sin tocar. */
+const GRUPOS = [
+  { n: "Norte de la ciudad", test: (p) => p.lat > -31.6 },
+  { n: "Centro", test: (p) => p.lat > -31.645 },
+  { n: "Sur", test: (p) => !/Alto Verde/i.test(p.nombre) },
+  { n: "Alto Verde", test: () => true },
+];
+
+function grupoDe(p) {
+  // La Costa es la única división que no depende de un umbral discutible: son
+  // los puntos del otro lado de la laguna, a más de 4 km del resto.
+  if (p.lon > -60.65) return "La Costa — Colastiné y La Guardia";
+  return (GRUPOS.find((g) => g.test(p)) || GRUPOS[GRUPOS.length - 1]).n;
+}
+
+const ORDEN = [
+  "Norte de la ciudad",
+  "Centro",
+  "Sur",
+  "Alto Verde",
+  "La Costa — Colastiné y La Guardia",
+];
+
+let numero = 0;
+const agrupados = ORDEN.map((nombre) => ({
+  nombre,
+  items: puntos.filter((p) => grupoDe(p) === nombre),
+})).filter((g) => g.items.length);
+
+const lista = agrupados
   .map(
-    (p) => `          <li class="punto">
-            <span class="n">${esc(p.nombre)}</span>
-            <span class="d">${esc(p.direccion)}</span>
-            <a class="ir" href="geo:${p.lat},${p.lon}?q=${p.lat},${p.lon}(${encodeURIComponent(p.nombre)})">Cómo llegar</a>
+    (g) => `        <h2 class="grupo-puntos">${esc(g.nombre)}</h2>
+        <ul class="rejilla-puntos">
+${g.items
+  .map(
+    (p) => `          <li>
+            <a class="punto" href="geo:${p.lat},${p.lon}?q=${p.lat},${p.lon}(${encodeURIComponent(p.nombre)})">
+              <span class="np">${++numero}</span>
+              <span class="txt">
+                <span class="n">${esc(p.nombre)}</span>
+                <span class="d">${esc(p.direccion)}</span>
+              </span>
+            </a>
           </li>`,
   )
-  .join("\n");
+  .join("\n")}
+        </ul>`,
+  )
+  .join("\n\n");
+
+/* Compartir sin una línea de JavaScript: wa.me abre WhatsApp con el texto ya
+   puesto. navigator.share sería más lindo y obligaría a meter un script en una
+   página que hoy no tiene ninguno — y que tiene que abrir sin conexión. */
+const TEXTO_COMPARTIR = encodeURIComponent(
+  "Los " +
+    puntos.length +
+    " puntos de encuentro oficiales de Santa Fe ante una evacuación, con dirección y cómo llegar: " +
+    SITIO +
+    "/puntos-de-encuentro",
+);
 
 const htmlPuntos = pagina({
   ruta: "/puntos-de-encuentro",
@@ -228,8 +330,12 @@ const htmlPuntos = pagina({
   h1: "Los " + puntos.length + " puntos de encuentro",
   lead:
     "Ante una evacuación, acercate al más próximo a tu casa. Esta página " +
-    "funciona sin conexión y se puede compartir. En la app los ves en el mapa, " +
-    "ordenados por cercanía.",
+    "funciona sin conexión y se puede compartir por WhatsApp. En la app los ves " +
+    "en el mapa, ordenados por cercanía.",
+  acciones: `        <p class="pg-acciones">
+          <a class="btn btn-oscuro" href="/app?ir=donde">Ver en el mapa de la app</a>
+          <a class="btn sec" href="https://wa.me/?text=${TEXTO_COMPARTIR}" target="_blank" rel="noopener">Compartir esta lista</a>
+        </p>`,
   jsonld: {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -251,15 +357,31 @@ const htmlPuntos = pagina({
       },
     })),
   },
-  bloques: [
+  bloques: [],
+  sueltos: [
+    `      <div class="aviso grave">
+        Los puntos abren cuando el municipio los activa, y esta página no lo
+        sabe en tiempo real. <b>Antes de mover a alguien, llamá al 103
+        (Defensa Civil).</b>
+      </div>`,
+    `      <section>
+${lista}
+        <p class="chico" style="margin-top:20px">
+          Fuente: capa <code>puntos_de_encuentro</code> del GeoServer público de
+          la Municipalidad de Santa Fe, la misma que dibuja el GeoPortal. Los
+          grupos son nuestros, deducidos de las coordenadas para que puedas
+          ubicarte: no son los distritos del Plan de Contingencia.
+        </p>
+        <div class="telefonos-emergencia">
+          <div><b>103</b><span>Defensa Civil — activación de puntos y evacuación</span></div>
+          <div><b>107</b><span>Emergencias médicas</span></div>
+          <div><b>911</b><span>Policía</span></div>
+        </div>
+      </section>`,
+  ],
+  bloquesFinales: [
     {
-      html: `        <div class="aviso grave">
-          Los puntos abren cuando el municipio los activa, y esta página no lo
-          sabe en tiempo real. <b>Antes de mover a alguien, llamá al 103.</b>
-        </div>`,
-    },
-    {
-      kicker: "1 · Cuándo ir",
+      kicker: "Cuándo ir",
       titulo: "Cuando lo indiquen para tu zona",
       html: `        <p>
           No hace falta esperar a tener agua en la puerta: si Defensa Civil o el
@@ -275,7 +397,7 @@ const htmlPuntos = pagina({
         </p>`,
     },
     {
-      kicker: "2 · Qué llevar",
+      kicker: "Qué llevar",
       titulo: "Lo mínimo, en una bolsa",
       html: `        <ul class="pasos">
           <li>Documentos en una bolsa de nylon cerrada.</li>
@@ -287,17 +409,6 @@ const htmlPuntos = pagina({
         <p class="chico">
           Antes de salir, cortá la llave general de la luz y la del gas, y
           avisale a un vecino hacia dónde vas.
-        </p>`,
-    },
-    {
-      kicker: "3 · La lista",
-      titulo: "Los " + puntos.length + " puntos",
-      html: `        <ul class="lista-plana">
-${lista}
-        </ul>
-        <p class="chico" style="margin-top:16px">
-          Fuente: capa <code>puntos_de_encuentro</code> del GeoServer público de
-          la Municipalidad de Santa Fe, la misma que dibuja el GeoPortal.
         </p>`,
     },
   ],
@@ -313,9 +424,9 @@ const htmlCota = pagina({
   chip: "El cálculo, paso a paso",
   h1: "Cómo se calcula tu umbral",
   lead:
-    "No es una caja negra: son tres números que se suman y se restan. Acá está " +
-    "la cuenta completa, con un ejemplo, para que la puedas rehacer a mano y " +
-    "discutirla con tu vecino.",
+    "No es una caja negra: son tres números que se suman y restan. Acá está el " +
+    "cálculo completo con un ejemplo real, para que lo puedas rehacer a mano y " +
+    "discutir con tu vecino.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -339,75 +450,91 @@ const htmlCota = pagina({
           el minuto en que entra el agua.
         </p>`,
     },
-    {
-      kicker: "1 · El cero de la regla",
-      titulo: "Está a 8,20 metros",
-      html: `        <p>
-          El hidrómetro del Puerto de Santa Fe no mide desde el nivel del mar:
-          mide desde un cero convencional que está <b>8,20 m por encima</b> del
-          cero del Instituto Geográfico Nacional, referido al mareógrafo de Mar
-          del Plata.
+  ],
+  sueltos: [
+    paso({
+      n: 1,
+      titulo: "La altura de tu terreno, en metros IGN",
+      html: `          <p>
+            Todo terreno tiene una altura sobre el nivel del mar, medida en el
+            sistema oficial argentino (IGN). La app la saca de las <b>169 curvas
+            de nivel de la Municipalidad de Santa Fe</b>, trazadas cada 50 cm
+            —de ahí el margen de ±0,5 m— o la escribís vos si la conocés: figura
+            en planos de mensura y escrituras.
+          </p>
+          <p>
+            Cuando la cota sale interpolada entre curvas, el cálculo usa el
+            <b>escenario pesimista</b>: medio metro por debajo. Es el número con
+            el que hay que decidir.
+          </p>`,
+      eti: "Ejemplo · Colastiné Norte",
+      valor: "15,80 m → 15,30 m",
+    }),
+    paso({
+      n: 2,
+      titulo: "Restar el cero del hidrómetro: 8,20 m",
+      html: `          <p>
+            El hidrómetro del Puerto no mide desde el nivel del mar: su cero
+            está a <b>8,20 m IGN</b>. Restarlo pasa tu terreno a «metros de
+            hidrómetro» — la misma escala del número que publica el INA todos
+            los días.
+          </p>
+          <p class="chico">
+            Cada puerto tiene su propio cero: el de Paraná está a 9,57 m y el de
+            Rosario a 3,03 m. Las alturas de distintas ciudades no se comparan
+            entre sí.
+          </p>`,
+      valor: "15,30 − 8,20 = 7,10 m",
+    }),
+    paso({
+      n: 3,
+      titulo: "Restar el desnivel río arriba: 0,045 m por km",
+      html: `          <p>
+            El río no es una pileta: la superficie del agua tiene pendiente y
+            río arriba está más alta que en el Puerto. Si tu zona está aguas
+            arriba, tu umbral corresponde a una lectura <b>menor</b> en el
+            hidrómetro.
+          </p>
+          <p>
+            Colastiné Norte está a 11 km del puerto: 11 × 0,045 = 0,495 m, que
+            redondeamos a 0,50.
+          </p>`,
+      eti: "Pendiente · 11 km",
+      valor: "− 0,50 m",
+    }),
+    `      <section class="bloque oscuro resultado">
+        <p class="kicker">Resultado del ejemplo</p>
+        <p class="dato-grande">6,60 m</p>
+        <p class="cuenta-chica">7,10 − 0,50</p>
+        <p>
+          Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
+          de agua equivalente alcanza la cota de ese terreno según el modelo.
+          <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
+          es la referencia para prepararse.
         </p>
         <p>
-          Cuando la regla marca 5,30 m, la superficie del agua está en realidad
-          a 13,50 m IGN. Si tu terreno está a 15 m, todavía te sobra metro y
-          medio.
+          La app lo muestra redondeado, <b>≈ 6,6 m</b>, porque la cota del
+          terreno viene de curvas cada 0,5 m y más decimales serían una
+          precisión que el dato no tiene. Con el récord histórico en 7,43 m, en
+          1992 el río pasó ese umbral <b>83 centímetros antes</b> del pico.
         </p>
-        <p class="chico">
-          Cada puerto tiene su propio cero: el de Paraná está a 9,57 m y el de
-          Rosario a 3,03 m. Las alturas de distintas ciudades no se comparan
-          entre sí.
-        </p>`,
-    },
+      </section>`,
+  ],
+  bloquesFinales: [
     {
-      kicker: "2 · La pendiente",
-      titulo: "El río no está horizontal",
+      kicker: "Con qué se contrastó",
+      titulo: "Una crecida, dos puntos",
       html: `        <p>
-          La superficie del agua baja unos <b>4,5 cm por kilómetro</b> aguas
-          abajo. Con la misma lectura en el puerto, un barrio río arriba tiene
-          el agua más alta que uno río abajo.
-        </p>
-        <p>
           Un caso real: en 1992 el hidrómetro llegó a 7,43 m y en Arroyo Leyes
           —24 km río arriba— el agua alcanzó los 16,70 m IGN. La cuenta da
           8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de diferencia.
-        </p>`,
-    },
-    {
-      kicker: "3 · Tu terreno",
-      titulo: "Y cuánto margen tiene",
-      html: `        <p>
-          La altura sale de las <b>curvas de nivel de la Municipalidad de Santa
-          Fe</b>, publicadas por la Secretaría de Recursos Hídricos: 169 curvas
-          cada 50 centímetros, en metros IGN. La cota de tu terreno se calcula
-          interpolando entre las dos más cercanas, y por eso el margen declarado
-          es de <b>0,5 m</b>: la mitad del intervalo entre curvas.
-        </p>`,
-    },
-    {
-      kicker: "La cuenta completa",
-      titulo: "Un terreno en Colastiné Norte",
-      html: `        <p>
-          A 15,80 m IGN, y a 11 km del puerto:
-        </p>
-        <table class="cuenta">
-          <tr><td>Cota del terreno</td><td>15,80 m</td></tr>
-          <tr><td>Margen de las curvas</td><td>− 0,50 m</td></tr>
-          <tr><td>Cero del hidrómetro</td><td>− 8,20 m</td></tr>
-          <tr><td>Pendiente: 11 km × 0,045</td><td>− 0,50 m</td></tr>
-          <tr class="total"><td>Tu umbral estimado</td><td>6,61 m</td></tr>
-        </table>
-        <p style="margin-top:20px">
-          La app lo muestra como <b>≈ 6,6 m</b>: la cota del terreno viene de
-          curvas cada 0,5 m, y más decimales serían una precisión que el dato no
-          tiene. El desglose conserva la cuenta exacta; la pantalla, no.
         </p>
         <p>
-          Con el récord histórico en 7,43 m, en 1992 el río pasó ese umbral
-          <b>82 centímetros antes</b> del pico. Y queda bastante por encima de la
-          alerta oficial de 5,30 m, así que cuando la ciudad entra en alerta a
-          esa casa todavía le queda margen. Ese es el punto: el número que te
-          toca no es el que sale en las noticias.
+          La concordancia es muy buena, pero es <b>una sola validación
+          independiente</b>, en dos puntos de una única crecida. El modelo
+          todavía requiere revisión de especialistas y organismos competentes
+          (Gestión de Riesgos, INA, FICH-UNL) antes de considerarse un modelo
+          predictivo de inundación.
         </p>`,
     },
     {
@@ -431,22 +558,21 @@ const htmlCota = pagina({
         </p>`,
     },
     {
-      oscuro: true,
+      borde: true,
       kicker: "Lo que este número no sabe",
+      kickerAlerta: true,
       titulo: "Honestidad también acá",
       html: `        <p>
-          El umbral es una referencia hidráulica estimada, no una predicción. El
-          modelo coincide bien con la crecida de 1992 — el único caso usado como
-          control: una sola validación no lo convierte en modelo predictivo, y
-          todavía falta la revisión de especialistas y organismos competentes.
+          El umbral es una referencia hidráulica estimada, no una predicción. No
+          sabe si hay defensas, terraplenes o bombeo entre el río y tu barrio,
+          ni cuánto llueve encima: el agua puede llegar antes por desagüe, o no
+          llegar si las defensas resisten.
         </p>
         <p>
           Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
           pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
           metro de altura. Tampoco sabe si tu terreno está elevado sobre la
-          vereda, si la casa tiene escalones, ni si hay defensas, terraplenes o
-          bombeo entre el río y tu barrio: el agua puede llegar antes por
-          desagüe.
+          vereda ni si la casa tiene escalones.
         </p>
         <p>
           El número que vale de verdad es el de un relevamiento topográfico, la
@@ -674,6 +800,230 @@ const htmlPreguntas = pagina({
   ],
 });
 
+/* ---------- /charlas ----------
+   Cada dato de acá —evento, año, duración— está verificado contra la ficha de
+   ted.com, no copiado de un borrador. Dos salieron distintos de lo que decía
+   el diseño: la de Vicki Arroyo es de TEDGlobal, no de TED a secas, y la de
+   Kongjian Yu es de TEDxBoston 2022, no una charla TED sin fecha. La de Yu va
+   sin duración a propósito: no la pude confirmar en la fuente y no se inventa
+   un número para llenar un casillero. */
+const CHARLAS = [
+  {
+    tono: "peligro",
+    sello: "TEDx",
+    duracion: "9 min",
+    titulo: "Cómo dar un paso al frente ante un desastre",
+    ficha: "Caitria y Morgan O'Neill · TEDxBoston, 2012",
+    original: "How to step up in the face of disaster",
+    url: "https://www.ted.com/talks/caitria_morgan_o_neill_how_to_step_up_in_the_face_of_disaster",
+    texto:
+      "Dos hermanas de 20 y 24 años organizaron la recuperación de su pueblo tras un tornado y convirtieron lo aprendido en un sistema para cualquier comunidad. Es la charla más cercana al espíritu de Cota Cero: los vecinos no reemplazan a las autoridades — se preparan para ayudarlas mejor.",
+  },
+  {
+    tono: "peligro",
+    sello: "TEDx",
+    duracion: "Charla",
+    titulo: "Sabemos cómo salvar vidas en un desastre: ¿por qué no lo hacemos?",
+    ficha: "Sarah Tuneberg · TEDxMileHigh, 2019",
+    original: "We know how to save lives in disasters - why don't we?",
+    url: "https://www.ted.com/talks/sarah_tuneberg_why_we_need_to_invest_in_data_driven_disaster_mitigation",
+    texto:
+      "Llamar «naturales» a las inundaciones, los incendios y las olas de calor tapa la responsabilidad humana y nos deja a todos libres de culpa. Su punto es incómodo y es el correcto: lo que falta no es saber cómo evitar muertes, sino decidir invertir en evitarlas. De toda la lista, es la que queda más cerca de 2003.",
+  },
+  {
+    tono: "alerta",
+    sello: "TED",
+    duracion: "15 min",
+    titulo: "Preparémonos para nuestro nuevo clima",
+    ficha: "Vicki Arroyo · TEDGlobal, 2012",
+    original: "Let's prepare for our new climate",
+    url: "https://www.ted.com/talks/vicki_arroyo_let_s_prepare_for_our_new_climate",
+    texto:
+      "Adaptación en serio: casas y ciudades preparadas para más inundaciones y más incertidumbre, con ejemplos concretos de todo el mundo — incluida Nueva Orleans, su ciudad. El argumento de fondo es el de esta app: prepararse antes cuesta mucho menos que reconstruir después.",
+  },
+  {
+    tono: "agua",
+    sello: "TEDx",
+    duracion: "Charla",
+    titulo: "Ciudades esponja, planeta esponja",
+    ficha: "Kongjian Yu · TEDxBoston, 2022",
+    original: "Sponge City and Sponge Planet",
+    url: "https://www.ted.com/talks/kongjian_yu_sponge_city_and_sponge_planet",
+    texto:
+      "El paisajista que convenció a más de 200 ciudades de dejar de pelear contra el agua y absorberla con parques, humedales y suelo permeable. Ilumina justo lo que el modelo de Cota Cero declara no saber: el drenaje urbano y las defensas deciden tanto como el nivel del río.",
+  },
+  {
+    tono: "agua",
+    sello: "TED",
+    duracion: "13 min",
+    titulo: "Cómo convertir ciudades que se hunden en paisajes contra la inundación",
+    ficha: "Kotchakorn Voraakhom · TEDWomen, 2018",
+    original: "How to transform sinking cities into landscapes that fight floods",
+    url: "https://www.ted.com/talks/kotchakorn_voraakhom_how_to_transform_sinking_cities_into_landscapes_that_fight_floods",
+    texto:
+      "Bangkok se hunde en su propio delta y esta paisajista construyó ahí un parque que retiene un millón de galones de lluvia. Misma idea que la de Yu, pero desde una ciudad de delta del sur global: terreno blando, río grande y presupuesto real.",
+  },
+  {
+    tono: "ok",
+    sello: "TED",
+    duracion: "5 min",
+    titulo: "El año en que los datos abiertos se hicieron globales",
+    ficha: "Tim Berners-Lee · TED University, 2010",
+    original: "The year open data went worldwide",
+    url: "https://www.ted.com/talks/tim_berners_lee_the_year_open_data_went_worldwide",
+    texto:
+      "El inventor de la web muestra qué pasa cuando gobiernos e instituciones liberan sus datos crudos — incluido el mapeo voluntario de Haití en OpenStreetMap tras el terremoto. Cota Cero existe exactamente por eso: el INA, el IGN y el municipio publican; nosotros sólo conectamos.",
+  },
+];
+
+/* Escrito con palabras y no con un número: "Seis charlas" en un lead y luego
+   siete en la lista es el clásico literal que se desincroniza de los datos. */
+const NUMERO_CHARLAS =
+  ["Cero", "Una", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho"][
+    CHARLAS.length
+  ] || String(CHARLAS.length);
+
+const htmlCharlas = pagina({
+  ruta: "/charlas",
+  titulo: "Charlas para seguir pensando — Cota Cero",
+  descripcion:
+    "Charlas TED y TEDx sobre las ideas detrás de Cota Cero: prepararse antes de la emergencia, organizarse entre vecinos, convivir con el agua y abrir los datos públicos.",
+  migaja: "Charlas",
+  chip: "Para seguir pensando",
+  h1: "Charlas que explican por qué existe esta app",
+  lead:
+    NUMERO_CHARLAS +
+    " charlas TED y TEDx, cortas y gratuitas, sobre las ideas detrás de " +
+    "Cota Cero: prepararse antes, organizarse entre vecinos, convivir con el " +
+    "agua y abrir los datos.",
+  jsonld: {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Charlas para seguir pensando — Cota Cero",
+    numberOfItems: CHARLAS.length,
+    itemListElement: CHARLAS.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: c.url,
+      name: c.original,
+    })),
+  },
+  bloques: [],
+  sueltos: [
+    `      <section class="charlas">
+${CHARLAS.map(
+  (c) => `        <a class="charla t-${c.tono}" href="${c.url}" target="_blank" rel="noopener">
+          <span class="sello">
+            <span class="s">${esc(c.sello)}</span>
+            <span class="t">${esc(c.duracion)}</span>
+          </span>
+          <span class="cuerpo">
+            <span class="tit">${esc(c.titulo)}</span>
+            <span class="ficha">${esc(c.ficha)} · «${esc(c.original)}»</span>
+            <span class="txt">${esc(c.texto)}</span>
+          </span>
+        </a>`,
+).join("\n")}
+      </section>`,
+  ],
+  bloquesFinales: [
+    {
+      borde: true,
+      html: `        <p class="chico" style="margin:0">
+          Están todas en inglés y son gratuitas: en ted.com el botón de
+          subtítulos muestra los idiomas disponibles de cada una. Ninguna habla
+          de Santa Fe — están acá porque explican mejor que nosotros por qué una
+          herramienta como ésta tiene sentido. ¿Conocés una charla que debería
+          estar en esta lista? Mandala por el formulario de sugerencias de la
+          app.
+        </p>`,
+    },
+  ],
+});
+
+/* ---------- /para-medios ----------
+   La página que explica el widget. El widget en sí vive en /widget y es lo
+   único del sitio que se deja embeber: su CSP lleva frame-ancestors *, y esa
+   regla va después del comodín en vercel.json porque gana la última. */
+const CODIGO_WIDGET = `<iframe src="${SITIO}/widget"
+  width="100%" height="220" loading="lazy"
+  style="border:0;border-radius:16px"
+  title="Nivel del río en el Puerto de Santa Fe — Cota Cero"></iframe>`;
+
+const CONDICIONES = [
+  "No recortes el crédito: «Datos: INA · vía Cota Cero» es la trazabilidad del número que estás publicando. Sin eso, tu lector no puede ir a la fuente.",
+  "El widget muestra el nivel oficial y los umbrales oficiales — no umbrales personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.",
+  "En emergencia mandan las autoridades: si Defensa Civil comunica algo distinto de lo que dice el widget, vale lo de Defensa Civil.",
+];
+
+const htmlMedios = pagina({
+  ruta: "/para-medios",
+  titulo: "Widget del nivel del río para medios — Cota Cero",
+  descripcion:
+    "Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe, la tendencia y los umbrales oficiales. Dos líneas de HTML, sin claves de API, sin cookies y sin rastreo de tus lectores.",
+  migaja: "Widget para medios",
+  script: "/medios.js",
+  chip: "Para medios y sitios",
+  h1: "El río, embebido en tu nota",
+  lead:
+    "Un widget gratuito con el nivel del hidrómetro del Puerto, la tendencia y " +
+    "los umbrales oficiales, siempre actualizado. Pegás dos líneas de HTML y tu " +
+    "nota sobre el río queda viva. Sin claves de API, sin cookies, sin rastreo " +
+    "de tus lectores.",
+  jsonld: null,
+  bloques: [
+    {
+      kicker: "Así se ve",
+      titulo: "Claro y noche, del ancho que quieras",
+      html: `        <p>
+          No son capturas: los dos son el widget de verdad, leyendo el reporte
+          del INA ahora mismo.
+        </p>
+        <div class="muestras-widget">
+          <div>
+            <iframe src="/widget" title="Widget de Cota Cero, tema claro" loading="lazy"></iframe>
+            <p class="chico">Tema claro — así viene por defecto</p>
+          </div>
+          <div>
+            <iframe src="/widget?tema=noche" title="Widget de Cota Cero, tema noche" loading="lazy"></iframe>
+            <p class="chico">Tema noche — agregale <code>?tema=noche</code></p>
+          </div>
+        </div>`,
+    },
+    {
+      kicker: "El código",
+      titulo: "Copiá, pegá, listo",
+      html: `        <div class="caja-codigo">
+          <button type="button" class="btn sec" id="copiar-widget" hidden>Copiar</button>
+          <pre id="codigo-widget">${esc(CODIGO_WIDGET)}</pre>
+        </div>
+        <div class="rejilla-2" style="margin-top:16px">
+          <div class="mini-tarjeta">
+            <b>Alto recomendado: 220 px</b>
+            <p>El ancho es fluido: ocupa el de tu columna. Abajo de 380 px el pie se reacomoda solo.</p>
+          </div>
+          <div class="mini-tarjeta">
+            <b>Se actualiza solo</b>
+            <p>Con la lectura diaria del INA. Si el dato envejece, el widget muestra su fecha y lo dice — nunca inventa un número.</p>
+          </div>
+        </div>`,
+    },
+    {
+      oscuro: true,
+      kicker: "Tres condiciones",
+      titulo: "Gratis, con reglas simples",
+      html: `        <ol class="condiciones">
+${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
+        </ol>
+        <p class="chico" style="margin-top:20px">
+          ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
+          Escribinos por el <a href="/app?ir=ajustes">formulario de sugerencias</a>
+          de la app: a prensa contestamos rápido.
+        </p>`,
+    },
+  ],
+});
+
 /* ---------- /legal ---------- */
 const LICENCIAS = [
   ["MapLibre GL JS", "Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app."],
@@ -830,6 +1180,8 @@ for (const [ruta, html] of [
   ["datos", htmlDatos],
   ["preguntas", htmlPreguntas],
   ["legal", htmlLegal],
+  ["charlas", htmlCharlas],
+  ["para-medios", htmlMedios],
 ]) {
   await mkdir(join(RAIZ, ruta), { recursive: true });
   await writeFile(join(RAIZ, ruta, "index.html"), html);

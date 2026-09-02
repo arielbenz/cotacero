@@ -128,6 +128,15 @@
     contrast(0.9);
   --filtro-iconos-mapa: invert(1) brightness(0.92);
 
+  /* ---- medidas del sitio ----
+     Dos anchos y nada más. La cabecera y el pie usan el de sitio en TODAS las
+     páginas, así la marca arranca en la misma vertical se venga de donde se
+     venga; el cuerpo de las páginas de contenido usa el de lectura, que es más
+     angosto porque son para leer, no para recorrer. Van como variables para
+     que no haya dos números sueltos que se desincronicen. */
+  --ancho-sitio: 1100px;
+  --ancho-lectura: 880px;
+
   /* ---- escalas ---- */
   --t-hero: 64px; /* el número del hidrómetro */
   --t-display: 44px; /* h1 de landing y páginas, sólo en escritorio */
@@ -1273,14 +1282,15 @@ input[type="range"] {
    mismo sistema de tokens y sin pestañas.
    ========================================================================== */
 .ancho {
-  max-width: 1140px;
+  max-width: var(--ancho-sitio);
   margin: 0 auto;
   padding: 0 var(--e-5);
 }
 /* Las páginas de contenido usan una medida más angosta que la portada: son
-   para leer, no para recorrer. */
+   para leer, no para recorrer. La cabecera y el pie no la usan — ver
+   .pie-envoltura y el nav, que van siempre al ancho de sitio. */
 .ancho.angosto {
-  max-width: 880px;
+  max-width: var(--ancho-lectura);
 }
 
 /* ---------- cabecera de página ---------- */
@@ -1355,6 +1365,350 @@ input[type="range"] {
 .bloque table:last-child {
   margin-bottom: 0;
 }
+
+/* ---------- widget para medios ----------
+   Las dos muestras son el widget de verdad en un iframe, no capturas: si el
+   widget se rompe, se rompe a la vista en su propia página de documentación. */
+.muestras-widget {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-4);
+  margin-top: var(--e-4);
+}
+.muestras-widget iframe {
+  display: block;
+  width: 100%;
+  /* El mismo alto que recomienda el código de más abajo. Sin esto el iframe
+     cae al alto por defecto de 150 px y las muestras salen recortadas justo
+     por el pie, que es donde va el crédito. */
+  height: 220px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+}
+.muestras-widget .chico {
+  margin: var(--e-2) 0 0;
+  text-align: center;
+}
+.caja-codigo {
+  position: relative;
+  border-radius: var(--r-m);
+  background: var(--fondo-invertido);
+  padding: var(--e-5);
+}
+.caja-codigo pre {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  line-height: 1.6;
+  color: var(--texto-invertido);
+  /* El bloque tiene que poder seleccionarse a mano: el botón de copiar es una
+     comodidad, no el único camino. */
+  white-space: pre;
+}
+/* El botón va sobre la caja oscura, así que no puede usar el estilo
+   secundario: quedaba gris sobre negro y no se veía. */
+.caja-codigo .btn {
+  position: absolute;
+  top: var(--e-4);
+  right: var(--e-4);
+  width: auto;
+  min-height: 38px;
+  padding: 0 var(--e-4);
+  font-size: var(--t-s);
+  background: var(--agua-clara);
+  color: #0e1619;
+  border: none;
+}
+/* Las condiciones de uso, numeradas: son tres y se citan por número cuando
+   alguien pregunta. */
+.condiciones {
+  counter-reset: cond;
+  list-style: none;
+  margin: var(--e-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.condiciones li {
+  counter-increment: cond;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: var(--e-4);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  line-height: 1.6;
+}
+.condiciones li::before {
+  content: counter(cond);
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--acento);
+}
+
+/* ---------- charlas ----------
+   Cada charla es una ficha con el sello a la izquierda —TED o TEDx y cuánto
+   dura— y el texto a la derecha. El tinte del sello no decora: agrupa las
+   charlas por tema —responsabilidad, adaptación, agua, datos— en la misma
+   paleta funcional que usa el resto de la app, así que dos fichas del mismo
+   color se leen juntas. */
+.charlas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+}
+.charla {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--e-5);
+  align-items: start;
+  padding: var(--e-5);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  color: var(--texto);
+  text-decoration: none;
+}
+.charla .sello {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-1);
+  min-height: 96px;
+  padding: var(--e-4) var(--e-2);
+  border-radius: var(--r-m);
+  text-align: center;
+}
+.charla .sello .s {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.charla .sello .t {
+  font-weight: 800;
+  font-size: var(--t-l);
+  line-height: 1.1;
+}
+.charla.t-peligro .sello {
+  background: var(--peligro-tinte);
+  color: var(--peligro-texto);
+}
+.charla.t-alerta .sello {
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+}
+.charla.t-agua .sello {
+  background: var(--agua-tinte);
+  color: var(--acento);
+}
+.charla.t-ok .sello {
+  background: var(--ok-tinte);
+  color: var(--ok-texto);
+}
+.charla .cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  min-width: 0;
+}
+.charla .tit {
+  font-weight: 800;
+  font-size: var(--t-l);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.charla .ficha {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.charla .txt {
+  line-height: 1.6;
+  color: var(--tenue);
+}
+@media (hover: hover) {
+  .charla:hover {
+    background: var(--panel-2);
+  }
+  .charla:hover .tit {
+    color: var(--acento);
+  }
+}
+
+/* ---------- la lista de puntos de encuentro ----------
+   Treinta renglones de texto corrido no se recorren con el pulgar y menos
+   apurado. Van como tarjetas de dos columnas, con el número en un cuadrado
+   oscuro: el número es lo que se dice por teléfono («andá al 14») y lo que
+   coincide con los pines del mapa de la app. */
+.pg-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-3);
+  margin: var(--e-5) 0 0;
+}
+.pg-acciones .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+.grupo-puntos {
+  margin: var(--e-6) 0 var(--e-4);
+  font-size: var(--t-l);
+  color: var(--acento);
+}
+.grupo-puntos:first-child {
+  margin-top: var(--e-4);
+}
+.rejilla-puntos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rejilla-puntos a.punto {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: var(--e-4);
+  align-items: center;
+  height: 100%;
+  padding: var(--e-4);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  color: var(--texto);
+  text-decoration: none;
+}
+.rejilla-puntos .np {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-s);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  /* En sans y no en mono: el cero de JetBrains lleva punto adentro y a 13 px
+     un "20" se lee "28". Acá el número es cómo se nombra el punto por
+     teléfono, así que no puede prestarse a confusión. */
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-s);
+}
+.rejilla-puntos .txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.rejilla-puntos .n {
+  font-weight: 700;
+  line-height: 1.25;
+}
+.rejilla-puntos .d {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+@media (hover: hover) {
+  .rejilla-puntos a.punto:hover {
+    background: var(--panel-2);
+  }
+}
+/* Los tres teléfonos, al final de la lista: es lo que hace falta cuando ya se
+   eligió a dónde ir. */
+.telefonos-emergencia {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-5);
+  margin-top: var(--e-6);
+  padding: var(--e-6);
+  border-radius: var(--r-l);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+}
+.telefonos-emergencia b {
+  display: block;
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  color: var(--agua-clara);
+  font-variant-numeric: tabular-nums;
+}
+.telefonos-emergencia span {
+  display: block;
+  margin-top: var(--e-1);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+
+/* ---------- el cálculo, paso a paso ----------
+   La página del cálculo se lee como una cuenta hecha a mano: cada paso es su
+   propia tarjeta, con el número al costado y el valor del ejemplo en una
+   pastilla al pie. Antes era prosa corrida con kickers, y la cuenta —que es lo
+   único que la persona vino a buscar— quedaba escondida adentro del texto. */
+.paso {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--e-5);
+  align-items: start;
+}
+/* Escrito con las dos clases a propósito: `.bloque h2` mide lo mismo y gana
+   por orden, no por especificidad, que es de dónde salieron los últimos tres
+   bugs de cascada de esta hoja. */
+.bloque.paso h2 {
+  font-size: var(--t-l);
+  margin: 0 0 var(--e-3);
+}
+.paso > div > *:last-child {
+  margin-bottom: 0;
+}
+/* La pastilla del ejemplo: etiqueta chica en mono y el número en grande, que
+   es lo que se busca cuando se recorre la página con el pulgar. */
+.dato-ejemplo {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--e-3);
+  margin: var(--e-4) 0 0;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+}
+.dato-ejemplo .k {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.dato-ejemplo .v {
+  font-weight: 800;
+  font-size: var(--t-l);
+  font-variant-numeric: tabular-nums;
+}
+/* El resultado, en la tarjeta oscura: el número que la página vino a dar.
+   Su kicker no va en naranja como el resto de los bloques oscuros: acá no hay
+   nada que advertir, es el resultado de una cuenta. */
+.bloque.oscuro.resultado .kicker {
+  color: var(--tenue-invertido);
+}
+.resultado .dato-grande {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.resultado .cuenta-chica {
+  margin: var(--e-3) 0 var(--e-5);
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
 .pg-cta {
   margin: var(--e-6) 0 var(--e-7);
 }
@@ -1385,7 +1739,7 @@ body.landing {
 .landing p {
   margin-bottom: var(--e-4);
 }
-.landing a:not(.btn):not(.lockup):not(.punto) {
+.landing a:not(.btn):not(.lockup):not(.punto):not(.charla) {
   color: var(--acento);
 }
 
@@ -1407,11 +1761,27 @@ body.landing {
   letter-spacing: -0.02em;
 }
 
+/* En las páginas de contenido la barra ocupa el ancho de sitio —la marca
+   arranca donde arranca en la portada— pero el botón de la derecha se alinea
+   con la columna de lectura, que es más angosta: si no, queda flotando 110 px
+   afuera del borde de las tarjetas y se lee como un descuido.
+
+   La cuenta: el borde derecho de la barra está en centro + ancho/2 y el de la
+   columna de lectura en centro + lectura/2, así que sobra (ancho − lectura)/2.
+   El porcentaje se resuelve contra el ancho del contenedor, de modo que 50% es
+   ancho/2 y la resta sale sola a cualquier tamaño de ventana; el max() la
+   apaga cuando la ventana es más angosta que la columna de lectura y las dos
+   medidas coinciden. En la portada no se aplica: ahí barra y contenido ya
+   miden lo mismo. */
+.ancho.alineado-lectura > .nav-sitio {
+  padding-right: max(0px, 50% - (var(--ancho-lectura) / 2 - var(--e-5)));
+}
+
 /* ---------- navegación del sitio ---------- */
 .nav-sitio {
   display: flex;
   align-items: center;
-  gap: var(--e-4);
+  gap: var(--e-5);
   padding: var(--e-6) 0;
   flex-wrap: wrap;
 }
@@ -1421,12 +1791,17 @@ body.landing {
   width: auto;
   padding: 0 var(--e-5);
   font-size: var(--t-s);
+  margin: 0;
 }
 .nav-enlaces {
-  margin-left: auto;
-  display: flex;
   align-items: center;
   gap: var(--e-5);
+}
+/* Ojo con esto: el display puesto por el autor sobre el hijo le gana al cierre
+   del <details>. Es justo lo que se aprovecha más abajo para el escritorio,
+   así que acá no puede ir de base o el panel queda abierto para siempre. */
+.nav-menu[open] > .nav-enlaces {
+  display: flex;
 }
 .nav-enlaces a:not(.btn) {
   font-weight: 600;
@@ -1434,6 +1809,79 @@ body.landing {
   color: var(--texto);
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* ---------- menú de teléfono ----------
+   Va con <details> y sin una línea de JavaScript, por lo mismo que el acordeón
+   de preguntas: un menú que depende de JS es un menú que un día no abre. Y de
+   paso entra en la CSP sin excepciones, que es estricta a propósito.
+
+   Antes de esto, abajo de 900 px los enlaces eran display:none a secas y no los
+   reemplazaba nada: en la portada desaparecían las cuatro secciones y en las
+   páginas de contenido, hasta el "volver". El teléfono se quedaba sin
+   navegación.
+
+   En escritorio el <details> no se ve: se esconde el botón y se fuerza el panel
+   a la vista aunque esté cerrado. Los navegadores esconden el contenido de dos
+   maneras distintas —el display del slot, y ::details-content en los más
+   nuevos— así que se desarman las dos. La regla de ::details-content va sola:
+   donde no se entiende, se descarta y alcanza con la otra. */
+.nav-menu {
+  margin-left: auto;
+}
+.nav-menu > summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+}
+.nav-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.nav-burger {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  position: relative;
+}
+.nav-burger::before,
+.nav-burger::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.nav-burger::before {
+  top: -6px;
+}
+.nav-burger::after {
+  top: 6px;
+}
+/* Abierto, las tres rayas se cruzan: el mismo control cierra lo que abrió. */
+.nav-menu[open] > summary .nav-burger {
+  background: transparent;
+}
+.nav-menu[open] > summary .nav-burger::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+.nav-menu[open] > summary .nav-burger::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nav-burger,
+  .nav-burger::before,
+  .nav-burger::after {
+    transition:
+      transform var(--mov),
+      top var(--mov),
+      background var(--mov);
+  }
 }
 .chip-borde {
   padding: 5px 10px;
@@ -1443,6 +1891,16 @@ body.landing {
   font-size: var(--t-xs);
   letter-spacing: 0.05em;
   color: var(--tenue);
+}
+
+@media (min-width: 901px) {
+  .nav-menu > .nav-enlaces {
+    display: flex !important;
+  }
+  .nav-menu::details-content {
+    content-visibility: visible;
+    display: contents;
+  }
 }
 
 /* ---------- hero ---------- */
@@ -1810,12 +2268,22 @@ body.landing {
 }
 
 /* ---------- pie del sitio ---------- */
+/* La línea que separa el pie va de borde a borde de la ventana, no del
+   contenedor: es el corte entre la página y el pie, y cortada a 1100 px parece
+   el borde de una tarjeta. Por eso el borde vive en la envoltura, que es ancho
+   completo, y el contenido del pie se centra adentro. */
+.pie-envoltura {
+  border-top: 1.5px solid var(--linea);
+}
 .pie-sitio {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  /* La marca se lleva la mitad y las dos listas se van a la derecha: con
+     1.4fr el aire se juntaba todo al final, después de la última columna. */
+  grid-template-columns: 2fr 1fr 1fr;
   gap: var(--e-7);
-  border-top: 1.5px solid var(--linea);
-  padding: var(--e-7) 0;
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: var(--e-7) var(--e-5);
 }
 .pie-sitio > div {
   display: flex;
@@ -2262,9 +2730,15 @@ html.texto-grande {
   .pie-simple {
     grid-template-columns: 1fr;
   }
+  /* Tercera vez que muerde el mismo bug de cascada, así que queda anotado: la
+     caja de cierre se define como `.landing .cta`, y una consulta de medios NO
+     suma especificidad. Escrito `.cta` a secas, este override perdía 0-1-0
+     contra 0-2-0 y la sección se quedaba en dos columnas en el teléfono: el
+     título partido en siete renglones de una palabra al lado de un botón. El
+     selector de acá tiene que ser tan específico como el de la definición. */
   .hero,
   .dosc,
-  .cta {
+  .landing .cta {
     grid-template-columns: 1fr;
     gap: var(--e-6);
   }
@@ -2284,8 +2758,47 @@ html.texto-grande {
   .bajada {
     font-size: var(--t-m);
   }
-  .nav-enlaces a:not(.btn) {
-    display: none;
+  .nav-sitio {
+    position: relative;
+    row-gap: var(--e-3);
+  }
+  .nav-menu > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: -4px 0;
+    border-radius: var(--r-m);
+    color: var(--texto);
+  }
+  .nav-menu > summary:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+  }
+  /* El panel cuelga de la barra en vez de empujar la página: abrir el menú no
+     tiene por qué mover el contenido que la persona estaba mirando. */
+  .nav-menu > .nav-enlaces {
+    position: absolute;
+    top: calc(100% - var(--e-4));
+    right: 0;
+    min-width: 220px;
+    z-index: 5;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--e-2);
+    border-radius: var(--r-m);
+    background: var(--panel);
+    box-shadow: var(--sombra);
+  }
+  .nav-menu > .nav-enlaces a:not(.btn) {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--e-4);
+    border-radius: var(--r-s);
+    font-size: var(--t-base);
   }
   .landing .franja-oscura,
   .landing .cta {
@@ -2296,10 +2809,18 @@ html.texto-grande {
   }
 }
 @media (max-width: 560px) {
+  /* Los hitos y las tres tarjetas son párrafos: en dos columnas de 170 px el
+     texto reflota y no se gana nada, así que van apilados. Las métricas son un
+     número y un renglón corto — ahí dos columnas ahorran media pantalla. */
   .hitos,
-  .tres,
-  .metricas {
+  .tres {
     grid-template-columns: 1fr;
+  }
+  .metricas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .nav-sitio {
+    padding: var(--e-4) 0;
   }
   /* 420 px de mapa en un teléfono son media pantalla de un elemento que es
      ilustrativo: la lista completa está a un toque. */
@@ -2309,20 +2830,125 @@ html.texto-grande {
   .pg-cabecera {
     padding: var(--e-5) 0 var(--e-4);
   }
-  .pg-cta .btn,
-  .nav-sitio .btn {
+  .pg-cta .btn {
     width: 100%;
   }
   .nav-sitio {
-    gap: var(--e-2);
+    gap: var(--e-3);
   }
-  .nav-enlaces {
-    width: 100%;
+  /* Con el menú al lado, el botón entra en la misma fila que la marca: una
+     barra de teléfono normal en vez de dos renglones. */
+  .nav-sitio .btn {
+    width: auto;
+    padding: 0 var(--e-4);
+  }
+  .nav-sitio .chip-borde {
+    display: none;
   }
   .hero-botones .btn,
   .dosc .btn,
   .cta .btn {
     width: 100%;
+  }
+
+  /* ---------- apretar el aire en el teléfono ----------
+     El escritorio puede gastar 40 px entre secciones porque los ve de reojo;
+     en una pantalla de 844 px ese mismo aire son siete pantallas y media de
+     scroll. Se achica el espaciado y la escala tipográfica, no el contenido:
+     todo lo que se leía se sigue leyendo, con menos dedo. */
+  .landing section {
+    padding: var(--e-5) 0;
+  }
+  .landing h2 {
+    font-size: var(--t-xl);
+    margin: var(--e-2) 0 var(--e-4);
+  }
+  .landing p {
+    margin-bottom: var(--e-3);
+  }
+  .landing .bloque {
+    padding: var(--e-4);
+    margin-bottom: var(--e-4);
+  }
+  .bloque h2 {
+    font-size: var(--t-l);
+    margin: var(--e-2) 0 var(--e-3);
+  }
+  .muestras-widget {
+    grid-template-columns: 1fr;
+  }
+  .caja-codigo .btn {
+    position: static;
+    display: block;
+    margin-bottom: var(--e-4);
+  }
+  .charla {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+  }
+  /* El sello pasa a ser una pastilla horizontal: en una columna de 350 px un
+     cuadrado de 96 px al costado le come un tercio del ancho al texto. */
+  .charla .sello {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--e-3);
+    min-height: 0;
+    /* En el teléfono la ficha es una grilla de una sola columna: sin
+       justify-self la pastilla se estira de lado a lado. */
+    justify-self: start;
+    padding: var(--e-2) var(--e-4);
+    border-radius: var(--r-full);
+  }
+  .charla .sello .t {
+    font-size: var(--t-base);
+  }
+  .charla .tit {
+    font-size: var(--t-m);
+  }
+  .rejilla-puntos {
+    grid-template-columns: 1fr;
+  }
+  .telefonos-emergencia {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+    padding: var(--e-5);
+  }
+  .paso {
+    grid-template-columns: 32px 1fr;
+    gap: var(--e-4);
+  }
+  .paso .numerito {
+    width: 32px;
+    height: 32px;
+  }
+  .bloque.paso h2 {
+    font-size: var(--t-m);
+  }
+  .resultado .dato-grande {
+    font-size: var(--t-xxl);
+  }
+  .landing .franja-oscura,
+  .landing .cta {
+    padding: var(--e-5) var(--e-4);
+  }
+  .hero {
+    padding: var(--e-5) 0 var(--e-6);
+    gap: var(--e-5);
+  }
+  .hero-botones {
+    margin: var(--e-5) 0 var(--e-3);
+  }
+  .hitos,
+  .tres,
+  .metricas {
+    gap: var(--e-3);
+  }
+  .pie-sitio {
+    gap: var(--e-5);
+    padding-bottom: var(--e-6);
+  }
+  .pg-cta {
+    margin: var(--e-5) 0 var(--e-6);
   }
 }
 

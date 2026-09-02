@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Widget del nivel del río para medios — Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/para-medios" />
+    <meta name="description" content="Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe, la tendencia y los umbrales oficiales. Dos líneas de HTML, sin claves de API, sin cookies y sin rastreo de tus lectores." />
+    <meta name="theme-color" content="#0B1418" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Widget del nivel del río para medios — Cota Cero" />
+    <meta property="og:description" content="Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe, la tendencia y los umbrales oficiales. Dos líneas de HTML, sin claves de API, sin cookies y sin rastreo de tus lectores." />
+    <meta property="og:image" content="https://cotacerosf.com/og.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/para-medios" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Cota Cero",
+            "item": "https://cotacerosf.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Widget para medios",
+            "item": "https://cotacerosf.com/para-medios"
+          }
+        ]
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/app.css" />
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/medios.js"></script>
+  </head>
+  <body class="landing">
+    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
+         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
+         ése es para leer y se queda en la medida angosta. -->
+    <div class="ancho alineado-lectura">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/">← Volver a la portada</a>
+          </div>
+        </details>
+        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+      </nav>
+    </div>
+
+    <div class="ancho angosto">
+      <header class="pg-cabecera">
+        <p class="chip-tinte">Para medios y sitios</p>
+        <h1>El río, embebido en tu nota</h1>
+        <p class="pg-lead">Un widget gratuito con el nivel del hidrómetro del Puerto, la tendencia y los umbrales oficiales, siempre actualizado. Pegás dos líneas de HTML y tu nota sobre el río queda viva. Sin claves de API, sin cookies, sin rastreo de tus lectores.</p>
+      </header>
+
+      <main>
+      <section class="bloque">
+        <p class="kicker">Así se ve</p>
+        <h2>Claro y noche, del ancho que quieras</h2>
+        <p>
+          No son capturas: los dos son el widget de verdad, leyendo el reporte
+          del INA ahora mismo.
+        </p>
+        <div class="muestras-widget">
+          <div>
+            <iframe src="/widget" title="Widget de Cota Cero, tema claro" loading="lazy"></iframe>
+            <p class="chico">Tema claro — así viene por defecto</p>
+          </div>
+          <div>
+            <iframe src="/widget?tema=noche" title="Widget de Cota Cero, tema noche" loading="lazy"></iframe>
+            <p class="chico">Tema noche — agregale <code>?tema=noche</code></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <p class="kicker">El código</p>
+        <h2>Copiá, pegá, listo</h2>
+        <div class="caja-codigo">
+          <button type="button" class="btn sec" id="copiar-widget" hidden>Copiar</button>
+          <pre id="codigo-widget">&lt;iframe src=&quot;https://cotacerosf.com/widget&quot;
+  width=&quot;100%&quot; height=&quot;220&quot; loading=&quot;lazy&quot;
+  style=&quot;border:0;border-radius:16px&quot;
+  title=&quot;Nivel del río en el Puerto de Santa Fe — Cota Cero&quot;&gt;&lt;/iframe&gt;</pre>
+        </div>
+        <div class="rejilla-2" style="margin-top:16px">
+          <div class="mini-tarjeta">
+            <b>Alto recomendado: 220 px</b>
+            <p>El ancho es fluido: ocupa el de tu columna. Abajo de 380 px el pie se reacomoda solo.</p>
+          </div>
+          <div class="mini-tarjeta">
+            <b>Se actualiza solo</b>
+            <p>Con la lectura diaria del INA. Si el dato envejece, el widget muestra su fecha y lo dice — nunca inventa un número.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque oscuro">
+        <p class="kicker">Tres condiciones</p>
+        <h2>Gratis, con reglas simples</h2>
+        <ol class="condiciones">
+          <li>No recortes el crédito: «Datos: INA · vía Cota Cero» es la trazabilidad del número que estás publicando. Sin eso, tu lector no puede ir a la fuente.</li>
+          <li>El widget muestra el nivel oficial y los umbrales oficiales — no umbrales personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.</li>
+          <li>En emergencia mandan las autoridades: si Defensa Civil comunica algo distinto de lo que dice el widget, vale lo de Defensa Civil.</li>
+        </ol>
+        <p class="chico" style="margin-top:20px">
+          ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
+          Escribinos por el <a href="/app?ir=ajustes">formulario de sugerencias</a>
+          de la app: a prensa contestamos rápido.
+        </p>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+    </div>
+
+    <div class="pie-envoltura">
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+          <p class="chip-tel">Emergencias <b>103</b></p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu umbral</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefectura-naval-argentina" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

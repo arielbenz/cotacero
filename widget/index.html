@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nivel del río en el Puerto de Santa Fe — Cota Cero</title>
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="light dark" />
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta-800.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      /* El widget no usa app.css: son 60 KB para una tarjeta de 220 px de
+         alto, y esto se embebe en el sitio de otro. Paleta propia, chica, con
+         los mismos valores que la app para que se vean como lo mismo. */
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        src: url("/vendor/fonts/jakarta-500.woff2") format("woff2");
+        font-weight: 500;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        src: url("/vendor/fonts/jakarta-700.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        src: url("/vendor/fonts/jakarta-800.woff2") format("woff2");
+        font-weight: 800;
+        font-display: swap;
+      }
+      :root {
+        --fondo: #ffffff;
+        --texto: #1b262c;
+        --tenue: #66747a;
+        --linea: rgba(27, 38, 44, 0.12);
+        --pista: rgba(27, 38, 44, 0.07);
+        --agua: #1f7a9e;
+        --acento: #1f7a9e;
+        --alerta: #cb430e;
+        --peligro: #ca442f;
+        --alerta-tinte: #ffefe3;
+        --ok: #2f7d62;
+      }
+      html[data-tema="noche"] {
+        --fondo: #17232a;
+        --texto: #e9eef0;
+        --tenue: #93a6ad;
+        --linea: rgba(233, 238, 240, 0.14);
+        --pista: rgba(233, 238, 240, 0.09);
+        --agua: #2e9bc4;
+        --acento: #5fc8e8;
+        --alerta: #e8a33d;
+        --peligro: #e15f49;
+        --alerta-tinte: rgba(232, 163, 61, 0.16);
+        --ok: #4fa88b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--fondo);
+        color: var(--texto);
+        font-family:
+          "Plus Jakarta Sans",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      .w {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px 18px;
+      }
+      .cab {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--tenue);
+      }
+      .cab svg {
+        flex: none;
+      }
+      .cab .fecha {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+        white-space: nowrap;
+      }
+      .pulso {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ok);
+      }
+      .pulso.viejo {
+        background: var(--alerta);
+      }
+      .fila {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .nivel {
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .unidad {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--tenue);
+      }
+      .delta {
+        margin-left: auto;
+        align-self: center;
+        padding: 4px 10px;
+        border-radius: 99px;
+        background: var(--alerta-tinte);
+        color: var(--alerta);
+        font-size: 12px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .delta[hidden] {
+        display: none;
+      }
+      /* La regla: 0 a 8 m, con el agua y las dos marcas oficiales. Es la misma
+         escala que usa la app, así el número del widget y el de la app se leen
+         en el mismo instrumento. */
+      .regla {
+        position: relative;
+        height: 12px;
+        border-radius: 99px;
+        background: var(--pista);
+        overflow: hidden;
+      }
+      .agua {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        border-radius: 99px;
+        background: var(--agua);
+      }
+      .marca {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+      }
+      .escala {
+        display: flex;
+        gap: 14px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--tenue);
+        font-variant-numeric: tabular-nums;
+      }
+      .escala .der {
+        margin-left: auto;
+        display: flex;
+        gap: 14px;
+      }
+      .escala .a {
+        color: var(--alerta);
+      }
+      .escala .e {
+        color: var(--peligro);
+      }
+      .pie {
+        display: flex;
+        align-items: baseline;
+        gap: 8px 16px;
+        flex-wrap: wrap;
+        padding-top: 10px;
+        border-top: 1px solid var(--linea);
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--tenue);
+      }
+      .pie b {
+        color: var(--texto);
+        font-weight: 700;
+      }
+      .pie .falta {
+        flex: 1;
+        min-width: 180px;
+      }
+      /* El crédito va entero y en una línea: es la condición 1 de /para-medios
+         y la trazabilidad del número que el medio está publicando. */
+      .pie .credito {
+        flex: none;
+        white-space: nowrap;
+      }
+      .pie a {
+        color: var(--acento);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .pie a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 380px) {
+        .pie {
+          flex-wrap: wrap;
+          gap: 6px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="w">
+      <div class="cab">
+        <svg width="16" height="16" viewBox="0 0 60 60" aria-hidden="true">
+          <defs>
+            <clipPath id="wm">
+              <rect x="0" y="33" width="60" height="27" />
+            </clipPath>
+          </defs>
+          <circle
+            cx="30"
+            cy="30"
+            r="21"
+            fill="var(--agua)"
+            clip-path="url(#wm)"
+          />
+          <circle
+            cx="30"
+            cy="30"
+            r="21"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="7"
+          />
+          <line
+            x1="2"
+            y1="33"
+            x2="58"
+            y2="33"
+            stroke="currentColor"
+            stroke-width="4.5"
+            stroke-linecap="round"
+          />
+        </svg>
+        Río en el Puerto de Santa Fe
+        <span class="fecha"
+          ><span class="pulso" id="pulso"></span><span id="fecha">—</span></span
+        >
+      </div>
+
+      <div class="fila">
+        <span class="nivel" id="nivel">—</span>
+        <span class="unidad">m</span>
+        <span class="delta" id="delta" hidden></span>
+      </div>
+
+      <div class="regla" role="img" aria-hidden="true">
+        <span class="agua" id="agua"></span>
+        <span
+          class="marca"
+          id="m-alerta"
+          style="background: var(--alerta)"
+        ></span>
+        <span
+          class="marca"
+          id="m-evac"
+          style="background: var(--peligro)"
+        ></span>
+      </div>
+      <div class="escala">
+        <span>0</span>
+        <span class="der"
+          ><span class="a">Alerta 5,30</span
+          ><span class="e">Evac. 5,70</span></span
+        >
+      </div>
+
+      <div class="pie">
+        <span class="falta" id="falta">Buscando el nivel del día…</span>
+        <span class="credito"
+          >Datos: <b>INA</b> ·
+          <a href="/" target="_blank" rel="noopener">vía Cota Cero →</a></span
+        >
+      </div>
+    </div>
+    <script src="/widget/widget.js" defer></script>
+  </body>
+</html>

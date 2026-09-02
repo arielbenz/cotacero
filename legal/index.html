@@ -45,7 +45,10 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <div class="ancho angosto">
+    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
+         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
+         ése es para leer y se queda en la medida angosta. -->
+    <div class="ancho alineado-lectura">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
@@ -56,12 +59,19 @@
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
-        <div class="nav-enlaces">
-          <a href="/">← Volver a la portada</a>
-          <a class="btn btn-oscuro" href="/app">Abrir la app</a>
-        </div>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/">← Volver a la portada</a>
+          </div>
+        </details>
+        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
       </nav>
+    </div>
 
+    <div class="ancho angosto">
       <header class="pg-cabecera">
         <h1>Legal</h1>
         <p class="pg-lead">Última actualización: agosto de 2026. Escrito para leerse, no para esconderse: si algo no se entiende, es un defecto — avisanos por el formulario de sugerencias.</p>
@@ -183,7 +193,9 @@
       </main>
 
       <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+    </div>
 
+    <div class="pie-envoltura">
       <footer class="pie-sitio">
         <div>
           <span class="lockup">
@@ -215,6 +227,8 @@
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
           <a href="/legal">Legal y privacidad</a>
         </div>
         <div>
