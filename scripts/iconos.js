@@ -93,7 +93,7 @@ try {
   ];
 
   for (const [nombre, an, al, fondo, trazo, agua, escala] of trabajos) {
-    const salida = join(RAIZ, nombre);
+    const salida = join(RAIZ, "img", nombre);
     await png(
       pagina({ ancho: an, alto: al, fondo, trazo, agua, escala }),
       an,
@@ -120,7 +120,7 @@ try {
 <div class="m">${marca({ id: "og", tam: 64, trazo: TINTA_CLARA, agua: AGUA_CLARA })}<span>Cota Cero</span></div>
 <h1>¿Hasta dónde llega<br>el agua en tu casa?</h1>
 <p>El nivel del río Paraná, traducido al número exacto que le toca a tu terreno. Santa Fe.</p>`;
-  await png(og, 1200, 630, join(RAIZ, "og.png"), perfil);
+  await png(og, 1200, 630, join(RAIZ, "img", "og.png"), perfil);
   console.log("  og.png".padEnd(26) + "1200×630");
 } finally {
   await rm(perfil, { recursive: true, force: true });

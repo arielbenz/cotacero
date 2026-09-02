@@ -50,7 +50,7 @@ const menosMovimiento = () =>
 
 async function arrancar() {
   try {
-    const r = await fetch("/datos/historia.json");
+    const r = await fetch("/datos-abiertos/historia.json");
     if (!r.ok) throw new Error("no está el archivo");
     H = await r.json();
   } catch (e) {

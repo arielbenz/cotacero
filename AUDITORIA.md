@@ -19,7 +19,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Nivel del río | `lib/ina.js` | INA, serie 30 | sí | todos los días | **sí, ahora** |
 | Alerta 5,30 m | estación INA | INA | sí | si el INA la corrige | **sí, ahora** |
 | Evacuación 5,70 m | estación INA | INA | sí | idem | **sí, ahora** |
-| Récord 7,43 m (1992) | `datos/historia.json` | INA, serie 30 | sí | si hay una crecida mayor | sí, al generar |
+| Récord 7,43 m (1992) | `datos-abiertos/historia.json` | INA, serie 30 | sí | si hay una crecida mayor | sí, al generar |
 | Aguas bajas 2,00 m | `lib/fuentes.js` | INA | sí | idem | sí (no se usa todavía) |
 | **Cero del hidrómetro 8,20 m** | `app.js` `CERO_IGN` | prensa + normativa local | **no** | **discutido — ver abajo** | no |
 | **Pendiente 0,045 m/km** | `app.js` `PENDIENTE` | derivada de un caso | **no** | **discutido — ver abajo** | no |

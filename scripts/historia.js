@@ -1,4 +1,4 @@
-// scripts/historia.js — genera datos/historia.json desde la API del INA.
+// scripts/historia.js — genera datos-abiertos/historia.json desde la API del INA.
 //
 //   node scripts/historia.js
 //
@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 import { ESTACION, ENDPOINTS } from "../lib/fuentes.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SALIDA = join(RAIZ, "datos", "historia.json");
+const SALIDA = join(RAIZ, "datos-abiertos", "historia.json");
 
 const URL_SERIE = `${ENDPOINTS.api}/${ESTACION.serieId}`;
 const URL_OBS = `${URL_SERIE}/observaciones?timestart=1900-01-01&timeend=2100-01-01`;
@@ -171,4 +171,4 @@ console.log("\nbajantes más hondas");
 for (const b of bajantes) console.log("  ", b[0], String(b[3]).padStart(5), b[4]);
 console.log("\nmediana de la serie diaria:", cuantiles[50], "m");
 console.log("tamaño      :", kb, "KB");
-console.log("escrito en  : datos/historia.json");
+console.log("escrito en  : datos-abiertos/historia.json");

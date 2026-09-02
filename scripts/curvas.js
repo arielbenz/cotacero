@@ -36,7 +36,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SALIDA = join(RAIZ, "datos", "curvas.json");
+const SALIDA = join(RAIZ, "datos-abiertos", "curvas.json");
 
 const URL_WFS =
   "https://geoserver.santafeciudad.gov.ar/geoserver/sitmax/ows" +
@@ -165,4 +165,4 @@ console.log(
 );
 console.log("área           : " + salida.area.join(", "));
 console.log("tamaño         : " + (bytes / 1024).toFixed(0) + " KB");
-console.log("escrito en     : datos/curvas.json");
+console.log("escrito en     : datos-abiertos/curvas.json");

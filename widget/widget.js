@@ -23,8 +23,8 @@ const dosDec = (v) => v.toFixed(2).replace(".", ",");
    se sabe si el sitio que lo embebe es claro u oscuro, y prefers-color-scheme
    respondería al sistema del lector, que es otra cosa. Lo elige quien embebe. */
 const params = new URLSearchParams(location.search);
-if (params.get("tema") === "noche")
-  document.documentElement.dataset.tema = "noche";
+if (params.get("tema") === "dark")
+  document.documentElement.dataset.tema = "dark";
 
 const pct = (v) => Math.max(0, Math.min(100, (v / ESCALA_MAX) * 100)) + "%";
 function marcarUmbrales() {

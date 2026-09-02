@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v40";
+const VERSION = "cota-cero-v41";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -22,8 +22,8 @@ const ESENCIALES = [
   "/index.html",
   "/app",
   "/app/index.html",
-  "/app.css",
-  "/app.js",
+  "/css/app.css",
+  "/js/app.js",
   // Con esto el mapa abre sin conexión. Los tiles no se cachean (son muchos
   // y pesados), así que sale el fondo liso, pero los 30 puntos se ven igual.
   "/vendor/maplibre-gl.js",
@@ -38,11 +38,11 @@ const ESENCIALES = [
   "/vendor/fonts/jetbrains-700.woff2",
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
-  "/datos/curvas.json",
+  "/datos-abiertos/curvas.json",
   "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/apple-touch-icon.png",
+  "/img/icon-192.png",
+  "/img/icon-512.png",
+  "/img/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (e) => {
@@ -369,8 +369,8 @@ self.addEventListener("push", (e) => {
       // permiso. Por eso siempre notificamos, aunque sea en genérico.
       return self.registration.showNotification(a.titulo, {
         body: a.cuerpo,
-        icon: "/icon-192.png",
-        badge: "/favicon-32.png",
+        icon: "/img/icon-192.png",
+        badge: "/img/favicon-32.png",
         lang: "es-AR",
         tag: "cota-cero-nivel", // reemplaza el aviso anterior, no los apila
         renotify: a.urgente,

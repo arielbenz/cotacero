@@ -135,7 +135,7 @@ function cargarMapLibre() {
     css.href = "/vendor/maplibre-gl.css";
     // Antes de app.css: si va después gana el cascade y los popups vuelven al
     // blanco de MapLibre en vez del tema del sitio.
-    const propio = document.querySelector('link[href="/app.css"]');
+    const propio = document.querySelector('link[href="/css/app.css"]');
     if (propio) document.head.insertBefore(css, propio);
     else document.head.appendChild(css);
     const s = document.createElement("script");
@@ -150,7 +150,7 @@ async function dibujarMapa(caja) {
   try {
     const [, r] = await Promise.all([
       cargarMapLibre(),
-      fetch("/datos/puntos.json"),
+      fetch("/datos-abiertos/puntos.json"),
     ]);
     if (!r.ok) throw new Error(r.status);
     const puntos = await r.json();

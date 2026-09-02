@@ -14,8 +14,8 @@ entre archivos de una forma que no se ve leyendo uno solo.
 
     node scripts/servir.js            # http://localhost:3000 (PORT=3100 para otro puerto)
     node scripts/paginas.js           # regenera las páginas de contenido
-    node scripts/historia.js          # baja la serie del INA -> datos/historia.json
-    node scripts/curvas.js            # baja las curvas del municipio -> datos/curvas.json
+    node scripts/historia.js          # baja la serie del INA -> datos-abiertos/historia.json
+    node scripts/curvas.js            # baja las curvas del municipio -> datos-abiertos/curvas.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
     node scripts/vapid.js             # claves de push, se corre una sola vez
 
@@ -53,6 +53,20 @@ primero (íconos, tipografías) queda congelado.
 
 ## Arquitectura
 
+### Dónde vive cada cosa
+
+    js/ css/ img/       lo que baja el navegador
+    datos-abiertos/     los JSON que la app lee (y que cualquiera puede auditar)
+    app/ widget/        HTML escrito a mano
+    lib/ api/ scripts/  Node
+    sw.js               en la raíz a propósito: un service worker sólo controla
+                        su directorio hacia abajo
+
+Las ocho carpetas de páginas —`datos/`, `historia/`, `legal/`…— están en la
+raíz porque **su ruta es su URL**, y por eso no se pueden agrupar. Cada una
+arranca con un comentario que avisa que la emite `scripts/paginas.js`. Si
+abrís un `index.html` y ves ese cartel, el archivo que hay que editar es otro.
+
 ### El nivel del río, y quién depende de su forma
 
     lib/ina.js  ──►  api/nivel.js  ──►  app.js · landing.js · widget/widget.js · sw.js
@@ -86,7 +100,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `app.js` y `scripts/paginas.js` |
 | Organismos, URLs, la estación del INA | `lib/fuentes.js` | `lib/ina.js`, `scripts/paginas.js` |
 | El pie del sitio | constante `PIE` en `scripts/paginas.js` | las páginas generadas **y** `index.html` |
-| Récord histórico y serie | `datos/historia.json` | `app.js`, `historia.js`, `scripts/paginas.js` |
+| Récord histórico y serie | `datos-abiertos/historia.json` | `app.js`, `historia.js`, `scripts/paginas.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
@@ -101,7 +115,7 @@ original. Si cambia una URL, cambia en `lib/fuentes.js` y se replica a mano.
 `/puntos-de-encuentro`, `/mi-cota`, `/datos`, `/historia`, `/preguntas`,
 `/legal`, `/charlas` y `/para-medios` los emite `scripts/paginas.js`. Editar el
 HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
-Ese script también escribe `datos/puntos.json` y reemplaza el pie de
+Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
 `index.html` entre los marcadores `<!-- PIE:inicio -->` / `<!-- PIE:fin -->`.
 
 Una ruta nueva toca cinco lugares: `scripts/paginas.js`, la lista de escritura
@@ -182,5 +196,5 @@ promesa que la app hace por escrito.
 
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
-fuera de hoy. `datos/curvas.json` va precacheado porque es el cálculo central.
+fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central.
 El HTML, `app.js` y `app.css` van por red primero; el resto por caché primero.

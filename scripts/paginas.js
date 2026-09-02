@@ -36,7 +36,7 @@ const SITIO = "https://cotacerosf.com";
 let historia = null;
 try {
   historia = JSON.parse(
-    await readFile(join(RAIZ, "datos", "historia.json"), "utf8"),
+    await readFile(join(RAIZ, "datos-abiertos", "historia.json"), "utf8"),
   );
 } catch {
   console.warn(
@@ -232,6 +232,12 @@ function pagina({
     ...(jsonld ? [jsonld] : []),
   ];
   return `<!doctype html>
+<!--
+  ARCHIVO GENERADO — no editar a mano.
+  Lo emite scripts/paginas.js y la próxima corrida lo pisa entero.
+  Para cambiar algo de esta página se edita el generador:
+      node scripts/paginas.js
+-->
 <html lang="es-AR">
   <head>
     <meta charset="utf-8" />
@@ -251,11 +257,11 @@ function pagina({
     <meta name="color-scheme" content="dark light" />
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/css/app.css" />
     <script defer src="/_vercel/insights/script.js"></script>
 ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
@@ -1367,7 +1373,7 @@ const htmlHistoria = pagina({
   descripcion:
     "La serie completa del hidrómetro del Puerto de Santa Fe desde 1925, con datos oficiales del INA: las mayores crecidas, las bajantes más hondas y qué tan alto está el río hoy comparado con un siglo de mediciones.",
   migaja: "Cien años del Paraná",
-  script: "/historia.js",
+  script: "/js/historia.js",
   chip: "La escala real",
   h1: "Cien años del Paraná",
   lead:
@@ -1527,7 +1533,7 @@ const htmlMedios = pagina({
   descripcion:
     "Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe, la tendencia y los umbrales oficiales. Dos líneas de HTML, sin claves de API, sin cookies y sin rastreo de tus lectores.",
   migaja: "Widget para medios",
-  script: "/medios.js",
+  script: "/js/medios.js",
   chip: "Para medios y sitios",
   h1: "El río, embebido en tu nota",
   lead:
@@ -1539,7 +1545,7 @@ const htmlMedios = pagina({
   bloques: [
     {
       kicker: "Así se ve",
-      titulo: "Claro y noche, del ancho que quieras",
+      titulo: "Claro y oscuro, del ancho que quieras",
       html: `        <p>
           No son capturas: los dos son el widget de verdad, leyendo el reporte
           del INA ahora mismo.
@@ -1550,8 +1556,8 @@ const htmlMedios = pagina({
             <p class="chico">Tema claro — así viene por defecto</p>
           </div>
           <div>
-            <iframe src="/widget?tema=noche" title="Widget de Cota Cero, tema noche" loading="lazy"></iframe>
-            <p class="chico">Tema noche — agregale <code>?tema=noche</code></p>
+            <iframe src="/widget?tema=dark" title="Widget de Cota Cero, tema oscuro" loading="lazy"></iframe>
+            <p class="chico">Tema oscuro — agregale <code>?tema=dark</code></p>
           </div>
         </div>`,
     },
@@ -1711,12 +1717,12 @@ ${LICENCIAS.map(
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
    Se emiten desde acá, que ya las leyó de app/index.html, para que no exista
    una tercera copia de la lista. */
-await mkdir(join(RAIZ, "datos"), { recursive: true });
+await mkdir(join(RAIZ, "datos-abiertos"), { recursive: true });
 await writeFile(
-  join(RAIZ, "datos", "puntos.json"),
+  join(RAIZ, "datos-abiertos", "puntos.json"),
   JSON.stringify(puntos.map((p) => [p.nombre, p.direccion, p.lon, p.lat])),
 );
-console.log("escrito: /datos/puntos.json  (" + puntos.length + " puntos)");
+console.log("escrito: /datos-abiertos/puntos.json  (" + puntos.length + " puntos)");
 
 /* La portada es HTML escrito a mano, pero su pie sale de la misma constante:
    se reemplaza el bloque entre los marcadores. Si alguien lo edita a mano,

@@ -1651,7 +1651,7 @@ async function geocodificar(texto, cache = true) {
 let curvasCache = null;
 async function curvas() {
   if (curvasCache) return curvasCache;
-  const r = await fetch("/datos/curvas.json");
+  const r = await fetch("/datos-abiertos/curvas.json");
   if (!r.ok) throw new Error("no se pudieron cargar las curvas");
   curvasCache = await r.json();
   return curvasCache;
@@ -1784,7 +1784,7 @@ function cargarMapLibre() {
     css.href = "/vendor/maplibre-gl.css";
     // Antes de app.css, no después: si se agrega al final gana el cascade y
     // los popups vuelven al blanco de MapLibre en vez del tema de la app.
-    const propio = document.querySelector('link[href="/app.css"]');
+    const propio = document.querySelector('link[href="/css/app.css"]');
     if (propio) document.head.insertBefore(css, propio);
     else document.head.appendChild(css);
     const s = document.createElement("script");
@@ -2222,8 +2222,8 @@ async function enviarSugerencia() {
    sobre el sistema. */
 function temaDelSistema() {
   return window.matchMedia("(prefers-color-scheme: light)").matches
-    ? "claro"
-    : "oscuro";
+    ? "light"
+    : "dark";
 }
 function temaActual() {
   return document.documentElement.dataset.tema || temaDelSistema();
@@ -2232,11 +2232,11 @@ function aplicarTema(t) {
   const raiz = document.documentElement;
   if (t) raiz.dataset.tema = t;
   else delete raiz.dataset.tema;
-  const claro = temaActual() === "claro";
+  const claro = temaActual() === "light";
   const b = document.getElementById("btn-tema");
   if (b) {
     b.textContent = claro ? "☾" : "☀";
-    b.title = claro ? "Pasar a tema oscuro" : "Pasar a tema claro";
+    b.title = claro ? "Pasar a tema dark" : "Pasar a tema light";
   }
   // La barra del sistema en el teléfono también tiene que acompañar.
   const meta = document.querySelector('meta[name="theme-color"]');
@@ -2248,7 +2248,7 @@ function aplicarTema(t) {
     );
 }
 function alternarTema() {
-  const nuevo = temaActual() === "claro" ? "oscuro" : "claro";
+  const nuevo = temaActual() === "light" ? "dark" : "light";
   guardado.set("cc_tema", nuevo);
   aplicarTema(nuevo);
 }
@@ -2689,7 +2689,7 @@ let historia = null;
 async function cargarHistoria() {
   if (historia) return;
   try {
-    const r = await fetch("/datos/historia.json");
+    const r = await fetch("/datos-abiertos/historia.json");
     if (!r.ok) return;
     const j = await r.json();
     if (!j || !Array.isArray(j.anios) || !j.anios.length) return;

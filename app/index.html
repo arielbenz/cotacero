@@ -56,8 +56,8 @@
       }
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -85,7 +85,7 @@
          bloqueaba la primera pintura de toda la app, teléfonos de emergencia
          incluidos, por una pestaña que quizá nadie abra. Se carga recién al
          entrar a "Dónde ir". -->
-    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body>
     <header class="top">
@@ -1070,11 +1070,11 @@
             <button type="button" data-accion="tema-set" data-tema="">
               Auto
             </button>
-            <button type="button" data-accion="tema-set" data-tema="claro">
+            <button type="button" data-accion="tema-set" data-tema="light">
               Claro
             </button>
-            <button type="button" data-accion="tema-set" data-tema="oscuro">
-              Noche
+            <button type="button" data-accion="tema-set" data-tema="dark">
+              Oscuro
             </button>
           </div>
         </div>
@@ -1274,7 +1274,7 @@
       </button>
     </nav>
 
-    <script src="/app.js" defer></script>
+    <script src="/js/app.js" defer></script>
     <!-- Vercel Web Analytics. Va sólo el script externo: el snippet oficial
          incluye además un <script> inline que nuestra CSP bloquea, y que sólo
          sirve para encolar custom events (que son de plan Pro). Al ser

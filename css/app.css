@@ -80,7 +80,7 @@
 
 /* ==========================================================================
    TEMAS
-   El claro no es preferencia estética: la app se usa parada en la vereda, de
+   El light no es preferencia estética: la app se usa parada en la vereda, de
    día, y un tema oscuro a pleno sol se lee mucho peor.
    Los semánticos del diseño venían entre 3,86 y 4,32 de contraste — elegidos
    por cómo se ven, no medidos. Están corregidos al mínimo necesario para
@@ -209,7 +209,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  html:not([data-tema="oscuro"]) {
+  html:not([data-tema="dark"]) {
     --fondo: var(--c-fondo);
     --panel: var(--c-panel);
     --panel-2: var(--c-panel-2);
@@ -254,7 +254,7 @@
   }
 }
 
-html[data-tema="claro"] {
+html[data-tema="light"] {
   --fondo: var(--c-fondo);
   --panel: var(--c-panel);
   --panel-2: var(--c-panel-2);
@@ -1381,7 +1381,7 @@ input[type="range"] {
   /* El mismo alto que recomienda el código de más abajo. Sin esto el iframe
      cae al alto por defecto de 150 px y las muestras salen recortadas justo
      por el pie, que es donde va el crédito. */
-  height: 220px;
+  height: 225px;
   border: 1px solid var(--linea);
   border-radius: var(--r-m);
   background: var(--panel);

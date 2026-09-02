@@ -62,19 +62,30 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
 
 ## Estructura
 
+Lo que sirve el navegador está separado de lo que lo genera, y las páginas
+generadas llevan un cartel de "no editar" en la primera línea.
+
     index.html               portada (landing) — la puerta de entrada
-    landing.js               nivel en vivo, mapa perezoso, salto a /app si está instalada
-    app/index.html           la app
-    puntos-de-encuentro/     página de contenido (generada)
-    mi-cota/                 página de contenido (generada)
-    datos/index.html         página de contenido (generada)
-    preguntas/index.html     página de contenido (generada)
-    legal/index.html         página de contenido (generada)
-    datos/curvas.json        curvas de nivel del municipio
-    datos/puntos.json        coordenadas de los 30 puntos, para el mapa de la portada
-    app.css                  estilos, compartidos por todo
-    app.js                   lógica de la app
-    vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
+    sw.js                    service worker (va en la raíz: su alcance es su ruta)
+    manifest.webmanifest     PWA
+    vercel.json              cabeceras y CSP
+    robots.txt · sitemap.xml
+
+    js/     app.js           lógica de la app
+            landing.js       nivel en vivo, mapa perezoso, salto a /app si está instalada
+            historia.js      la serie de un siglo, interactiva
+            medios.js        copiar el código del widget
+    css/    app.css          estilos, compartidos por todo
+    img/    icon-*.png og.png favicon-32.png apple-touch-icon.png screenshot-*.png
+
+    app/index.html           la app — FUENTE, y la lista de los 30 puntos
+    widget/                  el widget que embeben los medios — FUENTE
+
+    datos-abiertos/          los JSON que la app lee y cualquiera puede auditar
+            curvas.json      curvas de nivel del municipio
+            historia.json    un renglón por año desde 1925 (INA), 6 KB
+            puntos.json      coordenadas de los 30 puntos, para el mapa de la portada
+
     api/nivel.js             sirve el nivel al navegador (CORS proxy)
     api/suscribir.js         alta de un endpoint de push
     api/desuscribir.js       baja
@@ -82,25 +93,33 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     api/sugerencias.js       recibe feedback de la gente
     api/visita.js            cuenta una apertura (sin caché, a propósito)
     api/metricas.js          tablero privado, protegido con clave
+
     lib/ina.js               lectura del INA: API primero, raspado de respaldo
     lib/fuentes.js           organismos, URLs y la estación, escritos UNA vez
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     lib/metricas.js          claves y días del contador (módulo, NO endpoint)
-    historia/index.html      página de contenido (generada)
-    historia.js              la serie de un siglo, interactiva
-    datos/historia.json      un renglón por año desde 1925 (INA), 6 KB
-    scripts/vapid.js         genera las claves, se corre una vez
+
+    scripts/paginas.js       genera las páginas de contenido
     scripts/curvas.js        baja las curvas de nivel del municipio
     scripts/historia.js      baja la serie histórica del INA
-    scripts/paginas.js       genera las páginas de contenido
     scripts/marca.js         el logo, en un solo lugar
-    scripts/iconos.js        rasteriza el logo a los PNG de la app
+    scripts/iconos.js        rasteriza el logo a los PNG de img/
     scripts/servir.js        servidor de desarrollo
-    sw.js                    service worker
-    manifest.webmanifest     PWA
-    vercel.json              cabeceras y CSP
-    icon-*.png               íconos
+    scripts/vapid.js         genera las claves, se corre una vez
+
+    vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
+
     AUDITORIA.md             cada número, su fuente y qué falta validar
+    CLAUDE.md                lo operativo, para agentes
+
+**Ocho carpetas más son páginas generadas** —`datos/`, `historia/`, `mi-cota/`,
+`preguntas/`, `legal/`, `charlas/`, `para-medios/`, `puntos-de-encuentro/`—.
+Están en la raíz porque su ruta *es* su URL. Cada una arranca con un comentario
+que dice que la emite `scripts/paginas.js` y que editarla a mano no sirve.
+
+`sw.js` se queda en la raíz a propósito: un service worker sólo controla su
+propio directorio hacia abajo, así que moverlo a `js/` le sacaría el alcance
+sobre todo el sitio.
 
 ## De dónde sale el nivel
 
@@ -144,7 +163,7 @@ enlaces— con un comentario que apunta al original.
 dice nada hasta que se lo ve al lado de los 7,43 m de 1992 y de los −0,23 m de
 2022.
 
-    node scripts/historia.js     # baja la serie y escribe datos/historia.json
+    node scripts/historia.js     # baja la serie y escribe datos-abiertos/historia.json
 
 Baja las **39.115 observaciones de la serie 30 desde el 2 de enero de 1925**
 (unos 10 MB) y las resume a un renglón por año: máximo, mínimo, sus fechas,
@@ -492,7 +511,7 @@ dice «umbral estimado» y no «cuándo llega el agua».
 Santa Fe, capa `sitmax:curvas_nivel` del GeoServer municipal, subida por la
 Secretaría de Recursos Hídricos. 169 curvas cada 50 cm, de 12,5 a 22,5 m, en
 metros IGN — el mismo sistema que el cero del hidrómetro. Se descargan una vez
-con `node scripts/curvas.js` y quedan en `datos/curvas.json` (72 KB), que la
+con `node scripts/curvas.js` y quedan en `datos-abiertos/curvas.json` (72 KB), que la
 app lee localmente: sin API de terceros y sin conexión.
 
 `ERROR_DEM` es 0,5 m, la mitad del intervalo entre curvas, que es la
