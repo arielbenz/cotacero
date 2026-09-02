@@ -209,7 +209,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  html:not([data-tema="dark"]) {
+  html:not([data-theme="dark"]) {
     --fondo: var(--c-fondo);
     --panel: var(--c-panel);
     --panel-2: var(--c-panel-2);
@@ -254,7 +254,7 @@
   }
 }
 
-html[data-tema="light"] {
+html[data-theme="light"] {
   --fondo: var(--c-fondo);
   --panel: var(--c-panel);
   --panel-2: var(--c-panel-2);

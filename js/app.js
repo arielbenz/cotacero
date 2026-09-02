@@ -2226,12 +2226,12 @@ function temaDelSistema() {
     : "dark";
 }
 function temaActual() {
-  return document.documentElement.dataset.tema || temaDelSistema();
+  return document.documentElement.dataset.theme || temaDelSistema();
 }
 function aplicarTema(t) {
   const raiz = document.documentElement;
-  if (t) raiz.dataset.tema = t;
-  else delete raiz.dataset.tema;
+  if (t) raiz.dataset.theme = t;
+  else delete raiz.dataset.theme;
   const claro = temaActual() === "light";
   const b = document.getElementById("btn-tema");
   if (b) {
@@ -2513,8 +2513,8 @@ const ACCIONES = {
   "compartir-imagen": () => compartirImagen(),
   // El despachador ya pasa el elemento que se tocó: estas leen un data- suyo.
   "tema-set": (el) => {
-    guardado.set("cc_tema", el.dataset.tema || "");
-    aplicarTema(el.dataset.tema || "");
+    guardado.set("cc_tema", el.dataset.theme || "");
+    aplicarTema(el.dataset.theme || "");
     pintarSegmentoTema();
   },
   "texto-set": (el) => fijarTexto(el.dataset.texto || ""),
@@ -2739,7 +2739,7 @@ function fijarTexto(t) {
 function pintarSegmentoTema() {
   const t = guardado.get("cc_tema") || "";
   document.querySelectorAll("#seg-tema button").forEach((b) => {
-    b.classList.toggle("on", (b.dataset.tema || "") === t);
+    b.classList.toggle("on", (b.dataset.theme || "") === t);
   });
 }
 

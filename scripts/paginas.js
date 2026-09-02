@@ -1556,8 +1556,8 @@ const htmlMedios = pagina({
             <p class="chico">Tema claro — así viene por defecto</p>
           </div>
           <div>
-            <iframe src="/widget?tema=dark" title="Widget de Cota Cero, tema oscuro" loading="lazy"></iframe>
-            <p class="chico">Tema oscuro — agregale <code>?tema=dark</code></p>
+            <iframe src="/widget?theme=dark" title="Widget de Cota Cero, tema oscuro" loading="lazy"></iframe>
+            <p class="chico">Tema oscuro — agregale <code>?theme=dark</code></p>
           </div>
         </div>`,
     },
