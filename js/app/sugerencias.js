@@ -7,6 +7,7 @@
 import { estado } from "./estado.js";
 import { atr, m } from "./formato.js";
 import { aLaVista, ocupar } from "./vista.js";
+import { CATEGORIAS } from "/lib/sugerencias.js";
 
 /* ================= SUGERENCIAS =================
    Lo único de la app que manda texto de la persona a un servidor, y el
@@ -60,4 +61,15 @@ export async function enviarSugerencia() {
     liberar();
     aLaVista(est);
   }
+}
+
+/* El desplegable de categorías se llena desde el módulo compartido: el
+   formulario de la app, el de /contacto y la validación del endpoint tienen
+   que ofrecer exactamente lo mismo. */
+export function pintarCategorias() {
+  const sel = document.getElementById("sug-categoria");
+  if (!sel) return;
+  sel.innerHTML = Object.entries(CATEGORIAS)
+    .map(([clave, etiqueta]) => `<option value="${clave}">${atr(etiqueta)}</option>`)
+    .join("");
 }

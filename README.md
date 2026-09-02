@@ -118,6 +118,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
     lib/ina.js               lectura del INA: API primero, raspado de respaldo
     lib/fuentes.js           organismos, URLs y la estación, escritos UNA vez
     lib/paginas.js           títulos, descripciones, canónicas e indexabilidad
+    lib/sugerencias.js       las categorías del formulario, en un solo lugar
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     lib/metricas.js          claves y días del contador (módulo, NO endpoint)
 
@@ -292,6 +293,13 @@ existe para contar la historia del río.
 llenan cuando contesta la red y empujaban todo lo de abajo. Reservarles el
 alto en `app.css` lo dejó en 0,009. Medido con caché frío y 4G lento, que es
 como llega alguien desde una búsqueda.
+
+**El favicon del buscador.** Google lo quiere cuadrado y múltiplo de 48 px, y
+lo busca también en `/favicon.ico` — que hasta ahora daba 404. Se emiten los
+dos (`favicon-96.png` y el `.ico` de la raíz) con `node scripts/iconos.js`. El
+`.ico` es el PNG envuelto en 22 bytes de cabecera: el formato lo admite y así
+no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
+así que el cambio no se ve enseguida.
 
 **robots.txt y sitemap.xml nunca se cachean** en el service worker: son dos
 archivos de 1 KB y una copia guardada de ellos no caduca nunca.

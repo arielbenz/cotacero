@@ -10,7 +10,7 @@
 // y og.png. Los tamaños salen del manifest y de las etiquetas de index.html:
 // si cambian allá, cambian acá.
 
-import { writeFile, mkdtemp, rm } from "node:fs/promises";
+import { readFile, writeFile, mkdtemp, rm } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
@@ -83,6 +83,10 @@ try {
     // El favicon y los íconos de app van sobre el fondo oscuro de la marca,
     // que es como se ven en la pantalla de inicio y en la pestaña.
     ["favicon-32.png", 32, 32, OSCURO, TINTA_CLARA, AGUA_CLARA, 0.78],
+    /* 96 px para el buscador. Google pide que el favicon sea CUADRADO y de un
+       múltiplo de 48: con 32 px lo descarta y muestra el que tenga cacheado,
+       que puede ser de hace meses y de otro logo. */
+    ["favicon-96.png", 96, 96, OSCURO, TINTA_CLARA, AGUA_CLARA, 0.72],
     ["icon-192.png", 192, 192, OSCURO, TINTA_CLARA, AGUA_CLARA, 0.66],
     ["icon-512.png", 512, 512, OSCURO, TINTA_CLARA, AGUA_CLARA, 0.66],
     // Maskable: Android recorta hasta un círculo inscripto. El dibujo entra
@@ -120,6 +124,28 @@ try {
 <div class="m">${marca({ id: "og", tam: 64, trazo: TINTA_CLARA, agua: AGUA_CLARA })}<span>Cota Cero</span></div>
 <h1>¿Hasta dónde llega<br>el agua en tu casa?</h1>
 <p>El nivel del río Paraná, traducido al número exacto que le toca a tu terreno. Santa Fe.</p>`;
+  /* /favicon.ico en la RAÍZ. Google y varios rastreadores lo piden ahí
+     directamente, sin leer el HTML — y hasta ahora daba 404. Un .ico puede
+     envolver un PNG tal cual: seis bytes de cabecera, dieciséis de entrada de
+     directorio y el PNG entero. Sin dependencias. */
+  const fuenteIco = join(RAIZ, "img", "favicon-96.png");
+  const datos = await readFile(fuenteIco);
+  const cab = Buffer.alloc(22);
+  cab.writeUInt16LE(0, 0); // reservado
+  cab.writeUInt16LE(1, 2); // tipo: icono
+  cab.writeUInt16LE(1, 4); // cuántas imágenes
+  cab.writeUInt8(0, 6); // ancho 0 = 256 o más; acá 96 entra igual
+  cab.writeUInt8(96, 6);
+  cab.writeUInt8(96, 7);
+  cab.writeUInt8(0, 8); // paleta
+  cab.writeUInt8(0, 9); // reservado
+  cab.writeUInt16LE(1, 10); // planos
+  cab.writeUInt16LE(32, 12); // bits por píxel
+  cab.writeUInt32LE(datos.length, 14);
+  cab.writeUInt32LE(22, 18); // dónde empieza la imagen
+  await writeFile(join(RAIZ, "favicon.ico"), Buffer.concat([cab, datos]));
+  console.log("  favicon.ico".padEnd(26) + "96×96, en la raíz");
+
   await png(og, 1200, 630, join(RAIZ, "img", "og.png"), perfil);
   console.log("  og.png".padEnd(26) + "1200×630");
 } finally {

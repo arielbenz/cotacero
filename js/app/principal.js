@@ -53,7 +53,11 @@ import {
   pintarRio,
   ultimoRefresco,
 } from "./rio.js";
-import { contarSugerencia, enviarSugerencia } from "./sugerencias.js";
+import {
+  contarSugerencia,
+  enviarSugerencia,
+  pintarCategorias,
+} from "./sugerencias.js";
 import {
   alternarTema,
   aplicarTema,
@@ -128,6 +132,7 @@ function iniciar() {
   if (km) estado.kmManual = parseFloat(km);
 
   pintarListas();
+  pintarCategorias();
   pintarPuntos();
   pintarRio();
   calcular();

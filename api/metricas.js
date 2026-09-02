@@ -17,6 +17,7 @@
 // olvidarse de ponerla.
 
 import { redis, hayAlmacen, CLAVE_SUBS } from "../lib/push.js";
+import { CATEGORIAS } from "../lib/sugerencias.js";
 import {
   diaAR,
   ultimosDias,
@@ -34,12 +35,8 @@ const escapar = (t) =>
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
   );
 
-const CATEGORIAS = {
-  dato: "Un dato está mal",
-  falta: "Falta algo",
-  confuso: "No se entiende",
-  otro: "Otra cosa",
-};
+/* Las categorías, del módulo compartido: el tablero y el formulario tienen
+   que llamarlas igual. */
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");

@@ -26,6 +26,12 @@ import {
   ENDPOINTS,
 } from "../lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
+import {
+  CATEGORIAS,
+  CATEGORIA_POR_DEFECTO,
+  MAX_TEXTO,
+  MAX_CONTACTO,
+} from "../lib/sugerencias.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SITIO = "https://cotacerosf.com";
@@ -156,6 +162,7 @@ const PIE = `      <footer class="pie-sitio">
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
           <a href="/sobre">Sobre Cota Cero</a>
+          <a href="/contacto">Contacto</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/para-medios">Widget para medios</a>
           <a href="/charlas">Charlas para seguir pensando</a>
@@ -220,6 +227,7 @@ ${html}
 function pagina({
   clave,
   migaja,
+  antes,
   jsonld,
   chip,
   h1,
@@ -279,7 +287,10 @@ function pagina({
 ${meta.indexable ? "" : '    <meta name="robots" content="noindex, follow" />\n'}    <meta name="color-scheme" content="dark light" />
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
+         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
@@ -309,7 +320,7 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
     </div>
 
     <div class="ancho angosto">
-      <header class="pg-cabecera">
+${antes ? antes + "\n" : ""}      <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
 ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones + "\n" : ""}${
         anclas
@@ -1667,6 +1678,124 @@ ${tablaHist}
   ],
 });
 
+/* ---------- /contacto ----------
+   El formulario de sugerencias tenía un solo lugar: plegado al pie de la app.
+   Quien entra desde un buscador —un periodista, alguien de un organismo, un
+   vecino que vio un dato mal— no lo encuentra nunca. Esta página lo saca a
+   una URL propia.
+
+   DOS COSAS QUE NO SE NEGOCIAN
+
+   1. El aviso de emergencia va ARRIBA DE TODO, antes del título. En una app
+      de riesgo hídrico cualquier caja de texto se puede leer como una vía
+      para pedir auxilio, y alguien con agua en la puerta no lee hasta el
+      final. Por eso está antes del H1 y el 103 es un enlace que llama.
+   2. Las opciones son <input type="radio"> de verdad, dibujados como
+      pastillas. Se ven como botones pero llegan con teclado y con lector de
+      pantalla sin una línea de JavaScript: elegir una categoría funciona
+      aunque el script no cargue. El JS sólo manda el formulario.
+
+   Las categorías salen de lib/sugerencias.js, el mismo módulo que valida el
+   endpoint: no se pueden desincronizar. */
+const AVISO_EMERGENCIA = `      <div class="aviso-emergencia">
+        <p>
+          <b>Esto no es una vía de auxilio.</b> Nadie lee esto en el momento.
+          Ante una emergencia, llamá ya a Defensa Civil.
+        </p>
+        <a class="btn-emergencia" href="tel:103">
+          <span>Emergencias</span><b>103</b>
+        </a>
+      </div>`;
+
+const opcionesCategoria = Object.entries(CATEGORIAS)
+  .map(
+    ([clave, etiqueta]) => `            <input type="radio" name="categoria" id="cat-${clave}"
+              value="${clave}" class="cat-radio"${clave === CATEGORIA_POR_DEFECTO ? " checked" : ""} />
+            <label class="cat-chip" for="cat-${clave}">${esc(etiqueta)}</label>`,
+  )
+  .join("\n");
+
+const htmlContacto = pagina({
+  clave: "contacto",
+  migaja: "Contacto",
+  script: "/js/contacto.js",
+  antes: AVISO_EMERGENCIA,
+  h1: "Contacto",
+  lead:
+    "Cota Cero la hacemos vecinos: cada corrección de un dato, cada zona que " +
+    "falta y cada texto que no se entiende mejora la app para toda la ciudad.",
+  jsonld: {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: "Contacto — Cota Cero",
+    inLanguage: "es-AR",
+  },
+  bloques: [],
+  sueltos: [
+    `      <section class="bloque">
+        <p class="kicker">Sugerencias</p>
+        <h2>Escribinos</h2>
+
+        <form id="form-contacto" novalidate>
+          <fieldset class="campo-cat">
+            <legend>¿Sobre qué es?</legend>
+            <div class="cat-chips">
+${opcionesCategoria}
+            </div>
+          </fieldset>
+
+          <label class="campo" for="sug-texto"><span>Tu mensaje</span></label>
+          <textarea id="sug-texto" name="texto" required maxlength="${MAX_TEXTO}"
+            rows="6" placeholder="Contanos con el mayor detalle posible…"></textarea>
+          <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
+
+          <label class="campo" for="sug-contacto">
+            <span>Un contacto para responderte <i>(opcional)</i></span>
+          </label>
+          <input type="text" id="sug-contacto" name="contacto" maxlength="${MAX_CONTACTO}"
+            autocomplete="off" placeholder="Correo o teléfono — solo si querés respuesta" />
+
+          <button class="btn" type="submit" id="sug-enviar">Enviar sugerencia</button>
+          <p class="chico" id="sug-estado" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="chico letra-chica">
+          Es lo único de Cota Cero que envía texto tuyo a un servidor. <b>Tu IP
+          no se guarda</b>: se usa sólo para limitar envíos, y transformada de
+          modo irreversible. Si dejás un contacto, se usa únicamente para
+          responderte. <b>No pongas tu dirección.</b>
+          <a href="/legal">Ver qué se guarda y qué no</a>.
+        </p>
+      </section>
+
+      <div class="rejilla-2 tarjetas-contacto">
+        <div class="mini-tarjeta">
+          <p class="kicker kicker-alerta">¿Encontraste un dato mal?</p>
+          <p>
+            Una cota que no cierra, un punto de encuentro que ya no existe, los
+            kilómetros de una zona que no dan: eso es lo más valioso que nos
+            podés mandar. Decinos la dirección o el lugar exacto — con eso se
+            puede comprobar contra la fuente y corregirlo.
+          </p>
+        </div>
+        <div class="mini-tarjeta">
+          <p class="kicker">¿Sos de un organismo o de prensa?</p>
+          <p>
+            El modelo busca revisión técnica: Gestión de Riesgos, INA, FICH-UNL,
+            Recursos Hídricos. Si podés ayudar a validarlo, o querés el detalle
+            del método, escribinos y te lo pasamos.
+            <a href="/datos">Ver la metodología y sus límites</a>.
+          </p>
+        </div>
+      </div>`,
+    seguir([
+      ["/preguntas", "Puede que ya esté contestado", "las dudas más frecuentes"],
+      ["/datos", "De dónde salen los datos", "cada fuente, con su enlace"],
+      ["/sobre", "Quién hace Cota Cero", ""],
+    ]),
+  ],
+});
+
 /* ---------- /sobre ----------
    Para un sitio sobre riesgo hídrico, decir quién está detrás no es un
    trámite: es lo que separa una herramienta ciudadana de una página anónima
@@ -2067,6 +2196,7 @@ for (const [ruta, html] of [
   ["mi-cota", htmlCota],
   ["datos", htmlDatos],
   ["sobre", htmlSobre],
+  ["contacto", htmlContacto],
   ["historia", htmlHistoria],
   ["preguntas", htmlPreguntas],
   ["legal", htmlLegal],
@@ -2150,8 +2280,9 @@ const modulos = [
   ...(await readdir(join(RAIZ, "js", "app")))
     .filter((f) => f.endsWith(".js"))
     .map((f) => "/js/app/" + f),
-  // el registro compartido, que la app importa desde /lib/
+  // los módulos compartidos que la app importa desde /lib/
   "/lib/fuentes.js",
+  "/lib/sugerencias.js",
 ];
 const sw = await readFile(join(RAIZ, "sw.js"), "utf8");
 const faltan = modulos.filter((m) => !sw.includes(`"${m}"`));

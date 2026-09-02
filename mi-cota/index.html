@@ -58,7 +58,10 @@
       }
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
+         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
@@ -300,6 +303,7 @@
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
           <a href="/sobre">Sobre Cota Cero</a>
+          <a href="/contacto">Contacto</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/para-medios">Widget para medios</a>
           <a href="/charlas">Charlas para seguir pensando</a>

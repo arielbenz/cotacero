@@ -7,20 +7,18 @@
 // para contar sin quedarnos con de dónde vino cada mensaje.
 
 import crypto from "node:crypto";
+import {
+  esCategoria,
+  MAX_TEXTO,
+  MAX_CONTACTO,
+  POR_HORA,
+} from "../lib/sugerencias.js";
 import { redis, hayAlmacen } from "../lib/push.js";
 import { CLAVE_SUGERENCIAS as CLAVE } from "../lib/metricas.js";
 
 const MAX_GUARDADAS = 500; // la lista no crece para siempre
-const MAX_TEXTO = 600;
-const MAX_CONTACTO = 120;
-const POR_HORA = 3;
-
-const CATEGORIAS = {
-  dato: "Un dato está mal",
-  falta: "Falta algo que me serviría",
-  confuso: "No entendí algo",
-  otro: "Otra cosa",
-};
+/* Los topes y las categorías salen de lib/sugerencias.js: los comparten este
+   endpoint, el tablero y los dos formularios. */
 
 function claveLimite(req) {
   const ip =
@@ -45,7 +43,7 @@ export default async function handler(req, res) {
       .json({ error: "Las sugerencias no están configuradas todavía." });
 
   const cuerpo = req.body || {};
-  const categoria = CATEGORIAS[cuerpo.categoria] ? cuerpo.categoria : "otro";
+  const categoria = esCategoria(cuerpo.categoria) ? cuerpo.categoria : "otro";
   const texto = String(cuerpo.texto || "").trim();
   const contacto = String(cuerpo.contacto || "").trim();
 

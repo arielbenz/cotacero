@@ -63,7 +63,10 @@
       }
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
+         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
@@ -1164,11 +1167,11 @@
 
       <label class="campo"
         ><span>De qué se trata</span>
+        <!-- Las opciones las pone js/app/sugerencias.js desde
+             lib/sugerencias.js, que es el mismo módulo que valida el endpoint
+             y que dibuja /contacto. Acá queda una sola por si el JS no carga. -->
         <select id="sug-categoria">
-          <option value="dato">Un dato está mal</option>
-          <option value="falta">Falta algo que me serviría</option>
-          <option value="confuso">No entendí algo</option>
-          <option value="otro">Otra cosa</option>
+          <option value="otro">Otro</option>
         </select></label
       >
 

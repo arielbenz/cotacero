@@ -101,6 +101,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js` |
 | Organismos, URLs, la estación del INA | `lib/fuentes.js` | `lib/ina.js`, `scripts/paginas.js` |
 | El pie del sitio | constante `PIE` en `scripts/paginas.js` | las páginas generadas **y** `index.html` |
+| Las categorías del formulario | `lib/sugerencias.js` | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js` | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
 | Récord histórico y serie | `datos-abiertos/historia.json` | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js` |
 
@@ -153,6 +154,10 @@ coinciden, falla al generar.
 Agregar una página son cinco lugares: `lib/paginas.js`, `scripts/paginas.js`,
 la lista de escritura al final de ese archivo, `vercel.json` y el `PIE`. El
 sitemap ya no: sale solo.
+
+**El favicon del buscador va en `/favicon.ico` y mide 96 px.** Google lo pide
+cuadrado y múltiplo de 48: con los 32 px que había lo descartaba y mostraba el
+que tuviera cacheado. Los emite `node scripts/iconos.js`.
 
 **`/app` va con `noindex, follow`, y `/widget` y la 404 también.** El motivo de
 cada una está escrito en `lib/paginas.js`, en `razonNoindex`. La app es una

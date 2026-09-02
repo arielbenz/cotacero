@@ -1739,7 +1739,7 @@ body.landing {
 .landing p {
   margin-bottom: var(--e-4);
 }
-.landing a:not(.btn):not(.lockup):not(.punto):not(.charla) {
+.landing a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia) {
   color: var(--acento);
 }
 
@@ -3806,5 +3806,166 @@ textarea:focus-visible {
   #contexto-caja,
   #lluvia-caja {
     min-height: 0;
+  }
+}
+
+/* ==========================================================================
+   /contacto
+   ========================================================================== */
+
+/* El aviso de emergencia va antes del título, no después: alguien con agua en
+   la puerta no lee hasta el final de la página. El 103 es un enlace que llama,
+   no un adorno. */
+.aviso-emergencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--e-4);
+  margin: var(--e-5) 0 var(--e-7);
+  padding: var(--e-5);
+  border-radius: var(--r-l);
+  /* Las mismas variables que `.bloque.oscuro`: son las que ya saben invertirse
+     en tema claro y en oscuro. Antes esto usaba `--c-fondo`, que es el fondo
+     CLARO del sitio — el texto quedaba blanco sobre blanco. */
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+}
+.aviso-emergencia p {
+  margin: 0;
+  font-size: var(--t-base);
+  max-width: 46ch;
+}
+.btn-emergencia {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-5);
+  border-radius: var(--r-full);
+  background: var(--peligro-solido);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.btn-emergencia b {
+  font-size: var(--t-l);
+  letter-spacing: 0.02em;
+}
+/* El botón del 103 se suma a la lista de exclusiones de la regla general de
+   enlaces —junto a .btn, .lockup, .punto y .charla—: si no, hereda el color
+   de acento y queda azul sobre rojo, ilegible. */
+.btn-emergencia,
+.btn-emergencia:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Las pastillas de categoría son radios de verdad. El input queda accesible
+   —no `display:none`, que lo saca del foco— y se dibuja el label. */
+.campo-cat {
+  border: 0;
+  padding: 0;
+  margin: var(--e-5) 0 var(--e-4);
+}
+.campo-cat legend {
+  padding: 0;
+  margin-bottom: var(--e-3);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+.cat-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.cat-chip {
+  display: inline-block;
+  padding: var(--e-3) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  font-family: var(--sans);
+  font-size: var(--t-base);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+.cat-radio:checked + .cat-chip {
+  background: var(--texto);
+  border-color: var(--texto);
+  color: var(--fondo);
+}
+/* El foco tiene que verse: el input está oculto, así que el anillo lo dibuja
+   la pastilla. Sin esto, quien navega con teclado no sabe dónde está. */
+.cat-radio:focus-visible + .cat-chip {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+#form-contacto textarea,
+#form-contacto input[type="text"] {
+  width: 100%;
+  padding: var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  color: var(--texto);
+  font-family: var(--sans);
+  font-size: var(--t-base);
+}
+#form-contacto textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+#form-contacto .campo {
+  display: block;
+  margin: var(--e-5) 0 var(--e-2);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+#form-contacto .campo i {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--tenue);
+}
+#form-contacto .btn {
+  margin-top: var(--e-5);
+  width: auto;
+}
+.cuenta-texto {
+  margin: var(--e-2) 0 0;
+  color: var(--tenue);
+}
+.estado-mal {
+  color: var(--alerta-texto);
+}
+.estado-bien {
+  color: var(--ok-texto);
+}
+.letra-chica {
+  margin-top: var(--e-5);
+  color: var(--tenue);
+}
+.tarjetas-contacto {
+  margin-top: var(--e-5);
+}
+
+@media (max-width: 640px) {
+  .aviso-emergencia {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tarjetas-contacto {
+    grid-template-columns: 1fr;
   }
 }

@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v43";
+const VERSION = "cota-cero-v44";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -29,6 +29,7 @@ const ESENCIALES = [
   // El registro de fuentes: la app lo importa de verdad desde que son
   // módulos, así que sin esto /app no abre sin conexión.
   "/lib/fuentes.js",
+  "/lib/sugerencias.js",
   "/js/app/principal.js",
   "/js/app/avisos.js",
   "/js/app/bienvenida.js",
