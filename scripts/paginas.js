@@ -142,35 +142,30 @@ const PIE = `      <footer class="pie-sitio">
             <span class="lockup-nombre">Cota Cero</span>
           </span>
           <p class="chico">
-            Herramienta ciudadana, sin vínculo con organismos oficiales. La
-            orden de evacuación la da Defensa Civil.
-          </p>
-          <p class="firma">
-            Hecho por <b>Ariel Benz</b>
-            <span class="redes">
-              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
-              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
-            </span>
+            Hecha por vecinos de Santa Fe. Sin vínculo con el municipio: la
+            orden de evacuación la da la Defensa Civil.
           </p>
           <p class="chip-tel">Emergencias <b>103</b></p>
         </div>
         <div>
-          <span class="eti">La herramienta</span>
-          <a href="/app">Abrir la app</a>
+          <span class="eti">La app</span>
           <a href="/mi-cota">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
-          <a href="/preguntas">Preguntas frecuentes</a>
-          <a href="/datos">De dónde salen los datos</a>
-          <a href="/sobre">Sobre Cota Cero</a>
-          <a href="/contacto">Contacto</a>
           <a href="/historia">Cien años del Paraná</a>
-          <a href="/para-medios">Widget para medios</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/charlas">Charlas para seguir pensando</a>
+        </div>
+        <div>
+          <span class="eti">Transparencia</span>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/sobre">Quién hace Cota Cero</a>
           <a href="/legal">Legal y privacidad</a>
+          <a href="/contacto">Contacto y sugerencias</a>
+          <a href="/para-medios">Widget para medios</a>
         </div>
         <div>
           <span class="eti">Datos públicos de</span>
-${["ina", "prefectura", "muni", "ign", "gestionRiesgos"]
+${["ina", "prefectura", "muni", "gestionRiesgos", "ign"]
   .map(
     (k) =>
       `          <a href="${ORGANISMOS[k].url}" target="_blank" rel="noopener">${ORGANISMOS[k].corto}</a>`,
@@ -313,6 +308,7 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
           </summary>
           <div class="nav-enlaces">
             <a href="/">← Volver a la portada</a>
+            <a href="/contacto">Contacto</a>
           </div>
         </details>
         <a class="btn btn-oscuro" href="/app">Abrir la app</a>

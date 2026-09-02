@@ -2279,7 +2279,10 @@ body.landing {
   display: grid;
   /* La marca se lleva la mitad y las dos listas se van a la derecha: con
      1.4fr el aire se juntaba todo al final, después de la última columna. */
-  grid-template-columns: 2fr 1fr 1fr;
+  /* Cuatro columnas: la marca y tres listas. Antes eran tres y la del medio
+     tenía once enlaces de corrido; separarlas en «La app» y «Transparencia»
+     las deja en cinco y cinco, que se recorren de un vistazo. */
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
   gap: var(--e-7);
   max-width: var(--ancho-sitio);
   margin: 0 auto;
@@ -2300,13 +2303,24 @@ body.landing {
   min-height: 24px;
   margin-bottom: var(--e-2);
 }
+/* El pie lleva quince enlaces: en color de acento son quince manchas azules y
+   no se lee ninguna columna. Van en el color del texto y se encienden al pasar
+   por encima.
+   La cadena de :not() repite la de la regla general de enlaces de .landing
+   —que es (0,6,1)— para poder ganarle. Sin eso, `color: var(--texto)` de acá
+   no se aplicaba nunca y el pie salía azul. */
+.landing
+  .pie-sitio
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
 .pie-sitio a {
   font-weight: 600;
   font-size: var(--t-s);
   color: var(--texto);
   text-decoration: none;
 }
+.landing .pie-sitio a:hover,
 .pie-sitio a:hover {
+  color: var(--acento);
   text-decoration: underline;
 }
 .pie-sitio .chico {
