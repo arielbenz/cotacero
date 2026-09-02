@@ -268,7 +268,10 @@ function pagina({
     <title>${esc(titulo)}</title>
     <link rel="canonical" href="${url}" />
     <meta name="description" content="${esc(descripcion)}" />
-    <meta name="theme-color" content="#0B1418" />
+    <!-- Dos, con media: pinta la barra del navegador en el teléfono. Un
+         solo valor fijo dejaba la barra oscura sobre una página clara. -->
+    <meta name="theme-color" content="#f7f8f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Cota Cero" />
     <meta property="og:title" content="${esc(titulo)}" />

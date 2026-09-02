@@ -35,7 +35,10 @@ export function aplicarTema(t) {
     meta.setAttribute(
       "content",
       getComputedStyle(raiz).getPropertyValue("--fondo").trim() ||
-        (claro ? "#f2f6f7" : "#0B1418"),
+        /* Respaldo por si --fondo todavía no resolvió. Tienen que ser los
+           mismos valores que el CSS: estaban viejos y no coincidían con
+           ninguno de los dos temas. */
+        (claro ? "#f7f8f9" : "#0e1619"),
     );
 }
 
