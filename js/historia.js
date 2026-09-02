@@ -71,10 +71,8 @@ async function arrancar() {
   $("#h-contenido").hidden = false;
 
   pintarFranja();
-  pintarHitos();
   armarControles();
   sincronizar();
-  pintarFuente();
 }
 
 /* ---------- La franja del siglo ----------
@@ -346,46 +344,13 @@ function parar() {
   }
 }
 
-/* ---------- Las listas de hitos ----------
-   Salen ordenadas del propio archivo. No hay una lista escrita a mano de
-   "grandes crecidas": es la serie del INA ordenada de mayor a menor. */
-function pintarHitos() {
-  const crecidas = [...anios].sort((a, b) => b.max - a.max).slice(0, 6);
-  const bajantes = [...anios].sort((a, b) => a.min - b.min).slice(0, 6);
-
-  $("#h-crecidas").innerHTML = crecidas
-    .map(
-      (e, i) => `<li><span class="h-puesto">${i + 1}</span>
-      <div><b>${e.a}</b> · ${m2(e.max)} m<br>
-      <span class="chico">${enPalabras(e.fmax)} · ${e.da} ${e.da === 1 ? "día" : "días"} en alerta</span></div></li>`,
-    )
-    .join("");
-
-  $("#h-bajantes").innerHTML = bajantes
-    .map(
-      (e, i) => `<li><span class="h-puesto">${i + 1}</span>
-      <div><b>${e.a}</b> · ${m2(e.min)} m<br>
-      <span class="chico">${enPalabras(e.fmin)}</span></div></li>`,
-    )
-    .join("");
-
-  // La tabla completa, para lector de pantalla y para quien quiera el dato.
-  $("#h-tabla-cuerpo").innerHTML = anios
-    .map(
-      (e) =>
-        `<tr><td>${e.a}</td><td>${m2(e.max)}</td><td>${m2(e.min)}</td><td>${e.da}</td></tr>`,
-    )
-    .join("");
-}
-
-function pintarFuente() {
-  $("#h-fuente").innerHTML =
-    `Serie diaria del hidrómetro del Puerto de Santa Fe, ` +
-    `<b>${H.dias.toLocaleString("es-AR")} días medidos</b> entre el ` +
-    `${enPalabras(H.desde)} y el ${enPalabras(H.hasta)}. ` +
-    `Fuente: ${H.fuente.split(",")[0]}. Descargado el ${enPalabras(H.generado)}.`;
-  const a = $("#h-verificar");
-  if (a) a.href = H.url;
-}
+/* Las listas de crecidas y bajantes, la tabla de los 102 años y el bloque de
+   la fuente YA VIENEN EN EL HTML: los emite scripts/paginas.js desde el mismo
+   datos-abiertos/historia.json que lee este archivo. Antes los dibujaba acá, y
+   el resultado era que la página no tenía un solo número para quien no
+   ejecuta JavaScript — un buscador, un lector de pantalla, alguien con mala
+   conexión. Este archivo quedó para lo único que de verdad necesita JS: la
+   franja del siglo y el tanque que se recorre. No volver a mover contenido
+   para acá. */
 
 arrancar();

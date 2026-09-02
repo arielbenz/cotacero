@@ -25,6 +25,7 @@ import {
   ESTACION,
   ENDPOINTS,
 } from "../lib/fuentes.js";
+import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SITIO = "https://cotacerosf.com";
@@ -154,6 +155,7 @@ const PIE = `      <footer class="pie-sitio">
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/datos">De dónde salen los datos</a>
+          <a href="/sobre">Sobre Cota Cero</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/para-medios">Widget para medios</a>
           <a href="/charlas">Charlas para seguir pensando</a>
@@ -182,6 +184,19 @@ ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${e
       </section>`;
 }
 
+/* El bloque de continuación. Cada enlace dice adónde va y para qué — nada de
+   "ver más": un ancla que no describe su destino no le sirve ni a quien lee
+   ni a un buscador. Va al pie del contenido, no antes: primero se contesta la
+   pregunta de la página. */
+function seguir(items) {
+  return `      <section class="bloque borde">
+        <h2>Seguí por acá</h2>
+        <ul class="pasos">
+${items.map(([href, texto, nota]) => `          <li><a href="${href}">${esc(texto)}</a>${nota ? " — " + esc(nota) : ""}</li>`).join("\n")}
+        </ul>
+      </section>`;
+}
+
 /* Un paso del cálculo: número al costado, y el valor del ejemplo en una
    pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
    página buscando la cuenta tiene que poder saltar de pastilla en pastilla. */
@@ -198,10 +213,12 @@ ${html}
       </section>`;
 }
 
+/* `clave` es la entrada de lib/paginas.js: de ahí salen la ruta, el título,
+   la descripción y si la página se indexa. Antes cada llamada repetía esos
+   cuatro datos y el sitemap se editaba aparte — tres lugares para el mismo
+   dato es como se desincronizan. */
 function pagina({
-  ruta,
-  titulo,
-  descripcion,
+  clave,
   migaja,
   jsonld,
   chip,
@@ -214,6 +231,9 @@ function pagina({
   bloquesFinales,
   script,
 }) {
+  const meta = PAGINAS[clave];
+  if (!meta) throw new Error("pagina(): no existe la clave «" + clave + "» en lib/paginas.js");
+  const { ruta, titulo, descripcion } = meta;
   const url = SITIO + ruta;
   const estructurados = [
     {
@@ -250,11 +270,13 @@ function pagina({
     <meta property="og:site_name" content="Cota Cero" />
     <meta property="og:title" content="${esc(titulo)}" />
     <meta property="og:description" content="${esc(descripcion)}" />
-    <meta property="og:image" content="${SITIO}/og.png" />
+    <meta property="og:image" content="${OG_IMAGEN.url}" />
+    <meta property="og:image:width" content="${OG_IMAGEN.ancho}" />
+    <meta property="og:image:height" content="${OG_IMAGEN.alto}" />
     <meta property="og:locale" content="es_AR" />
     <meta property="og:url" content="${url}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="color-scheme" content="dark light" />
+${meta.indexable ? "" : '    <meta name="robots" content="noindex, follow" />\n'}    <meta name="color-scheme" content="dark light" />
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
@@ -386,15 +408,10 @@ const TEXTO_COMPARTIR = encodeURIComponent(
 );
 
 const htmlPuntos = pagina({
-  ruta: "/puntos-de-encuentro",
-  titulo: "Puntos de encuentro ante inundación — Santa Fe",
-  descripcion:
-    "Los " +
-    puntos.length +
-    " puntos de encuentro oficiales del Plan de Contingencia de la Municipalidad de Santa Fe, con dirección y cómo llegar a cada uno.",
+  clave: "puntos",
   migaja: "Puntos de encuentro",
   chip: "Santa Fe · oficiales del municipio",
-  h1: "Los " + puntos.length + " puntos de encuentro",
+  h1: "Los " + puntos.length + " puntos de encuentro ante una inundación en Santa Fe",
   lead:
     "Ante una evacuación, acercate al más próximo a tu casa. Esta página " +
     "funciona sin conexión y se puede compartir por WhatsApp. En la app los ves " +
@@ -445,6 +462,11 @@ ${lista}
           <div><b>911</b><span>Policía</span></div>
         </div>
       </section>`,
+    seguir([
+      ["/app?ir=donde", "Ver en el mapa cuál te queda más cerca", "funciona sin señal una vez cargada"],
+      ["/mi-cota", "Saber la cota de tu terreno en Santa Fe", "y qué nivel del río le corresponde"],
+      ["/", "Ver el nivel del río Paraná hoy", ""],
+    ]),
   ],
   bloquesFinales: [
     {
@@ -494,13 +516,10 @@ ${selloFuente("emergencias")}`,
 
 /* ---------- /mi-cota ---------- */
 const htmlCota = pagina({
-  ruta: "/mi-cota",
-  titulo: "Cómo se calcula tu umbral en Santa Fe",
-  descripcion:
-    "Qué es la cota de tu terreno, por qué el cero del hidrómetro está a 8,20 m IGN y cómo salen de ahí los umbrales estimados de Cota Cero.",
+  clave: "miCota",
   migaja: "Cómo se calcula tu umbral",
   chip: "El cálculo, paso a paso",
-  h1: "Cómo se calcula tu umbral",
+  h1: "¿Cuál es la cota de tu terreno en Santa Fe?",
   lead:
     "No es una caja negra: son tres números que se suman y restan. Acá está el " +
     "cálculo completo con un ejemplo real, para que lo puedas rehacer a mano y " +
@@ -600,6 +619,12 @@ const htmlCota = pagina({
           1992 el río pasó ese umbral <b>83 centímetros antes</b> del pico.
         </p>
       </section>`,
+    seguir([
+      ["/datos", "Ver de dónde salen estos datos", "el INA, la Municipalidad y qué falta validar"],
+      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "un siglo de mediciones, desde 1925"],
+      ["/puntos-de-encuentro", "Los 30 puntos de encuentro ante una inundación", "con dirección y cómo llegar"],
+      ["/app?ir=cota", "Calcular la referencia de tu terreno", "en la app, con tu zona y tu cota"],
+    ]),
   ],
   bloquesFinales: [
     {
@@ -728,13 +753,10 @@ const recordHist = historia
   : null;
 
 const htmlDatos = pagina({
-  ruta: "/datos",
-  titulo: "De dónde salen los datos — Cota Cero",
-  descripcion:
-    "Cota Cero no genera información hidrológica propia: combina datos públicos del INA, la Municipalidad de Santa Fe y el IGN. Acá está cada fuente, con el enlace para ir a comprobarla.",
+  clave: "datos",
   migaja: "De dónde salen los datos",
   chip: "Respaldo",
-  h1: "De dónde salen los datos",
+  h1: "De dónde salen los datos del río Paraná en Santa Fe",
   lead:
     "Cota Cero <b>no genera información hidrológica propia</b>. Toma datos " +
     "públicos de distintos organismos y los combina para que sean más fáciles " +
@@ -1066,6 +1088,11 @@ ${tarjetaFuente("historia")}`
     },
   ],
   sueltos: [
+    seguir([
+      ["/mi-cota", "Cómo se calcula la cota de tu terreno", "el cálculo, paso por paso"],
+      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "la misma serie del INA, desde 1925"],
+      ["/sobre", "Quién hace Cota Cero y con qué", ""],
+    ]),
     `      <section class="bloque" id="fuentes">
         <p class="kicker">8 · Las fuentes</p>
         <h2>Datos que usamos</h2>
@@ -1181,12 +1208,9 @@ const PREGUNTAS = [
 ];
 
 const htmlPreguntas = pagina({
-  ruta: "/preguntas",
-  titulo: "Preguntas frecuentes — Cota Cero, Santa Fe",
-  descripcion:
-    "Cómo se calcula tu umbral, cómo funcionan los avisos, qué pasa sin conexión y quién ve tus datos. Las dudas más comunes sobre Cota Cero.",
+  clave: "preguntas",
   migaja: "Preguntas frecuentes",
-  h1: "Preguntas frecuentes",
+  h1: "Preguntas sobre el río, tu cota y las inundaciones",
   lead: "Las dudas que más aparecen, contestadas sin vueltas.",
   jsonld: {
     "@context": "https://schema.org",
@@ -1214,6 +1238,14 @@ const htmlPreguntas = pagina({
           una vía de auxilio — ante una emergencia llamá al <b>103</b>.
         </p>`,
     },
+  ],
+  sueltos: [
+    seguir([
+      ["/datos", "De dónde salen los datos del río Paraná en Santa Fe", "cada fuente, con el enlace para comprobarla"],
+      ["/mi-cota", "Cómo se calcula la cota de tu terreno", ""],
+      ["/historia", "Las crecidas históricas del Paraná", "1992 sigue siendo el récord"],
+      ["/sobre", "Quién hace Cota Cero", ""],
+    ]),
   ],
 });
 
@@ -1301,10 +1333,7 @@ const NUMERO_CHARLAS =
   ] || String(CHARLAS.length);
 
 const htmlCharlas = pagina({
-  ruta: "/charlas",
-  titulo: "Charlas para seguir pensando — Cota Cero",
-  descripcion:
-    "Charlas TED y TEDx sobre las ideas detrás de Cota Cero: prepararse antes de la emergencia, organizarse entre vecinos, convivir con el agua y abrir los datos públicos.",
+  clave: "charlas",
   migaja: "Charlas",
   chip: "Para seguir pensando",
   h1: "Charlas que explican por qué existe esta app",
@@ -1358,6 +1387,64 @@ ${CHARLAS.map(
   ],
 });
 
+/* Los datos históricos, servidos en HTML.
+   ------------------------------------------------------------------
+   Antes esta página no tenía UN SOLO número en el marcado: las crecidas, las
+   bajantes y la tabla las inyectaba historia.js, y el contenedor salía con
+   `hidden`. Un buscador —o un lector de pantalla, o alguien con el JS
+   bloqueado— veía "Cargando un siglo de mediciones…" y nada más. Justo en la
+   página que existe para contar la historia del río.
+
+   Ahora los números se emiten acá, al generar, desde el mismo
+   datos-abiertos/historia.json que usa el navegador. El JavaScript quedó para
+   lo que de verdad lo necesita —la franja del siglo y el tanque que se
+   recorre—, y ya no reescribe estas listas. */
+const MESES = "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(" ");
+const enPalabras = (f) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f || "");
+  return m ? `${+m[3]} de ${MESES[+m[2] - 1]} de ${m[1]}` : "";
+};
+const anioDe = (f) => (f || "").slice(0, 4);
+
+/* [anio, max, fecha_max, min, fecha_min, dias, dias_alerta, dias_evac] */
+const filaHist = (f) => ({
+  anio: f[0], max: f[1], fmax: f[2], min: f[3], fmin: f[4],
+  dias: f[5], da: f[6], de: f[7],
+});
+const HIST = historia ? historia.anios.map(filaHist) : [];
+const CRECIDAS = [...HIST].sort((a, b) => b.max - a.max).slice(0, 8);
+const BAJANTES = [...HIST].sort((a, b) => a.min - b.min).slice(0, 8);
+const RECORD = CRECIDAS[0];
+
+const listaCrecidas = CRECIDAS.map(
+  (e, i) => `          <li>
+            <span class="h-puesto">${i + 1}</span>
+            <div>
+              <b>${e.anio}</b> · ${nm(e.max, 2)} m<br>
+              <span class="chico">Máximo el ${enPalabras(e.fmax)}. ${
+                e.da
+                  ? `${e.da} ${e.da === 1 ? "día" : "días"} en nivel de alerta` +
+                    (e.de ? `, de los cuales ${e.de} en nivel de evacuación.` : ".")
+                  : "No llegó al nivel de alerta."
+              }</span>
+            </div>
+          </li>`,
+).join("\n");
+
+const listaBajantes = BAJANTES.map(
+  (e, i) => `          <li>
+            <span class="h-puesto">${i + 1}</span>
+            <div>
+              <b>${e.anio}</b> · ${nm(e.min, 2)} m<br>
+              <span class="chico">Mínimo el ${enPalabras(e.fmin)}.</span>
+            </div>
+          </li>`,
+).join("\n");
+
+const tablaHist = HIST.map(
+  (e) => `                  <tr><td>${e.anio}</td><td>${nm(e.max, 2)}</td><td>${nm(e.min, 2)}</td><td>${e.da}</td></tr>`,
+).join("\n");
+
 /* ---------- /historia ----------
    Cien años del Paraná. La página es un esqueleto: todos los números los pone
    historia.js leyendo datos/historia.json, que genera `node scripts/historia.js`
@@ -1368,14 +1455,11 @@ ${CHARLAS.map(
    nada a nadie hasta que se lo ve al lado de los 7,43 de 1992 y de los −0,23
    de 2022. Esta página es la escala. */
 const htmlHistoria = pagina({
-  ruta: "/historia",
-  titulo: "Cien años del Paraná en Santa Fe — Cota Cero",
-  descripcion:
-    "La serie completa del hidrómetro del Puerto de Santa Fe desde 1925, con datos oficiales del INA: las mayores crecidas, las bajantes más hondas y qué tan alto está el río hoy comparado con un siglo de mediciones.",
+  clave: "historia",
   migaja: "Cien años del Paraná",
   script: "/js/historia.js",
   chip: "La escala real",
-  h1: "Cien años del Paraná",
+  h1: "Más de un siglo del río Paraná en Santa Fe",
   lead:
     "El hidrómetro marca un número y el número solo no dice nada. Esta página " +
     "lo pone al lado de <b>un siglo de mediciones oficiales</b> del mismo " +
@@ -1399,12 +1483,84 @@ const htmlHistoria = pagina({
   },
   bloques: [],
   sueltos: [
-    `      <p id="h-cargando" class="chico" role="status">Cargando un siglo de mediciones…</p>
+    `      <section class="bloque">
+        <p class="kicker">1925 — hoy</p>
+        <h2>El Paraná en más de cien años de registros</h2>
+        <p>
+          El Instituto Nacional del Agua publica la lectura diaria del
+          hidrómetro del Puerto de Santa Fe desde el 2 de enero de 1925. Son
+          <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> del
+          mismo instrumento, y es la misma serie de la que sale el número que
+          la app muestra hoy.
+        </p>
+        <table class="cuenta">
+          <tr><td>Mayor altura registrada — ${enPalabras(RECORD.fmax)}</td><td>${nm(RECORD.max, 2)} m</td></tr>
+          <tr><td>Bajante más honda — ${enPalabras(BAJANTES[0].fmin)}</td><td>${nm(BAJANTES[0].min, 2)} m</td></tr>
+          <tr><td>Mediana de la serie diaria</td><td>${nm(historia.cuantiles[50], 2)} m</td></tr>
+          <tr class="total"><td>Años con registro</td><td>${HIST.length}</td></tr>
+        </table>
+        <p style="margin-top:20px" class="chico">
+          Antes de 1925 el INA no publica esta serie. La crecida de 1905 que se
+          cita seguido queda afuera: no la reconstruimos desde recortes de
+          diario.
+        </p>
+      </section>
 
+      <section class="bloque">
+        <h2>Las mayores crecidas registradas</h2>
+        <p>
+          Ordenadas por la altura máxima de cada año. No es una lista escrita a
+          mano: es la serie del INA ordenada de mayor a menor.
+        </p>
+        <ol class="h-ranking">
+${listaCrecidas}
+        </ol>
+      </section>
+
+      <section class="bloque">
+        <h2>Las bajantes más hondas</h2>
+        <p>
+          El cero del hidrómetro no es el fondo del río: por debajo de cero
+          sigue habiendo agua. Un número negativo significa que el río está más
+          abajo que el cero de esa escala.
+        </p>
+        <ol class="h-ranking">
+${listaBajantes}
+        </ol>
+      </section>
+
+      <section class="bloque" id="umbrales">
+        <h2>¿Qué significan estos números?</h2>
+        <p>
+          El <b>nivel de alerta</b> del hidrómetro del Puerto de Santa Fe es de
+          <b>${nm(ESTACION.alerta, 2)} m</b> y el <b>nivel de evacuación</b> es
+          de <b>${nm(ESTACION.evacuacion, 2)} m</b>. Los dos los publica la
+          estación del INA, y son los mismos con los que se dibujan las líneas
+          punteadas de esta página.
+        </p>
+        <p>
+          Con eso, el récord de ${RECORD.anio} —${nm(RECORD.max, 2)} m— quedó
+          <b>${nm(RECORD.max - ESTACION.evacuacion, 2)} m por encima</b> del
+          nivel de evacuación. Y todo el rango en el que se decide algo, del
+          alerta al récord, son
+          <b>${nm(RECORD.max - ESTACION.alerta, 2)} m</b>: por eso un cambio de
+          diez centímetros en el modelo no es un detalle.
+        </p>
+        <p class="chico">
+          Alcanzar una altura no significa que el agua entre a una casa: buena
+          parte de la ciudad está protegida por defensas, compuertas y bombeo.
+          <a href="/datos#no-dice">Por qué el nivel del río no es una predicción de inundación</a>.
+        </p>
+      </section>
+
+      <p id="h-cargando" class="chico" role="status">Cargando la línea de tiempo…</p>
+
+      <!-- Lo interactivo, y SÓLO lo interactivo, espera al JavaScript. Los
+           datos de arriba ya están en el HTML: si esto no carga, la página
+           sigue contando la historia completa. -->
       <div id="h-contenido" hidden>
         <section class="bloque">
-          <p class="kicker">1925 — hoy</p>
-          <h2>Un siglo, de una mirada</h2>
+          <h2>Recorré la serie año por año</h2>
           <p>
             Cada barra es un año: va del nivel más bajo al más alto que marcó el
             hidrómetro. Las dos líneas punteadas son los umbrales oficiales de
@@ -1415,10 +1571,7 @@ const htmlHistoria = pagina({
             Las barras naranjas son años que llegaron a la alerta; las rojas,
             los que llegaron a nivel de evacuación.
           </p>
-        </section>
 
-        <section class="bloque">
-          <h2>Recorré la serie</h2>
           <div class="h-modos" role="group" aria-label="Qué recorrer">
             <button type="button" class="btn sec" data-modo="anios" aria-pressed="true">Recorrer años</button>
             <button type="button" class="btn sec" data-modo="libre" aria-pressed="false">Mover el río</button>
@@ -1445,70 +1598,230 @@ const htmlHistoria = pagina({
             agua salta en vez de deslizarse.
           </p>
         </section>
+      </div>
 
-        <section class="bloque">
-          <h2>Las mayores crecidas registradas</h2>
-          <p class="chico">
-            Ordenadas por la altura máxima del año. No es una lista escrita a
-            mano: es la serie del INA ordenada de mayor a menor.
-          </p>
-          <ol class="h-ranking" id="h-crecidas"></ol>
-        </section>
+      <section class="bloque">
+        <h2>La tabla completa</h2>
+        <details class="h-detalle">
+          <summary>Ver los ${HIST.length} años, uno por uno</summary>
+          <div class="h-tabla-caja">
+            <table class="h-tabla">
+              <thead><tr><th scope="col">Año</th><th scope="col">Máximo</th><th scope="col">Mínimo</th><th scope="col">Días en alerta</th></tr></thead>
+              <tbody>
+${tablaHist}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
 
-        <section class="bloque">
-          <h2>Las bajantes más hondas</h2>
-          <p class="chico">
-            El cero del hidrómetro no es el fondo del río: por debajo de cero
-            sigue habiendo agua. Un número negativo significa que el río está
-            más abajo que el cero de esa escala.
-          </p>
-          <ol class="h-ranking" id="h-bajantes"></ol>
-        </section>
+      <section class="bloque borde">
+        <p class="kicker">La fuente</p>
+        <p class="chico">
+          Serie diaria del hidrómetro del Puerto de Santa Fe:
+          <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> entre el
+          ${enPalabras(historia.desde)} y el ${enPalabras(historia.hasta)}.
+          Fuente: ${esc(ORGANISMOS.ina.nombre)}, serie ${ESTACION.serieId}
+          (altura hidrométrica, medición directa). Descargado el
+          ${enPalabras(historia.generado)}.
+        </p>
+        <p class="fuente-enlaces">
+          <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
+          <a class="enlace-crudo" href="${esc(FUENTES.historia.verificar)}" target="_blank" rel="noopener">Ver la serie cruda</a>
+        </p>
+        <p class="chico">
+          Los años con la libreta incompleta están marcados en la tabla por su
+          cantidad de días medidos${historia.incompletos.length ? ": " + historia.incompletos.join(", ") : ""}.
+        </p>
+      </section>
 
-        <section class="bloque">
-          <h2>La tabla completa</h2>
-          <details class="h-detalle">
-            <summary>Ver los ${historia ? historia.anios.length : ""} años, uno por uno</summary>
-            <div class="h-tabla-caja">
-              <table class="h-tabla">
-                <thead><tr><th scope="col">Año</th><th scope="col">Máximo</th><th scope="col">Mínimo</th><th scope="col">Días en alerta</th></tr></thead>
-                <tbody id="h-tabla-cuerpo"></tbody>
-              </table>
-            </div>
-          </details>
-        </section>
+      <section class="bloque">
+        <h2>Comparar con el río de hoy</h2>
+        <p>
+          Esta página cuenta lo que pasó. Para ver cuánto marca el hidrómetro
+          ahora —y qué significa para un terreno en particular— está el resto
+          de Cota Cero.
+        </p>
+        <ul class="pasos">
+          <li><a href="/">Ver el nivel del río Paraná hoy</a></li>
+          <li><a href="/mi-cota">Saber la cota de tu terreno en Santa Fe</a></li>
+          <li><a href="/datos">Conocer de dónde salen estos datos</a></li>
+        </ul>
+      </section>
 
-        <section class="bloque borde">
-          <p class="kicker">La fuente</p>
-          <p id="h-fuente" class="chico"></p>
-          <p class="fuente-enlaces">
-            <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
-            <a class="enlace-crudo" id="h-verificar" href="${esc(FUENTES.historia.verificar)}" target="_blank" rel="noopener">Ver la serie cruda</a>
-          </p>
-          <p class="chico">
-            Antes de 1925 el INA no publica esta serie. La crecida de 1905 que
-            se cita seguido queda afuera: no la reconstruimos desde recortes de
-            diario. Los años con la libreta incompleta están marcados como
-            tales.
-          </p>
-        </section>
+      <section class="bloque oscuro">
+        <p class="kicker">Ojo con leer de más</p>
+        <h2>Esto es historia, no pronóstico</h2>
+        <p>
+          Que una altura se haya alcanzado pocas veces en cien años no dice
+          nada sobre lo que va a pasar este año. La serie tampoco es homogénea:
+          en cien años cambiaron las presas aguas arriba, el uso del suelo de
+          la cuenca y el propio régimen del río.
+        </p>
+        <p>
+          Y una advertencia sobre las defensas: la ciudad de 1925 no es la de
+          hoy. Un mismo número del hidrómetro no significaba lo mismo antes que
+          ahora, porque cambió lo que hay entre el río y las casas.
+        </p>
+      </section>`,
+  ],
+});
 
-        <section class="bloque oscuro">
-          <p class="kicker">Ojo con leer de más</p>
-          <h2>Esto es historia, no pronóstico</h2>
-          <p>
-            Que una altura se haya alcanzado pocas veces en cien años no dice
-            nada sobre lo que va a pasar este año. La serie tampoco es
-            homogénea: en cien años cambiaron las presas aguas arriba, el uso
-            del suelo de la cuenca y el propio régimen del río.
-          </p>
-          <p>
-            Y una advertencia sobre las defensas: la ciudad de 1925 no es la de
-            hoy. Un mismo número del hidrómetro no significaba lo mismo antes
-            que ahora, porque cambió lo que hay entre el río y las casas.
-          </p>
-        </section>
-      </div>`,
+/* ---------- /sobre ----------
+   Para un sitio sobre riesgo hídrico, decir quién está detrás no es un
+   trámite: es lo que separa una herramienta ciudadana de una página anónima
+   que da números sobre inundaciones. Esto estaba disperso entre el pie y
+   /legal, y en ningún lado se contestaba de frente "¿quiénes son ustedes?".
+
+   Cada afirmación de acá tiene que ser cierta y verificable. Nada de
+   credenciales, ni de respaldos, ni de "avalado por". */
+const htmlSobre = pagina({
+  clave: "sobre",
+  migaja: "Sobre Cota Cero",
+  chip: "Quiénes somos",
+  h1: "Sobre Cota Cero",
+  lead:
+    "Cota Cero es un <b>proyecto ciudadano independiente</b>. No pertenece a " +
+    "la Municipalidad de Santa Fe, ni al INA, ni a la Provincia, ni a ningún " +
+    "organismo — y ninguno lo revisó.",
+  jsonld: {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "Sobre Cota Cero",
+    inLanguage: "es-AR",
+    mainEntity: {
+      "@type": "WebSite",
+      name: "Cota Cero",
+      url: SITIO,
+      description:
+        "Herramienta ciudadana que relaciona el nivel del río Paraná en Santa Fe con la cota del terreno.",
+      creator: { "@type": "Person", name: "Ariel Benz" },
+    },
+  },
+  bloques: [
+    {
+      kicker: "Qué es",
+      titulo: "Una herramienta para leer un número que ya es público",
+      html: `        <p>
+          El Instituto Nacional del Agua publica todos los días la altura del
+          río Paraná en el hidrómetro del Puerto de Santa Fe. La Municipalidad
+          publica las curvas de nivel de la ciudad. Los dos datos son públicos
+          y los dos son difíciles de usar por separado.
+        </p>
+        <p>
+          Cota Cero hace una sola cosa: <b>los pone en la misma escala</b> para
+          que se puedan comparar, y explica qué significa esa comparación —
+          incluido todo lo que no significa.
+        </p>
+        <p>
+          Es gratis, no pide registro, no tiene publicidad y funciona sin
+          señal una vez cargada.
+          <a href="/datos">Ver de dónde sale cada dato</a>.
+        </p>`,
+    },
+    {
+      kicker: "Quién",
+      titulo: "Lo hace una persona, no una institución",
+      html: `        <p>
+          Lo desarrolla <b>Ariel Benz</b>, por cuenta propia. No hay detrás una
+          empresa, una ONG ni un organismo, y no recibe financiamiento de
+          ninguno.
+        </p>
+        <div class="aviso grave">
+          <b>Cota Cero no es oficial y no lo pretende.</b> No está avalado ni
+          revisado por la Municipalidad de Santa Fe, el INA, la Provincia ni la
+          FICH-UNL. Usa los datos públicos que esos organismos producen y los
+          cita para que cualquiera pueda ir a comprobarlos.
+          <b>La orden de evacuación la da Defensa Civil, al 103.</b>
+        </div>`,
+    },
+    {
+      kicker: "Con qué",
+      titulo: "Todo lo que muestra tiene fuente y enlace",
+      html: `        <ul class="pasos">
+          <li><b>El nivel del río</b> — Instituto Nacional del Agua, serie del
+            hidrómetro del Puerto de Santa Fe.</li>
+          <li><b>La altura del terreno</b> — curvas de nivel de la
+            Municipalidad de Santa Fe, Secretaría de Recursos Hídricos.</li>
+          <li><b>Los puntos de encuentro</b> — Plan de Contingencia de la
+            Dirección de Gestión de Riesgos.</li>
+          <li><b>La serie histórica</b> — INA, lecturas diarias desde 1925.</li>
+        </ul>
+        <p>
+          Cada una está enlazada, con el dato crudo al lado, en
+          <a href="/datos">la página de datos y fuentes</a>.
+        </p>`,
+    },
+    {
+      oscuro: true,
+      kicker: "Qué no es",
+      titulo: "No predice inundaciones",
+      html: `        <p>
+          Cota Cero relaciona dos alturas. No es un modelo de inundación: no
+          sabe si entre el río y tu casa hay un terraplén, una compuerta o una
+          estación de bombeo, y no ve la lluvia que cae adentro de la ciudad.
+        </p>
+        <p>
+          Las constantes del cálculo están en discusión técnica abierta y así
+          se dice en pantalla, con los números de las dos posturas.
+          <a href="/datos#abiertas">Ver las discusiones abiertas</a>.
+        </p>
+        <p class="chico">
+          Cuando falta un dato, la app dice que no lo tiene. No se rellena el
+          hueco con un número que parezca firme.
+        </p>`,
+    },
+    {
+      borde: true,
+      kicker: "Contacto",
+      titulo: "Si algo está mal, avisá",
+      html: `        <p>
+          Un error en una herramienta sobre riesgo hídrico no es un detalle.
+          Si encontrás un dato equivocado, una fuente rota o algo que no se
+          entiende, escribí por el
+          <a href="/app?ir=ajustes">formulario de sugerencias</a> de la app.
+        </p>
+        <p class="chico">
+          Es lo único de Cota Cero que manda texto a un servidor, y el
+          formulario lo aclara. No se guarda tu IP.
+        </p>`,
+    },
+  ],
+});
+
+/* ---------- 404 ----------
+   Vercel sirve /404.html —con código 404 de verdad— para cualquier ruta que
+   no exista. Alguien que se equivoca de dirección durante una crecida no
+   tiene que quedarse mirando un error: el nivel del río va arriba de todo.
+
+   El nivel sale del widget por iframe, que ya existe, se actualiza solo y no
+   agrega ni una línea de JavaScript a esta página. */
+const htmlNoEncontrada = pagina({
+  clave: "noEncontrada",
+  migaja: "Página no encontrada",
+  chip: "Error 404",
+  h1: "Esa página no existe",
+  lead:
+    "Puede que el enlace esté viejo o que haya un error de tipeo. Mientras " +
+    "tanto, el río:",
+  bloques: [
+    {
+      html: `        <iframe src="/widget" title="Nivel del río Paraná en el Puerto de Santa Fe"
+          loading="lazy" style="width:100%;height:200px;border:0;border-radius:16px"></iframe>`,
+    },
+    {
+      titulo: "Lo que sí existe",
+      html: `        <ul class="pasos">
+          <li><a href="/">Ver el nivel del río Paraná en Santa Fe hoy</a></li>
+          <li><a href="/mi-cota">Saber la cota de tu terreno</a></li>
+          <li><a href="/puntos-de-encuentro">Los 30 puntos de encuentro ante una inundación</a></li>
+          <li><a href="/historia">Las crecidas históricas del Paraná</a></li>
+          <li><a href="/datos">De dónde salen los datos</a></li>
+        </ul>
+        <div class="aviso grave">
+          Si es una emergencia, <b>Defensa Civil: 103</b>.
+        </div>`,
+    },
   ],
 });
 
@@ -1528,10 +1841,7 @@ const CONDICIONES = [
 ];
 
 const htmlMedios = pagina({
-  ruta: "/para-medios",
-  titulo: "Widget del nivel del río para medios — Cota Cero",
-  descripcion:
-    "Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe, la tendencia y los umbrales oficiales. Dos líneas de HTML, sin claves de API, sin cookies y sin rastreo de tus lectores.",
+  clave: "paraMedios",
   migaja: "Widget para medios",
   script: "/js/medios.js",
   chip: "Para medios y sitios",
@@ -1613,10 +1923,7 @@ const PRIVACIDAD = [
 ];
 
 const htmlLegal = pagina({
-  ruta: "/legal",
-  titulo: "Legal y privacidad — Cota Cero",
-  descripcion:
-    "Descargo de responsabilidad, qué datos quedan en tu teléfono y cuáles no, y las licencias de todo lo que usa Cota Cero.",
+  clave: "legal",
   migaja: "Legal y privacidad",
   h1: "Legal",
   lead:
@@ -1712,6 +2019,12 @@ ${LICENCIAS.map(
         </p>`,
     },
   ],
+  sueltos: [
+    seguir([
+      ["/sobre", "Quién hace Cota Cero", "proyecto ciudadano independiente"],
+      ["/datos", "De dónde salen los datos", ""],
+    ]),
+  ],
 });
 
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
@@ -1745,10 +2058,15 @@ if (despues !== antes) {
   console.log("index.html: el pie ya estaba al día");
 }
 
+/* La 404 va a la raíz como 404.html: es donde la busca Vercel. */
+await writeFile(join(RAIZ, "404.html"), htmlNoEncontrada);
+console.log("escrito: /404.html");
+
 for (const [ruta, html] of [
   ["puntos-de-encuentro", htmlPuntos],
   ["mi-cota", htmlCota],
   ["datos", htmlDatos],
+  ["sobre", htmlSobre],
   ["historia", htmlHistoria],
   ["preguntas", htmlPreguntas],
   ["legal", htmlLegal],
@@ -1762,6 +2080,67 @@ for (const [ruta, html] of [
   );
 }
 console.log("puntos leídos de app/index.html: " + puntos.length);
+
+/* ---------- sitemap.xml ----------
+   Sale del registro, no de un archivo que se edita aparte: así no puede
+   listar una página que ya no existe ni olvidarse de una nueva. Sólo entra
+   lo indexable — nada de /api, assets, manifest ni service worker.
+
+   Sin `lastmod`: poner la fecha de hoy en cada corrida sería decirle a Google
+   que todas las páginas cambiaron cuando no cambió ninguna, y una fecha
+   inventada es peor que ninguna. */
+const urls = enSitemap()
+  .map(
+    (p) =>
+      `  <url><loc>${SITIO}${p.ruta === "/" ? "/" : p.ruta}</loc>` +
+      `<changefreq>${p.frecuencia}</changefreq>` +
+      `<priority>${p.prioridad}</priority></url>`,
+  )
+  .join("\n");
+await writeFile(
+  join(RAIZ, "sitemap.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+);
+console.log("escrito: /sitemap.xml  (" + enSitemap().length + " URLs indexables)");
+
+/* ---------- la portada y la app son HTML a mano ----------
+   No las genera este script, pero su título, su descripción y su canónica
+   tienen que decir lo mismo que lib/paginas.js o el registro deja de ser la
+   fuente de verdad. En vez de reescribirles el <head> —que es frágil— se
+   comprueba y se falla fuerte. */
+const enHtml = (h, re) => (h.match(re) || [, ""])[1].replace(/\s+/g, " ").trim();
+for (const clave of ["inicio", "app", "widget"]) {
+  const meta = PAGINAS[clave];
+  const archivo =
+    clave === "inicio"
+      ? "index.html"
+      : clave === "app"
+        ? join("app", "index.html")
+        : join("widget", "index.html");
+  const h = await readFile(join(RAIZ, archivo), "utf8");
+  const problemas = [];
+  const titulo = enHtml(h, /<title>([\s\S]*?)<\/title>/);
+  if (titulo !== meta.titulo)
+    problemas.push(`  <title> dice   «${titulo}»\n  y debería decir «${meta.titulo}»`);
+  if (meta.descripcion) {
+    const desc = enHtml(h, /<meta\s+name="description"\s+content="([^"]*)"/);
+    if (desc !== meta.descripcion)
+      problemas.push(`  la description no coincide con el registro`);
+  }
+  const noindex = /<meta name="robots" content="noindex/.test(h);
+  if (noindex === meta.indexable)
+    problemas.push(
+      meta.indexable
+        ? "  tiene noindex y el registro la marca indexable"
+        : "  le falta <meta name=\"robots\" content=\"noindex, follow\">",
+    );
+  if (problemas.length)
+    throw new Error(
+      `${archivo} no coincide con lib/paginas.js:\n` + problemas.join("\n"),
+    );
+}
+console.log("portada, app y widget: coinciden con lib/paginas.js");
 
 /* La app son módulos ES y el service worker los precachea uno por uno: si
    alguien agrega un módulo y se olvida de la lista de sw.js, /app deja de

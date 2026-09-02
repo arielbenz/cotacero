@@ -3762,3 +3762,49 @@ textarea:focus-visible {
   vertical-align: middle;
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   RESERVAR EL LUGAR DE LO QUE LLEGA DESPUÉS
+   --------------------------------------------------------------------------
+   Cuatro tarjetas de la pantalla del río se llenan cuando contesta la red, no
+   al pintar: el veredicto, la lluvia, la tendencia del caudal y el bloque de
+   contexto. Hasta que llegan miden poco, y al llenarse empujan hacia abajo
+   todo lo que tienen debajo.
+
+   Medido en /app con caché frío y 4G lento, eso daba CLS 0,264 — el único
+   número de Core Web Vitals que este sitio tenía en rojo (el límite es 0,1).
+   No es sólo una métrica: es la pantalla saltando bajo el dedo de alguien que
+   está tratando de leer el nivel del río.
+
+   Los valores salen de medir la altura final de cada una a 390 px de ancho.
+   Son mínimos, no alturas fijas: si el contenido crece, la tarjeta crece. En
+   pantallas anchas el contenido entra en menos líneas y puede sobrar un poco
+   de aire; se prefiere ese aire antes que el salto. */
+#veredicto-rio {
+  min-height: 225px;
+}
+/* El renglón que dice de dónde salió el dato arranca vacío y termina en dos
+   líneas con sus dos enlaces: son 60 px que empujan toda la pantalla. */
+#origen-dato {
+  min-height: 60px;
+}
+#tendencia {
+  min-height: 250px;
+}
+#contexto-caja {
+  min-height: 380px;
+}
+#lluvia-caja {
+  min-height: 270px;
+}
+@media (min-width: 700px) {
+  /* En pantalla ancha el texto entra en menos renglones: reservar lo mismo
+     dejaría un hueco visible y no hay nada que ganar — el salto se nota
+     mucho menos cuando la tarjeta no ocupa media pantalla. */
+  #veredicto-rio,
+  #tendencia,
+  #contexto-caja,
+  #lluvia-caja {
+    min-height: 0;
+  }
+}

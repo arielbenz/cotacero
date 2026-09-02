@@ -101,6 +101,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js` |
 | Organismos, URLs, la estación del INA | `lib/fuentes.js` | `lib/ina.js`, `scripts/paginas.js` |
 | El pie del sitio | constante `PIE` en `scripts/paginas.js` | las páginas generadas **y** `index.html` |
+| Título, descripción, canónica e indexabilidad | `lib/paginas.js` | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
 | Récord histórico y serie | `datos-abiertos/historia.json` | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
@@ -140,6 +141,36 @@ cuelga todo lo demás. Consecuencias que conviene tener presentes:
   deja de abrir sin conexión y el fallo es mudo. `scripts/paginas.js` compara
   las dos listas y revienta si no coinciden, así que el olvido se ve en el
   acto.
+
+### SEO: los metadatos salen de `lib/paginas.js`
+
+Título, descripción, canónica, Open Graph, prioridad en el sitemap y **si la
+página se indexa** viven ahí. `scripts/paginas.js` los usa para el `<head>` de
+las páginas generadas, emite `sitemap.xml` con las indexables, y **verifica**
+que la portada, la app y el widget —que son HTML a mano— digan lo mismo. Si no
+coinciden, falla al generar.
+
+Agregar una página son cinco lugares: `lib/paginas.js`, `scripts/paginas.js`,
+la lista de escritura al final de ese archivo, `vercel.json` y el `PIE`. El
+sitemap ya no: sale solo.
+
+**`/app` va con `noindex, follow`, y `/widget` y la 404 también.** El motivo de
+cada una está escrito en `lib/paginas.js`, en `razonNoindex`. La app es una
+interfaz, no un documento: las páginas de contenido existen justamente porque
+la app esconde tres de sus cuatro secciones detrás de pestañas, y quien llega
+desde una búsqueda informativa cae en una herramienta vacía. `follow` a
+propósito: se sigue rastreando y sigue pasando autoridad.
+
+**Los datos históricos van en el HTML, no sólo en el JS.** `/historia` los
+emite `scripts/paginas.js` desde `datos-abiertos/historia.json`; `js/historia.js`
+sólo agrega la franja y el tanque que se recorre. Antes esa página no tenía un
+solo número en el marcado y el contenedor salía con `hidden`. **No volver a
+mover contenido al JavaScript.**
+
+**Reservar el alto de lo que llega por red.** Las tarjetas de la pantalla del
+río que se llenan cuando contesta el servidor tienen `min-height` en
+`app.css`. Sin eso el CLS de `/app` era 0,264 (el límite es 0,1): la pantalla
+saltaba bajo el dedo de quien estaba leyendo el nivel del río.
 
 ### CSP: nada de manejadores inline
 

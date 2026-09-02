@@ -117,6 +117,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
 
     lib/ina.js               lectura del INA: API primero, raspado de respaldo
     lib/fuentes.js           organismos, URLs y la estación, escritos UNA vez
+    lib/paginas.js           títulos, descripciones, canónicas e indexabilidad
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     lib/metricas.js          claves y días del contador (módulo, NO endpoint)
 
@@ -130,6 +131,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
 
     vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
 
+    404.html                 la página de error (generada)
     AUDITORIA.md             cada número, su fuente y qué falta validar
     CLAUDE.md                lo operativo, para agentes
 
@@ -255,6 +257,44 @@ con `preserveAspectRatio="none"` para que 102 barras entren en un teléfono, y
 eso aplasta las letras horizontalmente hasta volverlas ilegibles. Las barras
 aguantan la deformación; las letras no. Es el mismo criterio que la regla de la
 app, que también lleva la numeración fuera de la pista.
+
+## Buscadores
+
+`lib/paginas.js` es el mapa del sitio: por cada página, su título, su
+descripción, su canónica, su prioridad en el sitemap y **si se indexa**.
+También lleva `busqueda`, que no lo lee ningún programa — documenta a qué va
+cada página, para que nadie escriba dos que compitan por lo mismo.
+
+De ahí salen tres cosas: el `<head>` de las páginas generadas, `sitemap.xml`
+(sólo las indexables, sin `lastmod` inventado) y un chequeo que **falla** si la
+portada, la app o el widget dejan de coincidir con el registro.
+
+**Tres URLs van con `noindex, follow`:**
+
+    /app       es la interfaz, no un documento. Las páginas de contenido
+               existen justamente porque la app esconde tres de sus cuatro
+               secciones detrás de pestañas: indexar las dos es competir
+               contra uno mismo, y repite los 30 puntos de encuentro.
+    /widget    es un fragmento para embeber en otros sitios.
+    /404.html  es un error, no contenido.
+
+`follow` en las tres: se siguen rastreando y siguen pasando autoridad.
+
+**`/historia` sirve sus datos en HTML.** Las crecidas, las bajantes, los
+umbrales y la tabla de los 102 años los emite `scripts/paginas.js` desde
+`datos-abiertos/historia.json`. `js/historia.js` quedó para lo único que
+necesita JavaScript: la franja del siglo y el tanque que se recorre. Antes esa
+página tenía 328 palabras y ni un número; ahora tiene 1.372 y la serie
+completa. **No volver a mover contenido al JavaScript**: es la página que
+existe para contar la historia del río.
+
+**El CLS de `/app` era 0,264.** Cuatro tarjetas de la pantalla del río se
+llenan cuando contesta la red y empujaban todo lo de abajo. Reservarles el
+alto en `app.css` lo dejó en 0,009. Medido con caché frío y 4G lento, que es
+como llega alguien desde una búsqueda.
+
+**robots.txt y sitemap.xml nunca se cachean** en el service worker: son dos
+archivos de 1 KB y una copia guardada de ellos no caduca nunca.
 
 ## Correr en local
 

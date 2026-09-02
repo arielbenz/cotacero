@@ -6,14 +6,14 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Cota Cero — el nivel del río y tu umbral, Santa Fe</title>
+    <title>Cota Cero — la app del nivel del río en Santa Fe</title>
     <!-- La app genera ?ir=cota, ?ir=plan y ?ir=donde al navegar entre
          pestañas: son la misma página. Sin canonical, un buscador las trata
          como cuatro y reparte la señal. -->
     <link rel="canonical" href="https://cotacerosf.com/app" />
     <meta
       name="description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Herramienta ciudadana para la emergencia hídrica de Santa Fe."
+      content="La herramienta: el nivel del río Paraná, tu referencia estimada, el plan familiar y los puntos de encuentro. Funciona sin señal una vez cargada."
     />
     <meta name="theme-color" content="#0B1418" />
     <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
@@ -29,7 +29,7 @@
       property="og:description"
       content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
     />
-    <meta property="og:image" content="https://cotacerosf.com/og.png" />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -40,6 +40,13 @@
     <meta property="og:url" content="https://cotacerosf.com/app" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- Los controles nativos (select, scrollbars) siguen al tema. -->
+    <!-- NOINDEX, FOLLOW. La app es la interfaz de la herramienta, no un
+         documento: quien llega desde una búsqueda informativa cae acá con la
+         app vacía —sin cota cargada— en vez de en una página que le contesta.
+         Y repite los 30 puntos de encuentro, que ya tienen su propia página.
+         `follow` a propósito: se sigue rastreando y sigue pasando autoridad.
+         El motivo está escrito en lib/paginas.js, que es lo que manda. -->
+    <meta name="robots" content="noindex, follow" />
     <meta name="color-scheme" content="dark light" />
     <script type="application/ld+json">
       {
@@ -388,7 +395,7 @@
       </details>
 
       <h2>Lluvia prevista</h2>
-      <div class="tarjeta">
+      <div class="tarjeta" id="lluvia-caja">
         <span class="eti">Milímetros por día · próximos 7 días</span>
         <div class="dias" id="dias"></div>
         <p class="chico" style="margin: 11px 0 0" id="lluvia-resumen"></p>
@@ -417,7 +424,7 @@
            umbrales oficiales están publicados; los máximos de otras crecidas
            no los pudimos verificar, así que no están. -->
       <h2>En contexto</h2>
-      <div class="tarjeta">
+      <div class="tarjeta" id="contexto-caja">
         <span class="eti">Dónde está el río hoy</span>
         <div class="barras" id="contexto" aria-hidden="true"></div>
         <p class="chico" id="contexto-texto" style="margin: 12px 0 0"></p>

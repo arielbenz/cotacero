@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v42";
+const VERSION = "cota-cero-v43";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -110,6 +110,13 @@ self.addEventListener("fetch", (e) => {
   // Analytics: ni cachear el script ni interceptar los envíos. Si lo
   // cacheáramos serviríamos una versión vieja para siempre.
   if (url.pathname.startsWith("/_vercel/")) return;
+
+  // robots.txt y sitemap.xml: siempre a la red, nunca al caché. Googlebot no
+  // corre service workers, así que esto no cambia nada para el buscador —
+  // pero una copia guardada de estos dos archivos no caduca nunca, y a un
+  // navegador que ya los pidió le quedaría una versión vieja del mapa del
+  // sitio para siempre. Son dos archivos de 1 KB: no hay nada que ahorrar.
+  if (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") return;
 
   // Tiles del IGN y Open-Meteo: a la red. Cachear tiles no vale la pena.
   if (

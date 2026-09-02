@@ -9,19 +9,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Widget del nivel del río para medios | Cota Cero</title>
-    <link rel="canonical" href="https://cotacerosf.com/para-medios" />
-    <meta name="description" content="Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe y los umbrales oficiales. Dos líneas de HTML, sin claves, sin cookies y sin rastreo." />
+    <title>Sobre Cota Cero: qué es y quién lo hace</title>
+    <link rel="canonical" href="https://cotacerosf.com/sobre" />
+    <meta name="description" content="Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe." />
     <meta name="theme-color" content="#0B1418" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Cota Cero" />
-    <meta property="og:title" content="Widget del nivel del río para medios | Cota Cero" />
-    <meta property="og:description" content="Widget gratuito con el nivel del hidrómetro del Puerto de Santa Fe y los umbrales oficiales. Dos líneas de HTML, sin claves, sin cookies y sin rastreo." />
+    <meta property="og:title" content="Sobre Cota Cero: qué es y quién lo hace" />
+    <meta property="og:description" content="Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe." />
     <meta property="og:image" content="https://cotacerosf.com/img/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="es_AR" />
-    <meta property="og:url" content="https://cotacerosf.com/para-medios" />
+    <meta property="og:url" content="https://cotacerosf.com/sobre" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="color-scheme" content="dark light" />
     <script type="application/ld+json">
@@ -38,10 +38,28 @@
           {
             "@type": "ListItem",
             "position": 2,
-            "name": "Widget para medios",
-            "item": "https://cotacerosf.com/para-medios"
+            "name": "Sobre Cota Cero",
+            "item": "https://cotacerosf.com/sobre"
           }
         ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "Sobre Cota Cero",
+        "inLanguage": "es-AR",
+        "mainEntity": {
+          "@type": "WebSite",
+          "name": "Cota Cero",
+          "url": "https://cotacerosf.com",
+          "description": "Herramienta ciudadana que relaciona el nivel del río Paraná en Santa Fe con la cota del terreno.",
+          "creator": {
+            "@type": "Person",
+            "name": "Ariel Benz"
+          }
+        }
       }
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -51,7 +69,6 @@
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
     <script defer src="/_vercel/insights/script.js"></script>
-    <script defer src="/js/medios.js"></script>
   </head>
   <body class="landing">
     <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
@@ -82,65 +99,99 @@
 
     <div class="ancho angosto">
       <header class="pg-cabecera">
-        <p class="chip-tinte">Para medios y sitios</p>
-        <h1>El río, embebido en tu nota</h1>
-        <p class="pg-lead">Un widget gratuito con el nivel del hidrómetro del Puerto, la tendencia y los umbrales oficiales, siempre actualizado. Pegás dos líneas de HTML y tu nota sobre el río queda viva. Sin claves de API, sin cookies, sin rastreo de tus lectores.</p>
+        <p class="chip-tinte">Quiénes somos</p>
+        <h1>Sobre Cota Cero</h1>
+        <p class="pg-lead">Cota Cero es un <b>proyecto ciudadano independiente</b>. No pertenece a la Municipalidad de Santa Fe, ni al INA, ni a la Provincia, ni a ningún organismo — y ninguno lo revisó.</p>
       </header>
 
       <main>
       <section class="bloque">
-        <p class="kicker">Así se ve</p>
-        <h2>Claro y oscuro, del ancho que quieras</h2>
+        <p class="kicker">Qué es</p>
+        <h2>Una herramienta para leer un número que ya es público</h2>
         <p>
-          No son capturas: los dos son el widget de verdad, leyendo el reporte
-          del INA ahora mismo.
+          El Instituto Nacional del Agua publica todos los días la altura del
+          río Paraná en el hidrómetro del Puerto de Santa Fe. La Municipalidad
+          publica las curvas de nivel de la ciudad. Los dos datos son públicos
+          y los dos son difíciles de usar por separado.
         </p>
-        <div class="muestras-widget">
-          <div>
-            <iframe src="/widget" title="Widget de Cota Cero, tema claro" loading="lazy"></iframe>
-            <p class="chico">Tema claro — así viene por defecto</p>
-          </div>
-          <div>
-            <iframe src="/widget?theme=dark" title="Widget de Cota Cero, tema oscuro" loading="lazy"></iframe>
-            <p class="chico">Tema oscuro — agregale <code>?theme=dark</code></p>
-          </div>
+        <p>
+          Cota Cero hace una sola cosa: <b>los pone en la misma escala</b> para
+          que se puedan comparar, y explica qué significa esa comparación —
+          incluido todo lo que no significa.
+        </p>
+        <p>
+          Es gratis, no pide registro, no tiene publicidad y funciona sin
+          señal una vez cargada.
+          <a href="/datos">Ver de dónde sale cada dato</a>.
+        </p>
+      </section>
+
+      <section class="bloque">
+        <p class="kicker">Quién</p>
+        <h2>Lo hace una persona, no una institución</h2>
+        <p>
+          Lo desarrolla <b>Ariel Benz</b>, por cuenta propia. No hay detrás una
+          empresa, una ONG ni un organismo, y no recibe financiamiento de
+          ninguno.
+        </p>
+        <div class="aviso grave">
+          <b>Cota Cero no es oficial y no lo pretende.</b> No está avalado ni
+          revisado por la Municipalidad de Santa Fe, el INA, la Provincia ni la
+          FICH-UNL. Usa los datos públicos que esos organismos producen y los
+          cita para que cualquiera pueda ir a comprobarlos.
+          <b>La orden de evacuación la da Defensa Civil, al 103.</b>
         </div>
       </section>
 
       <section class="bloque">
-        <p class="kicker">El código</p>
-        <h2>Copiá, pegá, listo</h2>
-        <div class="caja-codigo">
-          <button type="button" class="btn sec" id="copiar-widget" hidden>Copiar</button>
-          <pre id="codigo-widget">&lt;iframe src=&quot;https://cotacerosf.com/widget&quot;
-  width=&quot;100%&quot; height=&quot;220&quot; loading=&quot;lazy&quot;
-  style=&quot;border:0;border-radius:16px&quot;
-  title=&quot;Nivel del río en el Puerto de Santa Fe — Cota Cero&quot;&gt;&lt;/iframe&gt;</pre>
-        </div>
-        <div class="rejilla-2" style="margin-top:16px">
-          <div class="mini-tarjeta">
-            <b>Alto recomendado: 220 px</b>
-            <p>El ancho es fluido: ocupa el de tu columna. Abajo de 380 px el pie se reacomoda solo.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <b>Se actualiza solo</b>
-            <p>Con la lectura diaria del INA. Si el dato envejece, el widget muestra su fecha y lo dice — nunca inventa un número.</p>
-          </div>
-        </div>
+        <p class="kicker">Con qué</p>
+        <h2>Todo lo que muestra tiene fuente y enlace</h2>
+        <ul class="pasos">
+          <li><b>El nivel del río</b> — Instituto Nacional del Agua, serie del
+            hidrómetro del Puerto de Santa Fe.</li>
+          <li><b>La altura del terreno</b> — curvas de nivel de la
+            Municipalidad de Santa Fe, Secretaría de Recursos Hídricos.</li>
+          <li><b>Los puntos de encuentro</b> — Plan de Contingencia de la
+            Dirección de Gestión de Riesgos.</li>
+          <li><b>La serie histórica</b> — INA, lecturas diarias desde 1925.</li>
+        </ul>
+        <p>
+          Cada una está enlazada, con el dato crudo al lado, en
+          <a href="/datos">la página de datos y fuentes</a>.
+        </p>
       </section>
 
       <section class="bloque oscuro">
-        <p class="kicker">Tres condiciones</p>
-        <h2>Gratis, con reglas simples</h2>
-        <ol class="condiciones">
-          <li>No recortes el crédito: «Datos: INA · vía Cota Cero» es la trazabilidad del número que estás publicando. Sin eso, tu lector no puede ir a la fuente.</li>
-          <li>El widget muestra el nivel oficial y los umbrales oficiales — no umbrales personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.</li>
-          <li>En emergencia mandan las autoridades: si Defensa Civil comunica algo distinto de lo que dice el widget, vale lo de Defensa Civil.</li>
-        </ol>
-        <p class="chico" style="margin-top:20px">
-          ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
-          Escribinos por el <a href="/app?ir=ajustes">formulario de sugerencias</a>
-          de la app: a prensa contestamos rápido.
+        <p class="kicker">Qué no es</p>
+        <h2>No predice inundaciones</h2>
+        <p>
+          Cota Cero relaciona dos alturas. No es un modelo de inundación: no
+          sabe si entre el río y tu casa hay un terraplén, una compuerta o una
+          estación de bombeo, y no ve la lluvia que cae adentro de la ciudad.
+        </p>
+        <p>
+          Las constantes del cálculo están en discusión técnica abierta y así
+          se dice en pantalla, con los números de las dos posturas.
+          <a href="/datos#abiertas">Ver las discusiones abiertas</a>.
+        </p>
+        <p class="chico">
+          Cuando falta un dato, la app dice que no lo tiene. No se rellena el
+          hueco con un número que parezca firme.
+        </p>
+      </section>
+
+      <section class="bloque borde">
+        <p class="kicker">Contacto</p>
+        <h2>Si algo está mal, avisá</h2>
+        <p>
+          Un error en una herramienta sobre riesgo hídrico no es un detalle.
+          Si encontrás un dato equivocado, una fuente rota o algo que no se
+          entiende, escribí por el
+          <a href="/app?ir=ajustes">formulario de sugerencias</a> de la app.
+        </p>
+        <p class="chico">
+          Es lo único de Cota Cero que manda texto a un servidor, y el
+          formulario lo aclara. No se guarda tu IP.
         </p>
       </section>
       </main>
