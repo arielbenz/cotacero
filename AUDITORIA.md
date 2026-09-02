@@ -21,16 +21,16 @@ prensa como mejor fuente sin que acá diga que es así.
 | Evacuación 5,70 m | estación INA | INA | sí | idem | **sí, ahora** |
 | Récord 7,43 m (1992) | `datos-abiertos/historia.json` | INA, serie 30 | sí | si hay una crecida mayor | sí, al generar |
 | Aguas bajas 2,00 m | `lib/fuentes.js` | INA | sí | idem | sí (no se usa todavía) |
-| **Cero del hidrómetro 8,20 m** | `app.js` `CERO_IGN` | prensa + normativa local | **no** | **discutido — ver abajo** | no |
-| **Pendiente 0,045 m/km** | `app.js` `PENDIENTE` | derivada de un caso | **no** | **discutido — ver abajo** | no |
-| Margen de cota ±0,5 m | `app.js` `ERROR_DEM` | convención cartográfica | no | sí | no |
-| Km río arriba por zona | `app.js` `ZONAS` | 1 publicado, 9 propios | parcial | sí | no |
-| Umbral de lluvia 40 mm/día | `app.js` `MM_UMBRAL` | criterio propio | no | sí | no |
+| **Cero del hidrómetro 8,20 m** | `js/app/config.js` | prensa + normativa local | **no** | **discutido — ver abajo** | no |
+| **Pendiente 0,045 m/km** | `js/app/config.js` | derivada de un caso | **no** | **discutido — ver abajo** | no |
+| Margen de cota ±0,5 m | `js/app/config.js` | convención cartográfica | no | sí | no |
+| Km río arriba por zona | `js/app/config.js` | 1 publicado, 9 propios | parcial | sí | no |
+| Umbral de lluvia 40 mm/día | `js/app/lluvia.js` | criterio propio | no | sí | no |
 | Escenario 6 m + 200-300 mm | HTML de la app | municipio | sí | sí | no |
 | 30 cm / 60 cm de corriente | HTML de la app | seguridad vial estándar | sí | no | no |
-| Escala 0 a 8 m | `app.js` `ESCALA_MAX` | decisión de diseño | n/a | — | no |
-| GPS máx. ±100 m | `app.js` `PRECISION_MAX` | criterio propio | n/a | — | no |
-| Dato vencido a 48 h | `app.js` `VENCE_HORAS` | criterio propio | n/a | — | no |
+| Escala 0 a 8 m | `js/app/config.js` | decisión de diseño | n/a | — | no |
+| GPS máx. ±100 m | `js/app/config.js` | criterio propio | n/a | — | no |
+| Dato vencido a 48 h | `js/app/config.js` | criterio propio | n/a | — | no |
 | Aviso a +15 cm | `api/cron/avisar.js` | criterio propio | n/a | — | no |
 
 Lo que cambió en esta iteración: **cuatro números dejaron de estar escritos a
@@ -118,7 +118,7 @@ optimista, y nadie se enteraría.
 
 **Decisión: se mantiene 8,20. Queda marcado como dato pendiente de validación
 técnica.** La app muestra los dos números y explica la discrepancia en
-`/datos`; el valor del INA se guarda en `estado.ceroINA` y viaja en
+`/datos`; el valor del INA se guarda en `estado.ceroINA` (`js/app/estado.js`) y viaja en
 `/api/nivel` como `cero_ign`, pero no entra en ninguna cuenta.
 
 ### Una hipótesis que se probó y NO explica la diferencia

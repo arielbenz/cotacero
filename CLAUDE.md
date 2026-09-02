@@ -55,6 +55,7 @@ primero (íconos, tipografías) queda congelado.
 
 ### Dónde vive cada cosa
 
+    js/app/             la app, en módulos ES (principal.js es la entrada)
     js/ css/ img/       lo que baja el navegador
     datos-abiertos/     los JSON que la app lee (y que cualquiera puede auditar)
     app/ widget/        HTML escrito a mano
@@ -69,7 +70,7 @@ abrís un `index.html` y ves ese cartel, el archivo que hay que editar es otro.
 
 ### El nivel del río, y quién depende de su forma
 
-    lib/ina.js  ──►  api/nivel.js  ──►  app.js · landing.js · widget/widget.js · sw.js
+    lib/ina.js  ──►  api/nivel.js  ──►  js/app/rio.js · landing.js · widget · sw.js
        │                                api/cron/avisar.js (importa lib/ina.js directo)
        ├─ 1º: API REST del SIyAH (alerta.ina.gob.ar/a5), JSON estructurado
        └─ 2º: raspado del reporte diario en HTML, sólo si la API falla
@@ -97,18 +98,18 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 
 | Qué | Dónde vive | Quién lo lee |
 |---|---|---|
-| Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `app.js` y `scripts/paginas.js` |
+| Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js` |
 | Organismos, URLs, la estación del INA | `lib/fuentes.js` | `lib/ina.js`, `scripts/paginas.js` |
 | El pie del sitio | constante `PIE` en `scripts/paginas.js` | las páginas generadas **y** `index.html` |
-| Récord histórico y serie | `datos-abiertos/historia.json` | `app.js`, `historia.js`, `scripts/paginas.js` |
+| Récord histórico y serie | `datos-abiertos/historia.json` | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
 portada y la app. Si se cambia el dibujo, se cambia en los cuatro.
 
-`app.js` es un script clásico y **no puede importar módulos**: lleva una copia
-mínima de `lib/fuentes.js` en `FUENTES_APP`, con un comentario que apunta al
-original. Si cambia una URL, cambia en `lib/fuentes.js` y se replica a mano.
+`js/app/fuentes.js` **importa `lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
+que el navegador carga como cualquier módulo porque es puro dato). Antes era
+una copia a mano; ya no hay dos listas que se puedan desincronizar.
 
 ### Páginas generadas: no editarlas
 
@@ -122,10 +123,28 @@ Una ruta nueva toca cinco lugares: `scripts/paginas.js`, la lista de escritura
 al final del mismo archivo, `vercel.json` (cabecera de revalidación),
 `sitemap.xml` y el `PIE`.
 
+### La app son módulos ES
+
+`app/index.html` carga **`/js/app/principal.js` con `type="module"`** y de ahí
+cuelga todo lo demás. Consecuencias que conviene tener presentes:
+
+- **No hay globals.** Antes se podía escribir `estado` o `pintarRio()` en la
+  consola; ahora no. Para hurgar desde el navegador:
+  `const m = await import('/js/app/rio.js')` — devuelve la instancia que la
+  página ya cargó, no una copia.
+- **Los umbrales y el récord se mueven sólo con `fijarUmbrales()` y
+  `fijarRecord()`** (`js/app/oficiales.js`). Un import de ESM es de sólo
+  lectura: nadie más puede asignarlos, y el resto los ve actualizados por el
+  enlace vivo del import.
+- **Un módulo nuevo hay que agregarlo al precache de `sw.js`.** Si no, `/app`
+  deja de abrir sin conexión y el fallo es mudo. `scripts/paginas.js` compara
+  las dos listas y revienta si no coinciden, así que el olvido se ve en el
+  acto.
+
 ### CSP: nada de manejadores inline
 
 `script-src` es `'self'` a secas y **no hay un solo `onclick` en el HTML**.
-Toda la interactividad pasa por el delegador de eventos de `app.js`: se agrega
+Toda la interactividad pasa por el delegador de `js/app/principal.js`: se agrega
 una entrada en `ACCIONES` (clics, vía `data-accion`) o en `ENTRADAS`
 (campos, vía `data-input`). Un `onclick` no va a correr y el fallo es mudo.
 
@@ -161,8 +180,8 @@ existe una fuente oficial.
 ### Falsa precisión
 
 El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
-~0,5 m. Un decimal y tilde de aproximación (`mU()` en `app.js`, `unDec()` en
-`sw.js`). La única excepción es el desglose del cálculo, que conserva la
+~0,5 m. Un decimal y tilde de aproximación (`mU()` en `js/app/formato.js`, `unDec()`
+en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
 ### Escenario pesimista, en un solo lugar
@@ -174,7 +193,7 @@ hasta 3 m de diferencia para lo mismo en la misma pantalla.
 
 ### Las listas del plan se guardan por índice
 
-Cada casilla de `MOCHILA` y `PREVIA` (`app.js`) persiste como `cc_mo3`,
+Cada casilla de `MOCHILA` y `PREVIA` (`js/app/config.js`) persiste como `cc_mo3`,
 `cc_pv5`… **por su posición**. Reordenar un renglón le mueve el tilde a todo el
 que ya venía llenando el plan. Se agrega al final; si hay que reordenar, hace
 falta una migración como `limpiarGuardadoViejo()`.
@@ -197,4 +216,4 @@ promesa que la app hace por escrito.
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
 fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central.
-El HTML, `app.js` y `app.css` van por red primero; el resto por caché primero.
+El HTML, los módulos y `app.css` van por red primero; el resto por caché primero.

@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v41";
+const VERSION = "cota-cero-v42";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -23,7 +23,33 @@ const ESENCIALES = [
   "/app",
   "/app/index.html",
   "/css/app.css",
-  "/js/app.js",
+  // La app son módulos ES: hay que precachearlos TODOS o /app no abre sin
+  // conexión. scripts/paginas.js verifica que esta lista y js/app/ digan lo
+  // mismo, y revienta si alguien agrega un módulo y se olvida de acá.
+  // El registro de fuentes: la app lo importa de verdad desde que son
+  // módulos, así que sin esto /app no abre sin conexión.
+  "/lib/fuentes.js",
+  "/js/app/principal.js",
+  "/js/app/avisos.js",
+  "/js/app/bienvenida.js",
+  "/js/app/compartir.js",
+  "/js/app/config.js",
+  "/js/app/cota.js",
+  "/js/app/elevacion.js",
+  "/js/app/estado.js",
+  "/js/app/formato.js",
+  "/js/app/fuentes.js",
+  "/js/app/instalar.js",
+  "/js/app/lluvia.js",
+  "/js/app/mapa.js",
+  "/js/app/metricas.js",
+  "/js/app/oficiales.js",
+  "/js/app/plan.js",
+  "/js/app/puntos.js",
+  "/js/app/rio.js",
+  "/js/app/sugerencias.js",
+  "/js/app/tema.js",
+  "/js/app/vista.js",
   // Con esto el mapa abre sin conexión. Los tiles no se cachean (son muchos
   // y pesados), así que sale el fondo liso, pero los 30 puntos se ven igual.
   "/vendor/maplibre-gl.js",

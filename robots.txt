@@ -5,6 +5,7 @@ Allow: /
 # consume una invocación.
 Disallow: /api/
 Disallow: /vendor/
+Disallow: /lib/
 Disallow: /_vercel/
 
 Sitemap: https://cotacerosf.com/sitemap.xml

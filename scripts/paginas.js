@@ -15,7 +15,7 @@
 //
 // Sin dependencias, como el resto del proyecto.
 
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -1762,3 +1762,24 @@ for (const [ruta, html] of [
   );
 }
 console.log("puntos leídos de app/index.html: " + puntos.length);
+
+/* La app son módulos ES y el service worker los precachea uno por uno: si
+   alguien agrega un módulo y se olvida de la lista de sw.js, /app deja de
+   abrir sin conexión — y el modo de falla es mudo, aparece recién el día que
+   alguien se queda sin señal. Por eso esto revienta acá y no allá. */
+const modulos = [
+  ...(await readdir(join(RAIZ, "js", "app")))
+    .filter((f) => f.endsWith(".js"))
+    .map((f) => "/js/app/" + f),
+  // el registro compartido, que la app importa desde /lib/
+  "/lib/fuentes.js",
+];
+const sw = await readFile(join(RAIZ, "sw.js"), "utf8");
+const faltan = modulos.filter((m) => !sw.includes(`"${m}"`));
+if (faltan.length)
+  throw new Error(
+    "sw.js no precachea estos módulos de la app: " +
+      faltan.join(", ") +
+      "\nAgregalos a ESENCIALES o /app no va a abrir sin conexión.",
+  );
+console.log("service worker: precachea los " + modulos.length + " módulos de la app");

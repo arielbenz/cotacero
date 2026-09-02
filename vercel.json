@@ -113,7 +113,16 @@
       ]
     },
     {
-      "source": "/js/app.js",
+      "source": "/js/app/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/lib/fuentes.js",
       "headers": [
         {
           "key": "Cache-Control",

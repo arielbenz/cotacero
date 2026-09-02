@@ -30,7 +30,7 @@ calcula son niveles de referencia estimados, y así se nombran en la interfaz.
 Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m. **Ya no
 están escritos a mano**: los publica la estación del INA en cada consulta y la
 app los adopta (con un filtro de plausibilidad). Las constantes que quedan en
-`app.js`, `sw.js`, `landing.js` y el widget son el respaldo para cuando contesta
+`js/app/oficiales.js`, `sw.js`, `landing.js` y el widget son el respaldo para cuando contesta
 el reporte diario, que no los trae.
 
 ## Tres conceptos, tres nombres
@@ -50,13 +50,13 @@ Llamarle «tu cota» al umbral está prohibido. La pestaña se llama **Mi umbral
 
 **Falsa precisión.** La cota del terreno viene de curvas cada 0,5 m, así que el
 umbral **nunca** se muestra con dos decimales: un decimal y tilde de
-aproximación (`mU()` en `app.js`, `unDec()` en `sw.js`). La única excepción es
+aproximación (`mU()` en `js/app/formato.js`, `unDec()` en `sw.js`). La única excepción es
 el desglose del cálculo, que conserva la aritmética exacta y aclara al pie por
 qué la pantalla muestra otra cosa.
 
 ## Configuración
 
-No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
+No hace falta ninguna clave de API. En `js/app/config.js`, bloque `CONFIG`:
 
     NIVEL_ENDPOINT: '/api/nivel'  no tocar en Vercel
 
@@ -71,10 +71,31 @@ generadas llevan un cartel de "no editar" en la primera línea.
     vercel.json              cabeceras y CSP
     robots.txt · sitemap.xml
 
-    js/     app.js           lógica de la app
-            landing.js       nivel en vivo, mapa perezoso, salto a /app si está instalada
+    js/     landing.js       nivel en vivo, mapa perezoso, salto a /app si está instalada
             historia.js      la serie de un siglo, interactiva
             medios.js        copiar el código del widget
+    js/app/                  la app, en módulos ES
+        principal.js      261L   arranque, tabla de acciones y eventos
+        avisos.js         252L   push
+        bienvenida.js      50L   la primera visita
+        compartir.js      174L   la imagen para WhatsApp
+        config.js         173L   constantes del cálculo y listas fijas
+        cota.js           375L   de la cota al umbral del hidrómetro
+        elevacion.js       88L   la cota, de las curvas del municipio
+        estado.js         120L   estado de la sesión y lo que persiste
+        formato.js         72L   cómo se escriben los números
+        fuentes.js         50L   de dónde sale cada dato — importa lib/fuentes.js
+        instalar.js       196L   instalar la PWA
+        lluvia.js          65L   pronóstico de lluvia
+        mapa.js           341L   MapLibre y los 30 puntos
+        metricas.js        41L   cuántos la usan, sin saber quiénes
+        oficiales.js       51L   alerta, evacuación y récord (lo único que cambia en caliente)
+        plan.js           181L   el plan familiar
+        puntos.js          79L   la lista de puntos y su filtro
+        rio.js            668L   leer el nivel, la regla y el contexto histórico
+        sugerencias.js     64L   el formulario
+        tema.js            81L   tema, tamaño de texto y Ajustes
+        vista.js           92L   navegación entre pestañas
     css/    app.css          estilos, compartidos por todo
     img/    icon-*.png og.png favicon-32.png apple-touch-icon.png screenshot-*.png
 
@@ -121,6 +142,40 @@ que dice que la emite `scripts/paginas.js` y que editarla a mano no sirve.
 propio directorio hacia abajo, así que moverlo a `js/` le sacaría el alcance
 sobre todo el sitio.
 
+## La app son módulos
+
+`app/index.html` carga `/js/app/principal.js` con `type="module"` y de ahí
+cuelga el resto. Antes era un solo `app.js` de 3.100 líneas.
+
+**Qué cambió para quien lo toca.** Ya no hay globals: escribir `estado` en la
+consola del navegador no devuelve nada. Para hurgar desde ahí:
+
+    const rio = await import('/js/app/rio.js')
+
+que devuelve la instancia que la página ya cargó, no una copia.
+
+**El único lugar con estado mutable compartido es `oficiales.js`** —alerta,
+evacuación y el récord—, y se mueve sólo con `fijarUmbrales()` y
+`fijarRecord()`. No es ceremonia: un import de ESM es de sólo lectura, así que
+ningún otro archivo puede asignarlos aunque quiera, y el resto los ve
+actualizados por el enlace vivo del import.
+
+**`js/app/fuentes.js` importa `lib/fuentes.js` de verdad**, con
+`import { ORGANISMOS, FUENTES } from "/lib/fuentes.js"`. Ese archivo es puro
+dato y exports, así que el navegador lo carga como cualquier módulo. Era la
+única duplicación consciente que quedaba —`FUENTES_APP` era una copia a mano—
+y se murió.
+
+**Un módulo nuevo hay que agregarlo al precache de `sw.js`**, o `/app` deja de
+abrir sin conexión. `scripts/paginas.js` compara la lista de `js/app/` contra
+la de `sw.js` y **falla** si no coinciden: el olvido se ve al regenerar, no el
+día que alguien se queda sin señal.
+
+**Qué NO se partió.** `app.css` sigue en un solo archivo: es render-crítico y
+partirlo agrega pedidos en la carga que más importa. Y `sw.js` sigue siendo un
+script clásico, porque un service worker con módulos todavía no está en todos
+lados.
+
 ## De dónde sale el nivel
 
 Dos fuentes, en este orden, en `lib/ina.js`:
@@ -150,12 +205,11 @@ El detalle está en `AUDITORIA.md` §6. Conviene reintentar cada tanto.
 
 `ESTACION` y `ENDPOINTS` viven en `lib/fuentes.js`, que es donde están escritos
 **una sola vez** los organismos, sus URLs y los identificadores de la estación.
-Antes eso estaba repartido entre `app.js`, `scripts/paginas.js`, `lib/ina.js` y
+Antes eso estaba repartido entre la app, `scripts/paginas.js`, `lib/ina.js` y
 el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
 
-Excepción consciente: `app.js` es un script clásico y no puede importar
-módulos, así que lleva una copia mínima en `FUENTES_APP` —tres datos y sus
-enlaces— con un comentario que apunta al original.
+Ya no hay excepción: desde que la app son módulos, `js/app/fuentes.js`
+importa `/lib/fuentes.js` directo. La copia a mano en `FUENTES_APP` se murió.
 
 ## Cien años del Paraná
 
@@ -177,7 +231,7 @@ hoy en el X % de los días medidos desde 1925"*. Es un hecho sobre la serie del
 INA, no una categoría inventada: la app **no** dice "normal", "alto" ni "bajo",
 porque para eso haría falta una metodología oficial que no tenemos.
 
-El récord también sale de ahí. `RECORD` y `RECORD_ANIO` en `app.js` son sólo el
+El récord también sale de ahí. `RECORD` y `RECORD_ANIO` en `js/app/oficiales.js` son sólo el
 arranque, para que la regla se dibuje bien antes de que llegue el archivo: si
 alguna crecida rompe el récord, se actualiza volviendo a correr el script.
 
@@ -228,7 +282,7 @@ funciones, pero pide login y no corre los cron jobs.
 
 ## Caché
 
-`index.html`, `app.css` y `app.js` van por **red primero** (revalidan en cada
+`index.html`, `app.css` y los módulos de la app van por **red primero** (revalidan en cada
 carga, 304 si no cambiaron) y caen a la copia guardada si no hay conexión. No
 llevan hash en el nombre a propósito: sin build step, nombres versionados
 significan acordarse de editar dos archivos en cada deploy, y el modo de falla
@@ -242,7 +296,7 @@ Lo demás (íconos, tipografías) va por caché primero. **Subir `VERSION` en
 
 La política está en `vercel.json`. `script-src` es estricta: no hay ni un
 manejador `onclick` en el HTML, todo pasa por el delegador de eventos de
-`app.js`, así que un script inyectado no corre.
+`js/app/principal.js`, así que un script inyectado no corre.
 
 Desde que MapLibre va self-hosteado, `script-src` es `'self'` a secas: sin
 dominios externos.
@@ -278,7 +332,7 @@ exacta, la app lo dice en pantalla en vez de dar un número que parece firme.
 
 Los 30 puntos salen de la capa `puntos_de_encuentro` del GeoServer público de
 la Municipalidad de Santa Fe, la misma que dibuja el GeoPortal. Van
-hardcodeadas en `PUNTOS` dentro de `app.js`: el dato es fijo, así funcionan
+hardcodeadas en `PUNTOS` dentro de `js/app/estado.js`: el dato es fijo, así funcionan
 sin conexión y no gastan cuota de geocodificación.
 
 Para actualizarlas:
@@ -300,7 +354,7 @@ Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
 ## Avisos (Web Push)
 
 Apagados hasta que se configuren las variables de entorno. Con
-`VAPID_PUBLIC_KEY` vacía en `app.js`, la app funciona igual y no muestra nada.
+`VAPID_PUBLIC_KEY` vacía en `js/app/config.js`, la app funciona igual y no muestra nada.
 
 **Cómo funciona.** El servidor manda un push **sin contenido**: no sabe la
 cota de nadie ni a qué altura hay que avisarle. Sólo despierta al teléfono.
@@ -322,7 +376,7 @@ ninguna dependencia y el proyecto sigue sin `package.json`.
 2. En Vercel, variables de entorno:
    `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:),
    `CRON_SECRET`, `METRICAS_CLAVE`, y las del almacén.
-3. Pegar la pública también en `app.js`, en `CONFIG.VAPID_PUBLIC_KEY`.
+3. Pegar la pública también en `js/app/config.js`, en `CONFIG.VAPID_PUBLIC_KEY`.
 4. Almacén: Upstash Redis desde el marketplace de Vercel. Se usa por su API
    REST (`KV_REST_API_URL` / `KV_REST_API_TOKEN`), sin librería.
 
@@ -407,8 +461,8 @@ nada. Y quien tiene la PWA instalada nunca la ve: `landing.js` detecta
 instalaciones viejas cuyo `start_url` todavía apunta a `/`.
 
 **Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
-30 puntos se leen de `app/index.html`, que es la fuente de verdad —`app.js`
-hace lo mismo— para que no existan dos listas que se puedan desincronizar.
+30 puntos se leen de `app/index.html`, que es la fuente de verdad
+—`js/app/estado.js` hace lo mismo— para que no existan dos listas que se puedan desincronizar.
 Volver a correrlo cuando cambien los puntos o los textos.
 
 **El pie está escrito una sola vez.** Vive en `scripts/paginas.js` como la

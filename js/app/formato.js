@@ -1,0 +1,71 @@
+/* js/app/formato.js — cómo se escriben los números.
+   No es cosmética: `mU()` existe para que el umbral NUNCA salga con dos
+   decimales. La cota viene de curvas cada ~0,5 m y el segundo decimal sería
+   precisión inventada — en un número que se usa para decidir si sacar a
+   alguien de la casa, la precisión inventada se lee como certeza. */
+
+/* Escapa texto para meterlo dentro de un atributo HTML. */
+export const atr = (t) =>
+  String(t)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+export const m = (v) =>
+  v == null || isNaN(v) ? "—" : v.toFixed(2).replace(".", ",") + " m";
+
+/* El umbral NUNCA se muestra con dos decimales. La cota del terreno sale de
+   curvas cada 50 cm: el segundo decimal sería precisión inventada, y en un
+   número que se usa para decidir si sacar a alguien de la casa la precisión
+   inventada se lee como certeza. Un decimal y tilde de aproximación.
+   Única excepción: el desglose del cálculo, que conserva la aritmética exacta
+   y aclara al pie por qué la pantalla muestra otra cosa. */
+export const mU = (v) =>
+  v == null || isNaN(v)
+    ? "—"
+    : "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
+
+/* El margen contra el umbral también se presenta como aproximado. Debajo del
+   metro va en centímetros, que es como se habla de esto cuando falta poco;
+   arriba, en metros con un decimal — "217 cm" no lo lee nadie, y el segundo
+   decimal sería la misma precisión inventada que en el umbral. */
+export const mCm = (v) => {
+  const a = Math.abs(v);
+  return a < 1
+    ? Math.round(a * 100) + " cm"
+    : (Math.round(a * 10) / 10).toFixed(1).replace(".", ",") + " m";
+};
+
+/* Acepta coma o punto. La app muestra "16,40" en todos lados y los campos
+   pedían "16.40": la persona escribía lo que veía, el navegador descartaba el
+   valor y no pasaba nada, sin ningún aviso. */
+export const aNumero = (v) =>
+  parseFloat(
+    String(v ?? "")
+      .trim()
+      .replace(",", "."),
+  );
+
+/* Y al revés, para precargar los campos con el mismo formato que se muestra. */
+export const enCampo = (v) =>
+  v == null || isNaN(v) ? "" : v.toFixed(2).replace(".", ",");
+
+/* El INA publica "DD/MM/AAAA HH:MM" y Date no parsea ese formato:
+   lo desarmamos a mano. Devuelve null si no se entiende. */
+export function fechaINA(txt) {
+  const p = /^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/.exec(
+    txt || "",
+  );
+  if (!p) return null;
+  const d = new Date(+p[3], +p[2] - 1, +p[1], +(p[4] || 0), +(p[5] || 0));
+  return isNaN(d.getTime()) ? null : d;
+}
+
+export const horasDesde = (d) => (d ? (Date.now() - d.getTime()) / 36e5 : null);
+
+/* ================= NIVEL DEL RÍO =================
+   El INA publica el nivel de Santa Fe todos los días, pero sin CORS abierto:
+   el navegador no puede pedirlo directo. Por eso la fuente 1 es una funcion
+   serverless propia (api/nivel.js) que lo lee y lo reexpone.
+   Si eso falla, quedan el último valor guardado y la carga manual. */
