@@ -349,6 +349,19 @@ export function pintarRio() {
   }
   regla.innerHTML = html;
 
+  /* La leyenda, con los mismos números que las marcas de la regla. Sale de
+     acá y no del HTML porque los umbrales los publica la estación del INA y
+     el récord la serie histórica: si alguno cambia, tienen que cambiar los
+     dos a la vez o la regla se contradice a sí misma. */
+  const poner = (id, txt) => {
+    const e = document.getElementById(id);
+    if (e) e.textContent = txt;
+  };
+  poner("lg-alerta", m(ALERTA));
+  poner("lg-evac", m(EVACUACION));
+  poner("lg-record", m(RECORD));
+  poner("lg-record-k", "Récord de " + RECORD_ANIO + ", la mayor crecida registrada");
+
   document.getElementById("lg-actual").textContent =
     r == null ? "sin dato" : m(r);
   const wrap = document.getElementById("lg-cota-wrap");

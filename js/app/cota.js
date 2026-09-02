@@ -316,7 +316,22 @@ export function calcular() {
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
         : ""
     }
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cero del hidrómetro</td>
+    <tr><td style="padding:6px 0;color:var(--tenue)">Cero del hidrómetro${
+      /* El INA publica 8,378 para esta escala y el cálculo usa 8,20. La
+         diferencia son 18 cm en el umbral de cada persona, y está sin
+         resolver: puede ser el mismo punto medido en dos sistemas de alturas
+         distintos. Esconderlo sería lo contrario de lo que hace esta app.
+         Sólo aparece si la API lo trajo, para no afirmarlo de memoria. */
+      estado.ceroINA != null && Math.abs(estado.ceroINA - CERO_IGN) > 0.005
+        ? /* Tres decimales, no dos: el INA publica 8,378 y redondear a 8,38
+             borraría justo el dígito que hace concreta la diferencia. Es la
+             excepción a la regla de dos decimales, que existe para el nivel
+             del río, no para el cero de la escala. */
+          `<br><span style="font-size: var(--t-xs)">el INA publica ${estado.ceroINA
+            .toFixed(3)
+            .replace(".", ",")} m — <a href="/datos#abiertas">por qué usamos ${m(CERO_IGN)}</a></span>`
+        : ""
+    }</td>
   <td style="text-align:right">− ${CERO_IGN.toFixed(2).replace(".", ",")} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
@@ -367,6 +382,8 @@ ${
     "por los desagües, o no llegar si las defensas resisten. " +
     "Y coincide bien con la crecida de 1992 — el único caso usado como control: " +
     "una sola validación no lo convierte en modelo predictivo. " +
+    "Esto mira <b>una parte</b> del riesgo: la relación entre el río y tu terreno. " +
+    'Santa Fe también se inunda por lluvia. <a href="/datos#no-dice">Qué no dice este número</a>. ' +
     "Si el municipio o Defensa Civil indican evacuar, evacuá aunque acá diga que tenés margen.</div>";
 
   cont.innerHTML = html;

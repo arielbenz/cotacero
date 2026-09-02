@@ -48,6 +48,18 @@ un `python3 -m http.server` aparte que no aplique cabeceras. Con CDP
 al convertir los patrones de `vercel.json` a regex, así que `file` lo reporta
 como `data`. Buscar ahí adentro requiere `grep -a`.
 
+**`cache.addAll()` es todo o nada.** Si el precache nombra un archivo que ya
+no existe, la instalación entera falla y la app se queda **sin modo sin
+conexión, en silencio**. Pasó al borrar `js/app/sugerencias.js`.
+`scripts/paginas.js` lo comprueba en los dos sentidos —que no falte ningún
+módulo y que no sobre ninguna ruta muerta— y falla al generar.
+
+**El service worker se registra mirando `document.readyState`, no esperando a
+`load`.** Con la app en módulos son más de veinte pedidos y `load` puede haber
+pasado antes de que el grafo termine de evaluarse: el listener se enganchaba a
+un evento que ya no volvía, y como el registro va con `.catch()` el fallo era
+mudo. Ver `js/app/instalar.js`.
+
 **Subir `VERSION` en `sw.js` en cada deploy**, o todo lo que va por caché
 primero (íconos, tipografías) queda congelado.
 

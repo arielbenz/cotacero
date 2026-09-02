@@ -54,11 +54,6 @@ import {
   ultimoRefresco,
 } from "./rio.js";
 import {
-  contarSugerencia,
-  enviarSugerencia,
-  pintarCategorias,
-} from "./sugerencias.js";
-import {
   alternarTema,
   aplicarTema,
   aplicarTexto,
@@ -132,7 +127,6 @@ function iniciar() {
   if (km) estado.kmManual = parseFloat(km);
 
   pintarListas();
-  pintarCategorias();
   pintarPuntos();
   pintarRio();
   calcular();
@@ -182,7 +176,6 @@ const ACCIONES = {
   imprimir: () => imprimirPlan(),
   tema: () => alternarTema(),
   "ver-todos": () => alternarTodosLosPuntos(),
-  "sug-enviar": () => enviarSugerencia(),
   instalar: () => instalar(),
   ajustes: () => irA("ajustes"),
   "bv-calcular": () => cerrarBienvenida("cota"),
@@ -211,7 +204,6 @@ const ENTRADAS = {
   "cota-manual": () => marcarCotaManual(),
   "filtrar-puntos": () => filtrarPuntos(),
   "km-manual": (el) => fijarKmManual(el.value),
-  "sug-texto": () => contarSugerencia(),
 };
 
 function conectarEventos() {

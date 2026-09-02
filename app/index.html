@@ -23,7 +23,7 @@
     <meta property="og:site_name" content="Cota Cero" />
     <meta
       property="og:title"
-      content="Cota Cero — ¿hasta dónde llega el agua?"
+      content="Cota Cero — la app del nivel del río en Santa Fe"
     />
     <meta
       property="og:description"
@@ -322,19 +322,23 @@
               <div class="v" id="lg-actual">—</div>
               <div class="k">Nivel actual del río</div>
             </div>
+            <!-- Los tres números los pone pintarRio(): los umbrales los publica
+                 la estación del INA y el récord sale de la serie histórica.
+                 Escritos a mano, la marca de la regla se movía con el dato y el
+                 texto de al lado se quedaba en el viejo. -->
             <div class="leyenda-item" style="border-color: var(--alerta)">
-              <div class="v">5,30 m</div>
+              <div class="v" id="lg-alerta">—</div>
               <div class="k">
                 Alerta. Empiezan evacuaciones fuera del anillo de defensas
               </div>
             </div>
             <div class="leyenda-item" style="border-color: var(--peligro)">
-              <div class="v">5,70 m</div>
+              <div class="v" id="lg-evac">—</div>
               <div class="k">Evacuación</div>
             </div>
             <div class="leyenda-item" style="border-color: var(--tenue)">
-              <div class="v">7,43 m</div>
-              <div class="k">Récord de 1992, la mayor crecida registrada</div>
+              <div class="v" id="lg-record">—</div>
+              <div class="k" id="lg-record-k">La mayor crecida registrada</div>
             </div>
             <div
               class="leyenda-item"
@@ -506,33 +510,17 @@
         <p class="chico" id="estado-cota" role="status"></p>
 
         <div class="aviso" style="margin-top: 12px">
-          <b>Ni la mejor cota reemplaza un relevamiento de tu terreno.</b>
-          La cota sale de las curvas de nivel del municipio, que pasan cerca de
-          tu casa pero no por tu puerta. El número que vale es el de un
-          relevamiento topográfico, la escritura, o el que te dé el municipio.
-          <details style="margin-top: 8px">
-            <summary style="cursor: pointer">
-              De dónde sale y qué le falta
-            </summary>
-            <p style="margin: 8px 0 0">
-              Son las curvas de nivel de la Municipalidad de Santa Fe, de la
-              Secretaría de Recursos Hídricos: cada 50 cm y en metros IGN, el
-              mismo sistema en que está el cero del hidrómetro. La cota de tu
-              terreno se calcula interpolando entre las dos curvas más cercanas.
-            </p>
-            <p style="margin: 8px 0 0">
-              Lo que no sabe: si tu terreno está elevado sobre la vereda, si la
-              casa tiene escalones, si el fondo es más bajo. Entre curva y curva
-              hay medio metro de altura y a veces cientos de metros de
-              distancia. Por eso el cálculo va siempre medio metro por debajo.
-            </p>
-            <p style="margin: 8px 0 0">
-              Antes esto salía de un modelo satelital. Se lo comparó con estas
-              curvas y con los puntos de nivelación del IGN: medía techos y
-              arbolado, sobreestimaba dos metros de media y se desviaba hasta
-              siete. Se dejó de usar.
-            </p>
-          </details>
+          <b>Ni la mejor cota reemplaza un relevamiento de tu terreno.</b> Sale
+          de las curvas de nivel del municipio, que pasan cerca de tu casa pero
+          no por tu puerta, y el cálculo va siempre medio metro por debajo. El
+          número que vale es el de un relevamiento, la escritura, o el que te
+          dé el municipio.
+          <!-- La explicación larga —cómo se interpola, por qué medio metro,
+               por qué se descartó el modelo satelital— vivía acá duplicada de
+               /mi-cota y /datos. Ahora está en un solo lugar y el service
+               worker precachea esas páginas, así que se lee sin señal igual. -->
+          <a href="/mi-cota">Cómo se calcula, en detalle</a>.
+        </div>
         </div>
       </div>
 
@@ -1130,6 +1118,21 @@
             >
           </li>
           <li>
+            <a class="punto" href="/historia"
+              ><span class="n">Cien años del Paraná en Santa Fe</span></a
+            >
+          </li>
+          <li>
+            <a class="punto" href="/sobre"
+              ><span class="n">Quién hace Cota Cero</span></a
+            >
+          </li>
+          <li>
+            <a class="punto" href="/contacto"
+              ><span class="n">Escribirnos</span></a
+            >
+          </li>
+          <li>
             <a class="punto" href="/legal"
               ><span class="n">Legal y privacidad</span></a
             >
@@ -1144,11 +1147,15 @@
 
     <!-- Va en el pie: es una acción secundaria, y así queda a mano desde
          cualquier pestaña sin ocupar un lugar en la nav. -->
+    <!-- El formulario vivía acá adentro, plegado. Ahora está en /contacto:
+         uno solo, con más categorías y con las pastillas accesibles. Enviar
+         necesita red igual, así que sin señal no se pierde nada — y el
+         service worker precachea /contacto, así que la página abre. -->
     <details class="sugerir" id="sugerir">
       <summary>Sugerir algo o avisar de un error</summary>
 
-      <!-- Lo primero, antes que el formulario: cualquier caja de texto en una
-           app de emergencia se puede leer como una vía para pedir auxilio. -->
+      <!-- Lo primero, antes que nada: cualquier caja de texto en una app de
+           emergencia se puede leer como una vía para pedir auxilio. -->
       <div class="aviso grave" style="margin: 12px 0">
         <b>Esto no es una vía para pedir ayuda.</b> Nadie lo lee en el momento.
         Si necesitás asistencia ahora:
@@ -1165,48 +1172,7 @@
         puede tardar.
       </p>
 
-      <label class="campo"
-        ><span>De qué se trata</span>
-        <!-- Las opciones las pone js/app/sugerencias.js desde
-             lib/sugerencias.js, que es el mismo módulo que valida el endpoint
-             y que dibuja /contacto. Acá queda una sola por si el JS no carga. -->
-        <select id="sug-categoria">
-          <option value="otro">Otro</option>
-        </select></label
-      >
-
-      <label class="campo"
-        ><span>Contanos</span>
-        <textarea
-          id="sug-texto"
-          data-input="sug-texto"
-          maxlength="600"
-          placeholder="Ej: el punto de encuentro de Colastiné Norte se mudó a la escuela de Las Macluras."
-        ></textarea>
-      </label>
-      <p class="chico" id="sug-cuenta" style="margin: -8px 0 12px"></p>
-
-      <label class="campo"
-        ><span>Cómo contactarte (opcional)</span>
-        <input
-          type="text"
-          id="sug-contacto"
-          maxlength="120"
-          autocomplete="off"
-          placeholder="Sólo si querés respuesta"
-      /></label>
-      <p class="chico" style="margin: -8px 0 12px">
-        <b>No pongas tu dirección.</b> Esto sí sale de tu teléfono: es lo único
-        de la app que se guarda en un servidor junto con lo que escribas.
-      </p>
-
-      <button class="btn" data-accion="sug-enviar">Enviar</button>
-      <p
-        class="chico"
-        id="sug-estado"
-        role="status"
-        style="margin: 4px 0 0"
-      ></p>
+      <a class="btn" href="/contacto">Escribirnos</a>
     </details>
 
     <div class="pie">

@@ -2282,7 +2282,6 @@ const modulos = [
     .map((f) => "/js/app/" + f),
   // los módulos compartidos que la app importa desde /lib/
   "/lib/fuentes.js",
-  "/lib/sugerencias.js",
 ];
 const sw = await readFile(join(RAIZ, "sw.js"), "utf8");
 const faltan = modulos.filter((m) => !sw.includes(`"${m}"`));
@@ -2291,5 +2290,28 @@ if (faltan.length)
     "sw.js no precachea estos módulos de la app: " +
       faltan.join(", ") +
       "\nAgregalos a ESENCIALES o /app no va a abrir sin conexión.",
+  );
+
+/* Y al revés. `cache.addAll()` es todo-o-nada: si el precache nombra un
+   archivo que ya no existe, la instalación entera falla y la app se queda SIN
+   modo sin conexión — en silencio, porque el registro se hace con .catch().
+   Pasó de verdad al borrar js/app/sugerencias.js: el chequeo de arriba miraba
+   sólo que no faltara ninguno, no que no sobrara. */
+const enPrecache = [...sw.matchAll(/^\s*"(\/[^"]+)",$/gm)].map((m) => m[1]);
+const sobran = [];
+for (const ruta of enPrecache) {
+  if (ruta.startsWith("/vendor/") || ruta === "/" || !/\.[a-z]+$/.test(ruta)) continue;
+  try {
+    await readFile(join(RAIZ, ruta.replace(/^\//, "")));
+  } catch {
+    sobran.push(ruta);
+  }
+}
+if (sobran.length)
+  throw new Error(
+    "sw.js precachea archivos que no existen: " +
+      sobran.join(", ") +
+      "\ncache.addAll() es todo-o-nada: con uno solo que falte, la app se " +
+      "queda sin modo sin conexión.",
   );
 console.log("service worker: precachea los " + modulos.length + " módulos de la app");

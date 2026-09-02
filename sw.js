@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v44";
+const VERSION = "cota-cero-v46";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -29,7 +29,6 @@ const ESENCIALES = [
   // El registro de fuentes: la app lo importa de verdad desde que son
   // módulos, así que sin esto /app no abre sin conexión.
   "/lib/fuentes.js",
-  "/lib/sugerencias.js",
   "/js/app/principal.js",
   "/js/app/avisos.js",
   "/js/app/bienvenida.js",
@@ -48,7 +47,6 @@ const ESENCIALES = [
   "/js/app/plan.js",
   "/js/app/puntos.js",
   "/js/app/rio.js",
-  "/js/app/sugerencias.js",
   "/js/app/tema.js",
   "/js/app/vista.js",
   // Con esto el mapa abre sin conexión. Los tiles no se cachean (son muchos
@@ -66,6 +64,14 @@ const ESENCIALES = [
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
   "/datos-abiertos/curvas.json",
+  /* Las páginas de contenido. Antes no se precacheaba ninguna: la app
+     explicaba todo adentro justamente porque sin señal no había adónde ir.
+     Ahora la explicación vive en el sitio, así que el sitio tiene que abrir
+     sin señal. Son ~90 KB crudos, ~25 KB comprimidos. */
+  "/mi-cota",
+  "/datos",
+  "/historia",
+  "/contacto",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",

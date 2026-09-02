@@ -301,6 +301,19 @@ dos (`favicon-96.png` y el `.ico` de la raíz) con `node scripts/iconos.js`. El
 no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
 así que el cambio no se ve enseguida.
 
+**Las páginas de contenido se precachean.** `/mi-cota`, `/datos`, `/historia`
+y `/contacto` entran en `ESENCIALES`. Es lo que permitió sacar de la app las
+explicaciones largas que ya estaban en el sitio: la app enlaza y el enlace
+abre aunque no haya señal. Son ~25 KB comprimidos.
+
+**Dos trampas del service worker, las dos aprendidas rompiéndolo.**
+`cache.addAll()` es todo o nada: una sola ruta muerta en el precache y la app
+se queda sin modo sin conexión, sin un error visible. Y el registro no puede
+esperar al evento `load` —con la app en módulos, `load` puede haber pasado
+antes de que terminen de evaluarse— así que se mira `document.readyState`.
+`scripts/paginas.js` comprueba el precache en los dos sentidos y falla si algo
+no cierra.
+
 **robots.txt y sitemap.xml nunca se cachean** en el service worker: son dos
 archivos de 1 KB y una copia guardada de ellos no caduca nunca.
 

@@ -188,8 +188,25 @@ export function ofrecerInstalacion() {
     if (!promptInstalar) mostrarBotonInstalar();
   }, 2500);
 }
+/* El registro del service worker.
+   ---------------------------------------------------------------------------
+   Esperaba al evento `load` para no competir con la carga inicial. Con la app
+   partida en módulos eso dejó de funcionar: son más de veinte pedidos, y para
+   cuando el grafo termina de evaluarse `load` YA PASÓ — el listener se
+   enganchaba a un evento que no iba a volver a dispararse, así que el service
+   worker no se registraba nunca y la app se quedaba sin modo sin conexión.
+
+   Como el registro se hacía con .catch() vacío, el fallo era mudo: no había
+   error en la consola, simplemente no había caché.
+
+   Ahora se comprueba si la página ya terminó de cargar y, si es así, se
+   registra en el acto. */
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
-  });
+  const registrar = () =>
+    navigator.serviceWorker.register("/sw.js").catch((e) => {
+      // Que al menos quede dicho: sin esto, la app no abre sin señal.
+      console.error("No se pudo registrar el service worker:", e.message);
+    });
+  if (document.readyState === "complete") registrar();
+  else window.addEventListener("load", registrar, { once: true });
 }
