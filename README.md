@@ -12,13 +12,26 @@ estimado**: la lectura del río que sirve de referencia para tu terreno.
 Contrastado con la crecida de junio 1992: puerto 7,43 m -> 15,62 IGN;
 Arroyo Leyes (24 km arriba) -> 16,70 IGN. El modelo da 15,63 y 16,71.
 
+**Las dos constantes están en discusión y no se tocaron.** El INA publica hoy
+`cero_ign = 8,378` para esta escala —relevamiento INA-IGN de diciembre de 2016,
+contemporáneo del cambio de SRVN71 a SRVN16— y las curvas del municipio no
+declaran su sistema de alturas, así que mover el cero metería un sesgo de 18 cm
+sin que nadie lo note. La pendiente, además, se despejó del mismo caso de 1992
+con el que después se la valida. Todo eso está desarrollado en **`AUDITORIA.md`**,
+con las preguntas concretas para cada organismo, y explicado para cualquiera en
+`/datos`. No cambiar ninguno de los dos sin leer ese archivo primero.
+
 Un centímetro en cada punto, pero es **una sola validación independiente**.
 Coincidir con una única crecida histórica no convierte esto en un modelo
 predictivo de inundación: falta la revisión de especialistas y organismos
 competentes (Gestión de Riesgos, INA, FICH-UNL). Hasta entonces lo que la app
 calcula son niveles de referencia estimados, y así se nombran en la interfaz.
 
-Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m.
+Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m. **Ya no
+están escritos a mano**: los publica la estación del INA en cada consulta y la
+app los adopta (con un filtro de plausibilidad). Las constantes que quedan en
+`app.js`, `sw.js`, `landing.js` y el widget son el respaldo para cuando contesta
+el reporte diario, que no los trae.
 
 ## Tres conceptos, tres nombres
 
@@ -62,18 +75,23 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     app.css                  estilos, compartidos por todo
     app.js                   lógica de la app
     vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
-    api/nivel.js             lee el reporte diario del INA (CORS proxy)
+    api/nivel.js             sirve el nivel al navegador (CORS proxy)
     api/suscribir.js         alta de un endpoint de push
     api/desuscribir.js       baja
     api/cron/avisar.js       lo dispara Vercel Cron
     api/sugerencias.js       recibe feedback de la gente
     api/visita.js            cuenta una apertura (sin caché, a propósito)
     api/metricas.js          tablero privado, protegido con clave
-    lib/ina.js               parser del INA (módulo, NO endpoint)
+    lib/ina.js               lectura del INA: API primero, raspado de respaldo
+    lib/fuentes.js           organismos, URLs y la estación, escritos UNA vez
     lib/push.js              VAPID y almacén (módulo, NO endpoint)
     lib/metricas.js          claves y días del contador (módulo, NO endpoint)
+    historia/index.html      página de contenido (generada)
+    historia.js              la serie de un siglo, interactiva
+    datos/historia.json      un renglón por año desde 1925 (INA), 6 KB
     scripts/vapid.js         genera las claves, se corre una vez
     scripts/curvas.js        baja las curvas de nivel del municipio
+    scripts/historia.js      baja la serie histórica del INA
     scripts/paginas.js       genera las páginas de contenido
     scripts/marca.js         el logo, en un solo lugar
     scripts/iconos.js        rasteriza el logo a los PNG de la app
@@ -82,6 +100,88 @@ No hace falta ninguna clave de API. En `app.js`, bloque `CONFIG`:
     manifest.webmanifest     PWA
     vercel.json              cabeceras y CSP
     icon-*.png               íconos
+    AUDITORIA.md             cada número, su fuente y qué falta validar
+
+## De dónde sale el nivel
+
+Dos fuentes, en este orden, en `lib/ina.js`:
+
+    API del SIyAH (alerta.ina.gob.ar/a5)  ->  si falla  ->  reporte diario (raspado)
+
+La **API es la preferida**. Es pública, sin clave y sin cuota: es la misma que
+consume el visor del propio INA. Devuelve JSON estructurado con la fecha exacta
+del dato y —esto es lo que más cambia— con `nivel_alerta`, `nivel_evacuacion`,
+`nivel_aguas_bajas` y `cero_ign` de la propia estación, así que esos umbrales
+dejaron de ser constantes nuestras.
+
+    estación 30 · SAFE · id externo 240 · propietario Prefectura Naval
+    serie 30 · altura hidrométrica · medición directa · metros
+    https://alerta.ina.gob.ar/a5/obs/puntual/series/30
+
+El **raspado del reporte diario sigue existiendo como red**, no se borró: ya se
+rompió una vez en silencio y no hay motivo para quedarse con una sola puerta. La
+respuesta de `/api/nivel` trae `origen` (`"api"` o `"reporte"`) y, cuando hubo
+que usar el respaldo, `degradado` con el motivo. **Si aparece `degradado`, algo
+se rompió**: se ve en el JSON en lugar de descubrirse meses después.
+
+**Por qué no se usa `/pub/datos`**, que es la ruta que documenta
+argentina.gob.ar y sería la primera opción: no anda. Rechaza sus propios
+nombres de parámetro, devuelve errores de Perl y se cae con timeouts de 30 s.
+El detalle está en `AUDITORIA.md` §6. Conviene reintentar cada tanto.
+
+`ESTACION` y `ENDPOINTS` viven en `lib/fuentes.js`, que es donde están escritos
+**una sola vez** los organismos, sus URLs y los identificadores de la estación.
+Antes eso estaba repartido entre `app.js`, `scripts/paginas.js`, `lib/ina.js` y
+el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
+
+Excepción consciente: `app.js` es un script clásico y no puede importar
+módulos, así que lleva una copia mínima en `FUENTES_APP` —tres datos y sus
+enlaces— con un comentario que apunta al original.
+
+## Cien años del Paraná
+
+`/historia` es la escala. El hidrómetro marca un número y el número solo no
+dice nada hasta que se lo ve al lado de los 7,43 m de 1992 y de los −0,23 m de
+2022.
+
+    node scripts/historia.js     # baja la serie y escribe datos/historia.json
+
+Baja las **39.115 observaciones de la serie 30 desde el 2 de enero de 1925**
+(unos 10 MB) y las resume a un renglón por año: máximo, mínimo, sus fechas,
+cuántos días hubo lectura y cuántos estuvo sobre cada umbral oficial. Quedan
+**6 KB**. El resumen se hace en el script y no en el navegador a propósito:
+procesar 37.000 registros en un teléfono el día de una crecida no es aceptable.
+
+El archivo lleva además **101 cuantiles** de la serie diaria. Sirven para una
+sola frase, en la app y en la página: *"el río estuvo por debajo del nivel de
+hoy en el X % de los días medidos desde 1925"*. Es un hecho sobre la serie del
+INA, no una categoría inventada: la app **no** dice "normal", "alto" ni "bajo",
+porque para eso haría falta una metodología oficial que no tenemos.
+
+El récord también sale de ahí. `RECORD` y `RECORD_ANIO` en `app.js` son sólo el
+arranque, para que la regla se dibuje bien antes de que llegue el archivo: si
+alguna crecida rompe el récord, se actualiza volviendo a correr el script.
+
+**Nada anterior a 1925.** La crecida de 1905 que se cita seguido no está en
+esta serie y no se reconstruye desde recortes de diario.
+
+**La visualización.** Una franja con una barra por año —del mínimo al máximo, y
+teñida según si llegó a alerta o a evacuación—, más un tanque con la línea del
+agua que se recorre con un `<input type=range>`. Dos modos con el mismo dibujo:
+"recorrer años" y "mover el río". Tres cosas que no son negociables:
+
+- **Sin autoplay.** La animación arranca sólo si alguien toca Reproducir.
+- **`prefers-reduced-motion` no apaga el botón**, quita la transición: quien
+  pidió menos movimiento igual puede recorrer los años.
+- **El control es un `range` nativo.** Teclado, lector de pantalla y el gesto
+  de arrastre del sistema vienen gratis y funcionan mejor que cualquier cosa
+  que pudiéramos escribir.
+
+**Los rótulos de la franja son HTML, no `<text>` del SVG.** El dibujo se estira
+con `preserveAspectRatio="none"` para que 102 barras entren en un teléfono, y
+eso aplasta las letras horizontalmente hasta volverlas ilegibles. Las barras
+aguantan la deformación; las letras no. Es el mismo criterio que la regla de la
+app, que también lleva la numeración fuera de la pista.
 
 ## Correr en local
 
@@ -93,6 +193,11 @@ Sin eso la política no se prueba hasta producción.
 
 `/api/nivel` anda de verdad contra el INA. Las que necesitan Redis devuelven
 503, igual que en producción sin configurar.
+
+`scripts/servir.js` usa un byte NUL como centinela al convertir los patrones de
+`vercel.json` a expresiones regulares. Efecto colateral: `file` lo reporta como
+`data` y **`grep` lo trata como binario** — hay que pasarle `-a` para buscar ahí
+adentro.
 
 **El service worker cachea fuerte.** Mientras desarrollás, en DevTools →
 Application → Service Workers tildá **"Update on reload"**, o vas a estar
@@ -263,6 +368,7 @@ Cuatro URLs, no una:
 | `/mi-cota` | Cómo se calcula la cota, con la cuenta completa |
 | `/puntos-de-encuentro` | Los 30 puntos oficiales |
 | `/datos` | De dónde sale cada número y cómo verificarlo |
+| `/historia` | Cien años del Paraná, con la serie del INA desde 1925 |
 | `/preguntas` | Ocho preguntas, con datos estructurados `FAQPage` |
 | `/legal` | Descargo, privacidad y licencias |
 
@@ -498,7 +604,18 @@ vieja para siempre.
   prueba un modelo. Hasta que lo revisen especialistas y organismos competentes
   (Gestión de Riesgos, INA, FICH-UNL), lo que la app publica son niveles de
   referencia estimados y así están nombrados en toda la interfaz.
-- El nivel se saca raspando el HTML del reporte diario del INA. Ya se
-  rompió una vez (cambiaron <strong> por <b> y fecha_reporte quedó en
-  null sin que nada avisara). Averiguar si dan acceso a la API REST de
-  alerta5, y mientras tanto poner un chequeo que avise si deja de parsear.
+- ~~El nivel se saca raspando el HTML del reporte diario del INA.~~
+  **Resuelto.** La API REST del SIyAH (`alerta.ina.gob.ar/a5`) es pública, sin
+  clave y sin cuota: `lib/ina.js` la usa primero y cae al raspado sólo si
+  falla. El campo `origen` de `/api/nivel` dice cuál contestó y `degradado`
+  aparece cuando hubo que usar el respaldo, así que la próxima vez que el
+  raspado se rompa se va a ver en el JSON en lugar de descubrirse meses
+  después. La ruta documentada (`/pub/datos`) no se pudo usar: ver
+  `AUDITORIA.md` §6.
+- **La cota de Arroyo Leyes en 1992 (16,70 IGN) sigue sin fuente primaria.**
+  Es el único dato independiente del modelo y viene de una nota de prensa.
+  Conseguir el registro original es lo de mayor rendimiento pendiente.
+- **El margen de la cota (±0,5 m) no debería ser una constante.** 21 de las 169
+  curvas están fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay
+  ninguna. El margen tendría que salir de la separación local entre las dos
+  curvas usadas para interpolar.

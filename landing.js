@@ -35,13 +35,20 @@ async function pintarNivel() {
     const j = await r.json();
     if (typeof j.altura !== "number") throw new Error("sin altura");
 
+    /* Los umbrales oficiales los publica la estación del INA y vienen en la
+       respuesta. Los de acá son el respaldo para cuando contesta el reporte
+       diario, que no los trae. Antes estaban escritos a mano en tres lugares
+       de este archivo. */
+    const alerta = typeof j.alerta === "number" ? j.alerta : 5.3;
+    const evacuacion = typeof j.evacuacion === "number" ? j.evacuacion : 5.7;
+
     // textContent y no innerHTML: es dato que llega de la red y no hay razón
     // para dejarlo interpretar como marcado.
     num.textContent = m(j.altura);
     pie.textContent =
-      (j.altura >= 5.7
+      (j.altura >= evacuacion
         ? "Nivel de evacuación"
-        : j.altura >= 5.3
+        : j.altura >= alerta
           ? "Nivel de alerta"
           : "Por debajo del nivel de alerta") +
       (j.fecha_dato ? " · dato del " + j.fecha_dato.slice(0, 10) : "");
@@ -60,7 +67,7 @@ async function pintarNivel() {
     // decir algo igual de concreto y que además es cierto.
     const globo = document.getElementById("globo");
     if (globo) {
-      const cm = Math.round((5.3 - j.altura) * 100);
+      const cm = Math.round((alerta - j.altura) * 100);
       globo.innerHTML =
         cm > 0
           ? "Hoy faltan <b>" + cm + " cm</b><br>para la alerta oficial"

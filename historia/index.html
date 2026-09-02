@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cien años del Paraná en Santa Fe — Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/historia" />
+    <meta name="description" content="La serie completa del hidrómetro del Puerto de Santa Fe desde 1925, con datos oficiales del INA: las mayores crecidas, las bajantes más hondas y qué tan alto está el río hoy comparado con un siglo de mediciones." />
+    <meta name="theme-color" content="#0B1418" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Cien años del Paraná en Santa Fe — Cota Cero" />
+    <meta property="og:description" content="La serie completa del hidrómetro del Puerto de Santa Fe desde 1925, con datos oficiales del INA: las mayores crecidas, las bajantes más hondas y qué tan alto está el río hoy comparado con un siglo de mediciones." />
+    <meta property="og:image" content="https://cotacerosf.com/og.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/historia" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Cota Cero",
+            "item": "https://cotacerosf.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Cien años del Paraná",
+            "item": "https://cotacerosf.com/historia"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": "Altura hidrométrica diaria del Puerto de Santa Fe, 1925-hoy",
+        "description": "Serie diaria de altura hidrométrica del Puerto de Santa Fe (río Paraná), publicada por el Instituto Nacional del Agua.",
+        "inLanguage": "es-AR",
+        "creator": {
+          "@type": "GovernmentOrganization",
+          "name": "Instituto Nacional del Agua",
+          "url": "https://alerta.ina.gob.ar/a5/diario/reporte_diario"
+        },
+        "isAccessibleForFree": true,
+        "temporalCoverage": "1925-01-02/2026-09-01",
+        "variableMeasured": "Altura hidrométrica, en metros sobre el cero de escala",
+        "url": "https://cotacerosf.com/historia"
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/app.css" />
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/historia.js"></script>
+  </head>
+  <body class="landing">
+    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
+         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
+         ése es para leer y se queda en la medida angosta. -->
+    <div class="ancho alineado-lectura">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/">← Volver a la portada</a>
+          </div>
+        </details>
+        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+      </nav>
+    </div>
+
+    <div class="ancho angosto">
+      <header class="pg-cabecera">
+        <p class="chip-tinte">La escala real</p>
+        <h1>Cien años del Paraná</h1>
+        <p class="pg-lead">El hidrómetro marca un número y el número solo no dice nada. Esta página lo pone al lado de <b>un siglo de mediciones oficiales</b> del mismo instrumento, para que se vea qué es mucho y qué es poco.</p>
+      </header>
+
+      <main>
+      <p id="h-cargando" class="chico" role="status">Cargando un siglo de mediciones…</p>
+
+      <div id="h-contenido" hidden>
+        <section class="bloque">
+          <p class="kicker">1925 — hoy</p>
+          <h2>Un siglo, de una mirada</h2>
+          <p>
+            Cada barra es un año: va del nivel más bajo al más alto que marcó el
+            hidrómetro. Las dos líneas punteadas son los umbrales oficiales de
+            alerta y evacuación. Tocá una barra para ver ese año en detalle.
+          </p>
+          <div id="h-franja" class="h-franja"></div>
+          <p class="chico">
+            Las barras naranjas son años que llegaron a la alerta; las rojas,
+            los que llegaron a nivel de evacuación.
+          </p>
+        </section>
+
+        <section class="bloque">
+          <h2>Recorré la serie</h2>
+          <div class="h-modos" role="group" aria-label="Qué recorrer">
+            <button type="button" class="btn sec" data-modo="anios" aria-pressed="true">Recorrer años</button>
+            <button type="button" class="btn sec" data-modo="libre" aria-pressed="false">Mover el río</button>
+          </div>
+
+          <div class="h-panel">
+            <div class="h-tanque">
+              <div class="h-agua" id="h-agua"></div>
+              <div class="h-marcas" id="h-marcas" aria-hidden="true"></div>
+            </div>
+            <div class="h-lectura" id="h-lectura" role="status"></div>
+          </div>
+
+          <div class="h-control">
+            <input type="range" id="h-rango" min="0" max="1" step="1" value="0" />
+            <div class="h-control-pie">
+              <span id="h-pie-control" class="chico"></span>
+              <button type="button" class="btn sec" id="h-play">Reproducir</button>
+            </div>
+          </div>
+          <p class="chico">
+            Nada se mueve solo: el recorrido arranca cuando lo pedís. Si tu
+            sistema está configurado para reducir el movimiento, la línea del
+            agua salta en vez de deslizarse.
+          </p>
+        </section>
+
+        <section class="bloque">
+          <h2>Las mayores crecidas registradas</h2>
+          <p class="chico">
+            Ordenadas por la altura máxima del año. No es una lista escrita a
+            mano: es la serie del INA ordenada de mayor a menor.
+          </p>
+          <ol class="h-ranking" id="h-crecidas"></ol>
+        </section>
+
+        <section class="bloque">
+          <h2>Las bajantes más hondas</h2>
+          <p class="chico">
+            El cero del hidrómetro no es el fondo del río: por debajo de cero
+            sigue habiendo agua. Un número negativo significa que el río está
+            más abajo que el cero de esa escala.
+          </p>
+          <ol class="h-ranking" id="h-bajantes"></ol>
+        </section>
+
+        <section class="bloque">
+          <h2>La tabla completa</h2>
+          <details class="h-detalle">
+            <summary>Ver los 102 años, uno por uno</summary>
+            <div class="h-tabla-caja">
+              <table class="h-tabla">
+                <thead><tr><th scope="col">Año</th><th scope="col">Máximo</th><th scope="col">Mínimo</th><th scope="col">Días en alerta</th></tr></thead>
+                <tbody id="h-tabla-cuerpo"></tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+
+        <section class="bloque borde">
+          <p class="kicker">La fuente</p>
+          <p id="h-fuente" class="chico"></p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" id="h-verificar" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30/observaciones?timestart=1925-01-01&amp;timeend=2100-01-01" target="_blank" rel="noopener">Ver la serie cruda</a>
+          </p>
+          <p class="chico">
+            Antes de 1925 el INA no publica esta serie. La crecida de 1905 que
+            se cita seguido queda afuera: no la reconstruimos desde recortes de
+            diario. Los años con la libreta incompleta están marcados como
+            tales.
+          </p>
+        </section>
+
+        <section class="bloque oscuro">
+          <p class="kicker">Ojo con leer de más</p>
+          <h2>Esto es historia, no pronóstico</h2>
+          <p>
+            Que una altura se haya alcanzado pocas veces en cien años no dice
+            nada sobre lo que va a pasar este año. La serie tampoco es
+            homogénea: en cien años cambiaron las presas aguas arriba, el uso
+            del suelo de la cuenca y el propio régimen del río.
+          </p>
+          <p>
+            Y una advertencia sobre las defensas: la ciudad de 1925 no es la de
+            hoy. Un mismo número del hidrómetro no significaba lo mismo antes
+            que ahora, porque cambió lo que hay entre el río y las casas.
+          </p>
+        </section>
+      </div>
+      </main>
+
+      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+    </div>
+
+    <div class="pie-envoltura">
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Herramienta ciudadana, sin vínculo con organismos oficiales. La
+            orden de evacuación la da Defensa Civil.
+          </p>
+          <p class="firma">
+            Hecho por <b>Ariel Benz</b>
+            <span class="redes">
+              <a href="https://x.com/arielbenz" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en X">X</a>
+              <a href="https://www.instagram.com/ariel.front/" target="_blank" rel="noopener noreferrer" aria-label="Ariel Benz en Instagram">Instagram</a>
+            </span>
+          </p>
+          <p class="chip-tel">Emergencias <b>103</b></p>
+        </div>
+        <div>
+          <span class="eti">La herramienta</span>
+          <a href="/app">Abrir la app</a>
+          <a href="/mi-cota">Cómo se calcula tu umbral</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/historia">Cien años del Paraná</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+          <a href="/legal">Legal y privacidad</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">INA — Instituto Nacional del Agua</a>
+          <a href="https://www.argentina.gob.ar/prefecturanaval" target="_blank" rel="noopener">Prefectura Naval Argentina</a>
+          <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN — Instituto Geográfico Nacional</a>
+          <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/" target="_blank" rel="noopener">Gestión de Riesgos — Municipalidad</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

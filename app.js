@@ -40,14 +40,61 @@ const CONFIG = {
   NIVEL_ENDPOINT: "/api/nivel",
 };
 
+/* El reporte diario del INA. La app no lo lee desde el navegador —para eso
+   está /api/nivel, que esquiva la falta de CORS—, pero sí lo enlaza en todas
+   las pantallas donde muestra el nivel: quien quiera comprobar el número
+   tiene que poder llegar al original en un toque. */
+const FUENTE_RIO = "https://alerta.ina.gob.ar/a5/diario/reporte_diario";
+
+/* De dónde sale cada cosa, para poder decirlo en la pantalla donde se muestra
+   y no sólo en /datos. Es el mismo contenido que lib/fuentes.js, que es el
+   original: acá va la copia mínima que necesita la interfaz —tres datos y sus
+   enlaces— porque app.js es un script clásico y no puede importar módulos.
+   Si cambia una URL, cambia en lib/fuentes.js y se refleja acá a mano. */
+const FUENTES_APP = {
+  rio: { quien: "INA", url: FUENTE_RIO },
+  topografia: {
+    quien: "Curvas de nivel · Municipalidad de Santa Fe",
+    url: "https://geo.santafeciudad.gov.ar/",
+  },
+  emergencias: {
+    quien: "Gestión de Riesgos · Municipalidad de Santa Fe",
+    url: "https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/plan-de-contingencia/",
+  },
+};
+
+/* El sello de fuente: quién publica el dato y adónde ir a mirarlo. Discreto a
+   propósito — la trazabilidad tiene que estar siempre disponible sin competir
+   con el número. */
+const selloFuente = (f) =>
+  '<span class="sello-fuente"><span class="k">Fuente</span> ' +
+  atr(f.quien) +
+  ' <a href="' +
+  atr(f.url) +
+  '" target="_blank" rel="noopener">ver</a></span>';
+
 const CERO_IGN = 8.2;
 const PENDIENTE = 0.045;
-const ALERTA = 5.3;
-const EVACUACION = 5.7;
-/* El récord vigente del hidrómetro del Puerto: junio de 1992. Es la única
-   referencia histórica con fuente que entra en la regla, y da la escala real
-   de la decisión: de la alerta (5,30) al récord hay 2,13 m. */
-const RECORD_1992 = 7.43;
+/* Los umbrales oficiales del Puerto. Van con `let` y no con `const` porque
+   desde que la app lee la API del INA los publica la propia estación
+   (`nivel_alerta` / `nivel_evacuacion`): estos valores son el arranque y el
+   respaldo para cuando contesta el reporte diario, que no los trae. Si el INA
+   los corrigiera, la app se entera sola en vez de mostrar dos números
+   distintos que los de la fuente. */
+let ALERTA = 5.3;
+let EVACUACION = 5.7;
+/* El récord vigente del hidrómetro del Puerto. Da la escala real de la
+   decisión: de la alerta al récord hay poco más de dos metros, y sin esa
+   marca la evacuación parece el techo del mundo.
+
+   Va con `let` porque ya no está escrito a mano: sale de datos/historia.json,
+   que `node scripts/historia.js` arma con la serie del INA desde 1925. Estos
+   valores son el arranque, para que la regla se dibuje bien antes de que el
+   archivo llegue —y si alguna crecida rompe el récord, se actualiza volviendo
+   a correr el script, no editando este renglón. */
+let RECORD = 7.43;
+let RECORD_ANIO = 1992;
+const etiquetaRecord = () => "Récord " + RECORD_ANIO;
 const ESCALA_MIN = 0;
 const ESCALA_MAX = 8;
 /* Incertidumbre de la cota, en metros.
@@ -134,36 +181,60 @@ const ZONAS = [
   },
 ];
 
+/* Las dos listas del plan, con una marca por renglón: `true` = está en el
+   Plan de Contingencia de la Municipalidad; `false` = lo agregamos nosotros.
+   La distinción importa. Una app que mezcla las recomendaciones del municipio
+   con las propias, sin decir cuál es cuál, se atribuye un respaldo que no
+   tiene; y esconder lo agregado sería fingir que el plan oficial dice más de
+   lo que dice.
+
+   Los cinco puntos de la "Mochila de Emergencia", textuales del plan:
+     · Documentos importantes en bolsa de plástico (DNI y todo otro documento
+       familiar de importancia).
+     · Botiquín de primeros auxilios y medicinas habituales.
+     · Manta ligera y ropa de abrigo.
+     · Linterna y baterías extra.
+     · Radio y pilas para mantenerse informados si se corta la luz.
+   Lo demás es sentido común de crecida, no doctrina municipal.
+
+   NO REORDENAR ESTAS LISTAS. Cada casilla se guarda por su posición
+   (`cc_mo3`, `cc_pv5`...), así que mover un renglón le cambia el tilde de
+   lugar a todo el que ya venía llenando el plan: alguien que tenía la mochila
+   a medias abriría la app y vería marcadas otras cosas. Se agrega al final. */
 const MOCHILA = [
-  "Documentos de todos, en bolsa de nylon cerrada",
-  "Medicación habitual y recetas",
-  "Botiquín de primeros auxilios",
-  "Agua potable para tres días",
-  "Alimentos que no necesiten cocción ni frío",
-  "Linterna y pilas de repuesto",
-  "Radio a pilas (para cuando no haya luz ni datos)",
-  "Cargador y batería portátil cargada",
-  "Mantas y ropa de abrigo",
-  "Muda de ropa por persona",
-  "Pañales, mamadera y leche si hay bebés",
-  "Comida y correa de los animales",
-  "Efectivo en billetes chicos",
-  "Copia de llaves",
-  "Anotado: teléfonos en papel, por si se apaga el celular",
+  ["Documentos de todos, en bolsa de nylon cerrada", true],
+  ["Medicación habitual y recetas", true],
+  ["Botiquín de primeros auxilios", true],
+  ["Agua potable para tres días", false],
+  ["Alimentos que no necesiten cocción ni frío", false],
+  ["Linterna y pilas de repuesto", true],
+  ["Radio a pilas (para cuando no haya luz ni datos)", true],
+  ["Cargador y batería portátil cargada", false],
+  ["Mantas y ropa de abrigo", true],
+  ["Muda de ropa por persona", false],
+  ["Pañales, mamadera y leche si hay bebés", false],
+  ["Comida y correa de los animales", false],
+  ["Efectivo en billetes chicos", false],
+  ["Copia de llaves", false],
+  ["Anotado: teléfonos en papel, por si se apaga el celular", false],
 ];
 
+/* Del plan municipal, para la preparación previa: identificar el punto de
+   encuentro más cercano y el recorrido hasta él, asignar roles a cada
+   integrante de la familia, y saber cortar la energía eléctrica y cerrar las
+   llaves de gas. El resto lo agregamos nosotros. */
 const PREVIA = [
-  "Saber la cota de mi terreno",
-  "Elegir el punto de encuentro y probar el recorrido",
-  "Acordar quién hace qué el día que haya que salir",
-  "Guardar los documentos importantes en alto",
-  "Levantar del piso lo que se arruina con el agua",
-  "Fijarme dónde se corta la luz y el gas, y que otro más lo sepa",
-  "Limpiar la cuneta y el desagüe de la vereda",
-  "No dejar escombros ni ramas en la calle",
-  "Hablar con los vecinos: quién necesita ayuda para salir",
-  "Cargar el celular y la batería portátil cuando anuncian tormenta",
-  "Tener a mano el número del contacto fuera de la zona",
+  ["Saber la cota de mi terreno", false],
+  ["Elegir el punto de encuentro y probar el recorrido", true],
+  ["Acordar quién hace qué el día que haya que salir", true],
+  ["Guardar los documentos importantes en alto", false],
+  ["Levantar del piso lo que se arruina con el agua", false],
+  ["Fijarme dónde se corta la luz y el gas, y que otro más lo sepa", true],
+  ["Limpiar la cuneta y el desagüe de la vereda", false],
+  ["No dejar escombros ni ramas en la calle", false],
+  ["Hablar con los vecinos: quién necesita ayuda para salir", false],
+  ["Cargar el celular y la batería portátil cuando anuncian tormenta", false],
+  ["Tener a mano el número del contacto fuera de la zona", false],
 ];
 
 /* Los 30 puntos de encuentro viven en el HTML (ver index.html), con las
@@ -284,6 +355,9 @@ let estado = {
   delta: null, // variación contra la medición anterior, en metros
   rioFecha: "", // fecha de la medición, tal como la publica el INA
   rioVencido: false, // el dato guardado ya no se puede presentar como vigente
+  rioVia: "", // "api" | "reporte": cuál de las dos fuentes del INA contestó
+  rioVerificar: "", // la URL exacta con la que se puede comprobar el número
+  ceroINA: null, // el cero IGN que publica el INA. No entra en el cálculo.
   cota: null, // cota IGN del terreno
   cotaEsEstimada: false,
   // "mano" | "gps" | "direccion". Antes sólo se guardaba si era estimada o
@@ -420,6 +494,22 @@ const horasDesde = (d) => (d ? (Date.now() - d.getTime()) / 36e5 : null);
    el navegador no puede pedirlo directo. Por eso la fuente 1 es una funcion
    serverless propia (api/nivel.js) que lo lee y lo reexpone.
    Si eso falla, quedan el último valor guardado y la carga manual. */
+/* Los umbrales que publica la estación reemplazan a los nuestros, con un
+   filtro: sólo si son números plausibles y en el orden correcto. Un cambio
+   silencioso de la API no puede dejar la regla con la evacuación por debajo
+   de la alerta. */
+function adoptarUmbrales(j) {
+  const a = j.alerta,
+    e = j.evacuacion;
+  if (typeof a !== "number" || typeof e !== "number") return;
+  if (!(a > 0 && e > a && e < 10)) return;
+  if (a === ALERTA && e === EVACUACION) return;
+  ALERTA = a;
+  EVACUACION = e;
+  REFERENCIAS[0][1] = a;
+  REFERENCIAS[1][1] = e;
+}
+
 async function cargarRio() {
   // Marcamos que estamos buscando: sin esto, entre el "Cargando" inicial y
   // el resultado no había diferencia visible con el estado de falla.
@@ -444,7 +534,17 @@ async function cargarRio() {
       const j = await r.json();
       if (typeof j.altura === "number") {
         valor = j.altura;
-        origen = "INA · Alerta Hidrológico Cuenca del Plata";
+        origen =
+          j.origen === "api"
+            ? "INA · Sistema de Alerta Hidrológico (SIyAH)"
+            : "INA · reporte diario";
+        estado.rioVia = j.origen || "";
+        estado.rioVerificar = j.verificar || "";
+        // El cero IGN que publica el INA para esta escala. No entra en el
+        // cálculo —ver /datos, "Discusiones abiertas"—, se guarda para poder
+        // mostrarlo al lado del que sí usamos.
+        estado.ceroINA = typeof j.cero_ign === "number" ? j.cero_ign : null;
+        adoptarUmbrales(j);
         if (j.fecha_dato) {
           extra = " Medición del " + j.fecha_dato + ".";
           estado.rioFecha = j.fecha_dato;
@@ -499,6 +599,10 @@ async function cargarRio() {
   } else {
     estado.rio = valor;
     estado.rioOrigen = origen;
+    /* La fuente deja de ser una frase y pasa a ser algo que se puede abrir.
+       Es la diferencia entre "confiá en nosotros" y "andá a mirarlo": el
+       enlace apunta al reporte del INA, y cuando contestó la API también al
+       pedido exacto que devolvió este número. */
     document.getElementById("origen-dato").innerHTML =
       (estado.rioVencido
         ? '<b style="color:var(--alerta-texto)">Dato vencido.</b> '
@@ -506,7 +610,15 @@ async function cargarRio() {
       "Fuente: " +
       origen +
       "." +
-      extra;
+      extra +
+      ' <a href="' +
+      atr(FUENTE_RIO) +
+      '" target="_blank" rel="noopener">Ver el reporte del INA</a>' +
+      (estado.rioVerificar
+        ? ' · <a href="' +
+          atr(estado.rioVerificar) +
+          '" target="_blank" rel="noopener">ver el dato crudo</a>'
+        : "");
     if (estado.rioVencido) document.getElementById("det-manual").open = true;
   }
   ver.classList.remove("cargando");
@@ -643,7 +755,7 @@ function fijarRioManual() {
   if (v < -1 || v > 10) {
     est.innerHTML =
       '<b style="color:var(--alerta-texto)">Ese valor está fuera de la escala del hidrómetro</b> ' +
-      "(−1 a 10 m). El récord de 1992 fue 7,43 m.";
+      "(−1 a 10 m). El récord de " + RECORD_ANIO + " fue " + m(RECORD) + ".";
     campo.focus();
     return;
   }
@@ -680,11 +792,13 @@ function pintarRio() {
   html += `<div class="agua" style="height:${r == null ? 0 : Math.max(0, Math.min(100, pct(r)))}%"></div>`;
   // "debajo": la etiqueta de alerta va del otro lado de su línea porque si no
   // se monta con la de evacuación, que está a 40 cm — 15px en esta escala.
-  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta-texto)"><b style="color:var(--alerta-texto)">5,30</b></div>`;
-  html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro-texto)"><b style="color:var(--peligro-texto)">5,70</b></div>`;
+  // Los números salen de las constantes, no escritos a mano: desde que los
+  // publica la estación podrían no ser 5,30 y 5,70 para siempre.
+  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta-texto)"><b style="color:var(--alerta-texto)">${m(ALERTA).replace(" m", "")}</b></div>`;
+  html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro-texto)"><b style="color:var(--peligro-texto)">${m(EVACUACION).replace(" m", "")}</b></div>`;
   // El récord de 1992 en tono tenue: no es un umbral que haya que cruzar, es
   // la escala. Sin él, 5,70 parece el techo del mundo.
-  html += `<div class="marca-linea" style="bottom:${pct(RECORD_1992)}%;color:var(--tenue)"><b>7,43</b></div>`;
+  html += `<div class="marca-linea" style="bottom:${pct(RECORD)}%;color:var(--tenue)"><b>${m(RECORD).replace(" m", "")}</b></div>`;
 
   // tu umbral estimado, en la escala del hidrómetro
   const critico = cotaEnHidrometro();
@@ -1015,7 +1129,11 @@ function pintarOrigenCota() {
       ? '<b style="color:var(--alerta-texto)">' + o.corto + "</b>"
       : "<b>" + o.corto + "</b>") +
     "." +
-    (o.largo ? " " + o.largo : "");
+    (o.largo ? " " + o.largo : "") +
+    /* De dónde salió la altura, en el mismo renglón donde se la muestra. La
+       cota que la persona carga a mano es suya, no nuestra: ahí no
+       corresponde atribuir nada. */
+    (estado.cotaEsEstimada ? selloFuente(FUENTES_APP.topografia) : "");
 }
 
 function marcarCotaManual() {
@@ -1217,8 +1335,10 @@ function calcular() {
     txt =
       "Tu umbral estimado es " +
       mU(ref) +
-      ". Para dimensionar: el récord de 1992 fue " +
-      m(RECORD_1992) +
+      ". Para dimensionar: el récord de " +
+      RECORD_ANIO +
+      " fue " +
+      m(RECORD) +
       ".";
   }
 
@@ -1300,16 +1420,17 @@ ${
 
 /* ================= PLAN ================= */
 function pintarListas() {
-  const l1 = document.getElementById("lista-mochila");
-  l1.innerHTML = MOCHILA.map(
-    (t, i) =>
-      `<label class="chk"><input type="checkbox" data-k="mo${i}"><span>${t}</span></label>`,
-  ).join("");
-  const l2 = document.getElementById("lista-previa");
-  l2.innerHTML = PREVIA.map(
-    (t, i) =>
-      `<label class="chk"><input type="checkbox" data-k="pv${i}"><span>${t}</span></label>`,
-  ).join("");
+  /* El sello va sólo en los renglones que están en el plan municipal. Marcar
+     los propios en vez de los oficiales daría la lectura contraria: parecería
+     que lo normal es lo nuestro y la excepción lo del municipio. */
+  const fila = (pre) => ([t, oficial], i) =>
+    `<label class="chk"><input type="checkbox" data-k="${pre}${i}"><span>${t}` +
+    (oficial ? '<b class="sello-oficial">plan municipal</b>' : "") +
+    "</span></label>";
+  document.getElementById("lista-mochila").innerHTML =
+    MOCHILA.map(fila("mo")).join("");
+  document.getElementById("lista-previa").innerHTML =
+    PREVIA.map(fila("pv")).join("");
 
   document.querySelectorAll(".chk input").forEach((cb) => {
     cb.checked = guardado.get("cc_" + cb.dataset.k) === "1";
@@ -1420,7 +1541,9 @@ function textoPlan() {
   t += "MOCHILA — falta:\n";
   const faltan = MOCHILA.filter((_, i) => guardado.get("cc_mo" + i) !== "1");
   t += faltan.length
-    ? faltan.map((x) => "  [ ] " + x).join("\n")
+    ? faltan
+        .map(([x, oficial]) => "  [ ] " + x + (oficial ? "  (plan municipal)" : ""))
+        .join("\n")
     : "  Completa.";
   t += "\n\nTELÉFONOS\n";
   TELEFONOS.forEach(([q, n]) => {
@@ -1965,6 +2088,9 @@ function iniciar() {
   cargarRio();
   cargarLluvia();
   cargarTendencia();
+  // Tarde y sin bloquear: la app tiene que poder decir cuánto mide el río
+  // aunque este archivo nunca llegue.
+  cargarHistoria();
   // Sólo las coordenadas: el mapa se arma al abrir la pestaña.
   ubicarPuntos().catch(() => {
     document.getElementById("estado-mapa").textContent =
@@ -2489,7 +2615,7 @@ function pintarBienvenida() {
 const REFERENCIAS = [
   ["Alerta", ALERTA, "alerta"],
   ["Evacuación", EVACUACION, "peligro"],
-  ["Récord 1992", RECORD_1992, "record"],
+  [etiquetaRecord(), RECORD, "record"],
 ];
 
 function pintarContexto() {
@@ -2514,17 +2640,84 @@ function pintarContexto() {
     .join("");
 
   if (!txt) return;
-  const aAlerta = ALERTA - estado.rio;
-  txt.innerHTML =
-    aAlerta > 0
-      ? "Faltan <b>" +
-        Math.round(aAlerta * 100) +
-        " cm</b> para el nivel de alerta, y <b>" +
-        Math.round((RECORD_1992 - estado.rio) * 100) +
-        " cm</b> para el récord de 1992."
-      : "El río ya pasó el nivel de alerta. Al récord de 1992 le faltan <b>" +
-        Math.round((RECORD_1992 - estado.rio) * 100) +
-        " cm</b>.";
+  /* Antes esto era una sola frase con la alerta y el récord. Faltaba la
+     evacuación, que es el número con el que se decide salir de la casa, y
+     faltaba la escala: "3,10 m" no le dice nada a nadie hasta que se lo pone
+     al lado de un siglo de mediciones. */
+  /* `nombre` llega con la preposición ya puesta: "de la alerta", "del
+     récord". Armarla acá daba "por debajo de el récord". */
+  const contra = (ref, nombre) => {
+    const d = ref - estado.rio;
+    return d > 0
+      ? "<li><b>" + mCm(d) + "</b> por debajo " + nombre + "</li>"
+      : '<li><b style="color:var(--peligro-texto)">' +
+          mCm(d) +
+          "</b> por encima " +
+          nombre +
+          "</li>";
+  };
+  let h =
+    '<ul class="lista-contra">' +
+    contra(ALERTA, "de la alerta (" + m(ALERTA) + ")") +
+    contra(EVACUACION, "de la evacuación (" + m(EVACUACION) + ")") +
+    contra(RECORD, "del récord de " + RECORD_ANIO + " (" + m(RECORD) + ")") +
+    "</ul>";
+
+  /* La posición histórica. Es un hecho sobre la serie del INA —cuántos de los
+     días medidos estuvieron por debajo de hoy—, no una categoría inventada
+     por nosotros: la app no dice "normal", "alto" ni "bajo", porque para eso
+     haría falta una metodología oficial que no tenemos. */
+  const p = percentilHistorico(estado.rio);
+  if (p !== null)
+    h +=
+      '<p class="chico" style="margin:12px 0 0">Desde ' +
+      historia.desde.slice(0, 4) +
+      ", el río estuvo por debajo del nivel de hoy en el <b>" +
+      p +
+      " %</b> de los " +
+      historia.dias.toLocaleString("es-AR") +
+      ' días medidos. <a href="/historia">Ver cien años del Paraná</a></p>';
+  txt.innerHTML = h;
+}
+
+/* ---- la serie histórica del INA ----
+   6 KB con un renglón por año desde 1925, que genera `node scripts/historia.js`.
+   Se pide una sola vez y tarde: la app tiene que poder contestar "cuánto mide
+   el río" sin esperarla. Si no llega, las frases que dependen de ella
+   simplemente no aparecen — ninguna pantalla queda rota por su ausencia. */
+let historia = null;
+async function cargarHistoria() {
+  if (historia) return;
+  try {
+    const r = await fetch("/datos/historia.json");
+    if (!r.ok) return;
+    const j = await r.json();
+    if (!j || !Array.isArray(j.anios) || !j.anios.length) return;
+    historia = j;
+    // El récord deja de estar escrito a mano y pasa a salir de la serie.
+    const top = j.anios.reduce((p, c) => (c[1] > p[1] ? c : p));
+    if (typeof top[1] === "number" && top[1] > 5 && top[1] < 12) {
+      RECORD = top[1];
+      RECORD_ANIO = top[0];
+      REFERENCIAS[2][0] = etiquetaRecord();
+      REFERENCIAS[2][1] = RECORD;
+    }
+    pintarRio();
+    pintarContexto();
+  } catch (e) {
+    /* sin historia, la app funciona igual */
+  }
+}
+
+/* En qué porcentaje de los días medidos el río estuvo por debajo de este
+   nivel. Sale de los 101 escalones que dejó el script, o sea de la serie del
+   INA. Devuelve null si todavía no llegó el archivo. */
+function percentilHistorico(v) {
+  const q = historia && historia.cuantiles;
+  if (!q || v == null) return null;
+  let p = 0;
+  while (p < 100 && q[p + 1] <= v) p++;
+  return p;
 }
 
 /* ================= AJUSTES ================= */
@@ -2670,9 +2863,9 @@ async function armarImagen() {
     g.font = F(700, 30);
     g.fillText(texto, x + 18, yy - 16);
   };
-  marca(ALERTA, "Alerta 5,30", "#e8a33d");
-  marca(EVACUACION, "Evacuación 5,70", "#e15f49");
-  marca(RECORD_1992, "Récord 1992   7,43", tenue);
+  marca(ALERTA, "Alerta " + m(ALERTA).replace(" m", ""), "#e8a33d");
+  marca(EVACUACION, "Evacuación " + m(EVACUACION).replace(" m", ""), "#e15f49");
+  marca(RECORD, etiquetaRecord() + "   " + m(RECORD).replace(" m", ""), tenue);
   if (u != null && u <= TOPE) marca(u, "MI UMBRAL   " + mU(u), claro);
 
   // Pie: fuente y dominio, para que la imagen se defienda sola cuando la

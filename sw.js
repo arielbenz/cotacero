@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v39";
+const VERSION = "cota-cero-v40";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -189,8 +189,28 @@ self.addEventListener("fetch", (e) => {
    contra el umbral que la app guardó en este dispositivo.
    ========================================================================== */
 
+/* Los umbrales oficiales del Puerto. Son el arranque y el respaldo: desde
+   que /api/nivel lee la API del INA, la respuesta trae los que publica la
+   propia estación, y `armarAviso` usa ésos. Que acá sigan escritos importa
+   para el caso en que el aviso se arma sin haber podido leer el nivel. */
 const ALERTA_OFICIAL = 5.3;
 const EVACUACION_OFICIAL = 5.7;
+
+/* Los umbrales oficiales se escriben igual que en la app —"5,30 m", dos
+   decimales— para que nadie compare el aviso con la pantalla y crea que son
+   dos números distintos. */
+const umbralTxt = (v) => v.toFixed(2).replace(".", ",");
+
+/* Distancias como las dice la app: en centímetros cuando falta menos de un
+   metro, en metros con un decimal cuando falta más. El aviso decía "Faltan
+   unos 360 cm", que es exactamente lo que `mCm()` en app.js existe para
+   evitar — nadie lee 360 cm. */
+const distancia = (v) => {
+  const a = Math.abs(v);
+  return a < 1
+    ? Math.round(a * 100) + " cm"
+    : (Math.round(a * 10) / 10).toFixed(1).replace(".", ",") + " m";
+};
 
 /* El service worker no puede leer localStorage, así que la app espeja el
    umbral a IndexedDB. */
@@ -247,7 +267,9 @@ const dosDec = (v) => v.toFixed(2).replace(".", ",");
 const unDec = (v) =>
   "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
 
-function armarAviso(nivel, umbral, cerca) {
+function armarAviso(nivel, umbral, cerca, oficiales) {
+  const ALERTA = (oficiales && oficiales.alerta) || ALERTA_OFICIAL;
+  const EVACUACION = (oficiales && oficiales.evacuacion) || EVACUACION_OFICIAL;
   if (nivel == null)
     return {
       titulo: "El río se movió",
@@ -264,17 +286,17 @@ function armarAviso(nivel, umbral, cerca) {
       urgente: true,
       ir: "/app?ir=plan",
     };
-  if (nivel >= EVACUACION_OFICIAL)
+  if (nivel >= EVACUACION)
     return {
       titulo: "Nivel de evacuación",
-      cuerpo: `El río superó los 5,70 m (${dosDec(nivel)} m). Seguí las indicaciones del municipio.`,
+      cuerpo: `El río superó los ${umbralTxt(EVACUACION)} m (${dosDec(nivel)} m). Seguí las indicaciones del municipio.`,
       urgente: true,
       ir: "/app?ir=donde",
     };
-  if (nivel >= ALERTA_OFICIAL)
+  if (nivel >= ALERTA)
     return {
       titulo: "Nivel de alerta",
-      cuerpo: `El río superó los 5,30 m (${dosDec(nivel)} m). Arrancan las evacuaciones fuera del anillo.`,
+      cuerpo: `El río superó los ${umbralTxt(ALERTA)} m (${dosDec(nivel)} m). Arrancan las evacuaciones fuera del anillo.`,
       urgente: true,
       ir: "/app?ir=donde",
     };
@@ -284,20 +306,20 @@ function armarAviso(nivel, umbral, cerca) {
     if (cerca && falta <= 0.2)
       return {
         titulo: "Falta muy poco para tu umbral",
-        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}: unos ${Math.round(falta * 100)} cm. Andá preparando el plan.`,
+        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}: unos ${distancia(falta)}. Andá preparando el plan.`,
         urgente: true,
         ir: "/app?ir=plan",
       };
     if (cerca && falta <= 0.5)
       return {
-        titulo: `Unos ${Math.round(falta * 100)} cm hasta tu umbral`,
+        titulo: `Unos ${distancia(falta)} hasta tu umbral`,
         cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}.`,
         urgente: false,
         ir: "/app?ir=plan",
       };
     return {
       titulo: `El río subió a ${dosDec(nivel)} m`,
-      cuerpo: `Faltan unos ${Math.round(falta * 100)} cm hasta tu umbral estimado (${unDec(umbral)}).`,
+      cuerpo: `Faltan unos ${distancia(falta)} hasta tu umbral estimado (${unDec(umbral)}).`,
       urgente: false,
       ir: "/app",
     };
@@ -315,16 +337,33 @@ self.addEventListener("push", (e) => {
   e.waitUntil(
     (async () => {
       let nivel = null;
+      let oficiales = null;
       try {
         const r = await fetch("/api/nivel", { cache: "no-store" });
         if (r.ok) {
           const j = await r.json();
           if (typeof j.altura === "number") nivel = j.altura;
+          // Los umbrales que publica la estación, con el mismo filtro de
+          // plausibilidad que aplica la app: un cambio raro de la API no
+          // puede hacernos avisar de evacuación por debajo de la alerta.
+          if (
+            typeof j.alerta === "number" &&
+            typeof j.evacuacion === "number" &&
+            j.alerta > 0 &&
+            j.evacuacion > j.alerta &&
+            j.evacuacion < 10
+          )
+            oficiales = { alerta: j.alerta, evacuacion: j.evacuacion };
         }
       } catch (err) {
         /* sin red: avisamos igual, en genérico */
       }
-      const a = armarAviso(nivel, await leerUmbral(), await leerAvisarCerca());
+      const a = armarAviso(
+        nivel,
+        await leerUmbral(),
+        await leerAvisarCerca(),
+        oficiales,
+      );
       // El navegador exige que todo push muestre algo: si no, muestra un
       // "este sitio se actualizó en segundo plano" y termina revocando el
       // permiso. Por eso siempre notificamos, aunque sea en genérico.

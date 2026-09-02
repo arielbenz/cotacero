@@ -8,8 +8,11 @@
    de la app, y publicado en un medio se leería como pronóstico de inundación.
    Ver la página /para-medios, condición 2. */
 
-const ALERTA = 5.3;
-const EVACUACION = 5.7;
+/* Respaldo de los umbrales oficiales: los de verdad los publica la estación
+   del INA y llegan en /api/nivel. Con `let` para poder adoptarlos, y con las
+   marcas de la regla redibujadas cuando eso pasa. */
+let ALERTA = 5.3;
+let EVACUACION = 5.7;
 const ESCALA_MAX = 8; // la misma regla de 0 a 8 m que usa la app
 const VENCE_HORAS = 48; // pasado esto el dato deja de presentarse como de hoy
 
@@ -24,14 +27,35 @@ if (params.get("tema") === "noche")
   document.documentElement.dataset.tema = "noche";
 
 const pct = (v) => Math.max(0, Math.min(100, (v / ESCALA_MAX) * 100)) + "%";
-$("m-alerta").style.left = pct(ALERTA);
-$("m-evac").style.left = pct(EVACUACION);
+function marcarUmbrales() {
+  $("m-alerta").style.left = pct(ALERTA);
+  $("m-evac").style.left = pct(EVACUACION);
+  // Los rótulos también: si el INA corrigiera un umbral, la marca y el número
+  // que la nombra no pueden decir cosas distintas.
+  $("rot-alerta").textContent = "Alerta " + dosDec(ALERTA);
+  $("rot-evac").textContent = "Evac. " + dosDec(EVACUACION);
+}
+marcarUmbrales();
 
 /* El INA publica una lectura por día, pero puede saltearse una: el delta que
    viene es "contra la medición anterior", no "por día". Se dice así. */
 function pintar(d) {
   const nivel = Number(d.altura);
   if (!isFinite(nivel)) return fallar();
+
+  // Mismo filtro de plausibilidad que la app: la evacuación tiene que estar
+  // por encima de la alerta o no se adopta nada.
+  if (
+    typeof d.alerta === "number" &&
+    typeof d.evacuacion === "number" &&
+    d.alerta > 0 &&
+    d.evacuacion > d.alerta &&
+    d.evacuacion < 10
+  ) {
+    ALERTA = d.alerta;
+    EVACUACION = d.evacuacion;
+    marcarUmbrales();
+  }
 
   $("nivel").textContent = dosDec(nivel);
   $("agua").style.width = pct(nivel);

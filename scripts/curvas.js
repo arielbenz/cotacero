@@ -4,8 +4,20 @@
 //
 // De dónde sale el dato: capa `curvas_nivel` del GeoServer de la
 // Municipalidad de Santa Fe, subida por la Secretaría de Recursos Hídricos.
-// Son las curvas de nivel de la ciudad cada 50 cm, en metros IGN — el mismo
-// sistema de alturas que usa el cero del hidrómetro (8,20 m IGN).
+// Son las curvas de nivel de la ciudad, en metros IGN.
+//
+// OJO CON UNA SUPOSICIÓN. Damos por hecho que estas curvas y el cero del
+// hidrómetro que usa la app (8,20 m) están en el mismo sistema de alturas,
+// porque de eso depende que restarlos signifique algo. Los metadatos de la
+// capa NO lo declaran: sólo dicen que salió de
+// Sec_Recursos_Hidricos\Dep_Relevamientos_Planialtimetricos, y el sistema
+// horizontal es EPSG:22185 (Campo Inchauspe, 1969). Está anotado como
+// pendiente de validación técnica en AUDITORIA.md, junto con la discrepancia
+// entre 8,20 y el 8,378 que publica el INA.
+//
+// Y no son exactamente "cada 50 cm": 21 de los 169 tramos caen fuera de esa
+// malla, y entre 20,7 y 22,5 m no hay ninguna curva. El margen fijo de 0,5 m
+// que usa la app (ERROR_DEM) es una convención, no una medición.
 //
 // Reemplaza al modelo satelital de Open-Meteo, que medía techos y arbolado en
 // vez del piso: comparado con estas curvas sobreestimaba 2,15 m de media, y
@@ -121,7 +133,10 @@ const lats = curvas.flatMap((c) => c[1].filter((_, i) => i % 2 === 1));
 const salida = {
   fuente:
     "Curvas de nivel — Municipalidad de Santa Fe, Secretaría de Recursos Hídricos (capa sitmax:curvas_nivel)",
-  sistema: "metros IGN (mismo datum que el cero del hidrómetro, 8,20 m)",
+  // Sin declarar en el origen: ver la nota de arriba y AUDITORIA.md.
+  sistema:
+    "metros IGN — el sistema de alturas exacto (SRVN71 / SRVN16 / municipal) " +
+    "no lo declara la capa de origen",
   generado: new Date().toISOString().slice(0, 10),
   // La app usa esto para saber si un punto cae fuera de la cobertura, en vez
   // de inventarle una cota.

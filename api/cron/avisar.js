@@ -15,8 +15,11 @@ import {
   CLAVE_AVISADO,
 } from "../../lib/push.js";
 
-const ALERTA = 5.3;
-const EVACUACION = 5.7;
+/* Respaldo de los umbrales oficiales. Los de verdad los publica la estación
+   y vienen en la lectura del INA; éstos se usan sólo si esa respuesta llega
+   sin ellos, que es lo que pasa cuando contesta el reporte diario. */
+const ALERTA_RESPALDO = 5.3;
+const EVACUACION_RESPALDO = 5.7;
 // Cuánto tiene que subir desde el último aviso para volver a molestar.
 // Con el río estable son un puñado de avisos por temporada; en crecida,
 // uno por día, que es exactamente cuando corresponde.
@@ -36,7 +39,14 @@ export default async function handler(req, res) {
     return res.status(503).json({ error: "Avisos no configurados" });
 
   try {
-    const { altura, fecha_dato } = await leerNivelINA();
+    const lectura = await leerNivelINA();
+    const { altura, fecha_dato } = lectura;
+    const ALERTA =
+      typeof lectura.alerta === "number" ? lectura.alerta : ALERTA_RESPALDO;
+    const EVACUACION =
+      typeof lectura.evacuacion === "number"
+        ? lectura.evacuacion
+        : EVACUACION_RESPALDO;
     const previo = parseFloat(await redis("GET", CLAVE_NIVEL));
     const avisado = parseFloat(await redis("GET", CLAVE_AVISADO));
     await redis("SET", CLAVE_NIVEL, String(altura));
