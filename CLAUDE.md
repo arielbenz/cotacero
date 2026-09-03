@@ -112,10 +112,11 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | --------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                 |
 | Organismos, URLs, la estación del INA         | `lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                        |
-| El pie del sitio                              | constante `PIE` en `scripts/paginas.js`            | las páginas generadas **y** `index.html`                                                  |
+| El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                           |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                             |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
+| El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie     |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
@@ -127,8 +128,9 @@ una copia a mano; ya no hay dos listas que se puedan desincronizar.
 
 ### Páginas generadas: no editarlas
 
-`/puntos-de-encuentro`, `/mi-cota`, `/datos`, `/historia`, `/preguntas`,
-`/legal`, `/charlas` y `/para-medios` los emite `scripts/paginas.js`. Editar el
+`/puntos-de-encuentro`, `/datos`, `/historia`, `/preguntas`, `/legal`,
+`/charlas`, `/sobre`, `/contacto` y `/para-medios` los emite
+`scripts/paginas.js`. Editar el
 HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
 Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
 `index.html` entre los marcadores `<!-- PIE:inicio -->` / `<!-- PIE:fin -->`.
@@ -136,6 +138,27 @@ Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
 Una ruta nueva toca cinco lugares: `scripts/paginas.js`, la lista de escritura
 al final del mismo archivo, `vercel.json` (cabecera de revalidación),
 `sitemap.xml` y el `PIE`.
+
+**Una ruta que se retira toca los mismos, más dos: un `redirects` en
+`vercel.json` hacia la que la reemplaza** —si no, una URL indexada pasa a
+devolver 404— **y sacarla de `ESENCIALES` en `sw.js`**, o `cache.addAll()`
+falla entero y la app se queda sin modo sin conexión, en silencio.
+`scripts/servir.js` aplica esos `redirects` igual que las cabeceras, así que
+el 301 se prueba en local. Pasó al fusionar `/mi-cota` dentro de `/datos`.
+
+**El estado en vivo de la portada tiene un solo dueño.** El mockup del hero, la
+píldora de la barra, la franja de alerta y el renglón de frescura del pie se
+suscriben al objeto `rio` de `js/landing.js`. Una pieza nueva **se suscribe**,
+no hace su propio `fetch`: con un fetch por pieza la portada puede mostrar dos
+números distintos al mismo tiempo si uno falla.
+
+Tres cosas de ahí que parecen detalles y no lo son: la franja **nunca** sale
+con un dato vencido —una alerta de hace tres días con la cara de una de ahora
+es peor que ninguna—; el umbral personal **se lee de IndexedDB**, donde la app
+lo espeja, y no se recalcula (`cotaEnHidrometro()` sigue siendo la única que
+traduce cota a umbral); y la frescura vence a las **48 h**, el mismo criterio
+que `VENCE_HORAS` en la app, porque el INA publica una sola lectura por día
+sellada a las 00:00.
 
 ### La app son módulos ES
 

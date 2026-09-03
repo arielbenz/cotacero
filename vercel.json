@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/mi-cota",
+      "destination": "/datos",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",
@@ -33,15 +40,6 @@
     },
     {
       "source": "/puntos-de-encuentro",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/mi-cota",
       "headers": [
         {
           "key": "Cache-Control",

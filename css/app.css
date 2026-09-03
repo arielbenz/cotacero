@@ -110,6 +110,17 @@
   --peligro-solido: #d93e24;
   --sobre-solido: #ffffff;
 
+  /* Los dos rellenos de la franja de estado en vivo. NO se remapean por tema:
+     una franja de alerta oficial es la misma franja de noche que de día —lo
+     que cambia con el tema es la página, no la emergencia—. Van con texto
+     blanco (--sobre-solido), y ese es el motivo de que no sean --alerta ni
+     --peligro: esos dos están calibrados para TEXTO sobre el fondo, no para
+     ser fondo. Medidos contra blanco: 4,67 y 7,24. El diseño traía #d9480f
+     para el naranja y da 4,30 con el bold de 13 px de la franja, o sea por
+     debajo del 4,5 de AA; #cf440d es el mismo naranja un escalón más hondo. */
+  --alerta-solido: #cf440d;
+  --evac-solido: #a5271a;
+
   --agua-tinte: rgba(46, 155, 196, 0.16);
   --alerta-tinte: rgba(232, 163, 61, 0.14);
   --alerta-tinte-suave: rgba(232, 163, 61, 0.07);
@@ -1718,10 +1729,12 @@ input[type="range"] {
   gap: var(--e-5);
   align-items: start;
 }
-/* Escrito con las dos clases a propósito: `.bloque h2` mide lo mismo y gana
-   por orden, no por especificidad, que es de dónde salieron los últimos tres
-   bugs de cascada de esta hoja. */
-.bloque.paso h2 {
+/* Escrito con las dos clases a propósito: `.bloque h3` mide lo mismo y gana
+   por orden, no por especificidad, que es de dónde salieron los últimos cuatro
+   bugs de cascada de esta hoja. El título del paso es <h3> desde que /mi-cota
+   se fusionó con /datos: ahí los pasos cuelgan de una sección, ya no son el
+   primer nivel de su propia página. */
+.bloque.paso h3 {
   font-size: var(--t-l);
   margin: 0 0 var(--e-3);
 }
@@ -1967,6 +1980,215 @@ body.landing {
   }
 }
 
+/* ==========================================================================
+   ESTADO EN VIVO
+   Tres piezas de la portada que dicen lo mismo desde tres lugares: la franja
+   sobre la barra, la píldora dentro de la barra y el renglón de frescura del
+   pie. Las tres las pinta js/landing.js desde UN solo objeto —ver el "store"
+   al principio de ese archivo—, así que no se pueden contradecir.
+
+   Los colores salen de los tokens de siempre y no de hexadecimales sueltos:
+   la portada tiene tema claro y oscuro, y un naranja escrito a mano se ve bien
+   en uno y se rompe en el otro. Los únicos dos nuevos son los rellenos
+   sólidos de la franja, que no existían.
+   ========================================================================== */
+
+/* El punto de estado. Es el mismo dibujo en los tres lugares y el color lo
+   manda `data-estado`, que escribe landing.js. Sin dato queda gris: no decimos
+   "todo bien" cuando lo que pasa es que no sabemos. */
+.punto-estado {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tenue);
+}
+.punto-estado[data-estado="ok"] {
+  background: var(--ok-texto);
+}
+/* Superó TU umbral pero no la alerta oficial: es tinta, no naranja. El naranja
+   y el rojo son de los umbrales del INA y no se prestan. */
+.punto-estado[data-estado="propio"] {
+  background: var(--texto);
+}
+.punto-estado[data-estado="alerta"] {
+  background: var(--alerta-texto);
+}
+.punto-estado[data-estado="evacuacion"] {
+  background: var(--evac-solido);
+}
+
+/* ---------- la píldora de la barra ---------- */
+/* Sólo el color va con la cadena de :not() —que repite la de la regla general
+   de enlaces de .landing, (0,6,1), para poder ganarle; es el mismo truco que
+   usa el pie—. El resto se queda en el selector simple a propósito: una regla
+   de (0,7,1) acá le ganaría a las de las media queries de abajo y la píldora
+   no se podría achicar ni esconder en el teléfono. */
+.landing
+  a.pildora-rio:not(.btn):not(.lockup):not(.punto):not(.charla):not(
+    .btn-emergencia
+  ) {
+  color: var(--texto);
+}
+.pildora-rio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: 6px 12px;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel);
+  color: var(--texto);
+  font-weight: 700;
+  font-size: var(--t-s);
+  text-decoration: none;
+  white-space: nowrap;
+  /* Sin esto el ancho salta cada vez que llega una lectura nueva y la barra
+     entera se corre. Es el mismo motivo por el que el número del hidrómetro
+     va en cifras de ancho fijo. */
+  font-variant-numeric: tabular-nums;
+}
+.pildora-rio:hover {
+  border-color: var(--tenue);
+}
+.pildora-rio:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+/* La tendencia sólo se pinta cuando sube: bajar y quedarse quieto no son una
+   señal, y tres colores en una píldora de 13 px no los lee nadie. */
+.pr-tendencia[data-tendencia="sube"] {
+  color: var(--alerta-texto);
+}
+
+/* ---------- la franja sobre la barra ----------
+   El contenedor vive siempre en el HTML —vacío mide cero y no reserva nada—
+   porque un role="status" que aparece recién con el aviso adentro no lo
+   anuncia ningún lector de pantalla. Lo que se crea y se destruye es .franja. */
+.franja-estado:empty {
+  display: none;
+}
+.franja-estado .franja {
+  background: var(--alerta-solido);
+  color: var(--sobre-solido);
+}
+.franja-estado .franja.evacuacion {
+  background: var(--evac-solido);
+}
+/* Alineada al mismo contenedor que la barra y que el pie: .ancho es la única
+   medida del sitio y usarla acá es lo que garantiza que el punto de la franja
+   caiga en la misma vertical que la marca. */
+.franja-estado .ancho {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.franja-estado p {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  /* .landing p lleva 16 px de margen abajo y acá se los come la fila: la
+     franja quedaba 16 px más alta y el enlace desalineado del aviso. */
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.franja-estado .punto-estado {
+  background: var(--sobre-solido);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .franja-estado .punto-estado {
+    animation: latir-franja 1.6s ease-in-out infinite;
+  }
+}
+@keyframes latir-franja {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+/* Sobre el relleno sólido el enlace no puede ser el azul de siempre: va en
+   blanco y subrayado, que es lo único que lo distingue del texto de al lado. */
+.landing
+  .franja-estado
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
+.franja-estado a {
+  margin-left: auto;
+  color: var(--sobre-solido);
+  font-weight: 700;
+  font-size: var(--t-s);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.landing
+  .franja-estado
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):hover,
+.franja-estado a:hover {
+  color: var(--sobre-solido);
+  text-decoration: none;
+}
+
+/* ---------- la frescura, en el pie ----------
+   Va con el tipo de elemento adelante para empatarle a `.landing p`, que le
+   mete 16 px de margen abajo: sin eso el renglón queda flotando entre los
+   enlaces del pie en vez de colgar del que lo explica. */
+p.pie-frescura,
+.pie-frescura {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.pie-frescura[hidden] {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  /* En el teléfono la franja pasa a dos renglones: el enlace en la misma línea
+     que el aviso deja el texto en columnas de tres palabras. */
+  .franja-estado .ancho {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-2);
+  }
+  .landing
+    .franja-estado
+    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
+  .franja-estado a {
+    margin-left: 0;
+  }
+}
+@media (max-width: 900px) {
+  /* Entre 560 y 900 px la barra ya va justa: se cae la palabra "Río" y la
+     tendencia, que el punto de color ya cuenta. El número queda. */
+  .pildora-rio {
+    padding: 6px 10px;
+  }
+  .pildora-rio .pr-etiqueta,
+  .pildora-rio .pr-tendencia {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  /* Abajo de 560 la píldora se va, por lo mismo que ya se iba el chip
+     NO OFICIAL: en 390 px la barra son marca + menú + botón y no entra un
+     cuarto elemento — entraba empujando "Abrir la app" a un segundo renglón.
+     No se pierde el dato: en esa pantalla el nivel está a 200 px de acá, en
+     56 px de tipografía, la franja sigue saliendo si hay alerta y el pie
+     sigue diciendo de cuándo es la lectura. */
+  .pildora-rio {
+    display: none;
+  }
+}
+
 /* ---------- hero ---------- */
 .hero {
   display: grid;
@@ -2039,6 +2261,9 @@ body.landing {
      globo se apoya JUSTO encima de ella, y si una de las dos medidas se mueve
      sin la otra, la pastilla queda pisando el slider. */
   --alto-control: 132px;
+  /* Es el destino de la píldora de la barra (#abrir). Sin esto el salto deja
+     la tarjeta pegada al borde de arriba y no se ve de dónde vino. */
+  scroll-margin-top: var(--e-5);
 }
 .mockup {
   background: var(--panel);
@@ -3131,7 +3356,7 @@ html.texto-grande {
     width: 32px;
     height: 32px;
   }
-  .bloque.paso h2 {
+  .bloque.paso h3 {
     font-size: var(--t-m);
   }
   .resultado .dato-grande {

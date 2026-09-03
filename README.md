@@ -71,7 +71,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
     vercel.json              cabeceras y CSP
     robots.txt · sitemap.xml
 
-    js/     landing.js       nivel en vivo, regla que se mueve, mapa perezoso, salto a /app
+    js/     landing.js       estado del río en vivo (píldora, franja y frescura), regla que se mueve, mapa perezoso, salto a /app
             historia.js      la serie de un siglo, interactiva
             medios.js        copiar el código del widget
     js/app/                  la app, en módulos ES
@@ -136,8 +136,9 @@ generadas llevan un cartel de "no editar" en la primera línea.
     AUDITORIA.md             cada número, su fuente y qué falta validar
     CLAUDE.md                lo operativo, para agentes
 
-**Ocho carpetas más son páginas generadas** —`datos/`, `historia/`, `mi-cota/`,
-`preguntas/`, `legal/`, `charlas/`, `para-medios/`, `puntos-de-encuentro/`—.
+**Ocho carpetas más son páginas generadas** —`datos/`, `historia/`,
+`preguntas/`, `legal/`, `charlas/`, `sobre/`, `contacto/`, `para-medios/`,
+`puntos-de-encuentro/`—.
 Están en la raíz porque su ruta _es_ su URL. Cada una arranca con un comentario
 que dice que la emite `scripts/paginas.js` y que editarla a mano no sirve.
 
@@ -269,6 +270,24 @@ De ahí salen tres cosas: el `<head>` de las páginas generadas, `sitemap.xml`
 (sólo las indexables, sin `lastmod` inventado) y un chequeo que **falla** si la
 portada, la app o el widget dejan de coincidir con el registro.
 
+**`/mi-cota` se fusionó con `/datos`, y por qué.** Eran dos páginas explicando
+la misma resta, la misma discusión del cero del hidrómetro y la misma
+comprobación de 1992 —con el mismo H2 «Honestidad también acá» escrito dos
+veces— y llegaban a tener dos juegos de números para el mismo ejemplo, uno con
+Arroyo Leyes a 24 km y otro con Colastiné a 11: quien leía las dos no podía
+rehacer ninguna cuenta. Es exactamente lo que `busqueda` existe para evitar, y
+se nos pasó igual.
+
+Sobrevive `/datos` porque es la que enlazan el pie, la app y otras seis
+páginas; `/mi-cota` se va con un **301 en `vercel.json`** y su intención de
+búsqueda se conserva en el H1 y en el título de la página fusionada, que ahora
+abre con «¿Cuál es la cota de tu terreno en Santa Fe?». La página resultante es
+**más corta que la `/datos` que ya existía** —2.400 palabras contra 2.580, y
+8.370 px de scroll contra 10.318— pese a haber absorbido otra: lo que se sacó
+fue duplicación, no contenido. De los dos números en discusión no se sacó ni un
+dato: `AUDITORIA.md` los gobierna y siguen con su propio H3 a la vista, no
+plegados.
+
 **Tres URLs van con `noindex, follow`:**
 
     /app       es la interfaz, no un documento. Las páginas de contenido
@@ -300,8 +319,8 @@ dos (`favicon-96.png` y el `.ico` de la raíz) con `node scripts/iconos.js`. El
 no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
 así que el cambio no se ve enseguida.
 
-**Las páginas de contenido se precachean.** `/mi-cota`, `/datos`, `/historia`
-y `/contacto` entran en `ESENCIALES`. Es lo que permitió sacar de la app las
+**Las páginas de contenido se precachean.** `/datos`, `/historia` y
+`/contacto` entran en `ESENCIALES`. Es lo que permitió sacar de la app las
 explicaciones largas que ya estaban en el sitio: la app enlaza y el enlace
 abre aunque no haya señal. Son ~25 KB comprimidos.
 
@@ -508,16 +527,15 @@ Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
 Cuatro URLs, no una:
 
-| URL                    | Qué es                                                             |
-| ---------------------- | ------------------------------------------------------------------ |
-| `/`                    | Portada. Muestra el nivel del río en vivo y explica la herramienta |
-| `/app`                 | La app                                                             |
-| `/mi-cota`             | Cómo se calcula la cota, con la cuenta completa                    |
-| `/puntos-de-encuentro` | Los 30 puntos oficiales                                            |
-| `/datos`               | De dónde sale cada número y cómo verificarlo                       |
-| `/historia`            | Cien años del Paraná, con la serie del INA desde 1925              |
-| `/preguntas`           | Ocho preguntas, con datos estructurados `FAQPage`                  |
-| `/legal`               | Descargo, privacidad y licencias                                   |
+| URL                    | Qué es                                                              |
+| ---------------------- | ------------------------------------------------------------------- |
+| `/`                    | Portada. Muestra el nivel del río en vivo y explica la herramienta  |
+| `/app`                 | La app                                                              |
+| `/puntos-de-encuentro` | Los 30 puntos oficiales                                             |
+| `/datos`               | La cota de tu terreno, la cuenta completa y de dónde sale cada dato |
+| `/historia`            | Cien años del Paraná, con la serie del INA desde 1925               |
+| `/preguntas`           | Ocho preguntas, con datos estructurados `FAQPage`                   |
+| `/legal`               | Descargo, privacidad y licencias                                    |
 
 Las cinco últimas las genera `node scripts/paginas.js`.
 
@@ -559,15 +577,62 @@ No hay autoplay ni scroll-jacking: la página baja como cualquier otra y lo
 se engancha nada y el control queda igual, para quien lo quiera mover. Tocar
 el control apaga el scroll: quien tomó el volante se lo queda.
 
+**El estado en vivo sale de un solo objeto.** Cuatro piezas de la portada
+hablan del mismo dato —el mockup del hero, la píldora de la barra, la franja de
+alerta sobre la barra y el renglón de frescura del pie— y las cuatro se
+suscriben al objeto `rio` de `landing.js`. Hay un solo `fetch` a `/api/nivel` y
+un solo lugar donde vive el número. Con cuatro fetch la portada podría mostrar
+dos valores distintos al mismo tiempo si uno fallara, y una barra que dice
+5,48 m con la franja callada es la clase de contradicción que no se puede
+permitir en una crecida. Se refresca cada diez minutos y al volver a la
+pestaña; un segundo reloj de 30 s sólo repinta, para que el «hace N min»
+avance y un dato pueda vencerse con la pestaña abierta.
+
+**La franja de alerta no reserva espacio y no sale nunca con un dato viejo.**
+El contenedor está siempre en el HTML —vacío mide cero— porque un
+`role="status"` que recién aparece con el aviso adentro no lo anuncia ningún
+lector de pantalla: tiene que estar antes de que el texto cambie. Y la guarda
+de vencimiento es deliberada: una alerta de hace tres días con la cara de una
+alerta de ahora es peor que ninguna.
+
+**La píldora no recalcula el umbral personal.** `cotaEnHidrometro()` sigue
+siendo la única función que traduce cota a umbral y vive en `js/app/cota.js`,
+que la portada no carga. La app ya espeja su resultado a IndexedDB para que lo
+lea el service worker (ver `js/app/avisos.js`); la portada lee esa misma copia.
+Duplicar la cuenta era la manera segura de que un día la barra y la app
+mostraran dos umbrales distintos para la misma casa.
+
+**La frescura se mide con las 48 h de la app, no con 90 minutos.** El INA
+publica UNA lectura por día, sellada a las 00:00: con un corte de 90 minutos el
+dato de hoy figuraría vencido todos los días a la 1:31 de la mañana. Los 90
+minutos quedan para lo único que el ritmo del INA soporta —abajo de eso la
+antigüedad se cuenta en minutos y no en horas— y el vencimiento usa
+`VENCE_HORAS`, el mismo criterio que `js/app/rio.js`.
+
+**Abajo de 560 px la píldora se esconde**, por lo mismo que ya se escondía el
+chip «NO OFICIAL»: en 390 px la barra son marca, menú y botón, y un cuarto
+elemento empuja «Abrir la app» a un segundo renglón. En esa pantalla el nivel
+está 200 px más abajo en 56 px de tipografía, la franja sigue saliendo si hay
+alerta y el pie sigue diciendo de cuándo es la lectura.
+
+**Los colores de las tres piezas salen de los tokens.** La portada tiene tema
+claro y oscuro: un naranja escrito a mano se ve bien en uno y se rompe en el
+otro. Los únicos dos valores nuevos son `--alerta-solido` y `--evac-solido`,
+los rellenos de la franja, que no existían porque `--alerta` y `--peligro`
+están calibrados para TEXTO sobre el fondo y no para ser fondo.
+
 **Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
 30 puntos se leen de `app/index.html`, que es la fuente de verdad
 —`js/app/estado.js` hace lo mismo— para que no existan dos listas que se puedan desincronizar.
 Volver a correrlo cuando cambien los puntos o los textos.
 
 **El pie está escrito una sola vez.** Vive en `scripts/paginas.js` como la
-constante `PIE`: las páginas generadas lo insertan, y en `index.html` el script
+función `pie()`: las páginas generadas lo insertan, y en `index.html` el script
 reemplaza el bloque entre los marcadores `<!-- PIE:inicio -->` y
-`<!-- PIE:fin -->`. Antes eran dos copias y ya se habían desincronizado: a la
+`<!-- PIE:fin -->` —ahí con `pie({ frescura: true })`, que agrega el renglón de
+la última lectura del INA; va sólo en la portada porque quien lo llena es
+`landing.js`, y en las nueve páginas generadas quedarían nueve renglones vacíos
+que no completa nadie—. Antes eran dos copias y ya se habían desincronizado: a la
 de las páginas le faltaban una columna entera y el teléfono de emergencias.
 
 **Cómo se prueba el ancho de teléfono.** Chrome headless no baja de unos

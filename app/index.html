@@ -516,10 +516,10 @@
           número que vale es el de un relevamiento, la escritura, o el que te
           dé el municipio.
           <!-- La explicación larga —cómo se interpola, por qué medio metro,
-               por qué se descartó el modelo satelital— vivía acá duplicada de
-               /mi-cota y /datos. Ahora está en un solo lugar y el service
-               worker precachea esas páginas, así que se lee sin señal igual. -->
-          <a href="/mi-cota">Cómo se calcula, en detalle</a>.
+               por qué se descartó el modelo satelital— vivía acá duplicada.
+               Ahora está toda en /datos, que el service worker precachea, así
+               que se lee sin señal igual. -->
+          <a href="/datos">Cómo se calcula, en detalle</a>.
         </div>
         </div>
       </div>
@@ -1082,7 +1082,7 @@
       <div class="tarjeta">
         <ul class="lista-plana">
           <li>
-            <a class="punto" href="/mi-cota"
+            <a class="punto" href="/datos"
               ><span class="n">Cómo se calcula tu umbral</span></a
             >
           </li>
@@ -1158,7 +1158,7 @@
       <p class="chico" style="margin-bottom: 12px">
         <a href="/">Qué es Cota Cero</a> ·
         <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/mi-cota">Cómo se calcula tu umbral</a>
+        <a href="/datos">Cómo se calcula tu umbral</a>
       </p>
       <!-- Se muestra sólo si la app no está instalada; lo decide app.js. -->
       <p id="instalar-pie" class="instalar-pie" hidden>

@@ -114,6 +114,14 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
+    <!-- La franja de estado oficial. Nace vacía y vacía mide cero: en día
+         normal no reserva un pixel. Vive igual en el HTML porque un
+         role="status" que recién aparece con el aviso adentro no lo anuncia
+         ningún lector de pantalla — tiene que estar antes de que el texto
+         cambie. La llena js/landing.js sólo con una lectura FRESCA que pase
+         los 5,30 m; con dato viejo no se muestra nunca. -->
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -148,12 +156,37 @@
           <span class="lockup-nombre">Cota Cero</span>
         </a>
         <span class="chip-borde">NO OFICIAL</span>
+        <!-- El nivel en vivo, en la barra: es lo que hace que el dato siga a
+             mano después de scrollear más allá del hero. Arranca en gris y sin
+             número —no decimos "todo bien" antes de saberlo— y lo llena
+             js/landing.js con la misma lectura que el mockup. El aria-label lo
+             reescribe ahí también, porque "Río 4,86 m ▲ sube" leído en voz alta
+             no es una frase. -->
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span
+            class="punto-estado"
+            id="pildora-punto"
+            aria-hidden="true"></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
         <details class="nav-menu">
           <summary aria-label="Menú de secciones">
             <span class="nav-burger" aria-hidden="true"></span>
           </summary>
           <div class="nav-enlaces">
-            <a href="/mi-cota">Cómo se calcula</a>
+            <a href="/datos">Cómo se calcula</a>
             <a href="/puntos-de-encuentro">Dónde ir</a>
             <a href="/preguntas">Preguntas</a>
             <a href="/contacto">Contacto</a>
@@ -202,7 +235,7 @@
              cuando lo que se ve dejó de ser el nivel real. Un hero que mueve
              el número del hidrómetro mientras alguien scrollea durante una
              crecida sería mentirle en el peor momento posible. -->
-        <div class="mockup-envoltura">
+        <div class="mockup-envoltura" id="abrir">
           <div class="mockup">
             <div class="mockup-cabecera">
               <span class="eti">Hidrómetro · Puerto Santa Fe</span>
@@ -253,8 +286,7 @@
                 step="1"
                 value="0"
                 disabled
-                aria-label="Nivel del río a simular, en metros"
-              />
+                aria-label="Nivel del río a simular, en metros" />
               <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
             </div>
           </div>
@@ -361,9 +393,7 @@
             Su activación la confirma Defensa Civil: llamá al <b>103</b> antes
             de salir.
           </div>
-          <a class="btn" href="/puntos-de-encuentro"
-            >Ver la lista completa</a
-          >
+          <a class="btn" href="/puntos-de-encuentro">Ver la lista completa</a>
         </div>
         <div class="mapa-caja">
           <div
@@ -473,7 +503,7 @@
         </div>
         <div>
           <span class="eti">La app</span>
-          <a href="/mi-cota">Cómo se calcula tu umbral</a>
+          <a href="/datos">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/preguntas">Preguntas frecuentes</a>
@@ -482,6 +512,13 @@
         <div>
           <span class="eti">Transparencia</span>
           <a href="/datos">De dónde salen los datos</a>
+          <p class="pie-frescura" id="pie-frescura" hidden>
+            <span
+              class="punto-estado"
+              id="frescura-punto"
+              aria-hidden="true"></span>
+            <span id="frescura-texto"></span>
+          </p>
           <a href="/sobre">Quién hace Cota Cero</a>
           <a href="/legal">Legal y privacidad</a>
           <a href="/contacto">Contacto y sugerencias</a>

@@ -2,7 +2,7 @@
 //
 //   node scripts/paginas.js
 //
-// Emite /puntos-de-encuentro y /mi-cota. Existen por una razón concreta: la
+// Emite /puntos-de-encuentro y /datos. Existen por una razón concreta: la
 // app esconde 3 de sus 4 secciones detrás de pestañas (`.vista { display:
 // none }`), así que ~800 de sus ~975 palabras —los 30 puntos de encuentro
 // incluidos— le llegan a un buscador como contenido oculto, que pondera menos
@@ -134,8 +134,13 @@ const marcaSvg = (
 /* El pie, escrito una sola vez. Lo usan las páginas generadas y también la
    portada: al final de este script se reemplaza el bloque entre los
    marcadores PIE de index.html. Sin esto eran dos copias que ya se habían
-   desincronizado —a la de las páginas le faltaban una columna y el 103—. */
-const PIE = `      <footer class="pie-sitio">
+   desincronizado —a la de las páginas le faltaban una columna y el 103—.
+
+   `frescura` agrega el renglón de "última lectura del INA" abajo del enlace a
+   /datos, y va SÓLO en la portada: quien lo llena es js/landing.js, que es lo
+   único que lee /api/nivel del lado del sitio. Emitirlo en las nueve páginas
+   generadas sería dejar nueve renglones vacíos que no completa nadie. */
+const pie = ({ frescura = false } = {}) => `      <footer class="pie-sitio">
         <div>
           <span class="lockup">
             ${marcaSvg("mpf")}
@@ -149,7 +154,7 @@ const PIE = `      <footer class="pie-sitio">
         </div>
         <div>
           <span class="eti">La app</span>
-          <a href="/mi-cota">Cómo se calcula tu umbral</a>
+          <a href="/datos">Cómo se calcula tu umbral</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/preguntas">Preguntas frecuentes</a>
@@ -158,7 +163,17 @@ const PIE = `      <footer class="pie-sitio">
         <div>
           <span class="eti">Transparencia</span>
           <a href="/datos">De dónde salen los datos</a>
-          <a href="/sobre">Quién hace Cota Cero</a>
+${
+  frescura
+    ? `          <p class="pie-frescura" id="pie-frescura" hidden>
+            <span
+              class="punto-estado"
+              id="frescura-punto"
+              aria-hidden="true"></span>
+            <span id="frescura-texto"></span>
+          </p>\n`
+    : ""
+}          <a href="/sobre">Quién hace Cota Cero</a>
           <a href="/legal">Legal y privacidad</a>
           <a href="/contacto">Contacto y sugerencias</a>
           <a href="/para-medios">Widget para medios</a>
@@ -201,12 +216,17 @@ ${items.map(([href, texto, nota]) => `          <li><a href="${href}">${esc(text
 
 /* Un paso del cálculo: número al costado, y el valor del ejemplo en una
    pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
-   página buscando la cuenta tiene que poder saltar de pastilla en pastilla. */
+   página buscando la cuenta tiene que poder saltar de pastilla en pastilla.
+
+   El título va en <h3> y no en <h2>: los pasos cuelgan de «3 · Cómo se
+   relacionan», no son secciones de la página. Eran <h2> cuando vivían en
+   /mi-cota y ahí sí eran el primer nivel; al fusionarse en /datos dejaban la
+   página con diez <h2> y tres de ellos compitiendo con sus propias secciones. */
 function paso({ n, titulo, html, eti, valor }) {
   return `      <section class="bloque paso">
         <span class="numerito" aria-hidden="true">${n}</span>
         <div>
-          <h2>${esc(titulo)}</h2>
+          <h3>${esc(titulo)}</h3>
 ${html}
           <p class="dato-ejemplo">${
             eti ? `<span class="k">${esc(eti)}</span>` : ""
@@ -341,7 +361,7 @@ ${[
     </div>
 
     <div class="pie-envoltura">
-${PIE}
+${pie()}
     </div>
   </body>
 </html>
@@ -474,7 +494,7 @@ ${lista}
       </section>`,
     seguir([
       ["/app?ir=donde", "Ver en el mapa cuál te queda más cerca", "funciona sin señal una vez cargada"],
-      ["/mi-cota", "Saber la cota de tu terreno en Santa Fe", "y qué nivel del río le corresponde"],
+      ["/datos", "Saber la cota de tu terreno en Santa Fe", "y qué nivel del río le corresponde"],
       ["/", "Ver el nivel del río Paraná hoy", ""],
     ]),
   ],
@@ -524,191 +544,27 @@ ${selloFuente("emergencias")}`,
   ],
 });
 
-/* ---------- /mi-cota ---------- */
-const htmlCota = pagina({
-  clave: "miCota",
-  migaja: "Cómo se calcula tu umbral",
-  chip: "El cálculo, paso a paso",
-  h1: "¿Cuál es la cota de tu terreno en Santa Fe?",
-  lead:
-    "No es una caja negra: son tres números que se suman y restan. Acá está el " +
-    "cálculo completo con un ejemplo real, para que lo puedas rehacer a mano y " +
-    "discutir con tu vecino.",
-  jsonld: {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: "Cómo se calcula tu umbral hidráulico estimado en Santa Fe",
-    inLanguage: "es-AR",
-    author: { "@type": "Person", name: "Ariel Benz" },
-    mainEntityOfPage: SITIO + "/mi-cota",
-  },
-  bloques: [
-    {
-      html: `        <p>
-          Cuando informan que el río Paraná está a 5,30 m en el puerto de Santa
-          Fe, ese número no dice nada sobre tu casa. Para que diga algo hacen
-          falta tres datos: <b>a qué altura está tu terreno</b>, <b>dónde está
-          el cero de la regla</b> y <b>a qué distancia del puerto estás</b>.
-        </p>
-        <p>
-          De los tres sale <b>tu umbral estimado</b>: la lectura del hidrómetro
-          a partir de la cual el nivel de agua equivalente alcanzaría la cota de
-          tu terreno, según este modelo. Es una referencia para prepararte, no
-          el minuto en que entra el agua.
-        </p>`,
-    },
-  ],
-  sueltos: [
-    paso({
-      n: 1,
-      titulo: "La altura de tu terreno, en metros IGN",
-      html: `          <p>
-            Todo terreno tiene una altura sobre el nivel del mar, medida en el
-            sistema oficial argentino (IGN). La app la saca de las <b>169 curvas
-            de nivel de la Municipalidad de Santa Fe</b>, trazadas cada 50 cm
-            —de ahí el margen de ±0,5 m— o la escribís vos si la conocés: figura
-            en planos de mensura y escrituras.
-          </p>
-          <p>
-            Cuando la cota sale interpolada entre curvas, el cálculo usa el
-            <b>escenario pesimista</b>: medio metro por debajo. Es el número con
-            el que hay que decidir.
-          </p>`,
-      eti: "Ejemplo · Colastiné Norte",
-      valor: "15,80 m → 15,30 m",
-    }),
-    paso({
-      n: 2,
-      titulo: "Restar el cero del hidrómetro: 8,20 m",
-      html: `          <p>
-            El hidrómetro del Puerto no mide desde el nivel del mar: su cero
-            está clavado a una altura conocida, y la app usa <b>8,20 m IGN</b>.
-            Restarlo pasa tu terreno a «metros de hidrómetro» — la misma escala
-            del número que publica el INA todos los días.
-          </p>
-          <p class="chico">
-            Cada escala tiene su propio cero, así que <b>las alturas de
-            distintas ciudades no se comparan entre sí</b>. El INA publica hoy
-            9,43 m para la escala de Paraná y 2,92 m para la de Rosario. Y para
-            Santa Fe publica 8,378, no 8,20: esa diferencia de 18 cm está sin
-            resolver y no la escondemos.
-            <a href="/datos#abiertas">Por qué usamos 8,20</a>.
-          </p>`,
-      valor: "15,30 − 8,20 = 7,10 m",
-    }),
-    paso({
-      n: 3,
-      titulo: "Restar el desnivel río arriba: 0,045 m por km",
-      html: `          <p>
-            El río no es una pileta: la superficie del agua tiene pendiente y
-            río arriba está más alta que en el Puerto. Si tu zona está aguas
-            arriba, tu umbral corresponde a una lectura <b>menor</b> en el
-            hidrómetro.
-          </p>
-          <p>
-            Colastiné Norte está a 11 km del puerto: 11 × 0,045 = 0,495 m, que
-            redondeamos a 0,50.
-          </p>`,
-      eti: "Pendiente · 11 km",
-      valor: "− 0,50 m",
-    }),
-    `      <section class="bloque oscuro resultado">
-        <p class="kicker">Resultado del ejemplo</p>
-        <p class="dato-grande">6,60 m</p>
-        <p class="cuenta-chica">7,10 − 0,50</p>
-        <p>
-          Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
-          de agua equivalente alcanza la cota de ese terreno según el modelo.
-          <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
-          es la referencia para prepararse.
-        </p>
-        <p>
-          La app lo muestra redondeado, <b>≈ 6,6 m</b>, porque la cota del
-          terreno viene de curvas cada 0,5 m y más decimales serían una
-          precisión que el dato no tiene. Con el récord histórico en 7,43 m, en
-          1992 el río pasó ese umbral <b>83 centímetros antes</b> del pico.
-        </p>
-      </section>`,
-    seguir([
-      ["/datos", "Ver de dónde salen estos datos", "el INA, la Municipalidad y qué falta validar"],
-      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "un siglo de mediciones, desde 1925"],
-      ["/puntos-de-encuentro", "Los 30 puntos de encuentro ante una inundación", "con dirección y cómo llegar"],
-      ["/app?ir=cota", "Calcular la referencia de tu terreno", "en la app, con tu zona y tu cota"],
-    ]),
-  ],
-  bloquesFinales: [
-    {
-      kicker: "Con qué se contrastó",
-      titulo: "Una crecida, dos puntos",
-      html: `        <p>
-          Un caso real: en 1992 el hidrómetro llegó a 7,43 m y en Arroyo Leyes
-          —24 km río arriba— el agua alcanzó los 16,70 m IGN. La cuenta da
-          8,20 + 7,43 + 24 × 0,045 = 16,71. Un centímetro de diferencia.
-        </p>
-        <p>
-          La concordancia es muy buena, pero es <b>una sola validación
-          independiente</b>, en dos puntos de una única crecida. El modelo
-          todavía requiere revisión de especialistas y organismos competentes
-          (Gestión de Riesgos, INA, FICH-UNL) antes de considerarse un modelo
-          predictivo de inundación.
-        </p>`,
-    },
-    {
-      kicker: "Por qué no un satélite",
-      titulo: "Se midió, y no alcanzaba",
-      html: `        <p>
-          Los modelos de elevación globales son modelos de <b>superficie</b>:
-          miden techos y copas de árboles, no el piso.
-        </p>
-        <p>
-          Contra 36 puntos de nivelación del IGN alrededor de Santa Fe —cotas
-          medidas en campo, al milímetro— el modelo satelital tenía un sesgo
-          chico, de 0,89 m, pero un <b>desvío estándar de 7,46 m</b>, con casos
-          de hasta 23 m. Dentro de la ciudad, contra las curvas municipales,
-          sobreestimaba 2,15 m de media.
-        </p>
-        <p>
-          Entre el nivel de alerta (5,30 m) y el récord de 1992 (7,43 m) hay
-          <b>2,13 metros</b>: el error de la fuente era más grande que toda la
-          escala de la decisión. Por eso dejamos de usarla.
-        </p>`,
-    },
-    {
-      borde: true,
-      kicker: "Lo que este número no sabe",
-      kickerAlerta: true,
-      titulo: "Honestidad también acá",
-      html: `        <p>
-          El umbral es una referencia hidráulica estimada, no una predicción. No
-          sabe si hay defensas, terraplenes o bombeo entre el río y tu barrio,
-          ni cuánto llueve encima: el agua puede llegar antes por desagüe, o no
-          llegar si las defensas resisten.
-        </p>
-        <p>
-          Ni la mejor cota reemplaza un relevamiento de tu terreno. Las curvas
-          pasan cerca de tu casa, no por tu puerta, y entre una y otra hay medio
-          metro de altura. Tampoco sabe si tu terreno está elevado sobre la
-          vereda ni si la casa tiene escalones.
-        </p>
-        <p>
-          El número que vale de verdad es el de un relevamiento topográfico, la
-          escritura de tu terreno, o el que te dé el municipio. Si lo conseguís,
-          cargalo a mano en la app.
-        </p>`,
-    },
-  ],
-});
-
-/* ---------- /datos ---------- */
 /* ---------- /datos ----------
-   La página tiene que contestar una sola pregunta: "¿de dónde sale todo lo
-   que me muestra esta app?". No es documentación para programadores — es el
+   Esta página absorbió a `/mi-cota` (que ahora redirige acá con un 301, ver
+   vercel.json). Eran dos páginas explicando la misma resta, la misma
+   discusión del 8,20 y la misma comprobación de 1992, con el mismo H2
+   «Honestidad también acá» escrito dos veces — y compitiendo entre sí por las
+   mismas búsquedas.
+
+   Contesta dos preguntas encadenadas: "¿cuál es la cota de mi terreno?" y
+   "¿de dónde sale todo esto?". No es documentación para programadores: es el
    lugar donde una persona comprueba que no le estamos inventando el número.
 
-   Va en este orden a propósito: primero los dos datos que la app lee (el río
-   y el terreno), después cómo los relaciona, después lo que ese número NO
-   dice, y recién al final las discusiones técnicas abiertas. Quien sólo lee
-   los tres primeros bloques ya entendió lo que necesita. */
+   Va en este orden a propósito: los dos datos que la app lee (el río y el
+   terreno), después la cuenta que los relaciona, después qué tan firme es
+   todo eso, y al final las fuentes para ir a mirarlas. Quien lee las tres
+   primeras secciones ya entendió lo que necesita.
+
+   UN SOLO EJEMPLO EN TODA LA PÁGINA: Colastiné Norte, cota 15,80 m IGN, a
+   11 km del puerto. Antes había dos juegos de números —uno acá con Arroyo
+   Leyes a 24 km y otro en /mi-cota con Colastiné a 11— y quien leía las dos
+   páginas no podía rehacer ninguna cuenta. Arroyo Leyes quedó reservado para
+   lo único que le es propio: la comprobación de 1992. */
 
 /* El corte del terreno. Es la explicación que más nos costó escribir en
    palabras y la que sale sola en un dibujo: el río sube, la superficie del
@@ -758,24 +614,29 @@ ${filas
   .join("\n")}
         </div>`;
 
+/* El récord sale de datos-abiertos/historia.json y no escrito a mano: es la
+   misma serie del INA de la que sale el número que muestra la app. */
 const recordHist = historia
   ? [...historia.anios].sort((a, b) => b[1] - a[1])[0]
   : null;
+const RECORD_M = recordHist ? nm(recordHist[1], 2) : "7,43";
+const RECORD_ANIO = recordHist ? recordHist[0] : 1992;
 
 const htmlDatos = pagina({
   clave: "datos",
-  migaja: "De dónde salen los datos",
-  chip: "Respaldo",
-  h1: "De dónde salen los datos del río Paraná en Santa Fe",
+  migaja: "La cota de tu terreno y los datos",
+  chip: "El cálculo y sus fuentes",
+  h1: "¿Cuál es la cota de tu terreno en Santa Fe, y de dónde sale?",
   lead:
-    "Cota Cero <b>no genera información hidrológica propia</b>. Toma datos " +
-    "públicos de distintos organismos y los combina para que sean más fáciles " +
-    "de interpretar. Acá está cada uno, con el enlace para ir a mirarlo vos " +
-    "mismo — incluido lo que todavía no sabemos.",
+    "Cuando informan que el río está a 5,30 m en el puerto, ese número no dice " +
+    "nada sobre tu casa. Acá está lo que hace falta para que diga algo: la " +
+    "cota de tu terreno, la cuenta completa con un ejemplo que podés rehacer a " +
+    "mano, y <b>de dónde sale cada dato</b> — incluido lo que todavía no sabemos.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: "De dónde salen los datos de Cota Cero",
+    headline:
+      "La cota de tu terreno en Santa Fe: el cálculo y de dónde salen los datos",
     inLanguage: "es-AR",
     author: { "@type": "Person", name: "Ariel Benz" },
     mainEntityOfPage: SITIO + "/datos",
@@ -784,11 +645,21 @@ const htmlDatos = pagina({
     { id: "rio", n: "El río" },
     { id: "terreno", n: "Tu terreno" },
     { id: "cuenta", n: "La cuenta" },
-    { id: "no-dice", n: "Lo que no dice" },
-    { id: "abiertas", n: "Discusiones abiertas" },
+    { id: "firme", n: "Qué tan firme es" },
     { id: "fuentes", n: "Las fuentes" },
   ],
   bloques: [
+    {
+      html: `        <p>
+          Hacen falta tres datos: <b>la altura de tu terreno</b>, <b>dónde está
+          el cero de la regla del puerto</b> y <b>a qué distancia del puerto
+          estás</b>. De los tres sale <b>tu umbral estimado</b>: la lectura del
+          hidrómetro a partir de la cual el nivel de agua equivalente alcanzaría
+          la cota de tu terreno. Es una referencia para prepararte, no el minuto
+          en que entra el agua. Cota Cero <b>no genera información hidrológica
+          propia</b>: toma datos públicos, los combina y los cita.
+        </p>`,
+    },
     {
       id: "rio",
       kicker: "1 · El nivel del río",
@@ -807,30 +678,29 @@ const htmlDatos = pagina({
           <div><span class="k">Alerta</span><span class="v">${nm(ESTACION.alerta, 2)} m</span></div>
           <div><span class="k">Evacuación</span><span class="v">${nm(ESTACION.evacuacion, 2)} m</span></div>
         </div>
-        <p>
-          Desde esta versión la app lee la <b>API oficial del sistema de alerta
-          del INA</b> en vez de raspar el HTML del reporte diario. Eso cambia
-          tres cosas: el dato llega estructurado y con su hora exacta, los
-          umbrales de alerta y evacuación los publica la propia estación —ya no
-          son constantes nuestras— y si la API falla la app cae sola al reporte
-          diario, que sigue siendo la fuente de respaldo.
+        <p class="chico">
+          La app lee la <b>API oficial del sistema de alerta del INA</b>: el
+          dato llega con su hora y los umbrales los publica la propia estación,
+          no son constantes nuestras. Si la API falla, cae sola al reporte
+          diario.
         </p>
         <div class="aviso">
           Si ninguna de las dos responde, la app muestra <b>la última lectura
           guardada con su fecha</b> y lo dice en pantalla. Pasadas 48 horas deja
           de presentarla como vigente. Nunca inventa un valor.
         </div>
-${tarjetaFuente("nivelRio")}`,
+        ${selloFuente("nivelRio", "serie 30, altura hidrométrica")}`,
     },
     {
       id: "terreno",
       kicker: "2 · La altura de tu terreno",
-      titulo: "Curvas de nivel de la Municipalidad",
+      titulo: "La cota sale de las curvas de nivel del municipio",
       html: `        <p>
-          La Municipalidad publica las <b>curvas de nivel</b> de la ciudad. Son
-          líneas que unen los puntos que están a la misma altura sobre una
-          referencia común, la misma que usa el cero del hidrómetro. Dicho
-          fácil: si caminás sobre una curva, no subís ni bajás.
+          Todo terreno tiene una altura sobre el nivel del mar, medida en el
+          sistema oficial argentino (IGN): esa es su <b>cota</b>. La
+          Municipalidad publica las <b>169 curvas de nivel</b> de la ciudad,
+          líneas que unen los puntos que están a la misma altura, trazadas cada
+          50 cm. Dicho fácil: si caminás sobre una curva, no subís ni bajás.
         </p>
         <div class="curvas-dibujo" aria-hidden="true">
           <div class="cd-linea"><span>16,0 m</span><i></i></div>
@@ -848,202 +718,207 @@ ${tarjetaFuente("nivelRio")}`,
           ciudad, no toda el área metropolitana— la app te dice que no tiene el
           dato y te pide la cota a mano, en vez de caer a una fuente peor.
         </p>
+
+        <h3>Por qué no un satélite</h3>
         <p>
-          Que sea peor no es una intuición: antes la elevación salía de un
-          modelo satelital y se lo midió contra 36 puntos de nivelación de campo
-          del IGN. Tenía 7,46 m de desvío. Todo el rango de decisión de la app
-          —de la alerta al récord de 1992— son 2,13 m: el error de la fuente era
-          más grande que la escala entera.
+          Los modelos de elevación globales miden <b>superficie</b>: techos y
+          copas de árboles, no el piso. La app usaba uno y se lo midió contra
+          <b>36 puntos de nivelación del IGN</b>, medidos en campo al milímetro:
+          el sesgo era chico —0,89 m— pero el <b>desvío estándar era de
+          7,46 m</b>, con casos de hasta 23 m, y dentro de la ciudad
+          sobreestimaba 2,15 m de media. Entre la alerta
+          (${nm(ESTACION.alerta, 2)} m) y el récord de ${RECORD_ANIO}
+          (${RECORD_M} m) hay <b>2,13 metros</b>: el error de la fuente era más
+          grande que toda la escala de la decisión.
         </p>
-${tarjetaFuente("topografia")}`,
+        <p class="chico">
+          Ni la mejor curva reemplaza un relevamiento de tu terreno: no sabe si
+          está elevado sobre la vereda ni si la casa tiene escalones. El número
+          que vale es el de un relevamiento topográfico, el de la escritura o el
+          plano de mensura, o el que te dé el municipio. Si lo conseguís,
+          cargalo a mano en la app.
+        </p>
+        ${selloFuente("topografia", "curvas de nivel de la ciudad")}`,
     },
     {
       id: "cuenta",
-      kicker: "3 · Cómo los relacionamos",
+      kicker: "3 · Cómo se relacionan",
       titulo: "Dos alturas, una resta",
       html: `        <p>
-          El río tiene un número. Tu terreno tiene otro. Lo único que hace Cota
+          El río tiene un número y tu terreno tiene otro. Lo único que hace Cota
           Cero es ponerlos en la misma escala para poder restarlos.
         </p>
         <p>
           La lectura del hidrómetro no es una altura sobre el nivel del mar: es
           cuánto sube el agua por encima del <b>cero de esa escala</b>, que está
-          clavado a una altura conocida. Sumando las dos cosas se obtiene a qué
-          altura está la superficie del agua, en el mismo sistema en el que
-          están las curvas de nivel.
+          clavado a una altura conocida. Sumando las dos cosas —y la corrección
+          por estar río arriba— se obtiene a qué altura está la superficie del
+          agua, en el mismo sistema en el que están las curvas de nivel.
         </p>
 ${cuentaVertical([
   ["Lectura del hidrómetro", "5,00 m"],
   ["+", "", "op"],
   ["Cero del hidrómetro", "8,20 m IGN"],
   ["+", "", "op"],
-  ["Corrección río arriba (24 km)", "1,08 m"],
+  ["Corrección río arriba (11 km)", "0,50 m"],
   ["=", "", "op"],
-  ["Superficie de agua equivalente", "14,28 m IGN", "total"],
-])}
-        <p class="chico" style="margin-top:14px">
-          Ejemplo, con números elegidos para que se entienda la cuenta. La
-          corrección río arriba aparece porque el agua no está horizontal: en
-          Arroyo Leyes, 24 km aguas arriba, la misma crecida llega más alta que
-          en el puerto.
-        </p>
-        <p>Ahora sí se pueden comparar las dos alturas:</p>
-${cuentaVertical([
-  ["Cota de tu terreno", "15,80 m IGN"],
-  ["−", "", "op"],
-  ["Superficie de agua equivalente", "14,28 m IGN"],
-  ["=", "", "op"],
-  ["Margen", "1,52 m", "total"],
+  ["Superficie de agua equivalente", "13,70 m IGN", "total"],
 ])}
 ${CORTE_SVG}
-        <h3>Y la app resuelve la cuenta al revés</h3>
         <p>
-          Lo que a una persona le sirve no es "cuánta agua hay hoy" sino
-          <b>"¿qué tendría que marcar el hidrómetro para que el agua llegue a la
-          altura de mi terreno?"</b>. Es la misma cuenta despejada:
+          Lo que a una persona le sirve, sin embargo, no es «cuánta agua hay
+          hoy» sino <b>«¿qué tendría que marcar el hidrómetro para que el agua
+          llegue a la altura de mi terreno?»</b>. Es la misma cuenta despejada,
+          y son los tres pasos de acá abajo.
+        </p>`,
+    },
+  ],
+  sueltos: [
+    paso({
+      n: 1,
+      titulo: "La altura de tu terreno, en metros IGN",
+      html: `          <p>
+            La app la saca de las curvas de nivel del municipio, o la escribís
+            vos si la conocés. Cuando sale interpolada entre dos curvas, el
+            cálculo usa el <b>escenario pesimista</b>: medio metro por debajo.
+            Es el número con el que hay que decidir.
+          </p>`,
+      eti: "Ejemplo · Colastiné Norte",
+      valor: "15,80 m → 15,30 m",
+    }),
+    paso({
+      n: 2,
+      titulo: "Restar el cero del hidrómetro: 8,20 m",
+      html: `          <p>
+            Restarlo pasa tu terreno a «metros de hidrómetro» — la misma escala
+            del número que publica el INA todos los días.
+          </p>
+          <p class="chico">
+            Cada escala tiene su propio cero, así que <b>las alturas de
+            distintas ciudades no se comparan entre sí</b>. Y para Santa Fe el
+            INA publica hoy 8,378, no 8,20: esa diferencia de 18 cm está sin
+            resolver y no la escondemos. <a href="#abiertas">Por qué usamos
+            8,20</a>.
+          </p>`,
+      valor: "15,30 − 8,20 = 7,10 m",
+    }),
+    paso({
+      n: 3,
+      titulo: "Restar el desnivel río arriba: 0,045 m por km",
+      html: `          <p>
+            El río no es una pileta: la superficie del agua tiene pendiente y
+            río arriba está más alta que en el Puerto. Si tu zona está aguas
+            arriba, tu umbral corresponde a una lectura <b>menor</b> en el
+            hidrómetro. Colastiné Norte está a 11 km: 11 × 0,045 = 0,495, que
+            redondeamos a 0,50.
+          </p>`,
+      eti: "Pendiente · 11 km",
+      valor: "− 0,50 m",
+    }),
+    `      <section class="bloque oscuro resultado">
+        <p class="kicker">Resultado del ejemplo</p>
+        <p class="dato-grande">6,60 m</p>
+        <p class="cuenta-chica">15,30 − 8,20 − 0,50</p>
+        <p>
+          Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
+          de agua equivalente alcanza la cota de ese terreno según el modelo.
+          <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
+          es la referencia para prepararse.
         </p>
-${cuentaVertical([
-  ["Cota de tu terreno", "15,80 m IGN"],
-  ["−", "", "op"],
-  ["Cero del hidrómetro", "8,20 m"],
-  ["−", "", "op"],
-  ["Corrección río arriba (24 km)", "1,08 m"],
-  ["=", "", "op"],
-  ["Tu umbral hidráulico estimado", "≈ 6,5 m", "total"],
-])}
+        <p>
+          La app lo muestra redondeado, <b>≈ 6,6 m</b>, porque la cota viene de
+          curvas cada 0,5 m y más decimales serían una precisión que el dato no
+          tiene. Con el récord histórico en ${RECORD_M} m, en ${RECORD_ANIO} el
+          río pasó ese umbral <b>83 centímetros antes</b> del pico.
+        </p>
+      </section>`,
+    `      <section class="bloque">
         <div class="aviso">
           <b>Eso es una referencia hidráulica, no una predicción de
           inundación.</b> Dice a qué lectura del hidrómetro la superficie de
           agua equivalente alcanzaría la cota de tu terreno según este modelo.
           Lo que pase de verdad depende de las defensas, del bombeo, del viento
           y de la lluvia — nada de eso está en la cuenta.
-        </div>`,
-    },
-    {
-      id: "no-dice",
-      kicker: "4 · Los límites",
-      titulo: "Lo que este número no dice",
-      html: `        <h3>Hay dos maneras de inundarse, y la app mira una</h3>
+        </div>
+      </section>`,
+    bloque({
+      id: "firme",
+      kicker: "4 · Qué tan firme es esto",
+      titulo: "Lo que está en discusión, lo que se comprobó y lo que falta",
+      html: `        <h3 id="abiertas">Dos números que todavía no están cerrados</h3>
         <p>
-          Cota Cero analiza <b>una parte</b> del riesgo hídrico: la relación
-          entre el nivel del río y la altura del terreno. Eso es el riesgo
+          Están acá, y no escondidos en un archivo interno, porque son
+          exactamente las dos cosas que un especialista debería revisarnos.
+        </p>
+        <p>
+          <b>El cero del hidrómetro: 8,20 o 8,38.</b> Usamos <b>8,20 m</b>,
+          que es el de la normativa: el Reglamento de Edificaciones de San José
+          del Rincón fija la cota de edificación en
+          <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>
+          —la diferencia es exactamente 8,20— y coincide con el que da un
+          ingeniero hidrólogo de la FICH-UNL. Pero el propio INA publica
+          <b>8,378 m</b> para esta estación, de una campaña INA-IGN de diciembre
+          de 2016.
+        </p>
+        <p>
+          Los <b>18 cm</b> no son de redondeo: en enero de 2017 el país cambió de
+          sistema de alturas —del SRVN71 al SRVN16— y antes convivían
+          referencias del ex Ministerio de Obras Públicas, de Obras Sanitarias y
+          de sistemas municipales. Pueden ser el mismo punto medido en dos
+          sistemas distintos. <b>Por eso no la cambiamos:</b> lo que importa no
+          es cuál número es más nuevo, sino que el cero y las curvas de nivel
+          estén en el <b>mismo</b> sistema — y las curvas no declaran el suyo.
+          Mover el cero a 8,378 metería un sesgo de 18 cm en todos los umbrales
+          sin que nadie se entere.
+        </p>
+        <p>
+          <b>La pendiente: 0,045 m por kilómetro.</b> Se contrastó con la crecida
+          de ${RECORD_ANIO} y da bien ahí, pero es <b>una sola observación</b>.
+          El reglamento de Rincón, 16 km río arriba, convierte cota a hidrómetro
+          <b>sin ninguna corrección por distancia</b>; con la pendiente de la app
+          serían 72 cm más. O el reglamento simplifica, o la pendiente real en
+          ese tramo es otra. Depende del tramo, del caudal y de la condición
+          hidráulica del momento, y nosotros usamos <b>un solo valor para todas
+          las zonas</b>.
+        </p>
+        ${selloFuente("altimetria", "ceros de escala y sistema de alturas")}
+
+        <h3 id="no-dice">Estar por debajo del agua no es estar inundado</h3>
+        <p>
+          «Si mi terreno está por debajo del nivel equivalente del río, ¿por qué
+          no estoy con agua adentro?» Porque buena parte de la ciudad está
+          protegida por obras: <b>defensas y terraplenes</b>, <b>compuertas</b>
+          que impiden que el río entre por los desagües, <b>bombeo</b> y
+          <b>reservorios</b>. El modelo asume terreno parejo y agua libre: no
+          sabe si entre el río y tu casa hay un terraplén o no hay nada.
+        </p>
+        <p>
+          Y mira <b>una sola</b> de las dos maneras de inundarse, la
           <b>fluvial</b>. Santa Fe también se inunda por lluvia —el riesgo
-          <b>pluvial</b>—: agua que cae adentro de la ciudad y no llega a
-          desagotar, sola o combinada con el Salado. Un barrio puede tener un
-          margen amplio contra el Paraná y entrar en emergencia igual.
-        </p>
-        <p class="chico">
-          Los dos mecanismos se cruzan: con el río alto las bombas no pueden
-          desagotar contra el agua de afuera. El municipio planifica para río
-          en 6 m <b>más</b> lluvia de 200 a 300 mm — los dos juntos, no por
-          separado.
-        </p>
-        <h3>Estar por debajo del agua no significa estar inundado</h3>
-        <p>
-          Es la pregunta que se hace cualquiera que mira su umbral: "si mi
-          terreno está por debajo del nivel equivalente del río, ¿por qué no
-          estoy con agua adentro?". Porque buena parte de la ciudad está
-          protegida por obras: <b>defensas y terraplenes</b> que separan el
-          agua del terreno, <b>compuertas</b> que impiden que el río entre por
-          los desagües, <b>estaciones de bombeo</b> que sacan hacia afuera el
-          agua de lluvia que queda adentro, y <b>reservorios</b> que la retienen
-          mientras tanto.
-        </p>
-        <p>
-          Por eso alcanzar la misma cota <b>no es inundación automática</b>, y
-          por eso la app dice "umbral hidráulico estimado" y no "cuándo llega el
-          agua". El modelo asume terreno parejo y agua libre: no sabe si entre
-          el río y tu casa hay un terraplén de la Secretaría de Recursos
-          Hídricos o no hay nada.
+          <b>pluvial</b>—, sola o combinada con el Salado, y un barrio puede
+          tener margen amplio contra el Paraná y entrar en emergencia igual. Los
+          dos se cruzan: con el río alto las bombas no pueden desagotar contra el
+          agua de afuera. El municipio planifica para río en 6 m <b>más</b>
+          lluvia de 200 a 300 mm.
         </p>
         <div class="aviso">
           Al revés también vale: una defensa protege mientras funciona. En 2003
           el agua entró por un tramo abierto de una defensa existente. Que haya
           obra no es garantía, y la app no sabe en qué estado está.
         </div>
-${tarjetaFuente("emergencias")}`,
-    },
-    {
-      id: "abiertas",
-      kicker: "5 · Discusiones abiertas",
-      titulo: "Dos números que todavía no están cerrados",
-      html: `        <p>
-          Las dos constantes del modelo tienen discusión técnica encima. Esto
-          está acá y no escondido en un archivo interno, porque son exactamente
-          las dos cosas que un especialista debería revisarnos.
-        </p>
+        ${selloFuente("emergencias", "Plan de Contingencia")}
 
-        <h3>El cero del hidrómetro: 8,20 o 8,38</h3>
-        <p>
-          Cota Cero usa <b>8,20 m</b>. Es el número que da un ingeniero
-          hidrólogo de la FICH-UNL en la prensa local y —más importante— es el
-          que usa la normativa: el Reglamento de Edificaciones de San José del
-          Rincón fija la cota de edificación en
-          <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>,
-          y la diferencia entre esos dos números es exactamente 8,20.
-        </p>
-        <p>
-          Pero el propio INA publica hoy, para esta estación,
-          <b>cero IGN = 8,378 m</b>. Ese número viene de una campaña conjunta
-          INA-IGN de diciembre de 2016 que volvió a medir los ceros de las
-          escalas de los puertos del Paraná. Su tabla da, para Santa Fe,
-          <b>8,38</b> en una escala y <b>8,37</b> en la otra, con la nota de que
-          "las dos escalas están muy próximas una de la otra".
-        </p>
-        <p>
-          La diferencia son <b>18 cm</b>, y no es de redondeo: en enero de 2017
-          el país cambió de sistema de alturas —del SRVN71 al SRVN16— y el IGN
-          dice explícitamente que antes convivían referencias del ex Ministerio
-          de Obras Públicas, de Obras Sanitarias, del sistema de 1971 y de
-          sistemas municipales. Los 8,20 y los 8,378 pueden ser el mismo punto
-          medido en dos sistemas distintos.
-        </p>
-        <p>
-          <b>Por eso no cambiamos la constante.</b> Lo que importa no es cuál
-          número es más nuevo, sino que el cero del hidrómetro y las curvas de
-          nivel del municipio estén en el <b>mismo</b> sistema de alturas. Las
-          curvas no declaran el suyo. Mientras eso no esté confirmado, mover el
-          cero a 8,378 metería un sesgo de 18 cm en todos los umbrales sin que
-          nadie se entere. Queda anotado como pendiente de validación técnica.
-        </p>
-${tarjetaFuente("altimetria")}
-
-        <h3>La pendiente: 0,045 m por kilómetro</h3>
-        <p>
-          El agua no está horizontal: río arriba, la misma crecida llega más
-          alta. La app corrige 4,5 cm por kilómetro. El número se contrastó con
-          la crecida de 1992 y da bien en ese caso, pero <b>es una sola
-          observación</b> y hay señales de que no vale igual en todos lados.
-        </p>
-        <p>
-          La más concreta: el reglamento de San José del Rincón, 16 km río
-          arriba, convierte cota a hidrómetro con 8,20 <b>y sin ninguna
-          corrección por distancia</b>. Con la pendiente de la app, a esos 16 km
-          le corresponderían 72 cm más. O el reglamento usa una simplificación,
-          o la pendiente real en ese tramo es otra. No lo sabemos.
-        </p>
-        <p>
-          Lo honesto es decirlo así: la pendiente de la superficie del agua
-          depende del tramo, del caudal y de la condición hidráulica del
-          momento, y nosotros usamos <b>un solo valor para todas las zonas</b>.
-          Es la limitación más importante del modelo después de la falta de
-          validación institucional.
-        </p>`,
-    },
-    {
-      kicker: "6 · La comprobación",
-      titulo: "Coincidir con 1992 no es estar validado",
-      html: `        <p>
-          Hay una comprobación histórica y hay que contarla por lo que es.
-        </p>
+        <h3>Coincidir con ${RECORD_ANIO} no es estar validado</h3>
         <table class="cuenta">
-          <tr><td>Puerto de Santa Fe, junio de 1992</td><td>7,43 m</td></tr>
+          <tr><td>Puerto de Santa Fe, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
           <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
           <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
         </table>
         <p style="margin-top:20px">
-          Un centímetro. Es una buena señal y es el mejor dato independiente que
-          tenemos. Pero es <b>un punto, de una crecida, de un año</b>.
+          Un centímetro. Es el mejor dato independiente que tenemos, y es
+          <b>un punto, de una crecida, de un año</b>. Una coincidencia histórica
+          no demuestra que el modelo valga para todos los lugares y todas las
+          condiciones.
         </p>
         <div class="rejilla-2" style="margin-top:18px">
           <div class="mini-tarjeta">
@@ -1057,123 +932,81 @@ ${tarjetaFuente("altimetria")}
             revisó este modelo. Nadie lo aprobó.</p>
           </div>
         </div>
-        <p style="margin-top:18px">
-          Una coincidencia histórica no demuestra que el modelo sea válido para
-          todos los lugares y todas las condiciones. Hasta que lo revisen
-          especialistas —Gestión de Riesgos del municipio, INA, FICH-UNL,
-          Recursos Hídricos de la Provincia— lo que la app publica son
-          <b>niveles de referencia estimados</b>, y así están nombrados en toda
-          la interfaz.
-        </p>
-        <p class="chico">
-          Cota Cero no tiene vínculo con ninguno de estos organismos, ni cuenta
-          con su aval. Usa sus datos públicos y los cita.
+        <p class="chico" style="margin-top:18px">
+          Hasta que lo revisen especialistas —Gestión de Riesgos, INA, FICH-UNL,
+          Recursos Hídricos— lo que la app publica son <b>niveles de referencia
+          estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no
+          tiene vínculo con esos organismos ni cuenta con su aval: usa sus datos
+          públicos y los cita.
         </p>`,
-    },
-    {
-      kicker: "7 · Un siglo de mediciones",
-      titulo: "La misma escala, desde 1925",
-      html: historia
-        ? `        <p>
-          El INA publica la serie diaria de este mismo hidrómetro desde el 2 de
-          enero de 1925: <b>${historia.dias.toLocaleString("es-AR")} días
-          medidos</b>. Es la misma serie de la que sale el número que ves hoy en
-          la app, así que la historia y el presente no pueden contradecirse.
-        </p>
-        <table class="cuenta">
-          <tr><td>Mayor altura registrada — ${recordHist[2].slice(8)}/${recordHist[2].slice(5, 7)}/${recordHist[0]}</td><td>${nm(recordHist[1], 2)} m</td></tr>
-          <tr><td>Mediana de la serie diaria</td><td>${nm(historia.cuantiles[50], 2)} m</td></tr>
-          <tr class="total"><td>Años con registro</td><td>${historia.anios.length}</td></tr>
-        </table>
-        <p style="margin-top:20px">
-          La crecida de 1905 que se cita seguido queda fuera de esta serie, que
-          arranca en 1925. No la reconstruimos desde recortes de diario: si el
-          INA no la publica, no está.
-        </p>
-        <p class="pg-cta" style="margin:22px 0 0;text-align:left">
-          <a class="btn" href="/historia">Explorar cien años del Paraná</a>
-        </p>
-${tarjetaFuente("historia")}`
-        : `        <p>La serie histórica todavía no está generada.</p>`,
-    },
-  ],
-  sueltos: [
-    seguir([
-      ["/mi-cota", "Cómo se calcula la cota de tu terreno", "el cálculo, paso por paso"],
-      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "la misma serie del INA, desde 1925"],
-      ["/sobre", "Quién hace Cota Cero y con qué", ""],
-    ]),
-    `      <section class="bloque" id="fuentes">
-        <p class="kicker">8 · Las fuentes</p>
-        <h2>Datos que usamos</h2>
-        <p>
+    }),
+    bloque({
+      oscuro: true,
+      kicker: "Lo que todavía no sabe",
+      titulo: "Honestidad también acá",
+      html: `        <ul class="pasos">
+          <li><b>En qué sistema de alturas están las curvas municipales.</b> Los
+            metadatos no lo declaran, y de eso depende si el cero correcto es
+            8,20 o 8,378.</li>
+          <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada
+            en un punto de una crecida.</li>
+          <li><b>Cuánto error tiene de verdad la cota interpolada.</b> El ±0,5 m
+            que informa la app es la convención cartográfica, no una medición.
+            Habría que contrastarla contra la red de puntos fijos del municipio,
+            que no está publicada.</li>
+          <li><b>Los kilómetros río arriba de cada zona.</b> Sólo Arroyo Leyes
+            (24 km) está publicado; el resto son estimaciones propias. A 4,5 cm
+            por km, equivocarse 5 km son 22 cm.</li>
+          <li><b>Si hay defensas, bombeo o desagües entre el río y tu casa.</b>
+            Cambia el resultado más que cualquiera de las constantes.</li>
+          <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar
+            antes por el desagüe que por el río.</li>
+        </ul>
+        <p class="chico">
+          Cuando no sabemos algo con precisión suficiente, preferimos decirlo
+          antes que rellenar el hueco con un número que parezca firme.
+        </p>`,
+    }),
+    bloque({
+      id: "fuentes",
+      kicker: "5 · Las fuentes",
+      titulo: "Cada dato, con su enlace",
+      html: `        <p>
           Todo lo que muestra la app sale de acá. Cada ficha lleva dos enlaces:
-          uno a la página del organismo y otro al dato crudo, tal como lo pide
-          la app.
+          la página del organismo y el dato crudo, tal como lo pide la app.
         </p>
         <div class="fuentes-rejilla">
 ${["nivelRio", "topografia", "emergencias", "altimetria", "historia", "cartografia"]
   .map(tarjetaFuente)
   .join("\n")}
         </div>
-      </section>`,
-  ],
-  bloquesFinales: [
-    {
-      titulo: "Investigación, antecedentes y normativa",
-      kicker: "9 · El marco",
-      html: `        <p class="chico">
-          No están al mismo nivel que las fuentes de arriba y no aportan ningún
-          número al cálculo. Explican el contexto.
-        </p>
-        <ul class="pasos">
-          <li><b>${esc(ORGANISMOS.fich.nombre)}</b> — ${esc(ORGANISMOS.fich.que)}
-            Es la institución natural para revisar este modelo.
-            <a href="${ORGANISMOS.fich.url}" target="_blank" rel="noopener">Ver</a></li>
+        <details class="h-detalle" style="margin-top:22px">
+          <summary>Investigación, antecedentes y normativa</summary>
+          <p class="chico">
+            No aportan ningún número al cálculo: explican el contexto.
+          </p>
+          <ul class="pasos">
+            <li><b>${esc(ORGANISMOS.fich.nombre)}</b> — ${esc(ORGANISMOS.fich.que)}
+              Es la institución natural para revisar este modelo.
+              <a href="${ORGANISMOS.fich.url}" target="_blank" rel="noopener">Ver</a></li>
 ${NORMATIVA.map(
   (n) =>
-    `          <li><b>${esc(n.n)}</b> — ${esc(n.que)} <a href="${n.url}" target="_blank" rel="noopener">Ver</a></li>`,
+    `            <li><b>${esc(n.n)}</b> — ${esc(n.que)} <a href="${n.url}" target="_blank" rel="noopener">Ver</a></li>`,
 ).join("\n")}
-        </ul>
-        <p class="chico">
-          Sobre la prensa: se usa sólo para contexto histórico o para llegar a
-          una fuente primaria, nunca para un número que entre en el cálculo. Si
-          una nota cita a un especialista o a un documento, buscamos el original
-          antes de citar la nota.
-        </p>`,
-    },
-    {
-      oscuro: true,
-      kicker: "10 · Lo que todavía no sabe",
-      titulo: "Honestidad también acá",
-      html: `        <ul class="pasos">
-          <li><b>En qué sistema de alturas están las curvas municipales.</b> Los
-            metadatos de la capa no lo declaran. De eso depende si el cero del
-            hidrómetro correcto es 8,20 o 8,378.</li>
-          <li><b>Si la pendiente de 0,045 m/km vale en todos los tramos.</b> Está
-            contrastada en un punto de una crecida. La normativa de Rincón
-            sugiere que en ese tramo se usa otra cosa.</li>
-          <li><b>Cuánto error tiene de verdad la cota interpolada.</b> La app
-            informa ±0,5 m, que es la convención cartográfica, no una medición.
-            Contra los puntos de nivelación del IGN cercanos la dispersión sale
-            mayor, pero esos puntos están sobre pilares y no sobre el piso, así
-            que la comparación no cierra. Hace falta contrastar contra la red de
-            puntos fijos planialtimétricos del municipio, que no está publicada
-            en el GeoServer.</li>
-          <li><b>Los kilómetros río arriba de cada zona.</b> Sólo Arroyo Leyes
-            (24 km) está publicado; el resto son estimaciones propias. A 4,5 cm
-            por km, equivocarse 5 km son 22 cm.</li>
-          <li><b>Si hay defensas, bombeo o desagües entre el río y tu casa.</b>
-            La app no lo sabe, y cambia el resultado más que cualquiera de las
-            constantes.</li>
-          <li><b>Nada sobre la lluvia sobre tu barrio</b> más allá del pronóstico
-            general. El agua puede llegar antes por el desagüe que por el río.</li>
-        </ul>
-        <p class="chico">
-          Cuando no sabemos algo con precisión suficiente, preferimos decirlo
-          antes que rellenar el hueco con un número que parezca firme.
-        </p>`,
-    },
+          </ul>
+          <p class="chico">
+            La prensa se usa para contexto histórico o para llegar a una fuente
+            primaria, nunca para un número del cálculo: si una nota cita a un
+            especialista o a un documento, buscamos el original.
+          </p>
+        </details>`,
+    }),
+    seguir([
+      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "la misma serie del INA, desde 1925"],
+      ["/puntos-de-encuentro", "Los 30 puntos de encuentro ante una inundación", "con dirección y cómo llegar"],
+      ["/preguntas", "Las preguntas frecuentes", "el nivel de alerta, el de evacuación y qué significan"],
+      ["/sobre", "Quién hace Cota Cero y con qué", ""],
+    ]),
   ],
 });
 
@@ -1252,7 +1085,7 @@ const htmlPreguntas = pagina({
   sueltos: [
     seguir([
       ["/datos", "De dónde salen los datos del río Paraná en Santa Fe", "cada fuente, con el enlace para comprobarla"],
-      ["/mi-cota", "Cómo se calcula la cota de tu terreno", ""],
+      ["/datos", "Cómo se calcula la cota de tu terreno", "el cálculo paso a paso y las fuentes"],
       ["/historia", "Las crecidas históricas del Paraná", "1992 sigue siendo el récord"],
       ["/sobre", "Quién hace Cota Cero", ""],
     ]),
@@ -1654,7 +1487,7 @@ ${tablaHist}
         </p>
         <ul class="pasos">
           <li><a href="/">Ver el nivel del río Paraná hoy</a></li>
-          <li><a href="/mi-cota">Saber la cota de tu terreno en Santa Fe</a></li>
+          <li><a href="/datos">Saber la cota de tu terreno en Santa Fe</a></li>
           <li><a href="/datos">Conocer de dónde salen estos datos</a></li>
         </ul>
       </section>
@@ -1941,7 +1774,7 @@ const htmlNoEncontrada = pagina({
       titulo: "Lo que sí existe",
       html: `        <ul class="pasos">
           <li><a href="/">Ver el nivel del río Paraná en Santa Fe hoy</a></li>
-          <li><a href="/mi-cota">Saber la cota de tu terreno</a></li>
+          <li><a href="/datos">Saber la cota de tu terreno</a></li>
           <li><a href="/puntos-de-encuentro">Los 30 puntos de encuentro ante una inundación</a></li>
           <li><a href="/historia">Las crecidas históricas del Paraná</a></li>
           <li><a href="/datos">De dónde salen los datos</a></li>
@@ -2178,7 +2011,7 @@ if (i === -1 || f === -1)
   throw new Error("index.html no tiene los marcadores PIE");
 const cabecera = antes.slice(i, antes.indexOf("-->", i) + 4);
 const despues =
-  antes.slice(0, i) + cabecera + "\n" + PIE + "\n" + antes.slice(f);
+  antes.slice(0, i) + cabecera + "\n" + pie({ frescura: true }) + "\n" + antes.slice(f);
 if (despues !== antes) {
   await writeFile(portada, despues);
   console.log("actualizado: el pie de index.html");
@@ -2192,7 +2025,6 @@ console.log("escrito: /404.html");
 
 for (const [ruta, html] of [
   ["puntos-de-encuentro", htmlPuntos],
-  ["mi-cota", htmlCota],
   ["datos", htmlDatos],
   ["sobre", htmlSobre],
   ["contacto", htmlContacto],
