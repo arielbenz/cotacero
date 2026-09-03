@@ -1878,14 +1878,6 @@ body.landing {
   padding: var(--e-6) 0;
   flex-wrap: wrap;
 }
-/* En una barra, el botón de 52 px de la portada pesa demasiado. */
-.nav-sitio .btn {
-  min-height: 42px;
-  width: auto;
-  padding: 0 var(--e-5);
-  font-size: var(--t-s);
-  margin: 0;
-}
 .nav-enlaces {
   align-items: center;
   gap: var(--e-5);
@@ -2189,17 +2181,11 @@ p.pie-frescura,
     display: none;
   }
 }
-@media (max-width: 560px) {
-  /* Abajo de 560 la píldora se va, por lo mismo que ya se iba el chip
-     NO OFICIAL: en 390 px la barra son marca + menú + botón y no entra un
-     cuarto elemento — entraba empujando "Abrir la app" a un segundo renglón.
-     No se pierde el dato: en esa pantalla el nivel está a 200 px de acá, en
-     56 px de tipografía, la franja sigue saliendo si hay alerta y el pie
-     sigue diciendo de cuándo es la lectura. */
-  .pildora-rio {
-    display: none;
-  }
-}
+/* La píldora estuvo escondida abajo de 560 px mientras la barra tuvo el botón
+   "Abrir la app": eran cuatro elementos y el cuarto empujaba al botón a un
+   segundo renglón. Sin el botón entra, y el nivel del río en la barra vale
+   bastante más en un teléfono que un botón que la portada repite dos veces
+   más abajo. */
 
 /* ---------- hero ---------- */
 .hero {
@@ -2688,23 +2674,10 @@ p.pie-frescura,
 }
 
 /* ---------- secciones a dos columnas ---------- */
-.dosc {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--e-7);
-  align-items: center;
-}
-.dosc .btn {
+/* El botón de las tarjetas no ocupa el ancho: es una acción, no un bloque. */
+.tarjeta-seccion .btn {
   width: auto;
   padding: 0 var(--e-6);
-}
-/* La sección del mapa centra sus dos columnas porque una es una imagen al lado
-   de un texto y ahí el centrado equilibra. Cuando las dos columnas son
-   contenido —un argumento y su evidencia— conviene que arranquen juntas: los
-   dos rótulos quedan en la misma línea y se lee como una sola cosa en vez de
-   dos bloques que casualmente están al lado. */
-.dosc.al-tope {
-  align-items: start;
 }
 .mapa-caja {
   border-radius: var(--r-l);
@@ -3271,10 +3244,27 @@ html.texto-grande {
      título partido en siete renglones de una palabra al lado de un botón. El
      selector de acá tiene que ser tan específico como el de la definición. */
   .hero,
-  .dosc,
+  .tarjeta-seccion,
   .landing .cta {
     grid-template-columns: 1fr;
     gap: var(--e-6);
+  }
+  /* En una columna el mapa va debajo del texto y necesita un alto propio: el
+     `height: 100%` del escritorio le sirve para llenar la fila al lado del
+     texto, no para ser una fila. */
+  .tarjeta-seccion.con-mapa {
+    gap: 0;
+  }
+  #mapa-landing {
+    height: 320px;
+    min-height: 0;
+  }
+  /* 48 px de relleno en una tarjeta de 350 px se comen un tercio del ancho. */
+  .landing section.tarjeta-seccion {
+    padding: var(--e-6);
+  }
+  .tarjeta-seccion.con-mapa .ts-texto {
+    padding: var(--e-6);
   }
   .hitos,
   .tres {
@@ -3366,17 +3356,11 @@ html.texto-grande {
   .nav-sitio {
     gap: var(--e-3);
   }
-  /* Con el menú al lado, el botón entra en la misma fila que la marca: una
-     barra de teléfono normal en vez de dos renglones. */
-  .nav-sitio .btn {
-    width: auto;
-    padding: 0 var(--e-4);
-  }
   .nav-sitio .chip-borde {
     display: none;
   }
   .hero-botones .btn,
-  .dosc .btn,
+  .tarjeta-seccion .btn,
   .cta .btn {
     width: 100%;
   }

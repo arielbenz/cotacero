@@ -277,6 +277,12 @@ Los `1 · 2 · 3` de «Cómo funciona» y los años de la franja oscura **se que
 son secuencias de verdad. Numerar algo que está ordenado informa; numerar tres
 tarjetas cualesquiera, no.
 
+### Nada de bloques «Seguí por acá»
+
+Las páginas generadas terminaban con un bloque de enlaces a otras páginas.
+**Se sacaron y no se vuelven a agregar.** Si una página necesita mandar a otra,
+el enlace va donde el texto lo pide, no en una lista de relleno al pie.
+
 ### Una clase, un componente
 
 `.cita` llegó a nombrar dos cosas distintas —las tarjetas de avisos de la

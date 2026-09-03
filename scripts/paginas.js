@@ -230,18 +230,6 @@ ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${e
       </section>`;
 }
 
-/* El bloque de continuación. Cada enlace dice adónde va y para qué — nada de
-   "ver más": un ancla que no describe su destino no le sirve ni a quien lee
-   ni a un buscador. Va al pie del contenido, no antes: primero se contesta la
-   pregunta de la página. */
-function seguir(items) {
-  return `      <section class="bloque borde">
-        <h2>Seguí por acá</h2>
-        <ul class="pasos">
-${items.map(([href, texto, nota]) => `          <li><a href="${href}">${esc(texto)}</a>${nota ? " — " + esc(nota) : ""}</li>`).join("\n")}
-        </ul>
-      </section>`;
-}
 
 /* Un paso del cálculo: número al costado, y el valor del ejemplo en una
    pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
@@ -363,7 +351,6 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
             <a href="/contacto">Contacto</a>
           </div>
         </details>
-        <a class="btn" href="/app">Abrir la app</a>
       </nav>
     </div>
 
@@ -521,11 +508,6 @@ ${lista}
           <div><b>911</b><span>Policía</span></div>
         </div>
       </section>`,
-    seguir([
-      ["/app?ir=donde", "Ver en el mapa cuál te queda más cerca", "funciona sin señal una vez cargada"],
-      ["/datos", "Saber la cota de tu terreno en Santa Fe", "y qué nivel del río le corresponde"],
-      ["/", "Ver el nivel del río Paraná hoy", ""],
-    ]),
   ],
   bloquesFinales: [
     {
@@ -1030,12 +1012,6 @@ ${NORMATIVA.map(
           </p>
         </details>`,
     }),
-    seguir([
-      ["/historia", "Las crecidas históricas del Paraná en Santa Fe", "la misma serie del INA, desde 1925"],
-      ["/puntos-de-encuentro", "Los 30 puntos de encuentro ante una inundación", "con dirección y cómo llegar"],
-      ["/preguntas", "Las preguntas frecuentes", "el nivel de alerta, el de evacuación y qué significan"],
-      ["/sobre", "Quién hace Cota Cero y con qué", ""],
-    ]),
   ],
 });
 
@@ -1112,12 +1088,6 @@ const htmlPreguntas = pagina({
     },
   ],
   sueltos: [
-    seguir([
-      ["/datos", "De dónde salen los datos del río Paraná en Santa Fe", "cada fuente, con el enlace para comprobarla"],
-      ["/datos", "Cómo se calcula la cota de tu terreno", "el cálculo paso a paso y las fuentes"],
-      ["/historia", "Las crecidas históricas del Paraná", "1992 sigue siendo el récord"],
-      ["/sobre", "Quién hace Cota Cero", ""],
-    ]),
   ],
 });
 
@@ -1649,11 +1619,6 @@ ${opcionesCategoria}
           </p>
         </div>
       </div>`,
-    seguir([
-      ["/preguntas", "Puede que ya esté contestado", "las dudas más frecuentes"],
-      ["/datos", "De dónde salen los datos", "cada fuente, con su enlace"],
-      ["/sobre", "Quién hace Cota Cero", ""],
-    ]),
   ],
 });
 
@@ -2010,10 +1975,6 @@ ${LICENCIAS.map(
     },
   ],
   sueltos: [
-    seguir([
-      ["/sobre", "Quién hace Cota Cero", "proyecto ciudadano independiente"],
-      ["/datos", "De dónde salen los datos", ""],
-    ]),
   ],
 });
 
