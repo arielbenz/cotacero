@@ -215,6 +215,14 @@ el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
 Ya no hay excepción: desde que la app son módulos, `js/app/fuentes.js`
 importa `/lib/fuentes.js` directo. La copia a mano en `FUENTES_APP` se murió.
 
+**Ojo con las atribuciones escritas a mano.** El pie de la app decía «Niveles
+de alerta y evacuación según FICH-UNL y Prefectura Naval Argentina», que era
+cierto antes de la migración a la API y dejó de serlo después: hoy los publica
+la estación del INA, y Prefectura es dueña de la escala, que es otra cosa. Un
+renglón de texto plano no se entera de que cambió la fuente. Cuando haya que
+nombrar de dónde sale un dato, sale de `lib/fuentes.js` —o del sello que ya
+estampa `selloFuente()` al lado del número—, no de una frase suelta.
+
 ## Cien años del Paraná
 
 `/historia` es la escala. El hidrómetro marca un número y el número solo no
@@ -813,6 +821,27 @@ que no tiene el dato y pide la cota a mano, en vez de caer a una fuente peor.
 de Cloudflare y devuelve 403 a cualquier cliente que no sea un navegador con
 JS. El que sí responde es `geoserver.santafeciudad.gov.ar/geoserver/sitmax`,
 que es el que usa el GeoVisualizador.
+
+## El pie de la app es corto a propósito
+
+Tenía diez renglones: tres enlaces al sitio, tres descargos, la atribución de
+las fuentes, la firma y dos pastillas de redes sociales. Desde que existe la
+portada, casi todo eso vive en el sitio —y Ajustes → «Sobre esto» tiene la
+lista entera—, así que repetirlo abajo de las cuatro pantallas era gastar el
+pie en cosas que ya están a un toque.
+
+Quedaron cinco, y ninguno es decorativo:
+
+| Qué queda | Por qué no se puede ir |
+| --- | --- |
+| El enlace de instalar | Es la red de contención de la barra de instalar: que la hayan cerrado, que Chrome no dispare `beforeinstallprompt`, que el navegador no lo implemente |
+| «Sin vínculo con organismos oficiales» | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla» |
+| «No reemplaza una orden de evacuación» | Idem, y es la frase que separa esta herramienta de una orden |
+| La medición del río | Es dato en vivo, no texto fijo: lo escribe `pintarPie()` en `js/app/rio.js` |
+| «Hecho por Ariel Benz» | Una herramienta que dice «no tiene vínculo con organismos oficiales» gana en que se vea quién responde por ella: es el contrapeso del renglón de arriba |
+
+Se fueron las pastillas de X e Instagram: eso no es quién responde sino dónde
+seguirlo, y para escribirnos está `/contacto`, en Ajustes.
 
 ## Cuántos la usan
 

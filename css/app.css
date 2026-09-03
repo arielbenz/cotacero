@@ -2800,10 +2800,6 @@ p.pie-frescura,
   max-width: 32ch;
   margin: var(--e-2) 0 0;
 }
-.pie-sitio .firma {
-  margin: var(--e-2) 0 0;
-  font-size: var(--t-s);
-}
 .chip-tel {
   display: inline-flex;
   align-items: center;
@@ -3496,26 +3492,6 @@ html.texto-grande {
   color: var(--texto);
   font-weight: 600;
 }
-.firma .redes {
-  display: inline-flex;
-  gap: var(--e-2);
-  margin-left: var(--e-2);
-}
-.firma .redes a {
-  font-family: var(--mono);
-  font-size: var(--t-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-  padding: var(--e-1) var(--e-2);
-  border: 1px solid var(--linea);
-  border-radius: var(--r-full);
-  color: var(--acento);
-}
-.firma .redes a:hover {
-  border-color: var(--acento);
-}
-
 .pie a {
   color: var(--acento);
 }

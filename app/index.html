@@ -1081,14 +1081,11 @@
       <h3>Sobre esto</h3>
       <div class="tarjeta">
         <ul class="lista-plana">
+          <!-- Un solo renglón para /datos. Eran dos, con dos nombres y el
+               mismo destino, desde que /mi-cota se fusionó ahí adentro. -->
           <li>
             <a class="punto" href="/datos"
-              ><span class="n">Cómo se calcula tu umbral</span></a
-            >
-          </li>
-          <li>
-            <a class="punto" href="/datos"
-              ><span class="n">De dónde salen los datos</span></a
+              ><span class="n">Cómo se calcula, y de dónde salen los datos</span></a
             >
           </li>
           <li>
@@ -1154,13 +1151,25 @@
       <a class="btn" href="/contacto">Escribirnos</a>
     </details>
 
+    <!-- El pie de la app es corto A PROPÓSITO. Lo institucional —qué es Cota
+         Cero, de dónde sale cada dato, el legal, quién la hace— vive en el
+         sitio desde que existe la portada, y Ajustes → "Sobre esto" tiene la
+         lista completa. Repetirlo acá abajo, en las cuatro pantallas, era
+         gastar el pie en cosas que ya están a un toque.
+
+         Lo que queda no es lo que sobró: son las dos frases que no pueden
+         faltar en NINGUNA pantalla. La portada afirma por escrito que la app
+         "lo dice en cada pantalla" —y es el único lugar de la app donde se
+         dice—, así que sacarlas de acá volvería falsa esa frase.
+
+         Se fue también "Niveles de alerta y evacuación según FICH-UNL y
+         Prefectura Naval Argentina": quedó vieja. Desde que la app lee la API
+         del INA esos dos umbrales los publica la estación (ver `nivelRio` en
+         lib/fuentes.js) y no esos dos organismos; Prefectura es dueña de la
+         escala, que es otra cosa. Y no hace falta decirlo acá: cada número de
+         la app ya lleva su sello de fuente con el enlace para ir a mirarlo. -->
     <div class="pie">
-      <p class="chico" style="margin-bottom: 12px">
-        <a href="/">Qué es Cota Cero</a> ·
-        <a href="/puntos-de-encuentro">Puntos de encuentro</a> ·
-        <a href="/datos">Cómo se calcula tu umbral</a>
-      </p>
-      <!-- Se muestra sólo si la app no está instalada; lo decide app.js. -->
+      <!-- Se muestra sólo si la app no está instalada; lo decide instalar.js. -->
       <p id="instalar-pie" class="instalar-pie" hidden>
         <button class="btn sec mini" type="button" data-accion="instalar">
           Instalar en el teléfono
@@ -1172,29 +1181,14 @@
       Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
       No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
       dicen que salgas, salí.<br />
-      Niveles de alerta y evacuación según FICH-UNL y Prefectura Naval
-      Argentina.<br />
       <span id="version"></span>
 
-      <div class="firma">
-        Hecho por <b>Ariel Benz</b>
-        <span class="redes">
-          <a
-            href="https://x.com/arielbenz"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Ariel Benz en X"
-            >X</a
-          >
-          <a
-            href="https://www.instagram.com/ariel.front/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Ariel Benz en Instagram"
-            >Instagram</a
-          >
-        </span>
-      </div>
+      <!-- La firma se queda: una herramienta que dice "sin vínculo con
+           organismos oficiales" gana en que se vea quién responde por ella, y
+           es el contrapeso del renglón de arriba. Sin las pastillas de X e
+           Instagram, que no son de quién responde sino de dónde seguirlo: para
+           escribirnos está /contacto, en Ajustes. -->
+      <div class="firma">Hecho por <b>Ariel Benz</b></div>
     </div>
 
     <nav class="barra-app" aria-label="Secciones">

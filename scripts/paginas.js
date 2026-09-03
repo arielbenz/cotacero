@@ -1740,7 +1740,7 @@ const htmlSobre = pagina({
           Un error en una herramienta sobre riesgo hídrico no es un detalle.
           Si encontrás un dato equivocado, una fuente rota o algo que no se
           entiende, escribí por el
-          <a href="/app?ir=ajustes">formulario de sugerencias</a> de la app.
+          <a href="/contacto">formulario de sugerencias</a> de la app.
         </p>
         <p class="chico">
           Es lo único de Cota Cero que manda texto a un servidor, y el
@@ -1859,7 +1859,7 @@ ${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
         </ol>
         <p class="chico" style="margin-top:20px">
           ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
-          Escribinos por el <a href="/app?ir=ajustes">formulario de sugerencias</a>
+          Escribinos por el <a href="/contacto">formulario de sugerencias</a>
           de la app: a prensa contestamos rápido.
         </p>`,
     },
