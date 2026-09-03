@@ -314,7 +314,7 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
             <a href="/contacto">Contacto</a>
           </div>
         </details>
-        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+        <a class="btn" href="/app">Abrir la app</a>
       </nav>
     </div>
 
@@ -337,7 +337,7 @@ ${[
 ].join("\n\n")}
       </main>
 
-      <p class="pg-cta"><a class="btn btn-oscuro" href="/app">Abrir Cota Cero</a></p>
+      <p class="pg-cta"><a class="btn" href="/app">Abrir Cota Cero</a></p>
     </div>
 
     <div class="pie-envoltura">
@@ -427,7 +427,7 @@ const htmlPuntos = pagina({
     "funciona sin conexión y se puede compartir por WhatsApp. En la app los ves " +
     "en el mapa, ordenados por cercanía.",
   acciones: `        <p class="pg-acciones">
-          <a class="btn btn-oscuro" href="/app?ir=donde">Ver en el mapa de la app</a>
+          <a class="btn" href="/app?ir=donde">Ver en el mapa de la app</a>
           <a class="btn sec" href="https://wa.me/?text=${TEXTO_COMPARTIR}" target="_blank" rel="noopener">Compartir esta lista</a>
         </p>`,
   jsonld: {

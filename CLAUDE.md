@@ -108,14 +108,14 @@ publica.
 Estas cosas viven en **un solo lugar** y se leen desde los demás. Duplicarlas
 es el error que este proyecto ya cometió y corrigió más de una vez:
 
-| Qué | Dónde vive | Quién lo lee |
-|---|---|---|
-| Los 30 puntos de encuentro | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js` |
-| Organismos, URLs, la estación del INA | `lib/fuentes.js` | `lib/ina.js`, `scripts/paginas.js` |
-| El pie del sitio | constante `PIE` en `scripts/paginas.js` | las páginas generadas **y** `index.html` |
-| Las categorías del formulario | `lib/sugerencias.js` | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app |
-| Título, descripción, canónica e indexabilidad | `lib/paginas.js` | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
-| Récord histórico y serie | `datos-abiertos/historia.json` | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js` |
+| Qué                                           | Dónde vive                                         | Quién lo lee                                                                              |
+| --------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                 |
+| Organismos, URLs, la estación del INA         | `lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                        |
+| El pie del sitio                              | constante `PIE` en `scripts/paginas.js`            | las páginas generadas **y** `index.html`                                                  |
+| Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                             |
+| Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
+| Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
@@ -231,6 +231,21 @@ El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
 ~0,5 m. Un decimal y tilde de aproximación (`mU()` en `js/app/formato.js`, `unDec()`
 en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
+
+### Dos botones, no tres
+
+`.btn` es el sólido —la acción principal, **una por pantalla**: negro sobre
+fondo claro, claro sobre fondo oscuro— y `.btn.sec` es el azul del agua. **No
+hay un tercero.** Antes había cuatro rellenos, dos de ellos el mismo
+secundario escrito dos veces, y el negro y el azul haciendo de principal cada
+uno en su mitad del producto.
+
+Un botón que necesita otro color casi siempre está pidiendo otra cosa: menos
+peso (que sea un enlace), o una superficie distinta. Sobre las superficies
+invertidas —`.bloque.oscuro`, `.caja-codigo`, `.franja-oscura`, `.cta`— el
+sólido ya se invierte solo: esos contenedores redefinen `--btn-fuerte`, no
+hace falta una clase. La única excepción es `.btn-emergencia`, el 103: es un
+teléfono de emergencia, no una acción de la interfaz.
 
 ### Escenario pesimista, en un solo lugar
 

@@ -71,7 +71,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
     vercel.json              cabeceras y CSP
     robots.txt · sitemap.xml
 
-    js/     landing.js       nivel en vivo, mapa perezoso, salto a /app si está instalada
+    js/     landing.js       nivel en vivo, regla que se mueve, mapa perezoso, salto a /app
             historia.js      la serie de un siglo, interactiva
             medios.js        copiar el código del widget
     js/app/                  la app, en módulos ES
@@ -138,7 +138,7 @@ generadas llevan un cartel de "no editar" en la primera línea.
 
 **Ocho carpetas más son páginas generadas** —`datos/`, `historia/`, `mi-cota/`,
 `preguntas/`, `legal/`, `charlas/`, `para-medios/`, `puntos-de-encuentro/`—.
-Están en la raíz porque su ruta *es* su URL. Cada una arranca con un comentario
+Están en la raíz porque su ruta _es_ su URL. Cada una arranca con un comentario
 que dice que la emite `scripts/paginas.js` y que editarla a mano no sirve.
 
 `sw.js` se queda en la raíz a propósito: un service worker sólo controla su
@@ -217,8 +217,7 @@ importa `/lib/fuentes.js` directo. La copia a mano en `FUENTES_APP` se murió.
 ## Cien años del Paraná
 
 `/historia` es la escala. El hidrómetro marca un número y el número solo no
-dice nada hasta que se lo ve al lado de los 7,43 m de 1992 y de los −0,23 m de
-2022.
+dice nada hasta que se lo ve al lado de los 7,43 m de 1992 y de los −0,23 m de 2022.
 
     node scripts/historia.js     # baja la serie y escribe datos-abiertos/historia.json
 
@@ -229,8 +228,8 @@ cuántos días hubo lectura y cuántos estuvo sobre cada umbral oficial. Quedan
 procesar 37.000 registros en un teléfono el día de una crecida no es aceptable.
 
 El archivo lleva además **101 cuantiles** de la serie diaria. Sirven para una
-sola frase, en la app y en la página: *"el río estuvo por debajo del nivel de
-hoy en el X % de los días medidos desde 1925"*. Es un hecho sobre la serie del
+sola frase, en la app y en la página: _"el río estuvo por debajo del nivel de
+hoy en el X % de los días medidos desde 1925"_. Es un hecho sobre la serie del
 INA, no una categoría inventada: la app **no** dice "normal", "alto" ni "bajo",
 porque para eso haría falta una metodología oficial que no tenemos.
 
@@ -409,6 +408,20 @@ a la vez y los geocodificadores se van a Rosario. El listado publicado en
 prensa además tenía 29 puntos; el oficial tiene 30. Faltaba **Vecinal Pro
 Mejoras Alto Verde**, en un barrio fuera del anillo de defensas.
 
+**La página `/puntos-de-encuentro` los muestra en tarjetas, agrupadas por
+zona.** Son treinta y hay que encontrar UNO, rápido y probablemente nervioso:
+lo que se hace ahí no es leer la lista sino descartar cuatro quintos de golpe
+y mirar sólo la zona propia. Por eso el aire entre grupos es grande y el que
+hay entre un título y sus tarjetas es chico — el título tiene que leerse
+pegado a lo suyo. El número de cada tarjeta usa el mismo par sólido que el
+botón principal (`--btn-fuerte`), que es el de máximo contraste contra la
+superficie en los dos temas; con `--fondo-invertido` quedaba negro sobre
+blanco en tema claro y casi invisible sobre la tarjeta en tema oscuro.
+
+Los grupos —Norte, Centro, Sur, Alto Verde, La Costa— **los deducimos de las
+coordenadas**, para orientar. No son los distritos del Plan de Contingencia
+municipal, que no publicamos porque no los tenemos, y la página lo dice.
+
 Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
 `api/` se publica como una función de Vercel, y en Hobby hay un tope de 12.
 
@@ -495,16 +508,16 @@ Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
 
 Cuatro URLs, no una:
 
-| URL | Qué es |
-|---|---|
-| `/` | Portada. Muestra el nivel del río en vivo y explica la herramienta |
-| `/app` | La app |
-| `/mi-cota` | Cómo se calcula la cota, con la cuenta completa |
-| `/puntos-de-encuentro` | Los 30 puntos oficiales |
-| `/datos` | De dónde sale cada número y cómo verificarlo |
-| `/historia` | Cien años del Paraná, con la serie del INA desde 1925 |
-| `/preguntas` | Ocho preguntas, con datos estructurados `FAQPage` |
-| `/legal` | Descargo, privacidad y licencias |
+| URL                    | Qué es                                                             |
+| ---------------------- | ------------------------------------------------------------------ |
+| `/`                    | Portada. Muestra el nivel del río en vivo y explica la herramienta |
+| `/app`                 | La app                                                             |
+| `/mi-cota`             | Cómo se calcula la cota, con la cuenta completa                    |
+| `/puntos-de-encuentro` | Los 30 puntos oficiales                                            |
+| `/datos`               | De dónde sale cada número y cómo verificarlo                       |
+| `/historia`            | Cien años del Paraná, con la serie del INA desde 1925              |
+| `/preguntas`           | Ocho preguntas, con datos estructurados `FAQPage`                  |
+| `/legal`               | Descargo, privacidad y licencias                                   |
 
 Las cinco últimas las genera `node scripts/paginas.js`.
 
@@ -520,6 +533,31 @@ arriba de todo. Alguien que entra en plena crecida tiene el dato ahí, sin abrir
 nada. Y quien tiene la PWA instalada nunca la ve: `landing.js` detecta
 `display-mode: standalone` y salta a `/app`, lo que además cubre a las
 instalaciones viejas cuyo `start_url` todavía apunta a `/`.
+
+**La regla del hero se mueve, y la simulación se llama simulación.** El agua
+arranca en el nivel real y sube con el scroll —y con el control «Mové el río»,
+que es un `<input type=range>` nativo como el de `/historia`— hasta el récord
+del hidrómetro, que sale de `datos-abiertos/historia.json` y no de un número
+escrito a mano. Es la respuesta a que los umbrales, escritos, no significan
+nada: 5,30 m no dice nada hasta que se ve dónde queda el agua.
+
+En `landing.js` conviven dos variables y no se mezclan nunca: `real`, el dato
+del INA, manda en el número grande, en la línea punteada «hoy» y en el pie de
+la cabecera; `sim` es lo único que dibuja la regla. Por eso el número del
+hidrómetro no se mueve aunque el agua suba: un hero que cambia la altura
+mientras alguien scrollea durante una crecida le estaría mintiendo en el peor
+momento. Apenas `sim` se despega de `real`, la etiqueta del agua pasa a decir
+«Simulado», aparece la marca de «hoy» y el pie encabeza con «Simulación».
+
+La pastilla flotante cuenta la otra mitad: con el nivel de hoy dice cuánto
+falta para la alerta; con la simulación en marcha, cuántos de los 102 años
+medidos llegaron a ese nivel. Es el contrapeso honesto de poder subir el río
+con el dedo —«pasó 4 veces en un siglo» es lo contrario de un pronóstico—.
+
+No hay autoplay ni scroll-jacking: la página baja como cualquier otra y lo
+único que sigue al scroll es el agua. Con `prefers-reduced-motion: reduce` no
+se engancha nada y el control queda igual, para quien lo quiera mover. Tocar
+el control apaga el scroll: quien tomó el volante se lo queda.
 
 **Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
 30 puntos se leen de `app/index.html`, que es la fuente de verdad
@@ -563,11 +601,44 @@ dependencias, el navegador dibuja SVG mejor que cualquier librería que
 pudiéramos instalar— y genera el favicon, los íconos de app, el maskable, el
 de iOS y el `og.png` de las vistas previas.
 
-**Dos cosas que costaron.** El agua llevaba relleno *y* trazo del mismo color,
+**Dos cosas que costaron.** El agua llevaba relleno _y_ trazo del mismo color,
 así que por debajo de la línea tapaba el anillo y a 512 px la marca se leía
 como una canasta: ahora el agua rellena sólo el interior y el anillo se dibuja
 encima. Y cada corrida de Chrome necesita su propio `--user-data-dir`, o la
 segunda se queda esperando el lock de la primera y el script no termina nunca.
+
+## Los botones
+
+Dos estilos y nada más.
+
+`.btn` es **el sólido**: la acción principal, una sola por pantalla. Negro
+sobre fondo claro y claro sobre fondo oscuro — no es un color de marca, es
+siempre el de máximo contraste contra la superficie donde está. Sale de
+`--btn-fuerte` / `--btn-fuerte-texto`.
+
+`.btn.sec` es **el azul del agua** (`--agua`): todo lo demás.
+
+Había cuatro rellenos: azul, gris, negro y celeste. El gris y el celeste eran
+el mismo secundario escrito dos veces —el celeste existía sólo porque el gris
+desaparecía sobre las cajas oscuras—, y el negro hacía de principal en el
+sitio mientras el azul hacía de principal en la app: dos jerarquías distintas
+en el mismo producto, y ninguna pantalla diciendo cuál era LA acción.
+
+Dos detalles que resuelve el sistema y antes se resolvían a mano:
+
+- **Superficies invertidas.** La franja histórica, la caja de cierre, los
+  bloques oscuros y la caja de código son oscuros en los dos temas: ahí el
+  sólido no puede seguir al tema, porque en tema claro sería negro sobre
+  negro. Esos contenedores redefinen `--btn-fuerte` a las mismas dos
+  variables que ya pintan la superficie (`--texto-invertido` /
+  `--fondo-invertido`), así que el botón se invierte solo. Eso era `.btn-claro`
+  y una clase que había que acordarse de poner.
+- **Tema oscuro.** `--btn-fuerte` era el azul, con lo cual el principal y el
+  secundario quedaban idénticos y en oscuro no había jerarquía ninguna. Ahora
+  se invierte a claro.
+
+La única excepción es `.btn-emergencia`, el 103 de `/contacto`: va rojo porque
+no es una acción de la interfaz, es un teléfono de emergencia.
 
 ## Las pantallas de la app
 
@@ -643,7 +714,7 @@ más cercano. Con vértices, simplificar la geometría movía el resultado 1,85 
 con segmentos, 2 cm de media y 42 cm en el peor de los 30 puntos de encuentro.
 
 **Por qué no un modelo satelital.** Hasta acá la elevación salía de Open-Meteo
-(Copernicus GLO-90), un modelo de *superficie*: mide techos y arbolado, no el
+(Copernicus GLO-90), un modelo de _superficie_: mide techos y arbolado, no el
 piso. Medido contra 36 puntos de nivelación del IGN alrededor de Santa Fe
 (`ign:nivelacion_topografica`, cotas de campo al milímetro):
 
@@ -688,8 +759,8 @@ corte en UTC, todo lo que pasa entre las 21 y la medianoche caería en el día
 siguiente.
 
 **El tablero.** `GET /api/metricas?clave=...` con `METRICAS_CLAVE`. Dos
-solapas: *Resumen* (activos de hoy / 7 / 30 días, los últimos 14 en barras,
-suscriptos a los avisos y las últimas 5 sugerencias) y *Sugerencias*
+solapas: _Resumen_ (activos de hoy / 7 / 30 días, los últimos 14 en barras,
+suscriptos a los avisos y las últimas 5 sugerencias) y _Sugerencias_
 (`&ver=sugerencias`, hasta 200, con el desglose por categoría). Con
 `&formato=json` sale todo en JSON.
 

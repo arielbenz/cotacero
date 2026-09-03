@@ -4,14 +4,12 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
+      content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Nivel del río Paraná en Santa Fe hoy | Cota Cero</title>
     <link rel="canonical" href="https://cotacerosf.com/" />
     <meta
       name="description"
-      content="Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad."
-    />
+      content="Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad." />
     <!-- Dos, con media: es lo que pinta la barra del navegador en el
          teléfono. Antes era un solo valor oscuro fijo, así que en modo
          claro la página salía clara con la barra negra arriba. En
@@ -19,23 +17,17 @@
     <meta
       name="theme-color"
       content="#f7f8f9"
-      media="(prefers-color-scheme: light)"
-    />
+      media="(prefers-color-scheme: light)" />
     <meta
       name="theme-color"
       content="#0e1619"
-      media="(prefers-color-scheme: dark)"
-    />
+      media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cota Cero" />
-    <meta
-      property="og:title"
-      content="Nivel del río Paraná en Santa Fe hoy"
-    />
+    <meta property="og:title" content="Nivel del río Paraná en Santa Fe hoy" />
     <meta
       property="og:description"
-      content="El nivel del río hoy, qué significa para tu terreno, los puntos de encuentro y un plan familiar. Datos públicos del INA y de la Municipalidad."
-    />
+      content="El nivel del río hoy, qué significa para tu terreno, los puntos de encuentro y un plan familiar. Datos públicos del INA y de la Municipalidad." />
     <meta property="og:image" content="https://cotacerosf.com/img/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -98,7 +90,11 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
          48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
-    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Cota Cero" />
     <link
@@ -106,19 +102,17 @@
       href="/vendor/fonts/jakarta-800.woff2"
       as="font"
       type="font/woff2"
-      crossorigin
-    />
+      crossorigin />
     <link
       rel="preload"
       href="/vendor/fonts/jakarta-500.woff2"
       as="font"
       type="font/woff2"
-      crossorigin
-    />
+      crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
     <script src="/js/landing.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
-      </head>
+  </head>
   <body class="landing">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
@@ -134,16 +128,14 @@
               cy="30"
               r="21"
               fill="var(--agua)"
-              clip-path="url(#mn)"
-            />
+              clip-path="url(#mn)" />
             <circle
               cx="30"
               cy="30"
               r="21"
               fill="none"
               stroke="currentColor"
-              stroke-width="7"
-            />
+              stroke-width="7" />
             <line
               x1="2"
               y1="33"
@@ -151,8 +143,7 @@
               y2="33"
               stroke="currentColor"
               stroke-width="4.5"
-              stroke-linecap="round"
-            />
+              stroke-linecap="round" />
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
@@ -162,14 +153,13 @@
             <span class="nav-burger" aria-hidden="true"></span>
           </summary>
           <div class="nav-enlaces">
-            <a href="#como">Cómo funciona</a>
             <a href="/mi-cota">Cómo se calcula</a>
             <a href="/puntos-de-encuentro">Dónde ir</a>
             <a href="/preguntas">Preguntas</a>
             <a href="/contacto">Contacto</a>
           </div>
         </details>
-        <a class="btn btn-oscuro" href="/app">Abrir la app</a>
+        <a class="btn" href="/app">Abrir la app</a>
       </nav>
 
       <header class="hero">
@@ -186,13 +176,13 @@
             El río Paraná tiene un número.<br />Tu casa tiene otro.
           </h1>
           <p class="bajada">
-            El hidrómetro del Puerto de Santa Fe publica el nivel todos los días. Cota Cero
-            lo traduce a lo único que importa:
+            El hidrómetro del Puerto de Santa Fe publica el nivel todos los
+            días. Cota Cero lo traduce a lo único que importa:
             <b>tu umbral estimado, la lectura de referencia para tu terreno</b>
             — que en muchos barrios queda por debajo de la alerta oficial.
           </p>
           <div class="hero-botones">
-            <a class="btn btn-oscuro" href="/app">Calcular mi umbral</a>
+            <a class="btn" href="/app">Calcular mi umbral</a>
             <a class="btn sec" href="#como">Ver cómo funciona</a>
           </div>
           <p class="chico">
@@ -201,10 +191,19 @@
           </p>
         </div>
 
-        <!-- El mockup no es una ilustración: se alimenta del nivel real que
-             trae landing.js de /api/nivel. -->
+        <!-- El mockup no es una ilustración: arranca en el nivel real que
+             trae landing.js de /api/nivel, y de ahí para arriba se puede
+             mover —con el scroll o con el control— para ver qué significan
+             los umbrales.
+
+             Eso es una SIMULACIÓN y se dice así con todas las letras: el
+             número grande de arriba se queda SIEMPRE en el dato de hoy, la
+             marca "hoy" queda clavada en la regla y la lectura del pie avisa
+             cuando lo que se ve dejó de ser el nivel real. Un hero que mueve
+             el número del hidrómetro mientras alguien scrollea durante una
+             crecida sería mentirle en el peor momento posible. -->
         <div class="mockup-envoltura">
-          <div class="mockup" aria-label="El nivel del río ahora">
+          <div class="mockup">
             <div class="mockup-cabecera">
               <span class="eti">Hidrómetro · Puerto Santa Fe</span>
               <div class="mockup-numero">
@@ -214,11 +213,49 @@
               </div>
               <p class="chico" id="nivel-pie">Buscando el último dato…</p>
             </div>
+            <!-- Las líneas de alerta y evacuación vienen escritas con los
+                 valores de respaldo y su posición en el CSS: si el JavaScript
+                 no corre, la regla igual dice dónde están los umbrales. Cuando
+                 /api/nivel contesta, landing.js las reubica con los que
+                 publica la estación. La del récord empieza oculta porque su
+                 número sale de datos-abiertos/historia.json y acá no se
+                 escribe a mano ninguno. -->
             <div class="regla-mini" id="regla-mini">
               <div class="rm-agua" id="rm-agua"></div>
               <div class="rm-linea" id="rm-superficie"></div>
-              <div class="rm-umbral rm-alerta"><b>Alerta oficial 5,30</b></div>
+              <div class="rm-umbral rm-record" id="rm-record" hidden>
+                <b></b>
+              </div>
+              <div class="rm-umbral rm-evac" id="rm-evac">
+                <b>Evacuación 5,70</b>
+              </div>
+              <div class="rm-umbral rm-alerta" id="rm-alerta">
+                <b>Alerta 5,30</b>
+              </div>
+              <div class="rm-umbral rm-hoy" id="rm-hoy" hidden><b></b></div>
               <span class="rm-ahora" id="rm-ahora"></span>
+            </div>
+            <!-- El control está siempre en el marcado, deshabilitado hasta que
+                 llegue el dato: si apareciera recién ahí, la portada saltaría
+                 bajo el dedo de quien está leyendo el nivel. -->
+            <div class="mockup-sim">
+              <div class="ms-fila">
+                <label class="eti" for="rm-rango">Mové el río</label>
+                <button type="button" class="ms-volver" id="rm-volver" hidden>
+                  Volver a hoy
+                </button>
+              </div>
+              <input
+                type="range"
+                id="rm-rango"
+                min="0"
+                max="1000"
+                step="1"
+                value="0"
+                disabled
+                aria-label="Nivel del río a simular, en metros"
+              />
+              <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
             </div>
           </div>
           <p class="globo" id="globo" hidden></p>
@@ -239,8 +276,7 @@
             <b>1992</b>
             <p>
               El Paraná llevó el hidrómetro a 7,43 m, el récord que sigue
-              vigente. Es el caso histórico con el que se contrastó este
-              modelo.
+              vigente. Es el caso histórico con el que se contrastó este modelo.
             </p>
           </div>
           <div>
@@ -325,7 +361,7 @@
             Su activación la confirma Defensa Civil: llamá al <b>103</b> antes
             de salir.
           </div>
-          <a class="btn btn-oscuro" href="/puntos-de-encuentro"
+          <a class="btn" href="/puntos-de-encuentro"
             >Ver la lista completa</a
           >
         </div>
@@ -333,8 +369,7 @@
           <div
             id="mapa-landing"
             role="img"
-            aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"
-          ></div>
+            aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"></div>
         </div>
       </section>
 
@@ -389,16 +424,14 @@
               cy="30"
               r="21"
               fill="var(--agua-clara)"
-              clip-path="url(#mc)"
-            />
+              clip-path="url(#mc)" />
             <circle
               cx="30"
               cy="30"
               r="21"
               fill="none"
               stroke="currentColor"
-              stroke-width="7"
-            />
+              stroke-width="7" />
             <line
               x1="2"
               y1="33"
@@ -406,8 +439,7 @@
               y2="33"
               stroke="currentColor"
               stroke-width="4.5"
-              stroke-linecap="round"
-            />
+              stroke-linecap="round" />
           </svg>
           <h2>Conocé tu número antes<br />de que lo diga el río.</h2>
           <p>
@@ -415,9 +447,8 @@
             sin tienda de aplicaciones.
           </p>
         </div>
-        <a class="btn btn-claro" href="/app">Abrir Cota Cero</a>
+        <a class="btn" href="/app">Abrir Cota Cero</a>
       </section>
-
     </div>
 
     <div class="pie-envoltura">

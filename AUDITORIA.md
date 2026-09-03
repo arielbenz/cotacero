@@ -14,24 +14,24 @@ prensa como mejor fuente sin que acá diga que es así.
 
 ## Resumen: el estado de cada número
 
-| Número | Dónde vive | Fuente | ¿Oficial? | ¿Puede cambiar? | ¿Viene de una API? |
-|---|---|---|---|---|---|
-| Nivel del río | `lib/ina.js` | INA, serie 30 | sí | todos los días | **sí, ahora** |
-| Alerta 5,30 m | estación INA | INA | sí | si el INA la corrige | **sí, ahora** |
-| Evacuación 5,70 m | estación INA | INA | sí | idem | **sí, ahora** |
-| Récord 7,43 m (1992) | `datos-abiertos/historia.json` | INA, serie 30 | sí | si hay una crecida mayor | sí, al generar |
-| Aguas bajas 2,00 m | `lib/fuentes.js` | INA | sí | idem | sí (no se usa todavía) |
-| **Cero del hidrómetro 8,20 m** | `js/app/config.js` | prensa + normativa local | **no** | **discutido — ver abajo** | no |
-| **Pendiente 0,045 m/km** | `js/app/config.js` | derivada de un caso | **no** | **discutido — ver abajo** | no |
-| Margen de cota ±0,5 m | `js/app/config.js` | convención cartográfica | no | sí | no |
-| Km río arriba por zona | `js/app/config.js` | 1 publicado, 9 propios | parcial | sí | no |
-| Umbral de lluvia 40 mm/día | `js/app/lluvia.js` | criterio propio | no | sí | no |
-| Escenario 6 m + 200-300 mm | HTML de la app | municipio | sí | sí | no |
-| 30 cm / 60 cm de corriente | HTML de la app | seguridad vial estándar | sí | no | no |
-| Escala 0 a 8 m | `js/app/config.js` | decisión de diseño | n/a | — | no |
-| GPS máx. ±100 m | `js/app/config.js` | criterio propio | n/a | — | no |
-| Dato vencido a 48 h | `js/app/config.js` | criterio propio | n/a | — | no |
-| Aviso a +15 cm | `api/cron/avisar.js` | criterio propio | n/a | — | no |
+| Número                         | Dónde vive                     | Fuente                   | ¿Oficial? | ¿Puede cambiar?           | ¿Viene de una API?     |
+| ------------------------------ | ------------------------------ | ------------------------ | --------- | ------------------------- | ---------------------- |
+| Nivel del río                  | `lib/ina.js`                   | INA, serie 30            | sí        | todos los días            | **sí, ahora**          |
+| Alerta 5,30 m                  | estación INA                   | INA                      | sí        | si el INA la corrige      | **sí, ahora**          |
+| Evacuación 5,70 m              | estación INA                   | INA                      | sí        | idem                      | **sí, ahora**          |
+| Récord 7,43 m (1992)           | `datos-abiertos/historia.json` | INA, serie 30            | sí        | si hay una crecida mayor  | sí, al generar         |
+| Aguas bajas 2,00 m             | `lib/fuentes.js`               | INA                      | sí        | idem                      | sí (no se usa todavía) |
+| **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local | **no**    | **discutido — ver abajo** | no                     |
+| **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso      | **no**    | **discutido — ver abajo** | no                     |
+| Margen de cota ±0,5 m          | `js/app/config.js`             | convención cartográfica  | no        | sí                        | no                     |
+| Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
+| Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
+| Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                | sí        | sí                        | no                     |
+| 30 cm / 60 cm de corriente     | HTML de la app                 | seguridad vial estándar  | sí        | no                        | no                     |
+| Escala 0 a 8 m                 | `js/app/config.js`             | decisión de diseño       | n/a       | —                         | no                     |
+| GPS máx. ±100 m                | `js/app/config.js`             | criterio propio          | n/a       | —                         | no                     |
+| Dato vencido a 48 h            | `js/app/config.js`             | criterio propio          | n/a       | —                         | no                     |
+| Aviso a +15 cm                 | `api/cron/avisar.js`           | criterio propio          | n/a       | —                         | no                     |
 
 Lo que cambió en esta iteración: **cuatro números dejaron de estar escritos a
 mano.** Alerta, evacuación y aguas bajas los publica ahora la estación del INA
@@ -51,7 +51,7 @@ persona se mueve exactamente eso.
 ### Lo que dice cada lado
 
 **A favor de 8,378 — fuente primaria, y es la mejor documentada.**
-El informe *Campaña de relevamiento de ceros hidrométricos* (Sabarots Gerbec
+El informe _Campaña de relevamiento de ceros hidrométricos_ (Sabarots Gerbec
 et al., INA, proyecto Delta) documenta una campaña conjunta **INA-IGN del 6 al
 18 de diciembre de 2016** que remidió los ceros de las escalas de quince
 puertos del Paraná. Su Tabla 1 da, para **SANTA FE**, con el bulón BUHH en el
@@ -61,11 +61,11 @@ muelle público:
     Escala 2 ......... 8,37
     nota: "Las dos escalas están muy próximas una de la otra."
 
-El informe explica además por qué se hizo: *"La determinación de los ceros de
+El informe explica además por qué se hizo: _"La determinación de los ceros de
 las escalas fue realizada por la Subsecretaría de Puertos y Vías Navegables en
 el momento de instalación de las escalas (con posteriores tareas de
 nivelación), pero el paso del tiempo amerita a contar con un relevamiento
-actualizado."*
+actualizado."_
 → https://www.ina.gob.ar/delta/pdf/03_02_INA-DELTA_Info04_CerosHidrometricos.pdf
 
 **A favor de 8,20 — es el número que se usa en Santa Fe.**
@@ -73,12 +73,12 @@ actualizado."*
 1. **Normativa.** El Reglamento de Edificaciones y Procedimientos de la Comuna
    de San José del Rincón fija la cota de edificación en
    `16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)`. La diferencia entre esos dos
-   números es **8,20 exacto**. Nótese "I.G.M.": Instituto Geográfico *Militar*,
+   números es **8,20 exacto**. Nótese "I.G.M.": Instituto Geográfico _Militar_,
    el nombre anterior del IGN, o sea el sistema viejo.
    → https://capsf.org.ar/modulos/ejercicio_prof./archivos/rincon.pdf
 2. **Especialista.** Carlos Paoli, ingeniero hidrólogo y docente de posgrado de
-   la FICH-UNL: *"La cota de Santa Fe está a 8,20 metros, por encima del 0 de
-   referencia"*, en El Litoral. Es prensa, pero cita a un especialista
+   la FICH-UNL: _"La cota de Santa Fe está a 8,20 metros, por encima del 0 de
+   referencia"_, en El Litoral. Es prensa, pero cita a un especialista
    identificable de la institución que corresponde.
 3. **Coherencia interna.** Es el número con el que cierra la comprobación de
    1992 (§3), que es la única validación independiente que tiene el modelo.
@@ -109,7 +109,7 @@ dicen sólo esto:
     Dep_Relevamientos_Planialtimetricos\COTAS PARA MDT\Curvas de Nivel
 
 Sistema horizontal declarado: **EPSG:22185 (Campo Inchauspe / Argentina 5)**, un
-datum de 1969. Sistema *vertical*: no se declara.
+datum de 1969. Sistema _vertical_: no se declara.
 
 Si las curvas están en el sistema viejo —lo que sugieren tanto el datum
 horizontal como que la normativa local siga usando 8,20— entonces poner 8,378
@@ -126,15 +126,15 @@ técnica.** La app muestra los dos números y explica la discrepancia en
 En la API del INA conviven dos juegos de estaciones para los mismos puertos, y
 sus ceros no coinciden:
 
-| Puerto | Escala hidrométrica | Mareógrafo (red PVNyMM) | Dif. |
-|---|---|---|---|
-| Paraná | 9,432 (est. 29) | 9,565 (est. 1724) | 13 cm |
-| Rosario | 2,923 (est. 34) | 3,032 (est. 1722) | 11 cm |
-| Diamante | 6,747 (est. 31) | 6,763 (est. 1725) | 2 cm |
-| **Santa Fe** | **8,378 (est. 30)** | **no hay** | — |
+| Puerto       | Escala hidrométrica | Mareógrafo (red PVNyMM) | Dif.  |
+| ------------ | ------------------- | ----------------------- | ----- |
+| Paraná       | 9,432 (est. 29)     | 9,565 (est. 1724)       | 13 cm |
+| Rosario      | 2,923 (est. 34)     | 3,032 (est. 1722)       | 11 cm |
+| Diamante     | 6,747 (est. 31)     | 6,763 (est. 1725)       | 2 cm  |
+| **Santa Fe** | **8,378 (est. 30)** | **no hay**              | —     |
 
 Tentaba leerlo como "8,20 es el valor viejo y 8,378 el nuevo", igual que
-9,565 → 9,432. **No es eso.** Las estaciones 1722-1725 son *mareógrafos* de la
+9,565 → 9,432. **No es eso.** Las estaciones 1722-1725 son _mareógrafos_ de la
 red de Puertos y Vías Navegables y Marina Mercante: instrumentos distintos, en
 el mismo puerto, con su propio cero. No son una versión anterior de la misma
 escala. Y para Santa Fe no hay mareógrafo en ese juego, así que la hipótesis ni
@@ -144,7 +144,7 @@ Lo que sí deja: **"el cero" no es único por ciudad, es por instrumento.**
 Cualquier pregunta a un organismo tiene que nombrar la escala, no el puerto.
 
 (De paso: el `/mi-cota` de la app citaba 9,57 para Paraná y 3,03 para Rosario.
-Son los ceros de los *mareógrafos*, no los de las escalas. Corregido.)
+Son los ceros de los _mareógrafos_, no los de las escalas. Corregido.)
 
 ### Intento de resolverlo empíricamente (no alcanzó)
 
@@ -290,8 +290,8 @@ aparece cuando hubo que usar el respaldo.
 `argentina.gob.ar` documenta `https://alerta.ina.gob.ar/pub/datos/` como la
 Web API pública, y **sería la primera opción**. No se pudo usar:
 
-- `datosDia?seriesId=30` → *"Missing parameters: either var_id or series_id"*
-- `datos?...&timeStart=...` → *"Argumento timeStart faltante"*
+- `datosDia?seriesId=30` → _"Missing parameters: either var_id or series_id"_
+- `datos?...&timeStart=...` → _"Argumento timeStart faltante"_
 - `percentiles?seriesId=30` → error de Perl (`Net/HTTP/Methods.pm line 391`)
 - `/pub/mapa` y `/pub/gui/series` → tres intentos seguidos con timeout de 30 s
 

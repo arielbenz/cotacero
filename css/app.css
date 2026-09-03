@@ -118,8 +118,13 @@
 
   --btn-texto: #0e1619;
   --fondo-invertido: #1b2b33;
-  --btn-fuerte: var(--agua);
-  --btn-fuerte-texto: #0e1619;
+  /* El relleno sólido del botón principal. No es un color de marca: es
+     SIEMPRE el de máximo contraste contra la superficie. Negro sobre fondo
+     claro, claro sobre fondo oscuro. Antes en tema oscuro era el azul, y eso
+     dejaba el botón principal y el secundario idénticos: en oscuro no había
+     jerarquía ninguna. */
+  --btn-fuerte: var(--texto);
+  --btn-fuerte-texto: var(--fondo);
   --texto-invertido: #e9eef0;
   --tenue-invertido: #93a6ad;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
@@ -753,9 +758,21 @@ input[type="range"] {
   width: 100%;
   accent-color: var(--agua);
 }
+/* ==========================================================================
+   BOTONES: DOS ESTILOS Y NADA MÁS
+   `.btn`      el sólido. La acción principal, una por pantalla. Negro sobre
+               fondo claro, claro sobre fondo oscuro.
+   `.btn.sec`  el azul del agua. Todo lo demás.
+
+   Había cuatro rellenos —azul, gris, negro y celeste—. El gris y el celeste
+   eran el mismo secundario escrito dos veces, y con el negro haciendo de
+   principal en el sitio y el azul de principal en la app, ninguna pantalla
+   decía cuál era LA acción. Ahora la jerarquía es una sola y es la misma en
+   los dos lados.
+   ========================================================================== */
 .btn {
-  background: var(--agua);
-  color: var(--btn-texto);
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
   border: none;
   border-radius: var(--r-full);
   /* La altura mínima se declara, no se deduce del padding: así el objetivo
@@ -783,12 +800,27 @@ input[type="range"] {
 .btn:active {
   transform: translateY(1px);
 }
-/* El secundario se distingue por relleno, no por contorno. Con --panel puro
-   quedaba blanco sobre tarjeta blanca: sólo lo separaba la sombra. */
+/* El secundario se distingue por relleno, no por contorno: un botón fantasma
+   sobre una tarjeta del mismo color sólo se separaba por la sombra. */
 .btn.sec {
-  background: var(--panel-2);
-  color: var(--texto);
+  background: var(--agua);
+  color: var(--btn-texto);
   border: none;
+}
+/* Sobre una superficie invertida —oscura en los DOS temas— el sólido no puede
+   seguir al tema: en tema claro sería negro sobre negro. Sigue a la
+   superficie. Es lo que hacía `.btn-claro` escrito a mano en un solo lugar;
+   acá son las mismas dos variables que ya pintan la superficie, así que no se
+   pueden desincronizar ni hay que acordarse de poner una clase extra. */
+.bloque.oscuro,
+.caja-codigo,
+.landing .franja-oscura,
+.landing .cta,
+.metrica.fuerte,
+.telefonos-emergencia,
+.aviso-emergencia {
+  --btn-fuerte: var(--texto-invertido);
+  --btn-fuerte-texto: var(--fondo-invertido);
 }
 .btn.mini {
   width: auto;
@@ -1407,8 +1439,9 @@ input[type="range"] {
      comodidad, no el único camino. */
   white-space: pre;
 }
-/* El botón va sobre la caja oscura, así que no puede usar el estilo
-   secundario: quedaba gris sobre negro y no se veía. */
+/* Sólo posición y tamaño: el color lo pone el estilo secundario, que es azul
+   y se lee igual de bien sobre la caja oscura. Tenía un celeste propio de
+   cuando el secundario era gris y sobre negro desaparecía. */
 .caja-codigo .btn {
   position: absolute;
   top: var(--e-4);
@@ -1417,9 +1450,6 @@ input[type="range"] {
   min-height: 38px;
   padding: 0 var(--e-4);
   font-size: var(--t-s);
-  background: var(--agua-clara);
-  color: #0e1619;
-  border: none;
 }
 /* Las condiciones de uso, numeradas: son tres y se citan por número cuando
    alguien pregunta. */
@@ -1554,29 +1584,55 @@ input[type="range"] {
   width: auto;
   padding: 0 var(--e-6);
 }
-.grupo-puntos {
-  margin: var(--e-6) 0 var(--e-4);
-  font-size: var(--t-l);
+/* ---------- los 30 puntos, en tarjetas ---------- */
+/* Son treinta y hay que encontrar UNO, rápido y probablemente nervioso. Por
+   eso van en tarjetas y no en renglones, agrupadas por zona: lo que se busca
+   acá no es leer la lista, es descartar cuatro quintos de golpe y mirar sólo
+   la zona propia.
+
+   Todo el aire de esta sección está puesto a mano y no heredado: con los
+   espaciados de una lista común las treinta tarjetas se leían como una sola
+   pared y el nombre de la zona se perdía entre dos filas. */
+/* Cuarta vez que muerde el mismo bug de cascada, así que queda anotado con
+   los tres de arriba: `.landing h2` mide 0-1-1 y le gana a `.grupo-puntos` a
+   secas, que mide 0-1-0. Escrito así, el margen de arriba de cada zona se
+   quedaba en los 8 px del h2 general y los cinco grupos se leían como una
+   lista sola — el síntoma era mudo, porque el margen de abajo coincidía por
+   casualidad con el que queríamos. El selector de acá tiene que ser tan
+   específico como el que pisa.
+
+   Un salto grande arriba y uno chico abajo: así el título se lee pegado a SU
+   grupo y separado del anterior, que es lo que hace que la lista se recorra
+   por zonas en vez de de arriba a abajo. El tamaño lo sigue poniendo
+   `.landing h2` a propósito: son los encabezados de la página. */
+.landing .grupo-puntos {
+  margin-top: var(--e-7);
+  margin-bottom: var(--e-5);
   color: var(--acento);
 }
-.grupo-puntos:first-child {
+.landing .grupo-puntos:first-child {
   margin-top: var(--e-4);
 }
 .rejilla-puntos {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--e-3);
+  gap: var(--e-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .rejilla-puntos a.punto {
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: 38px 1fr;
   gap: var(--e-4);
   align-items: center;
   height: 100%;
-  padding: var(--e-4);
+  /* El margen negativo que llevan los renglones de lista —para que el
+     resaltado del hover se pase del texto— acá no corre: son tarjetas y el
+     borde izquierdo tiene que caer en la misma vertical que el título de la
+     zona. Sin esto se salían 8 px y la columna quedaba corrida. */
+  margin: 0;
+  padding: var(--e-5);
   border-radius: var(--r-m);
   background: var(--panel);
   box-shadow: var(--sombra);
@@ -1587,31 +1643,38 @@ input[type="range"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--r-s);
-  background: var(--fondo-invertido);
-  color: var(--texto-invertido);
+  /* El mismo par sólido que el botón principal: el de máximo contraste contra
+     la superficie. Con `--fondo-invertido` el chip quedaba en #1b2b33 sobre
+     una tarjeta #17232a y en tema oscuro casi no se veía —el número se leía,
+     la pastilla no—; en claro, en cambio, era negro sobre blanco. Una sola
+     pieza no puede verse fuerte en un tema y desaparecer en el otro. */
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
   /* En sans y no en mono: el cero de JetBrains lleva punto adentro y a 13 px
      un "20" se lee "28". Acá el número es cómo se nombra el punto por
      teléfono, así que no puede prestarse a confusión. */
   font-family: var(--sans);
   font-weight: 800;
-  font-size: var(--t-s);
+  font-size: var(--t-base);
+  flex: none;
 }
 .rejilla-puntos .txt {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--e-1);
   min-width: 0;
 }
 .rejilla-puntos .n {
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 .rejilla-puntos .d {
   font-size: var(--t-s);
   color: var(--tenue);
+  line-height: 1.35;
 }
 @media (hover: hover) {
   .rejilla-puntos a.punto:hover {
@@ -1739,7 +1802,8 @@ body.landing {
 .landing p {
   margin-bottom: var(--e-4);
 }
-.landing a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia) {
+.landing
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia) {
   color: var(--acento);
 }
 
@@ -1971,6 +2035,10 @@ body.landing {
    mockup recorta con overflow:hidden para que la regla respete las esquinas. */
 .mockup-envoltura {
   position: relative;
+  /* El alto de la tira del control vive acá y no repetido en dos reglas: el
+     globo se apoya JUSTO encima de ella, y si una de las dos medidas se mueve
+     sin la otra, la pastilla queda pisando el slider. */
+  --alto-control: 132px;
 }
 .mockup {
   background: var(--panel);
@@ -2015,7 +2083,7 @@ body.landing {
 .globo {
   position: absolute;
   left: calc(var(--e-7) * -1);
-  bottom: var(--e-4);
+  bottom: calc(var(--alto-control) + var(--e-4));
   z-index: 2;
   margin: 0;
   padding: var(--e-3) var(--e-4);
@@ -2033,14 +2101,28 @@ body.landing {
   /* Fuera del escritorio no hay lugar a la izquierda: se mete adentro. */
   .globo {
     left: var(--e-4);
-    bottom: var(--e-4);
+    bottom: calc(var(--alto-control) + var(--e-4));
   }
 }
-/* La regla del mockup representa de 0 a 8 m; las alturas las fija landing.js
-   sobre esa escala. */
+/* La regla del mockup representa de 0 a 8 m —el récord de 1992 son 7,43—; las
+   alturas las fija landing.js sobre esa escala.
+
+   Dos lados, dos significados, y no se mezclan: a la IZQUIERDA los umbrales
+   oficiales, que no se mueven nunca; a la DERECHA dónde está el agua —la
+   etiqueta que viaja con la simulación y la de "hoy", clavada en el dato
+   real—. Con todo del mismo lado los chips se montaban apenas el río simulado
+   pasaba la alerta, que es justo cuando hay que leerlos.
+
+   El reparto no es simétrico y tiene motivo: la pastilla flotante entra por
+   abajo a la izquierda, así que ese rincón está tomado, y los umbrales viven
+   de 5,30 para arriba —dos tercios de la regla— donde no la tocan. La
+   etiqueta del agua, en cambio, baja hasta donde esté el río. */
 .regla-mini {
   position: relative;
-  height: 230px;
+  /* 280 y no 230: alerta y evacuación están siempre a 40 cm una de otra, que
+     en esta escala son 14 px, y los dos rótulos necesitan ese aire para no
+     pisarse. */
+  height: 280px;
   background: var(--panel-2);
   background-image: linear-gradient(var(--linea) 1px, transparent 1px);
   background-size: 100% 28px;
@@ -2063,36 +2145,112 @@ body.landing {
   background: var(--agua-clara);
   transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Mientras alguien mueve el río —con el control o con el scroll— el agua
+   tiene que seguir el dedo: con la transición de 0,7 s puesta llegaba casi un
+   segundo tarde y el gesto se sentía roto. La clase la pone y la saca
+   landing.js: para el primer llenado y para "Volver a hoy" la transición sí
+   se quiere, porque ahí el movimiento es lo que se está mostrando. */
+.regla-mini.rm-directo .rm-agua,
+.regla-mini.rm-directo .rm-linea,
+.regla-mini.rm-directo .rm-ahora {
+  transition: none;
+}
+/* Explícito y no confiando en el [hidden] del navegador: es display:none pero
+   pierde contra cualquier regla con más especificidad, y en este archivo ya
+   pasó tres veces. */
+.rm-umbral[hidden] {
+  display: none;
+}
 .rm-umbral {
   position: absolute;
   left: 0;
   right: 0;
   height: 2px;
+  background: currentColor;
 }
 .rm-umbral b {
   position: absolute;
-  right: var(--e-3);
+  left: var(--e-3);
   bottom: 5px;
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: var(--r-full);
   font-family: var(--mono);
   font-size: var(--t-xs);
+  line-height: 1.35;
+  white-space: nowrap;
+  /* Chip opaco con borde del color propio, igual que la regla grande de la
+     app: con el tinte translúcido de antes el rótulo se desvanecía apenas el
+     agua simulada le pasaba por encima. */
+  background: var(--panel);
+  border: 1px solid currentColor;
+}
+/* Alerta y evacuación están a 14 px una de otra y los rótulos miden 20: el de
+   alerta va DEBAJO de su línea y el de evacuación encima, y dejan de pisarse.
+   El del récord también debajo, porque a 93 % de alto no le queda aire
+   arriba. Es la misma solución que ya usan la regla de la app y /historia. */
+.rm-alerta b,
+.rm-record b {
+  bottom: auto;
+  top: 3px;
 }
 .rm-alerta {
   bottom: 66.25%; /* 5,30 de 8 m */
-  background: var(--alerta);
-  height: 2px;
+  color: var(--alerta);
 }
-.rm-alerta b {
-  background: var(--alerta-tinte);
-  color: var(--alerta-texto);
+.rm-evac {
+  bottom: 71.25%; /* 5,70 de 8 m */
+  color: var(--peligro);
+}
+/* Cuando el río simulado pasa un umbral, el chip se llena. El color va escrito
+   en cada regla y no como `currentColor`: en el mismo <b> conviven el color
+   del texto y el del relleno, y con currentColor el segundo se quedaba con el
+   valor que acababa de fijar el primero. */
+.rm-alerta.activo b {
+  background: var(--alerta);
+  border-color: var(--alerta);
+  color: var(--panel);
+}
+.rm-evac.activo b {
+  background: var(--peligro);
+  border-color: var(--peligro);
+  color: var(--panel);
+}
+.rm-record.activo b {
+  background: var(--tierra);
+  border-color: var(--tierra);
+  color: var(--panel);
+}
+/* El récord no es un umbral operativo, es una marca histórica: línea de
+   puntos y el ocre que el sitio ya usa para "lo tuyo / lo que pasó", no el
+   rojo de evacuación. */
+.rm-record {
+  height: 0;
+  background: none;
+  border-top: 2px dashed currentColor;
+  color: var(--tierra);
+}
+/* "Hoy" aparece sólo cuando la simulación ya se despegó del dato real: pegada
+   al agua serían dos rótulos uno encima del otro. Va a la izquierda, del lado
+   del agua, para no cruzarse con los umbrales. */
+.rm-hoy {
+  height: 0;
+  background: none;
+  border-top: 2px dashed var(--tenue);
+  color: var(--tenue);
+}
+.rm-hoy b {
+  left: auto;
+  right: var(--e-3);
+  top: 3px;
+  bottom: auto;
+  border-color: var(--linea);
 }
 /* La etiqueta del nivel va dentro del agua: es lo que convierte el bloque
    azul en un dato. Sobre el relleno --agua, el texto va del color del botón,
-   que es el par que ya está medido para ese fondo. */
+   que es el par que ya está medido para ese fondo. A la derecha, porque el
+   globo flotante entra por la izquierda y se pisaban. */
 .rm-ahora {
   position: absolute;
-  /* A la derecha: el globo flotante entra por la izquierda y se pisaban. */
   right: var(--e-4);
   bottom: 0;
   color: var(--btn-texto);
@@ -2100,6 +2258,59 @@ body.landing {
   font-size: var(--t-xs);
   font-weight: 700;
   transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- mové el río ---------- */
+/* Un <input type=range> nativo, igual que el de /historia: teclado, lector de
+   pantalla y el gesto de arrastre del sistema vienen gratis y funcionan mejor
+   que cualquier cosa que pudiéramos escribir. Nace deshabilitado y lo habilita
+   landing.js cuando llega el dato de hoy: sin nivel real la simulación no
+   tiene desde dónde arrancar. */
+.mockup-sim {
+  min-height: var(--alto-control);
+  padding: var(--e-3) var(--e-5) var(--e-4);
+  border-top: 1px solid var(--linea);
+}
+.ms-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 20px;
+}
+.ms-fila .eti {
+  margin: 0;
+}
+.mockup-sim input[type="range"] {
+  width: 100%;
+  accent-color: var(--acento);
+  height: 28px;
+  margin: 2px 0 0;
+}
+.mockup-sim input[type="range"]:disabled {
+  opacity: 0.45;
+}
+.ms-volver {
+  background: none;
+  border: none;
+  padding: 2px 0;
+  color: var(--acento);
+  font-family: var(--sans);
+  font-size: var(--t-s);
+  font-weight: 700;
+  cursor: pointer;
+}
+.ms-volver[hidden] {
+  display: none;
+}
+/* Dos renglones reservados: el texto cambia en cada milímetro que se mueve el
+   dedo y sin esto la tarjeta se estiraba y se encogía debajo del gesto. */
+#rm-lectura {
+  min-height: 2.7em;
+  margin: 0;
+}
+#rm-lectura b {
+  color: var(--texto);
 }
 
 /* ---------- franja histórica ---------- */
@@ -2356,28 +2567,13 @@ body.landing {
 .landing a.btn,
 .pagina a.btn {
   text-decoration: none;
-  color: var(--btn-texto);
+  color: var(--btn-fuerte-texto);
 }
-/* El secundario no lleva relleno de color: su texto es el del cuerpo. Sin
-   esto quedaba blanco sobre blanco en tema claro. */
+/* Cada relleno con su par de texto medido. Sin esto la regla general de
+   enlaces les gana por especificidad y los pinta del color de acento. */
 .landing a.btn.sec,
 .pagina a.btn.sec {
-  color: var(--texto);
-}
-.btn-oscuro {
-  background: var(--btn-fuerte);
-  color: var(--btn-fuerte-texto);
-}
-.landing a.btn-oscuro,
-.pagina a.btn-oscuro {
-  color: var(--btn-fuerte-texto);
-}
-.btn-claro {
-  background: var(--agua-clara);
-  color: #0b1418;
-}
-.landing a.btn-claro {
-  color: #0b1418;
+  color: var(--btn-texto);
 }
 
 /* Un h1 que dice sólo la marca no le sirve a quien busca "hasta dónde llega
@@ -3083,6 +3279,7 @@ textarea {
     background-color var(--mov),
     border-color var(--mov),
     color var(--mov),
+    opacity var(--mov),
     transform var(--mov);
 }
 
@@ -3104,13 +3301,15 @@ textarea {
 }
 
 @media (hover: hover) {
+  /* El sólido no se aclara con `brightness`: sobre un relleno casi negro un
+     8 % no se ve, y sobre uno casi blanco tampoco. Bajarle la opacidad lo
+     acerca a la superficie y eso sí se lee con los dos rellenos. */
   .btn:hover:not(:disabled) {
-    filter: brightness(1.08);
+    opacity: 0.86;
   }
   .btn.sec:hover:not(:disabled) {
-    filter: none;
-    border-color: var(--agua);
-    color: var(--acento);
+    opacity: 1;
+    filter: brightness(1.08);
   }
   .punto:hover,
   .tel:hover {
@@ -3514,9 +3713,12 @@ textarea:focus-visible {
   width: auto;
   flex: 1;
 }
+/* El modo elegido es el sólido y el otro el azul: la misma jerarquía de
+   siempre, aplicada a un par de pestañas. Antes movía `border-color` sobre un
+   botón que no tiene borde, así que lo único que cambiaba era el texto. */
 .h-modos .btn[aria-pressed="true"] {
-  border-color: var(--acento);
-  color: var(--acento);
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
 }
 /* En el teléfono el tanque va a lo ancho y la lectura debajo: con el tanque
    en una columna angosta las etiquetas de los umbrales —"Evacuación · 5,7 m"—
@@ -3543,11 +3745,7 @@ textarea:focus-visible {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    var(--agua) 0,
-    var(--agua-tinte) 100%
-  );
+  background: linear-gradient(to bottom, var(--agua) 0, var(--agua-tinte) 100%);
   border-top: 2px solid var(--agua-clara);
   transition: height 0.32s ease-out;
 }
@@ -3852,7 +4050,7 @@ textarea:focus-visible {
 }
 .btn-emergencia {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--e-3);
   padding: var(--e-3) var(--e-5);
   border-radius: var(--r-full);
