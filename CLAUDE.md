@@ -255,6 +255,28 @@ El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
 en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
+### El mono en mayúsculas etiqueta una cosa
+
+`.eti` —mono, versalitas, `letter-spacing`— es la voz del **instrumento**: la
+cara del hidrómetro, el rótulo de un control, el encabezado de una columna de
+enlaces, un descargo. Etiqueta algo que existe.
+
+**No es un renglón decorativo arriba de un titular.** La portada tenía cinco
+de ésos y era el patrón que más la delataba como plantilla generada: un
+segundo título en chiquito y en mayúsculas encima del `<h2>` que ya decía lo
+mismo. Un rótulo que se puede borrar sin perder información no era un rótulo.
+Los que quedan etiquetan algo; si agregás uno, tiene que poder contestar «¿qué
+cosa nombro?».
+
+Por lo mismo se fueron la píldora `● SANTA FE · EMERGENCIA HÍDRICA` del hero
+—el punto que late es el gesto de un dato en vivo y ahí no había ningún dato,
+y encima tapaba la Ley provincial 14.477, que sí es un dato— y la banda de
+cuatro métricas, donde el número más grande contaba nuestras propias solapas.
+
+Los `1 · 2 · 3` de «Cómo funciona» y los años de la franja oscura **se quedan**:
+son secuencias de verdad. Numerar algo que está ordenado informa; numerar tres
+tarjetas cualesquiera, no.
+
 ### Una clase, un componente
 
 `.cita` llegó a nombrar dos cosas distintas —las tarjetas de avisos de la

@@ -27,7 +27,7 @@ const CHROME =
 
 /* Los colores de la marca en cada contexto, tomados de app.css. */
 const OSCURO = "#0e1619";
-const CLARO = "#f7f8f9";
+const CLARO = "#fafbfc";
 const TINTA = "#16242c";
 const AGUA = "#1779a3";
 const AGUA_CLARA = "#5fc8e8";

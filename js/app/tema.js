@@ -38,7 +38,7 @@ export function aplicarTema(t) {
         /* Respaldo por si --fondo todavía no resolvió. Tienen que ser los
            mismos valores que el CSS: estaban viejos y no coincidían con
            ninguno de los dos temas. */
-        (claro ? "#f7f8f9" : "#0e1619"),
+        (claro ? "#fafbfc" : "#0e1619"),
     );
 }
 

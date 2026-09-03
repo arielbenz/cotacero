@@ -145,7 +145,7 @@ function pagina(d, ver, clave) {
 <title>Cota Cero · ${ver === "sugerencias" ? "sugerencias" : "métricas"}</title>
 <style>
 :root{color-scheme:dark light;--f:#0e1619;--p:#17232a;--t:#e9eef0;--a:#2e9bc4}
-@media(prefers-color-scheme:light){:root{--f:#f7f8f9;--p:#fff;--t:#1b262c;--a:#1f7a9e}}
+@media(prefers-color-scheme:light){:root{--f:#fafbfc;--p:#fff;--t:#1b262c;--a:#1f7a9e}}
 *{box-sizing:border-box}
 body{font:15px/1.55 system-ui,sans-serif;margin:0 auto;padding:24px 18px 64px;
   max-width:640px;background:var(--f);color:var(--t)}

@@ -94,9 +94,17 @@
   --linea: rgba(233, 238, 240, 0.1);
   --texto: #e9eef0;
   --tenue: #93a6ad;
-  --agua: #2e9bc4;
+  /* #5FC8E8 es el azul de la marca y es el MISMO en los dos temas: el agua
+     del símbolo, el agua de la regla y el relleno de los botones no cambian
+     de color porque cambie el fondo de la página. En claro era #1f7a9e, un
+     azul mucho más hondo, y la marca se veía distinta en cada tema. */
+  --agua: #5fc8e8;
   --agua-clara: #5fc8e8;
   --acento: #5fc8e8;
+  /* La tinta que va ENCIMA del relleno azul. Blanco sobre #5FC8E8 da 1,92:1
+     —ilegible—; ésta da 9,51. Misma idea que --sobre-solido para los rellenos
+     de alerta: un relleno claro necesita su propio color de texto. */
+  --sobre-agua: #0e1619;
   --alerta: #e8a33d;
   --peligro: #e15f49;
   --ok: #4fa88b;
@@ -188,14 +196,23 @@
    abajo sólo los remapean: duplicarlos garantiza que tarde o temprano uno se
    actualice y el otro no. */
 :root {
-  --c-fondo: #f7f8f9;
+  /* OJO: este hex está escrito a mano en cinco lugares más —el <meta
+     theme-color> de la portada y el de scripts/paginas.js, el respaldo de
+     js/app/tema.js, CLARO en scripts/iconos.js y el CSS embebido de
+     api/metricas.js—. Si se mueve acá, se mueven los seis o la barra del
+     navegador deja de coincidir con la página. */
+  --c-fondo: #fafbfc;
   --c-panel: #ffffff;
   --c-panel-2: rgba(27, 38, 44, 0.055);
   --c-linea: rgba(27, 38, 44, 0.09);
   --c-texto: #1b262c;
   --c-tenue: #66747a;
-  --c-agua: #1f7a9e;
-  --c-agua-clara: #7cc6e0;
+  --c-agua: #5fc8e8;
+  --c-agua-clara: #5fc8e8;
+  /* --acento NO es el azul de marca: es la tinta de los enlaces, y en claro
+     #5FC8E8 sobre el fondo da 1,86:1 contra el 4,5 que pide AA. O sea, unos
+     ochenta enlaces del sitio y de la app quedarían ilegibles. El azul de
+     marca vive en --agua, que es relleno y no tinta. */
   --c-acento: #1f7a9e;
   --c-alerta: #cb430e;
   --c-peligro: #ca442f;
@@ -384,9 +401,6 @@ textarea {
   line-height: 1;
   cursor: pointer;
   z-index: 2;
-}
-.tema:hover {
-  color: var(--texto);
 }
 
 /* La marca de la app es ahora símbolo + nombre. El tamaño lo pone
@@ -808,26 +822,34 @@ input[type="range"] {
   transform: translateY(1px);
 }
 /* El secundario se distingue por relleno, no por contorno: un botón fantasma
-   sobre una tarjeta del mismo color sólo se separaba por la sombra. */
+   sobre una tarjeta del mismo color sólo se separaba por la sombra.
+   La tinta es --sobre-agua y no --btn-texto: ese último es blanco en tema
+   claro, y blanco sobre #5FC8E8 da 1,92:1. */
 .btn.sec {
   background: var(--agua);
-  color: var(--btn-texto);
+  color: var(--sobre-agua);
   border: none;
 }
 /* Sobre una superficie invertida —oscura en los DOS temas— el sólido no puede
    seguir al tema: en tema claro sería negro sobre negro. Sigue a la
    superficie. Es lo que hacía `.btn-claro` escrito a mano en un solo lugar;
    acá son las mismas dos variables que ya pintan la superficie, así que no se
-   pueden desincronizar ni hay que acordarse de poner una clase extra. */
+   pueden desincronizar ni hay que acordarse de poner una clase extra.
+
+   Sobre oscuro el sólido es AZUL. Se puede porque hoy ninguna de estas seis
+   superficies lleva un `.btn` y un `.btn.sec` al mismo tiempo —la única con
+   dos botones, `.caja-codigo` de /para-medios, lleva sólo el secundario—. Si
+   algún día una lleva los dos, van a salir idénticos y hay que resolverlo
+   ahí: el azul de relleno es uno solo. El botón separa 9,51:1 del fondo y su
+   tinta 9,51:1 del relleno. */
 .bloque.oscuro,
 .caja-codigo,
 .landing .franja-oscura,
 .landing .cta,
-.metrica.fuerte,
 .telefonos-emergencia,
 .aviso-emergencia {
-  --btn-fuerte: var(--texto-invertido);
-  --btn-fuerte-texto: var(--fondo-invertido);
+  --btn-fuerte: var(--agua);
+  --btn-fuerte-texto: var(--sobre-agua);
 }
 .btn.mini {
   width: auto;
@@ -1567,14 +1589,6 @@ input[type="range"] {
   line-height: 1.6;
   color: var(--tenue);
 }
-@media (hover: hover) {
-  .charla:hover {
-    background: var(--panel-2);
-  }
-  .charla:hover .tit {
-    color: var(--acento);
-  }
-}
 
 /* ---------- la lista de puntos de encuentro ----------
    Treinta renglones de texto corrido no se recorren con el pulgar y menos
@@ -1682,11 +1696,6 @@ input[type="range"] {
   font-size: var(--t-s);
   color: var(--tenue);
   line-height: 1.35;
-}
-@media (hover: hover) {
-  .rejilla-puntos a.punto:hover {
-    background: var(--panel-2);
-  }
 }
 /* Los tres teléfonos, al final de la lista: es lo que hace falta cuando ya se
    eligió a dónde ir. */
@@ -1803,6 +1812,17 @@ body.landing {
 }
 .landing section {
   padding: calc(var(--e-7) * 1.25) 0;
+}
+/* El relleno de la tarjeta, con la especificidad justa para ganarle a
+   `.landing section` — que es la regla que le vaciaba el padding—. El aire
+   ENTRE tarjetas pasa a ser margen, que es lo que de verdad es. */
+.landing section.tarjeta-seccion {
+  padding: calc(var(--e-7) * 1.5);
+  margin-bottom: calc(var(--e-7) * 1.25);
+}
+/* La del mapa se queda sin relleno: se lo lleva entero el lado del texto. */
+.landing section.tarjeta-seccion.con-mapa {
+  padding: 0;
 }
 .landing h2 {
   font-size: var(--t-xxl);
@@ -2044,9 +2064,6 @@ body.landing {
      va en cifras de ancho fijo. */
   font-variant-numeric: tabular-nums;
 }
-.pildora-rio:hover {
-  border-color: var(--tenue);
-}
 .pildora-rio:focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
@@ -2126,7 +2143,6 @@ body.landing {
   a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):hover,
 .franja-estado a:hover {
   color: var(--sobre-solido);
-  text-decoration: none;
 }
 
 /* ---------- la frescura, en el pie ----------
@@ -2189,62 +2205,48 @@ p.pie-frescura,
 .hero {
   display: grid;
   grid-template-columns: 1fr 380px;
-  gap: calc(var(--e-7) * 1.75);
+  gap: calc(var(--e-7) * 2);
   align-items: center;
-  padding: var(--e-7) 0 calc(var(--e-7) * 1.5);
+  padding: calc(var(--e-7) * 1.75) 0 calc(var(--e-7) * 2);
 }
 .titulo-hero {
   font-size: var(--t-display);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.06;
-  margin: var(--e-4) 0 0;
+  /* Sin margen arriba: los 16 px que había eran el hueco que le dejaba a la
+     píldora del hero, que ya no está. El aire de arriba lo pone el padding de
+     la sección, en un solo lugar. */
+  margin: 0;
 }
 .bajada {
   font-size: var(--t-l);
   line-height: 1.5;
   color: var(--tenue);
   max-width: 30em;
-  margin: var(--e-4) 0 0;
+  /* Un titular de 44 px necesita más de 16 px abajo: con menos, el bloque
+     entero se lee como un párrafo con la primera línea en negrita. */
+  margin: var(--e-6) 0 0;
 }
 .hero-botones {
   display: flex;
   gap: var(--e-3);
-  margin: var(--e-6) 0 var(--e-4);
+  margin: var(--e-7) 0 var(--e-5);
   flex-wrap: wrap;
 }
 .hero-botones .btn {
   width: auto;
   padding: 0 var(--e-6);
 }
-.chip-vivo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--e-2);
-  padding: 7px 14px;
-  border-radius: var(--r-full);
-  background: var(--agua-tinte);
-  color: var(--acento);
-  font-family: var(--mono);
-  font-size: var(--t-xs);
-  letter-spacing: 0.04em;
-  margin: 0;
-}
-.punto-vivo {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: latir 2.4s ease-in-out infinite;
-}
-@keyframes latir {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
+/* El marco legal del que nace la herramienta. Va separado de la letra chica de
+   arriba a propósito: ésa habla de la app —gratis, sin señal, en tu teléfono—
+   y ésta del mundo. Juntas se leen como una sola lista de viñetas y la ley
+   queda como un argumento de venta más. */
+.marco-legal {
+  margin-top: var(--e-3);
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+  max-width: 46ch;
 }
 
 /* ---------- el mockup con el dato en vivo ---------- */
@@ -2535,6 +2537,19 @@ p.pie-frescura,
 }
 
 /* ---------- franja histórica ---------- */
+/* La franja es oscura en los DOS temas, así que su línea no puede ser --linea
+   (que en claro es tinta sobre claro y acá no se vería). */
+.franja-oscura {
+  --linea-invertida: rgba(233, 238, 240, 0.16);
+}
+.franja-nota {
+  margin: var(--e-6) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.franja-nota b {
+  color: var(--texto-invertido);
+}
 .landing .franja-oscura {
   background: var(--fondo-invertido);
   color: var(--texto-invertido);
@@ -2545,11 +2560,28 @@ p.pie-frescura,
 .franja-oscura .eti {
   color: var(--tenue-invertido);
 }
+/* El título de la franja se ve como un rótulo aunque sea un <h2>: el esquema
+   de encabezados de la portada tenía un agujero acá —la sección no tenía
+   ninguno— y eso se arregla con la etiqueta, no con el tamaño. */
+.franja-oscura h2 {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tenue-invertido);
+  margin: 0;
+}
 .hitos {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--e-7);
   margin-top: var(--e-5);
+}
+/* La línea sobre cada año los convierte en columnas de una tabla de tiempo:
+   sin ella son cuatro párrafos que casualmente empiezan con un número. */
+.hitos > div {
+  border-top: 1px solid var(--linea-invertida);
+  padding-top: var(--e-4);
 }
 .hitos b {
   display: block;
@@ -2592,43 +2624,67 @@ p.pie-frescura,
   width: 40px;
   height: 40px;
   border-radius: var(--r-s);
-  background: var(--agua-tinte);
-  color: var(--acento);
+  /* El azul de marca de relleno, con su tinta: --acento sobre --agua-tinte
+     daba 4,29:1, abajo del 4,5. Y de paso el número queda con la misma cara
+     que los botones. */
+  background: var(--agua);
+  color: var(--sobre-agua);
   font-weight: 800;
 }
-.metricas {
+/* ---------- secciones en tarjeta ----------
+   El contenido a un lado y la evidencia al otro, adentro de una tarjeta que
+   los agrupa. La tarjeta hace dos cosas que la sección plana no hacía: separa
+   el argumento del fondo de la página, y le da al mapa un borde contra el cual
+   terminar — antes tenía su propia caja redondeada adentro de la sección, o
+   sea dos rectángulos concéntricos. */
+.tarjeta-seccion {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--e-5);
-}
-.metrica {
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--e-7) * 1.5);
+  align-items: center;
   background: var(--panel);
+  border-radius: var(--r-xl);
   box-shadow: var(--sombra);
-  border-radius: var(--r-l);
-  padding: var(--e-5);
+  /* El padding NO va acá: `.landing section` es (0,1,1) y le gana a esta regla
+     (0,1,0), así que le pisaba el shorthand entero y la tarjeta quedaba con el
+     contenido pegado a los cuatro bordes. Vive abajo, en un selector que le
+     pueda ganar. */
+  overflow: hidden;
 }
-.metrica b {
-  display: block;
-  font-size: var(--t-xxl);
-  font-weight: 800;
+/* Con el mapa a sangre el padding no puede vivir en la tarjeta: se lo queda el
+   lado del texto, y el mapa llega hasta el borde. */
+.tarjeta-seccion.con-mapa {
+  gap: 0;
+  align-items: stretch;
+}
+.tarjeta-seccion.con-mapa .ts-texto {
+  padding: calc(var(--e-7) * 1.5);
+  align-self: center;
+}
+.tarjeta-seccion h2 {
+  margin-top: 0;
+}
+/* El rótulo numerado de la sección. Sans y no mono: el mono es la voz del
+   instrumento —la cara del hidrómetro— y esto es índice del documento, otra
+   cosa. Ver la regla en CLAUDE.md. */
+.rotulo {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--acento);
-  font-variant-numeric: tabular-nums;
+  margin: 0 0 var(--e-3);
 }
-.metrica span {
-  display: block;
-  margin-top: var(--e-2);
-  font-size: var(--t-s);
+.rotulo-alerta {
+  color: var(--alerta-texto);
+}
+.aviso-app .rotulo {
+  margin-bottom: var(--e-2);
+}
+/* La aclaración del proyecto no es un aviso de la app: su rótulo va en gris y
+   no en el azul de los otros dos, que es lo que los agrupa. */
+.aviso-app.neutro .rotulo {
   color: var(--tenue);
-}
-.metrica.fuerte {
-  background: var(--fondo-invertido);
-  color: var(--texto-invertido);
-}
-.metrica.fuerte b {
-  color: inherit;
-}
-.metrica.fuerte span {
-  color: var(--tenue-invertido);
 }
 
 /* ---------- secciones a dos columnas ---------- */
@@ -2657,7 +2713,8 @@ p.pie-frescura,
   background: var(--panel-2);
 }
 #mapa-landing {
-  height: 420px;
+  height: 100%;
+  min-height: 460px;
 }
 /* ---------- los avisos de la app, citados en la portada ----------
    Esto se llamaba `.cita` y chocaba de frente con la cita textual de las
@@ -2710,9 +2767,6 @@ p.pie-frescura,
 }
 .aviso-app .eti + p {
   margin-top: var(--e-2);
-}
-.eti-alerta {
-  color: var(--alerta-texto);
 }
 
 /* ---------- llamada final ---------- */
@@ -2791,15 +2845,29 @@ p.pie-frescura,
   color: var(--texto);
   text-decoration: none;
 }
+/* El subrayado pasa a estar SIEMPRE, no sólo al pasar por encima: si el hover
+   es nada más una atenuación, un enlace sin subrayar en reposo se queda sin
+   ninguna señal de que es un enlace. */
 .landing .pie-sitio a:hover,
 .pie-sitio a:hover {
-  color: var(--acento);
   text-decoration: underline;
 }
 .pie-sitio .chico {
   max-width: 32ch;
   margin: var(--e-2) 0 0;
 }
+/* La barra de cierre del pie. Misma medida y mismo padding lateral que
+   .pie-sitio —no hereda: son hermanos dentro de .pie-envoltura—, con una línea
+   fina que la separa de las cuatro columnas. */
+.pie-cierre {
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: var(--e-4) var(--e-5) var(--e-6);
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
 .chip-tel {
   display: inline-flex;
   align-items: center;
@@ -2828,10 +2896,12 @@ p.pie-frescura,
   color: var(--btn-fuerte-texto);
 }
 /* Cada relleno con su par de texto medido. Sin esto la regla general de
-   enlaces les gana por especificidad y los pinta del color de acento. */
+   enlaces les gana por especificidad y los pinta del color de acento.
+   --sobre-agua y no --btn-texto: el secundario ahora se rellena con el azul
+   de marca, y --btn-texto es blanco en tema claro — 1,92:1 sobre #5FC8E8. */
 .landing a.btn.sec,
 .pagina a.btn.sec {
-  color: var(--btn-texto);
+  color: var(--sobre-agua);
 }
 
 /* Un h1 que dice sólo la marca no le sirve a quien busca "hasta dónde llega
@@ -3014,10 +3084,6 @@ html.texto-grande {
   font-size: var(--t-s);
   color: var(--texto);
   text-decoration: none;
-}
-.chips-ancla a:hover {
-  border-color: var(--acento);
-  color: var(--acento);
 }
 /* El ancla no puede quedar debajo del borde superior de la ventana. */
 .bloque[id] {
@@ -3211,8 +3277,7 @@ html.texto-grande {
     gap: var(--e-6);
   }
   .hitos,
-  .tres,
-  .metricas {
+  .tres {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--e-5);
   }
@@ -3283,9 +3348,6 @@ html.texto-grande {
   .hitos,
   .tres {
     grid-template-columns: 1fr;
-  }
-  .metricas {
-    grid-template-columns: repeat(2, 1fr);
   }
   .nav-sitio {
     padding: var(--e-4) 0;
@@ -3407,8 +3469,7 @@ html.texto-grande {
     margin: var(--e-5) 0 var(--e-3);
   }
   .hitos,
-  .tres,
-  .metricas {
+  .tres {
     gap: var(--e-3);
   }
   .pie-sitio {
@@ -3463,9 +3524,6 @@ html.texto-grande {
   color: var(--tenue);
   padding: var(--e-3) 0;
   border-top: 1px solid var(--linea);
-}
-.sugerir > summary:hover {
-  color: var(--texto);
 }
 .sugerir[open] > summary {
   color: var(--texto);
@@ -3538,32 +3596,40 @@ textarea {
   transition: transform var(--mov);
 }
 
+/* ---------- el hover es SIEMPRE opacidad ----------
+   Una sola respuesta al puntero en todo el producto: se atenúa. Nada de
+   cambiar el color, aclarar con `brightness` ni mover cosas de lugar. Un
+   hover que recolorea obliga a elegir un segundo color para cada elemento
+   —y a medirle el contraste—, y con veinte elementos eso son veinte
+   decisiones que se desincronizan.
+
+   Dos valores y no uno: sobre un relleno sólido un 28 % de transparencia se
+   ve lavado, y sobre texto un 14 % no se ve. */
+:root {
+  --hover-relleno: 0.86;
+  --hover-texto: 0.72;
+}
 @media (hover: hover) {
-  /* El sólido no se aclara con `brightness`: sobre un relleno casi negro un
-     8 % no se ve, y sobre uno casi blanco tampoco. Bajarle la opacidad lo
-     acerca a la superficie y eso sí se lee con los dos rellenos. */
-  .btn:hover:not(:disabled) {
-    opacity: 0.86;
-  }
-  .btn.sec:hover:not(:disabled) {
-    opacity: 1;
-    filter: brightness(1.08);
+  .btn:hover:not(:disabled),
+  .btn.sec:hover:not(:disabled),
+  .btn-emergencia:hover {
+    opacity: var(--hover-relleno);
   }
   .punto:hover,
-  .tel:hover {
-    background: var(--panel-2);
-  }
-  .punto:hover .ir {
-    transform: translateX(3px);
-  }
-  .chk:hover span {
-    color: var(--texto);
-  }
-  .barra-app button:hover {
-    color: var(--texto);
-  }
-  summary:hover {
-    color: var(--texto);
+  .tel:hover,
+  .chk:hover span,
+  .barra-app button:hover,
+  summary:hover,
+  .tema:hover,
+  .pildora-rio:hover,
+  .chips-ancla a:hover,
+  .enlace-crudo:hover,
+  .charla:hover,
+  .rejilla-puntos a.punto:hover,
+  .sugerir > summary:hover,
+  .pie-sitio a:hover,
+  .franja-estado a:hover {
+    opacity: var(--hover-texto);
   }
 }
 
@@ -3686,9 +3752,6 @@ textarea:focus-visible {
   color: var(--tenue);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-.enlace-crudo:hover {
-  color: var(--acento);
 }
 .fuentes-rejilla {
   display: grid;
@@ -4306,10 +4369,6 @@ textarea:focus-visible {
    enlaces —junto a .btn, .lockup, .punto y .charla—: si no, hereda el color
    de acento y queda azul sobre rojo, ilegible. */
 .btn-emergencia,
-.btn-emergencia:hover {
-  color: #fff;
-  text-decoration: none;
-}
 
 /* Las pastillas de categoría son radios de verdad. El input queda accesible
    —no `display:none`, que lo saca del foco— y se dibuja el label. */

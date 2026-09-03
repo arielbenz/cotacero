@@ -16,7 +16,7 @@
          escritorio no se nota porque el navegador lo ignora. -->
     <meta
       name="theme-color"
-      content="#f7f8f9"
+      content="#fafbfc"
       media="(prefers-color-scheme: light)" />
     <meta
       name="theme-color"
@@ -197,16 +197,26 @@
 
       <header class="hero">
         <div>
-          <p class="chip-vivo">
-            <span class="punto-vivo" aria-hidden="true"></span>SANTA FE ·
-            EMERGENCIA HÍDRICA
-          </p>
-          <!-- El H1 nombra el río a propósito: la frase funcionaba pero no
+          <!-- Acá había una píldora que decía "● SANTA FE · EMERGENCIA
+               HÍDRICA" con el punto pulsando. Se fue por dos motivos.
+
+               El primero es que mentía: el punto que late es el gesto de un
+               dato en vivo, y ahí no había ningún dato — era una cadena fija.
+               Ahora la barra tiene el nivel de verdad y la franja sale sola
+               cuando hay alerta: dos cosas con cara de "en vivo", una falsa,
+               es peor que ninguna.
+
+               El segundo es que tiraba el dato. "EMERGENCIA HÍDRICA" en
+               mayúsculas no es una consigna: es la Ley provincial 14.477, con
+               nombre, número y una página donde se puede ir a leer. Eso es lo
+               que quedó abajo, en el renglón que sí puede decirlo entero.
+
+               El H1 nombra el río a propósito: la frase funcionaba pero no
                decía de qué río ni de dónde, y es la página que tiene que
-               contestar "nivel del Paraná en Santa Fe". El chip de arriba pone
-               la ciudad; la bajada, el hidrómetro. -->
+               contestar "nivel del Paraná en Santa Fe". La bajada pone el
+               hidrómetro; el renglón del pie, la ciudad y el marco legal. -->
           <h1 class="titulo-hero">
-            El río Paraná tiene un número.<br />Tu casa tiene otro.
+            El río tiene un número.<br />Tu casa tiene otro.
           </h1>
           <p class="bajada">
             El hidrómetro del Puerto de Santa Fe publica el nivel todos los
@@ -221,6 +231,11 @@
           <p class="chico">
             Gratis · Funciona sin señal una vez cargada · Tu umbral y tu plan
             quedan en tu teléfono
+          </p>
+          <p class="chico marco-legal">
+            Santa Fe está en emergencia hídrica por la
+            <a href="/datos#fuentes">Ley provincial 14.477</a>. Es el marco del
+            que nace esta herramienta, y no la respalda.
           </p>
         </div>
 
@@ -295,20 +310,24 @@
       </header>
 
       <section class="franja-oscura">
-        <p class="eti">Santa Fe ya sabe lo que es</p>
+        <!-- Esto era un <p class="eti"> en mono y mayúsculas, o sea un titular
+             disfrazado de rótulo: la sección no tenía ningún <h2>. Ahora es lo
+             que siempre fue. -->
+        <h2>Santa Fe ya sabe lo que es</h2>
         <div class="hitos">
           <div>
             <b>1983</b>
             <p>
-              La gran crecida del Paraná: la Laguna Setúbal se llevó el Puente
-              Colgante, el símbolo de la ciudad.
+              La gran crecida del Paraná: el 28 de septiembre la Laguna
+              Setúbal se llevó el Puente Colgante, el símbolo de la ciudad.
             </p>
           </div>
           <div>
             <b>1992</b>
             <p>
               El Paraná llevó el hidrómetro a 7,43 m, el récord que sigue
-              vigente. Es el caso histórico con el que se contrastó este modelo.
+              vigente. Es el caso histórico con el que se contrastó el modelo
+              de esta app.
             </p>
           </div>
           <div>
@@ -326,6 +345,12 @@
             </p>
           </div>
         </div>
+        <p class="franja-nota">
+          No es casualidad: las grandes crecidas del Paraná — 1983, 1992,
+          2016 — llegaron con años de <b>El Niño</b>, cuando llueve por encima
+          de lo normal en toda la cuenca. Un Niño declarado no garantiza
+          crecida, pero es el momento de revisar tu umbral y tu plan.
+        </p>
         <p class="franja-cierre">
           Esta herramienta existe para que la próxima crecida encuentre a cada
           familia sabiendo su número, su plan y su punto de encuentro.
@@ -333,7 +358,6 @@
       </section>
 
       <section id="como">
-        <p class="eti">Cómo funciona</p>
         <h2>Tres datos, un umbral personal</h2>
         <div class="tres">
           <div class="tarjeta">
@@ -364,25 +388,14 @@
         </div>
       </section>
 
-      <section class="metricas">
-        <div class="metrica fuerte">
-          <b>4</b><span>pantallas: Río, Mi umbral, Mi plan, Dónde ir</span>
-        </div>
-        <div class="metrica">
-          <b>30</b><span>puntos de encuentro oficiales, por cercanía</span>
-        </div>
-        <div class="metrica">
-          <b>7</b><span>días de pronóstico de lluvia y tendencia del río</span>
-        </div>
-        <div class="metrica">
-          <b>0,5 m</b
-          ><span>de margen declarado en la cota del terreno, no escondido</span>
-        </div>
-      </section>
-
-      <section class="dosc">
-        <div>
-          <p class="eti">Dónde ir</p>
+      <!-- Las dos secciones que siguen van en tarjeta, con el contenido a un
+           lado y la evidencia al otro. El rótulo numerado NO es decorativo:
+           02 y 03 ordenan el recorrido de la portada —cómo funciona, dónde ir,
+           qué no sabe— y ese orden es el argumento. Un rótulo suelto arriba de
+           un título era otra cosa y por eso se había ido. -->
+      <section class="tarjeta-seccion con-mapa">
+        <div class="ts-texto">
+          <p class="rotulo">02 — Dónde ir</p>
           <h2>30 puntos de encuentro oficiales</h2>
           <p>
             Los del municipio, con coordenadas verificadas contra su GeoServer.
@@ -395,17 +408,17 @@
           </div>
           <a class="btn" href="/puntos-de-encuentro">Ver la lista completa</a>
         </div>
-        <div class="mapa-caja">
-          <div
-            id="mapa-landing"
-            role="img"
-            aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"></div>
-        </div>
+        <!-- El mapa llega hasta el borde de la tarjeta: no lleva caja propia
+             ni padding. El recorte lo hace la tarjeta con overflow. -->
+        <div
+          id="mapa-landing"
+          role="img"
+          aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"></div>
       </section>
 
-      <section class="dosc al-tope">
-        <div>
-          <p class="eti eti-alerta">Honesta por diseño</p>
+      <section class="tarjeta-seccion">
+        <div class="ts-texto">
+          <p class="rotulo rotulo-alerta">03 — Honesta por diseño</p>
           <h2>Te dice lo que sabe.<br />Y lo que no.</h2>
           <p>
             Cota Cero no esconde la incertidumbre en la letra chica. Te dice de
@@ -426,14 +439,15 @@
              como una categoría pegada a cada una y no como lo que es, el
              encabezado de una lista. -->
         <div class="avisos-app">
-          <p class="eti">Lo que la app te avisa</p>
           <blockquote class="aviso-app">
+            <p class="rotulo rotulo-alerta">Aviso en la app</p>
             <p>
               «Ni la mejor cota reemplaza un relevamiento de tu terreno: la
               curva pasa cerca de tu casa, pero no por tu puerta.»
             </p>
           </blockquote>
           <blockquote class="aviso-app">
+            <p class="rotulo rotulo-alerta">Aviso en la app</p>
             <p>
               «Esto es una estimación, no una orden de evacuación. La orden la
               da Defensa Civil.»
@@ -443,7 +457,7 @@
                conserva su etiqueta, no lleva el tinte de alerta y no va en
                <blockquote>, porque no es una cita de ningún lado. -->
           <div class="aviso-app neutro">
-            <span class="eti">Sin vínculo oficial</span>
+            <p class="rotulo">Sin vínculo oficial</p>
             <p>
               Hecha por un vecino. No es una comunicación del municipio, y lo
               dice en cada pantalla.
@@ -544,6 +558,10 @@
           <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
         </div>
       </footer>
+      <p class="pie-cierre">
+        Última actualización del sitio: 3/9/2026 · Hecho en Santa Fe
+      </p>
+
       <!-- PIE:fin -->
     </div>
   </body>

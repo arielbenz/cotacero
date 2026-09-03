@@ -16,6 +16,7 @@
 // Sin dependencias, como el resto del proyecto.
 
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -119,6 +120,27 @@ const esc = (t) =>
    desincroniza cuando una constante cambia. */
 const nm = (v, dec = 1) => Number(v).toFixed(dec).replace(".", ",");
 
+/* La fecha de "última actualización del sitio" sale del último commit, no del
+   día en que se corre este script. Es la misma razón por la que el sitemap no
+   lleva `lastmod`: poner la fecha de hoy en cada corrida es afirmar que el
+   sitio cambió cuando puede no haber cambiado nada, y una fecha inventada es
+   peor que ninguna. Si no hay git —una copia sin historial—, el renglón no
+   sale: preferimos no decir nada antes que decir cualquier cosa. */
+function fechaDelSitio() {
+  try {
+    const iso = execFileSync("git", ["log", "-1", "--format=%cs"], {
+      cwd: RAIZ,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    const p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    return p ? `${+p[3]}/${+p[2]}/${p[1]}` : null;
+  } catch (e) {
+    return null;
+  }
+}
+const FECHA_SITIO = fechaDelSitio();
+
 /* La marca. El mismo dibujo que scripts/marca.js y que el HTML de la portada
    y la app; el id del clipPath cambia por documento para que dos copias en la
    misma página no compartan recorte. */
@@ -187,7 +209,14 @@ ${["ina", "prefectura", "muni", "gestionRiesgos", "ign"]
   )
   .join("\n")}
         </div>
-      </footer>`;
+      </footer>
+${
+  FECHA_SITIO
+    ? `      <p class="pie-cierre">
+        Última actualización del sitio: ${FECHA_SITIO} · Hecho en Santa Fe
+      </p>\n`
+    : ""
+}`;
 
 /* Cabecera, pie y esqueleto compartidos, con la estructura del diseño: nav
    con vuelta a la portada, cabecera con chip y título grande, y el cuerpo en
@@ -290,7 +319,7 @@ function pagina({
     <meta name="description" content="${esc(descripcion)}" />
     <!-- Dos, con media: pinta la barra del navegador en el teléfono. Un
          solo valor fijo dejaba la barra oscura sobre una página clara. -->
-    <meta name="theme-color" content="#f7f8f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Cota Cero" />
