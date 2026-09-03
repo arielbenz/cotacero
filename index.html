@@ -403,7 +403,7 @@
         </div>
       </section>
 
-      <section class="dosc">
+      <section class="dosc al-tope">
         <div>
           <p class="eti eti-alerta">Honesta por diseño</p>
           <h2>Te dice lo que sabe.<br />Y lo que no.</h2>
@@ -416,22 +416,33 @@
           </p>
           <a href="/datos">De dónde salen los datos →</a>
         </div>
-        <div class="citas">
-          <div class="cita">
-            <span class="eti eti-alerta">Aviso en la app</span>
+        <!-- No son tarjetas ilustrativas: es el texto exacto que la app
+             muestra, con la misma cara que tiene adentro (ver `.aviso` en
+             app.css). La sección afirma que la app avisa lo que no sabe;
+             dibujar esos avisos con otra piel sería ilustrar la afirmación
+             en vez de mostrarla.
+
+             La etiqueta va UNA vez, arriba: repetida en cada tarjeta se leía
+             como una categoría pegada a cada una y no como lo que es, el
+             encabezado de una lista. -->
+        <div class="avisos-app">
+          <p class="eti">Lo que la app te avisa</p>
+          <blockquote class="aviso-app">
             <p>
               «Ni la mejor cota reemplaza un relevamiento de tu terreno: la
               curva pasa cerca de tu casa, pero no por tu puerta.»
             </p>
-          </div>
-          <div class="cita">
-            <span class="eti eti-alerta">Aviso en la app</span>
+          </blockquote>
+          <blockquote class="aviso-app">
             <p>
               «Esto es una estimación, no una orden de evacuación. La orden la
               da Defensa Civil.»
             </p>
-          </div>
-          <div class="cita neutra">
+          </blockquote>
+          <!-- Ésta no es un aviso de la app sino una aclaración del proyecto:
+               conserva su etiqueta, no lleva el tinte de alerta y no va en
+               <blockquote>, porque no es una cita de ningún lado. -->
+          <div class="aviso-app neutro">
             <span class="eti">Sin vínculo oficial</span>
             <p>
               Hecha por un vecino. No es una comunicación del municipio, y lo

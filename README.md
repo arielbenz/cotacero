@@ -621,6 +621,19 @@ otro. Los únicos dos valores nuevos son `--alerta-solido` y `--evac-solido`,
 los rellenos de la franja, que no existían porque `--alerta` y `--peligro`
 están calibrados para TEXTO sobre el fondo y no para ser fondo.
 
+**Los avisos de «Honesta por diseño» son los de la app, no una ilustración.**
+Toman prestado el componente `.aviso` —mismo tinte, mismo radio, mismo padding,
+sin borde— porque la sección afirma que la app avisa lo que no sabe: dibujar
+esos avisos con otra piel sería ilustrar la afirmación en vez de mostrarla. La
+etiqueta va una sola vez, como encabezado de la columna: repetida en cada
+tarjeta se leía como una categoría y no como lo que es.
+
+Se llamaban `.cita` y chocaban con la cita textual de `/datos`, que tiene el
+mismo nombre mil líneas más abajo y la misma especificidad. Ganaba la de abajo,
+así que la portada salía monoespaciada sobre fondo gris con 6 px de aire, y
+`/datos` se comía un borde ámbar de 2 px que sí sobrevivía de la otra. Las dos
+estaban rotas y ninguna fallaba de forma visible.
+
 **Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
 30 puntos se leen de `app/index.html`, que es la fuente de verdad
 —`js/app/estado.js` hace lo mismo— para que no existan dos listas que se puedan desincronizar.

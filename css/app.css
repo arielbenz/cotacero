@@ -123,7 +123,6 @@
 
   --agua-tinte: rgba(46, 155, 196, 0.16);
   --alerta-tinte: rgba(232, 163, 61, 0.14);
-  --alerta-tinte-suave: rgba(232, 163, 61, 0.07);
   --peligro-tinte: rgba(224, 90, 68, 0.16);
   --ok-tinte: rgba(79, 168, 139, 0.15);
 
@@ -208,7 +207,6 @@
   --c-peligro-solido: #ca442f;
   --c-agua-tinte: #e8f3f8;
   --c-alerta-tinte: #ffefe3;
-  --c-alerta-tinte-suave: #fff8f3;
   --c-peligro-tinte: #fbe9e5;
   --c-ok-tinte: #e6f2ec;
   --c-btn-texto: #ffffff;
@@ -245,7 +243,6 @@
     --peligro-solido: var(--c-peligro-solido);
     --agua-tinte: var(--c-agua-tinte);
     --alerta-tinte: var(--c-alerta-tinte);
-    --alerta-tinte-suave: var(--c-alerta-tinte-suave);
     --peligro-tinte: var(--c-peligro-tinte);
     --ok-tinte: var(--c-ok-tinte);
     --btn-texto: var(--c-btn-texto);
@@ -290,7 +287,6 @@ html[data-theme="light"] {
   --peligro-solido: var(--c-peligro-solido);
   --agua-tinte: var(--c-agua-tinte);
   --alerta-tinte: var(--c-alerta-tinte);
-  --alerta-tinte-suave: var(--c-alerta-tinte-suave);
   --peligro-tinte: var(--c-peligro-tinte);
   --ok-tinte: var(--c-ok-tinte);
   --btn-texto: var(--c-btn-texto);
@@ -2646,6 +2642,14 @@ p.pie-frescura,
   width: auto;
   padding: 0 var(--e-6);
 }
+/* La sección del mapa centra sus dos columnas porque una es una imagen al lado
+   de un texto y ahí el centrado equilibra. Cuando las dos columnas son
+   contenido —un argumento y su evidencia— conviene que arranquen juntas: los
+   dos rótulos quedan en la misma línea y se lee como una sola cosa en vez de
+   dos bloques que casualmente están al lado. */
+.dosc.al-tope {
+  align-items: start;
+}
 .mapa-caja {
   border-radius: var(--r-l);
   overflow: hidden;
@@ -2655,24 +2659,57 @@ p.pie-frescura,
 #mapa-landing {
   height: 420px;
 }
-.citas {
+/* ---------- los avisos de la app, citados en la portada ----------
+   Esto se llamaba `.cita` y chocaba de frente con la cita textual de las
+   páginas generadas: el mismo nombre, la misma especificidad y mil líneas más
+   abajo, así que ganaba la otra. Estas tarjetas salían en monoespaciada, con
+   fondo gris y 6 px de aire a los costados, contra un borde durazno que sí
+   sobrevivía — y la tercera se veía distinta porque `.cita.neutra`, con un
+   punto más de especificidad, era la única que recuperaba lo suyo.
+
+   Dos componentes que no tienen nada que ver no pueden compartir nombre.
+   `.cita` se queda con lo que de verdad es una cita de un documento; esto pasa
+   a llamarse por lo que es.
+
+   La cara la toman prestada de `.aviso`, que es el componente con el que la
+   app dibuja estos mismos avisos de verdad: mismo tinte, mismo radio, mismo
+   padding y sin borde. La sección afirma que la app avisa lo que no sabe;
+   mostrar esos avisos con otra piel sería ilustrar la afirmación en vez de
+   mostrarla. */
+.avisos-app {
   display: flex;
   flex-direction: column;
   gap: var(--e-3);
 }
-.cita {
+/* El encabezado de la columna. Antes cada tarjeta repetía "AVISO EN LA APP",
+   que a la segunda deja de informar. La línea lo ata al grupo sin gastar un
+   renglón de aire; el margen se anula porque acá el espaciado lo pone el gap. */
+.avisos-app > .eti {
+  margin-bottom: 0;
+  padding-bottom: var(--e-2);
+  border-bottom: 1.5px solid var(--linea);
+}
+.aviso-app {
+  background: var(--alerta-tinte);
   border-radius: var(--r-m);
-  background: var(--alerta-tinte-suave);
-  border: 2px solid var(--alerta-tinte);
   padding: var(--e-4) var(--e-5);
 }
-.cita.neutra {
+/* La aclaración del proyecto no es un aviso de la app: sin el tinte de alerta
+   y con una línea simple, para que no compita con los dos de arriba. */
+.aviso-app.neutro {
   background: transparent;
-  border-color: var(--linea);
+  border: 1.5px solid var(--linea);
 }
-.cita p {
-  margin: var(--e-2) 0 0;
+/* Margen cero: el aire lo pone el padding de la tarjeta, y `.landing p` mete
+   16 px abajo que acá descuadran la caja. El 600 contra el 500 de la prosa de
+   al lado es lo que separa la evidencia del argumento, sin cambiar el cuerpo:
+   son dos textos del mismo rango, uno cita al otro. */
+.aviso-app p {
+  margin: 0;
   font-weight: 600;
+}
+.aviso-app .eti + p {
+  margin-top: var(--e-2);
 }
 .eti-alerta {
   color: var(--alerta-texto);

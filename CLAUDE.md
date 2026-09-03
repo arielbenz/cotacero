@@ -255,6 +255,15 @@ El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
 en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
+### Una clase, un componente
+
+`.cita` llegó a nombrar dos cosas distintas —las tarjetas de avisos de la
+portada y la cita textual de `/datos`—, con la misma especificidad y mil líneas
+de distancia. Ganaba la de más abajo, así que la portada salía en monoespaciada
+sobre fondo gris y `/datos` arrastraba un borde ámbar que nadie pidió. **Las dos
+estaban rotas y ninguna fallaba de forma visible.** Hoy son `.aviso-app` y
+`.cita`. Antes de estrenar un nombre de clase, `grep` en `css/app.css`.
+
 ### Dos botones, no tres
 
 `.btn` es el sólido —la acción principal, **una por pantalla**: negro sobre
