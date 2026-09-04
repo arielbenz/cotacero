@@ -57,6 +57,14 @@
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
     <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Google Analytics. El cargador es externo y la configuración vive en
+         /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
+         la CSP. No va en /app ni en /widget — ver el comentario de ese
+         archivo. -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
     <script defer src="/js/medios.js"></script>
   </head>
   <body class="landing">

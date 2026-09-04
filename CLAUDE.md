@@ -327,6 +327,18 @@ atribuirle al municipio recomendaciones que no son suyas.
 
 ### Privacidad
 
+**Google Analytics va SÓLO en las páginas del sitio.** No en `/app` y no en
+`/widget`, y eso no es un detalle de implementación: `/legal` dice que lo único
+que sale del dispositivo son las sugerencias, y `/para-medios` le promete a
+cada medio que embebe el widget «sin cookies, sin rastreo de tus lectores».
+Meter el tag en cualquiera de los dos vuelve falsas esas dos frases —la segunda
+es una promesa sobre lectores que no son nuestros—.
+
+El arranque vive en `js/analitica.js` y no en línea, porque `script-src` es
+`'self'`. El cargador de googletagmanager está habilitado en la CSP general de
+`vercel.json`; las dos CSP del widget **no se tocaron**.
+
+
 Lo **único** que sale del dispositivo son las sugerencias, y el formulario lo
 dice. El push va **sin contenido**: el servidor no sabe la cota ni el umbral de
 nadie, sólo despierta al teléfono y el service worker arma la notificación

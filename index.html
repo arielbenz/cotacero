@@ -112,6 +112,14 @@
     <link rel="stylesheet" href="/css/app.css" />
     <script src="/js/landing.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Google Analytics. El cargador es externo y la configuración vive en
+         /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
+         la CSP. No va en /app ni en /widget — ver el comentario de ese
+         archivo. -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
   </head>
   <body class="landing">
     <!-- La franja de estado oficial. Nace vacía y vacía mide cero: en día

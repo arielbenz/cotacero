@@ -331,6 +331,14 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
     <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Google Analytics. El cargador es externo y la configuración vive en
+         /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
+         la CSP. No va en /app ni en /widget — ver el comentario de ese
+         archivo. -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
 ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
     <!-- La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
@@ -1953,9 +1961,16 @@ ${PRIVACIDAD.map(
         </div>
         <p class="chico" style="margin-top:20px">
           No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos. Las estadísticas del sitio son sin cookies y
-          agregadas, y la búsqueda de direcciones consulta a Nominatim
-          (OpenStreetMap) sólo cuando vos la iniciás.
+          venta de datos. La búsqueda de direcciones consulta a Nominatim
+          (OpenStreetMap) sólo cuando vos la iniciás.</p>
+        <p class="chico">
+          <b>Las estadísticas del sitio.</b> Las miden dos servicios: Vercel
+          Analytics, que es agregado y sin cookies, y Google Analytics, que
+          <b>sí deja cookies en tu navegador</b> y manda los datos de tu visita
+          a Google. Los dos corren en las páginas del sitio y
+          <b>ninguno corre dentro de la app ni dentro del widget</b>: tu cota,
+          tu umbral y tu plan no salen de tu teléfono, y a los lectores de un
+          medio que embebe el widget no los mide nadie.
         </p>`,
     },
     {

@@ -253,7 +253,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.ign.gob.ar; connect-src 'self' https://wms.ign.gob.ar https://nominatim.openstreetmap.org https://api.open-meteo.com https://flood-api.open-meteo.com"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; manifest-src 'self'; script-src 'self' https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://wms.ign.gob.ar https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://wms.ign.gob.ar https://nominatim.openstreetmap.org https://api.open-meteo.com https://flood-api.open-meteo.com https://*.google-analytics.com https://*.analytics.google.com"
         }
       ]
     },
