@@ -2322,6 +2322,56 @@ const llms =
 await writeFile(join(RAIZ, "llms.txt"), llms);
 console.log("escrito: /llms.txt  (" + enSitemap().length + " páginas)");
 
+/* ---------- /.well-known/api-catalog ----------
+   Un catálogo de API en `application/linkset+json` (RFC 9727, formato del
+   RFC 9264). Es para que un agente encuentre solo los datos en vez de raspar
+   el HTML: menos tráfico para nosotros y un dato mejor para quien pregunta.
+
+   Sólo se lista lo que EXISTE y es público de verdad. `/api/nivel` es de
+   lectura, sin clave y cacheado una hora en el CDN, así que un agente
+   consultándolo no nos cuesta invocaciones. Los otros endpoints de `api/` no
+   van: suscribir, desuscribir y sugerencias son POST de la app, y publicarlos
+   sería invitar a que alguien los llame sin motivo.
+
+   No hay `service-desc`: eso pide un OpenAPI, y un OpenAPI sería una SEXTA
+   copia de la forma de la respuesta de /api/nivel —hoy la conocen cuatro
+   consumidores y el cron—. La documentación en prosa de /datos es la que ya
+   mantenemos. */
+const catalogo = {
+  linkset: [
+    {
+      anchor: `${SITIO}/api/nivel`,
+      "service-doc": [
+        { href: `${SITIO}/datos`, type: "text/html", title: "De dónde sale cada dato y cómo se calcula" },
+      ],
+      describedby: [
+        { href: `${SITIO}/llms.txt`, type: "text/markdown", title: "Qué es Cota Cero, en texto plano" },
+      ],
+      author: [{ href: `${SITIO}/sobre`, type: "text/html" }],
+      license: [{ href: `${SITIO}/legal`, type: "text/html", title: "Licencias y atribuciones" }],
+    },
+    ...[
+      ["/datos-abiertos/historia.json", "Serie diaria del río en Santa Fe desde 1925 (INA)"],
+      ["/datos-abiertos/puntos.json", "Los 30 puntos de encuentro del Plan de Contingencia municipal"],
+      ["/datos-abiertos/curvas.json", "Curvas de nivel de la Municipalidad, cada 50 cm en metros IGN"],
+    ].map(([ruta, titulo]) => ({
+      anchor: SITIO + ruta,
+      title: titulo,
+      type: "application/json",
+      "service-doc": [{ href: `${SITIO}/datos`, type: "text/html" }],
+      license: [{ href: `${SITIO}/legal`, type: "text/html" }],
+    })),
+  ],
+};
+await mkdir(join(RAIZ, ".well-known"), { recursive: true });
+await writeFile(
+  join(RAIZ, ".well-known", "api-catalog"),
+  JSON.stringify(catalogo, null, 2) + "\n",
+);
+console.log(
+  "escrito: /.well-known/api-catalog  (" + catalogo.linkset.length + " recursos)",
+);
+
 /* ---------- la portada y la app son HTML a mano ----------
    No las genera este script, pero su título, su descripción y su canónica
    tienen que decir lo mismo que lib/paginas.js o el registro deja de ser la

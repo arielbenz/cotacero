@@ -259,6 +259,41 @@
       "source": "/(.*)",
       "headers": [
         {
+          "key": "Link",
+          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/markdown\", </.well-known/api-catalog>; rel=\"api-catalog\", </legal>; rel=\"license\", </legal>; rel=\"privacy-policy\", </legal>; rel=\"terms-of-service\", </sobre>; rel=\"author\""
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/linkset+json; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=86400, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/nivel",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</datos>; rel=\"service-doc\"; type=\"text/html\", </.well-known/api-catalog>; rel=\"api-catalog\", </legal>; rel=\"license\""
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
         },

@@ -270,6 +270,26 @@ Agregar una página son cinco lugares: `lib/paginas.js`, `scripts/paginas.js`,
 la lista de escritura al final de ese archivo, `vercel.json` y el `PIE`. El
 sitemap ya no: sale solo.
 
+**Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
+`llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que
+emite `scripts/paginas.js`— y cabeceras `Link` en `vercel.json`. El catálogo
+lista `/api/nivel` y los tres JSON abiertos, nada más: el resto de `api/` son
+POST de la app y publicarlos sería invitar a que alguien los llame sin motivo.
+No hay `service-desc` porque eso pide un OpenAPI, y un OpenAPI sería una **sexta
+copia** de la forma de la respuesta de `/api/nivel`.
+
+Lo que **no** se publica, y no por olvido: `openid-configuration`,
+`oauth-protected-resource`, `auth.md`, un MCP Server Card y un índice de skills.
+Acá no hay autenticación, ni servidor MCP, ni skills. Publicar esos documentos
+sería declarar capacidades falsas, que para un sitio de emergencia es peor que
+no aparecer en un chequeo automático.
+
+**El `Content-Type` de `/.well-known/api-catalog` se fija en `vercel.json`,** no
+por extensión: el archivo no tiene, así que la tabla MIME lo daría por
+`application/octet-stream` y con `nosniff` nadie lo leería como JSON.
+`scripts/servir.js` respeta el `Content-Type` configurado por encima de su
+tabla, para que el local se parezca a producción.
+
 **El favicon del buscador va en `/favicon.ico` y mide 96 px.** Google lo pide
 cuadrado y múltiplo de 48: con los 32 px que había lo descartaba y mostraba el
 que tuviera cacheado. Los emite `node scripts/iconos.js`.

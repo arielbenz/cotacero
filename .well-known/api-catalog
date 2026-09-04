@@ -1,0 +1,85 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://cotacerosf.com/api/nivel",
+      "service-doc": [
+        {
+          "href": "https://cotacerosf.com/datos",
+          "type": "text/html",
+          "title": "De dónde sale cada dato y cómo se calcula"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://cotacerosf.com/llms.txt",
+          "type": "text/markdown",
+          "title": "Qué es Cota Cero, en texto plano"
+        }
+      ],
+      "author": [
+        {
+          "href": "https://cotacerosf.com/sobre",
+          "type": "text/html"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://cotacerosf.com/legal",
+          "type": "text/html",
+          "title": "Licencias y atribuciones"
+        }
+      ]
+    },
+    {
+      "anchor": "https://cotacerosf.com/datos-abiertos/historia.json",
+      "title": "Serie diaria del río en Santa Fe desde 1925 (INA)",
+      "type": "application/json",
+      "service-doc": [
+        {
+          "href": "https://cotacerosf.com/datos",
+          "type": "text/html"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://cotacerosf.com/legal",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://cotacerosf.com/datos-abiertos/puntos.json",
+      "title": "Los 30 puntos de encuentro del Plan de Contingencia municipal",
+      "type": "application/json",
+      "service-doc": [
+        {
+          "href": "https://cotacerosf.com/datos",
+          "type": "text/html"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://cotacerosf.com/legal",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://cotacerosf.com/datos-abiertos/curvas.json",
+      "title": "Curvas de nivel de la Municipalidad, cada 50 cm en metros IGN",
+      "type": "application/json",
+      "service-doc": [
+        {
+          "href": "https://cotacerosf.com/datos",
+          "type": "text/html"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://cotacerosf.com/legal",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

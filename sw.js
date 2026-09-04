@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v85";
+const VERSION = "cota-cero-v86";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -235,15 +235,17 @@ self.addEventListener("fetch", (e) => {
   // cacheáramos serviríamos una versión vieja para siempre.
   if (url.pathname.startsWith("/_vercel/")) return;
 
-  // robots.txt y sitemap.xml: siempre a la red, nunca al caché. Googlebot no
-  // corre service workers, así que esto no cambia nada para el buscador —
-  // pero una copia guardada de estos dos archivos no caduca nunca, y a un
-  // navegador que ya los pidió le quedaría una versión vieja del mapa del
-  // sitio para siempre. Son dos archivos de 1 KB: no hay nada que ahorrar.
+  // robots.txt, sitemap.xml, llms.txt y el catálogo de API: siempre a la red,
+  // nunca al caché. Ni un buscador ni un agente corren service workers, así que
+  // esto no cambia nada para ellos, pero una copia guardada de estos archivos
+  // no caduca nunca: a un navegador que ya los pidió le quedaría una versión
+  // vieja del mapa del sitio para siempre. Son cuatro archivos chicos, no hay
+  // nada que ahorrar.
   if (
     url.pathname === "/robots.txt" ||
     url.pathname === "/sitemap.xml" ||
-    url.pathname === "/llms.txt"
+    url.pathname === "/llms.txt" ||
+    url.pathname === "/.well-known/api-catalog"
   )
     return;
 

@@ -2,8 +2,20 @@
 User-agent: *
 Allow: /
 
+# Content Signals (contentsignals.org): qué se puede hacer con este contenido.
+# Los tres en "yes", y es deliberado: los datos son públicos —del INA y de la
+# Municipalidad—, el sitio ya publica llms.txt para que lo citen bien, y la
+# meta del proyecto es que la información llegue a más gente, no menos.
+# Lo único que pedimos conservar está escrito en llms.txt: el nivel de aviso es
+# un cálculo aproximado, NO una predicción de inundación, y la orden de
+# evacuación la da Defensa Civil.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
 # /api/ son funciones, no páginas: no hay nada que indexar y cada visita
-# consume una invocación.
+# consume una invocación. La excepción es /api/nivel, que es de lectura, sin
+# clave y cacheado una hora en el CDN: está publicado en
+# /.well-known/api-catalog y bloquearlo acá sería contradecirse.
+Allow: /api/nivel
 Disallow: /api/
 Disallow: /_vercel/
 

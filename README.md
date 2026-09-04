@@ -996,6 +996,40 @@ variantes cargadas. Queda un solo caso afuera: quien mira UNA página y se queda
 sin señal ve la tipografía del sistema. Es legible, y no vale 164 KB
 duplicados.
 
+## Qué encuentra un agente
+
+Tres cosas, y las tres nombran sólo lo que existe:
+
+- **`/llms.txt`** — qué es el proyecto, en texto plano, con la advertencia que
+  más importa conservar: el nivel de aviso es un cálculo aproximado, no una
+  predicción de inundación.
+- **`/.well-known/api-catalog`** — un linkset (RFC 9727, formato RFC 9264) con
+  `/api/nivel` y los tres JSON abiertos, cada uno apuntando a su documentación
+  en `/datos` y a las licencias en `/legal`. Lo emite `scripts/paginas.js`, así
+  que sus URLs no se pueden desincronizar del registro de páginas.
+- **Cabeceras `Link`** (RFC 8288) en todas las respuestas: `describedby` al
+  `llms.txt`, `api-catalog`, `license`, `privacy-policy`, `terms-of-service` y
+  `author`. En `/api/nivel`, además, `service-doc` a `/datos`.
+
+Y `Content-Signal: search=yes, ai-input=yes, ai-train=yes` en `robots.txt`. Los
+tres en «sí» a propósito: los datos son públicos, el sitio ya publica `llms.txt`
+para que lo citen bien, y la meta del proyecto es que la información llegue a
+más gente.
+
+**Lo que no se publica, y no por olvido.** Un chequeo automático de «agent
+readiness» pide además `openid-configuration`, `oauth-protected-resource`,
+`auth.md`, un MCP Server Card, un índice de agent skills y registros DNS-AID.
+Acá **no hay autenticación de ningún tipo** —el único dato que el servidor
+guarda de alguien es el endpoint opaco de push—, no hay servidor MCP y no hay
+skills. Publicar esos documentos sería declarar capacidades que no existen, y
+para un sitio del que alguien puede depender en una crecida eso es peor que no
+sumar puntos en un chequeo.
+
+`/api/nivel` se saca del `Disallow: /api/` de robots.txt con un `Allow`
+explícito: es de lectura, sin clave y el CDN lo cachea una hora
+(`s-maxage=3600`), así que un agente consultándolo no cuesta invocaciones.
+Bloquearlo mientras se lo publica en el catálogo habría sido contradecirse.
+
 ## Lo compartido: `lib/comun.js`
 
 El proyecto corre en cuatro contextos que no se pueden importar entre sí —los
