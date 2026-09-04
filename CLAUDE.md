@@ -239,16 +239,40 @@ una entrada en `ACCIONES` (clics, vía `data-accion`) o en `ENTRADAS`
 
 ### Tres conceptos, tres nombres
 
-Nunca intercambiarlos, ni en el código ni en la interfaz:
+Son tres cosas distintas y nunca se intercambian. En el código y en `/datos`
+se llaman **nivel**, **cota** y **umbral**; en la interfaz se dicen en llano, y
+cada una tiene UNA sola forma de decirse:
 
 1. **nivel del río** — la lectura del hidrómetro (dato del INA).
-2. **cota del terreno** — la elevación IGN del terreno (curvas del municipio).
+   En pantalla: «el río está en 4,86 m», «la regla del río (hidrómetro)».
+2. **cota del terreno** — la elevación IGN (curvas del municipio).
+   En pantalla: «la altura de tu terreno», «16,4 m sobre el mar». «Cota IGN»
+   sólo entre paréntesis, porque así figura en la escritura y en los planos.
 3. **umbral hidráulico estimado** — la lectura del hidrómetro a partir de la
    cual la superficie de agua equivalente alcanzaría esa cota.
+   En pantalla: **«tu nivel de aviso»**, siempre con `mU()` (≈ y un decimal), y
+   con la glosa «el nivel del río a partir del cual el agua puede llegar a tu
+   terreno. Es un cálculo aproximado» la primera vez que aparece en cada
+   pantalla. La pestaña se llama **Mi casa**.
 
-Llamarle «tu cota» al umbral está prohibido: mezclarlos es exactamente lo que
-hacía sonar la app como una predicción de inundación. La app dice **«referencia
-hidráulica estimada»**, nunca «cuándo llega el agua» ni «tu casa se inunda».
+**Por qué «umbral» salió de la interfaz.** Es la palabra correcta y no tiene
+reemplazo técnico: por eso vive en `/datos`, en el código (`cotaEnHidrometro`,
+`guardarUmbral`, la clave `umbral` de IndexedDB) y en `AUDITORIA.md`. Pero en
+pantalla no la entendía nadie que no la supiera de antes: las cinco
+definiciones que había eran circulares —definían *umbral* con *hidrómetro*, que
+la app nunca explicaba— y la única frase llana aparecía sólo en el estado de
+error.
+
+**Prohibido en la interfaz:** la palabra «umbral»; llamarle «tu cota» o «la
+altura de tu casa» al nivel de aviso; «cuándo llega el agua», «te llega», «se
+inunda»; «tu alerta» o «tu evacuación», que suenan a oficial. La alerta y la
+evacuación de verdad se dicen siempre con **«de la ciudad»** pegado, para que
+no se confundan con las de uno.
+
+**Y en los estados graves** —alerta, evacuación, nivel de aviso superado— el
+texto **empieza con el verbo de lo que hay que hacer**, no con lo que está
+pasando, y lleva el 103. El nivel de aviso NO es una predicción, y la app lo
+dice cada vez.
 
 ### Los números tienen dueño
 

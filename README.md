@@ -36,17 +36,32 @@ el reporte diario, que no los trae.
 ## Tres conceptos, tres nombres
 
 La interfaz los mezclaba y eso era lo que hacía sonar la app como una
-predicción de inundación. Nunca intercambiarlos:
+predicción de inundación. Son tres y nunca se intercambian. **En el código y en
+`/datos` se llaman nivel, cota y umbral; en la interfaz se dicen en llano:**
 
-1. **Nivel del río** — la lectura del hidrómetro del Puerto (dato oficial
-   INA / Prefectura). «El río está en 4,86 m».
-2. **Cota del terreno** — la elevación IGN del terreno, de las curvas
-   municipales, ±0,5 m. «Cota del terreno: 17,18 m IGN».
-3. **Umbral hidráulico estimado** («tu umbral estimado» / «mi umbral») — la
-   lectura del hidrómetro a partir de la cual el nivel de agua equivalente
-   alcanzaría esa cota según el modelo. «Tu umbral estimado: ≈ 5,1 m».
+| Concepto | En el código | En pantalla |
+| --- | --- | --- |
+| La lectura del hidrómetro del Puerto (INA / Prefectura) | `nivel` | «el río está en 4,86 m», «la regla del río» |
+| La elevación IGN del terreno, de las curvas municipales, ±0,5 m | `cota` | «la altura de tu terreno», «16,4 m sobre el mar» |
+| La lectura del hidrómetro a partir de la cual el agua equivalente alcanzaría esa cota | `umbral` | **«tu nivel de aviso»**, «≈ 5,1 m» |
 
-Llamarle «tu cota» al umbral está prohibido. La pestaña se llama **Mi umbral**.
+**Por qué «umbral» salió de la interfaz.** Es la palabra correcta y no tiene
+reemplazo técnico —por eso sigue en `/datos`, en el código
+(`cotaEnHidrometro`, `guardarUmbral`, la clave `umbral` de IndexedDB) y en
+`AUDITORIA.md`—. Pero en pantalla no la entendía nadie que no la supiera de
+antes: las cinco definiciones que había eran circulares (definían *umbral* con
+*hidrómetro*, que la app nunca explicaba) y la única frase llana aparecía sólo
+en el estado de error, o sea casi nunca.
+
+«Tu nivel de aviso» dice qué hacer con el número —estar avisado— y no qué va a
+pasar. Va siempre con la glosa «el nivel del río a partir del cual el agua
+puede llegar a tu terreno. Es un cálculo aproximado» la primera vez que
+aparece en cada pantalla. La pestaña se llama **Mi casa**.
+
+Prohibido: «umbral» en pantalla; llamarle «tu cota» o «la altura de tu casa»
+al nivel de aviso; «cuándo llega el agua», «te llega», «se inunda»; «tu
+alerta» o «tu evacuación». Las oficiales llevan siempre **«de la ciudad»**
+pegado.
 
 **Falsa precisión.** La cota del terreno viene de curvas cada 0,5 m, así que el
 umbral **nunca** se muestra con dos decimales: un decimal y tilde de
