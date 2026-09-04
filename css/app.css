@@ -360,11 +360,46 @@ textarea {
   font-size: inherit;
   color: inherit;
 }
+/* El salto al contenido. Fuera de pantalla hasta que lo enfocan; no se usa
+   `display:none` ni `visibility:hidden` porque eso lo saca del orden de
+   tabulación y entonces no sirve para nada. */
+.saltar {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-s);
+  background: var(--panel);
+  color: var(--texto);
+  font-weight: 700;
+  text-decoration: none;
+}
+.saltar:focus {
+  left: var(--e-3);
+  top: var(--e-3);
+  box-shadow: var(--sombra);
+}
+
+/* El foco, en dos reglas y no en una lista: si se escriben juntas, un
+   navegador que no entiende `:focus-visible` descarta el selector ENTERO y se
+   queda sin ningún indicador de foco. Separadas, ése ve la primera —foco
+   visible siempre, que es lo correcto para él— y los modernos aplican la
+   segunda, que lo saca cuando el foco vino del mouse. */
+:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
 :focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
   border-radius: var(--r-s);
 }
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
@@ -4534,5 +4569,51 @@ textarea:focus-visible {
   }
   .tarjetas-contacto {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   PREFERENCIAS DEL SISTEMA — VAN AL FINAL A PROPÓSITO
+   Son overrides: `.tarjeta { border: none }` y compañía están declaradas más
+   arriba con la misma especificidad, así que un bloque puesto antes pierde por
+   orden y no hace nada. Ya pasó: la primera versión de esto quedó a la altura
+   del foco y el borde seguía en 0px con el contraste forzado activo.
+   ========================================================================== */
+
+/* Modo de alto contraste del sistema (Windows, y el "contraste alto" de
+   Android). El navegador reemplaza todos los colores por la paleta del
+   usuario, y los bordes que dibujábamos con `background` desaparecen: sin
+   esto, las tarjetas y los avisos quedan como texto flotando. */
+@media (forced-colors: active) {
+  .tarjeta,
+  .veredicto,
+  .aviso,
+  .celda,
+  .bloque,
+  .aviso-app,
+  .segmentado {
+    border: 1px solid CanvasText;
+  }
+  .btn,
+  .btn.sec {
+    border: 1px solid ButtonText;
+  }
+  /* El agua de la regla y del símbolo es un dato, no una decoración: si el
+     sistema la repinta, la regla deja de decir nada. */
+  .agua,
+  .rm-agua,
+  .lockup svg circle:first-of-type {
+    forced-color-adjust: none;
+  }
+}
+
+/* Con "más contraste" pedido por el sistema, el gris de los textos
+   secundarios es lo primero que se pierde a pleno sol. */
+@media (prefers-contrast: more) {
+  :root,
+  html[data-theme="light"],
+  html[data-theme="dark"] {
+    --tenue: var(--texto);
+    --tenue-invertido: var(--texto-invertido);
   }
 }

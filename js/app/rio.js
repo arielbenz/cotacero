@@ -525,10 +525,12 @@ function pintarVeredictoRio() {
     // mueve en línea recta y prometer un plazo así sería inventar un futuro.
     const ritmo =
       !superado && dias != null && dias <= 10
-        ? " Al ritmo de la última medición, unos " +
+        ? " Al ritmo de la última medición, " +
+          /* El artículo va adentro de cada rama: con "unos" afuera salía
+             "unos 16 horas". */
           (dias < 1.5
-            ? Math.round(dias * 24) + " horas"
-            : Math.round(dias) + " días") +
+            ? "unas " + Math.round(dias * 24) + " horas"
+            : "unos " + Math.round(dias) + " días") +
           "."
         : "";
     txt = superado

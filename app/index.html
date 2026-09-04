@@ -98,6 +98,10 @@
     <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body class="app">
+    <!-- Primero en el DOM y sólo visible con el foco: para quien navega con
+         teclado o con switch, saltear la cabecera es la diferencia entre
+         llegar al río en un tabulador o en veinte. -->
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
     <header class="top">
       <div class="marca-bloque">
         <h1 class="marca lockup">
@@ -305,6 +309,13 @@
       </div>
     </dialog>
 
+    <!-- Las cinco vistas van adentro de un <main>: es lo que hace que el
+         "Saltar al contenido" tenga adónde saltar y que un lector de pantalla
+         pueda ir directo al contenido sin recorrer la cabecera.
+         #plan-impreso queda AFUERA, hijo directo de <body>: la regla de
+         impresión esconde `body.app > *:not(#plan-impreso)`, y adentro del
+         <main> se lo llevaría puesto. -->
+    <main id="contenido">
     <!-- ======================= RÍO ======================= -->
     <section
       class="vista on"
@@ -1156,6 +1167,7 @@
         </ul>
       </div>
     </section>
+    </main>
 
     <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
          papel y no se podía imprimir nada decente. -->
