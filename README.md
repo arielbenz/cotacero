@@ -971,8 +971,18 @@ con el diálogo de impresión del navegador.
 Tres cosas que la gobiernan:
 
 **Entra en una carilla, y eso no es estética.** Fotocopiar cien hojas de dos
-carillas cuesta el doble. `node scripts/guia-pdf.js` la imprime con Chrome
-headless, cuenta las páginas del PDF y **avisa si se pasó**. Cuando hubo que
+carillas cuesta el doble. `node scripts/guia-pdf.js` levanta su propio
+servidor, la imprime con Chrome headless y **no escribe nada** si salieron dos
+carillas o si lo que cargó no es la guía. Las dos comprobaciones existen porque
+faltaban: el script apuntaba al puerto 3100 y `scripts/servir.js` escucha en el
+3000, así que imprimió el «This site can't be reached» de Chrome, contó una
+carilla, dijo que todo bien, y ese PDF se publicó. Una página de error también
+ocupa una carilla; ahora se verifica que en el DOM estén la hoja, el 103 y las
+26 casillas antes de imprimir.
+
+El envoltorio del sitio —`.ancho`, `.bloque`— se anula en `@media print`. Eran
+60 px de padding invisibles en pantalla y era todo lo que empujaba la hoja a
+una segunda carilla. Cuando hubo que
 ganar espacio, lo primero que se recortó fue aire —márgenes, interlineado— y lo
 último el tamaño de letra: la hoja la va a leer alguien apurado y con poca luz.
 El cuerpo quedó en 10 pt y ahí se queda.

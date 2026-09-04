@@ -202,6 +202,15 @@
   .pg-cabecera {
     display: none !important;
   }
+  /* El envoltorio del sitio no se imprime. Sumaba 60 px de padding y margen
+     alrededor de la hoja —invisibles en pantalla, decisivos en papel— y era
+     todo lo que la empujaba a una segunda carilla: la hoja sola entra. */
+  .ancho,
+  .bloque {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
   .guia-hoja {
     max-width: none;
     margin: 0;
