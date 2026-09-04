@@ -1085,6 +1085,31 @@
             </button>
           </div>
         </div>
+        <!-- El control existía en tema.js (aplicarTexto/fijarTexto, la acción
+             texto-set) desde hace rato, pero nunca tuvo botones: #seg-texto no
+             estaba en ningún HTML, así que no había forma de activarlo. Y
+             aunque la hubiera habido, no habría hecho nada, porque toda la
+             tipografía estaba en px. Las dos cosas se arreglan juntas. -->
+        <div class="fila-ajuste">
+          <div>
+            <b>Tamaño del texto</b>
+            <span class="chico"
+              >También podés agrandarlo desde los ajustes del teléfono.</span
+            >
+          </div>
+          <div
+            class="segmentado"
+            id="seg-texto"
+            role="group"
+            aria-label="Tamaño del texto">
+            <button type="button" data-accion="texto-set" data-texto="">
+              Normal
+            </button>
+            <button type="button" data-accion="texto-set" data-texto="grande">
+              Grande
+            </button>
+          </div>
+        </div>
       </div>
 
       <h3>Sobre esto</h3>

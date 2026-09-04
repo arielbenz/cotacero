@@ -159,25 +159,32 @@
      que no haya dos números sueltos que se desincronicen. */
   --ancho-sitio: 1100px;
 
-  /* ---- escalas ---- */
-  --t-hero: 64px; /* el número del hidrómetro */
-  --t-display: 44px; /* h1 de landing y páginas, sólo en escritorio */
-  --t-xxl: 30px;
-  --t-xl: 24px;
-  --t-l: 20px;
-  --t-m: 17px;
-  --t-base: 15px;
-  --t-s: 13px;
-  --t-xs: 12px;
-  --t-tick: 12px;
+  /* ---- escalas ----
+     En rem, no en px, y esto NO es estilo: con px, alguien que agrandó la
+     letra en los ajustes de Android no veía ninguna diferencia. El rem sigue
+     al tamaño de fuente del navegador, que es lo que mueve ese ajuste.
+     Los valores son la fracción exacta sobre 16 px (el default), así que al
+     100 % el render es idéntico al que había con px. */
+  --t-hero: 4rem; /* 64px · el número del hidrómetro */
+  --t-display: 2.75rem; /* 44px · h1 de landing y páginas, sólo en escritorio */
+  --t-xxl: 1.875rem; /* 30px */
+  --t-xl: 1.5rem; /* 24px */
+  --t-l: 1.25rem; /* 20px */
+  --t-m: 1.0625rem; /* 17px */
+  --t-base: 0.9375rem; /* 15px */
+  --t-s: 0.8125rem; /* 13px */
+  --t-xs: 0.75rem; /* 12px */
+  --t-tick: 0.75rem; /* 12px */
 
-  --e-1: 4px;
-  --e-2: 8px;
-  --e-3: 12px;
-  --e-4: 16px;
-  --e-5: 20px;
-  --e-6: 24px;
-  --e-7: 32px;
+  /* El espaciado también: si el texto crece y el aire no, a 130 % las
+     palabras se pegan a los bordes de las tarjetas. */
+  --e-1: 0.25rem; /* 4px */
+  --e-2: 0.5rem; /* 8px */
+  --e-3: 0.75rem; /* 12px */
+  --e-4: 1rem; /* 16px */
+  --e-5: 1.25rem; /* 20px */
+  --e-6: 1.5rem; /* 24px */
+  --e-7: 2rem; /* 32px */
 
   --r-s: 8px;
   --r-m: 16px;
@@ -321,23 +328,29 @@ html[data-theme="light"] {
   margin: 0;
   padding: 0;
 }
+/* OJO: `html` NO lleva font-size. Es la raíz contra la que se resuelven todos
+   los rem: si acá se fija 15px, cada rem vale 15/16 y toda la escala se
+   encoge. El tamaño base del texto lo pone `body`.
+   Y NO va `-webkit-text-size-adjust: 100%`: esa línea es justo la que hacía
+   que el ajuste de "Tamaño de fuente" de Chrome en Android no hiciera nada. */
 html,
 body {
   background: var(--fondo);
   color: var(--texto);
   font-family: var(--sans);
   font-weight: 500;
-  font-size: var(--t-base);
   line-height: 1.55;
-  -webkit-text-size-adjust: 100%;
 }
 body {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  font-size: var(--t-base);
+  /* En rem: la barra de abajo crece con su etiqueta cuando el texto es más
+     grande, y con 88px fijos tapaba el último bloque de cada pestaña. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 /* La barra de instalar es fixed: sin esto flotaba encima del último bloque
    de cada pestaña, que además suele ser un aviso importante. */
 body.con-instalar {
-  padding-bottom: calc(96px + 60px + env(safe-area-inset-bottom));
+  padding-bottom: calc(6rem + 3.75rem + env(safe-area-inset-bottom));
 }
 button,
 input,
@@ -772,7 +785,7 @@ input[type="number"] {
 textarea {
   font-family: var(--sans);
   resize: vertical;
-  min-height: 64px;
+  min-height: 4rem;
 }
 input[type="range"] {
   width: 100%;
@@ -797,7 +810,7 @@ input[type="range"] {
   border-radius: var(--r-full);
   /* La altura mínima se declara, no se deduce del padding: así el objetivo
      táctil no depende de que nadie toque la escala de espaciados. */
-  min-height: 52px;
+  min-height: 3.25rem; /* 52px */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -852,7 +865,7 @@ input[type="range"] {
 }
 .btn.mini {
   width: auto;
-  min-height: 44px;
+  min-height: 2.75rem;
   padding: 0 var(--e-4);
   font-size: var(--t-s);
 }
@@ -1487,7 +1500,7 @@ input[type="range"] {
   top: var(--e-4);
   right: var(--e-4);
   width: auto;
-  min-height: 38px;
+  min-height: 2.75rem; /* era 38px: no llegaba al mínimo táctil */
   padding: 0 var(--e-4);
   font-size: var(--t-s);
 }
@@ -3013,7 +3026,7 @@ body.con-bienvenida {
   background: none;
   border-radius: var(--r-full);
   padding: 8px 14px;
-  min-height: 40px;
+  min-height: 2.75rem; /* era 40px: no llegaba al mínimo táctil */
   font-family: var(--sans);
   font-weight: 700;
   font-size: var(--t-s);
@@ -3044,7 +3057,7 @@ html.texto-grande {
 .chips-ancla a {
   display: inline-flex;
   align-items: center;
-  min-height: 42px;
+  min-height: 2.75rem;
   padding: 0 var(--e-4);
   border-radius: var(--r-full);
   border: 1.5px solid var(--linea);
@@ -3136,7 +3149,7 @@ html.texto-grande {
   display: flex;
   align-items: center;
   gap: var(--e-4);
-  min-height: 56px;
+  min-height: 3.5rem;
   padding: var(--e-3) 0;
   cursor: pointer;
   font-weight: 700;
@@ -3313,7 +3326,7 @@ html.texto-grande {
   .nav-menu > .nav-enlaces a:not(.btn) {
     display: flex;
     align-items: center;
-    min-height: 48px;
+    min-height: 3rem;
     padding: 0 var(--e-4);
     border-radius: var(--r-s);
     font-size: var(--t-base);
