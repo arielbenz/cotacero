@@ -54,7 +54,7 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?",
+            "name": "¿Por qué mi nivel de aviso no es el 5,30 de la alerta?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después."
@@ -62,10 +62,10 @@
           },
           {
             "@type": "Question",
-            "name": "¿El agua llega exactamente cuando se cruza mi umbral?",
+            "name": "¿El agua entra justo cuando el río llega a mi nivel de aviso?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m."
+              "text": "No. Es un cálculo aproximado. No sabe del terraplén (el anillo de defensas), de las bombas ni de la lluvia. El agua puede llegar antes por los desagües, o no llegar. Sirve para saber cuándo prepararte, no para adivinar el minuto. Por eso el número va redondeado: la altura del terreno sale de un plano con líneas cada medio metro."
             }
           },
           {
@@ -73,7 +73,7 @@
             "name": "¿La app avisa sola cuando el río sube?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo."
+              "text": "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo."
             }
           },
           {
@@ -97,7 +97,7 @@
             "name": "¿Funciona sin conexión?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado."
+              "text": "Sí. Una vez cargada, la app guarda lo esencial: tu nivel de aviso, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado."
             }
           },
           {
@@ -105,7 +105,7 @@
             "name": "¿Quién ve mi plan familiar y mis datos?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie."
+              "text": "Nadie. El plan, tu nivel de aviso y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie."
             }
           },
           {
@@ -113,7 +113,7 @@
             "name": "¿Esto reemplaza a la alerta de Defensa Civil?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Es una estimación para prepararte antes, hecha por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si tu umbral se cruza, prepará el plan y consultá los canales oficiales."
+              "text": "No. Es un cálculo aproximado para prepararte antes, hecho por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si el río llega a tu nivel de aviso, armá el plan y llamá al 103 si tenés dudas."
             }
           },
           {
@@ -217,16 +217,16 @@
       <main>
       <section class="bloque">
         <details class="faq">
-          <summary>¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?</summary>
+          <summary>¿Por qué mi nivel de aviso no es el 5,30 de la alerta?</summary>
           <p>La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.</p>
         </details>
         <details class="faq">
-          <summary>¿El agua llega exactamente cuando se cruza mi umbral?</summary>
-          <p>No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m.</p>
+          <summary>¿El agua entra justo cuando el río llega a mi nivel de aviso?</summary>
+          <p>No. Es un cálculo aproximado. No sabe del terraplén (el anillo de defensas), de las bombas ni de la lluvia. El agua puede llegar antes por los desagües, o no llegar. Sirve para saber cuándo prepararte, no para adivinar el minuto. Por eso el número va redondeado: la altura del terreno sale de un plano con líneas cada medio metro.</p>
         </details>
         <details class="faq">
           <summary>¿La app avisa sola cuando el río sube?</summary>
-          <p>Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.</p>
+          <p>Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.</p>
         </details>
         <details class="faq">
           <summary>¿De dónde sale la altura de mi terreno?</summary>
@@ -238,15 +238,15 @@
         </details>
         <details class="faq">
           <summary>¿Funciona sin conexión?</summary>
-          <p>Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.</p>
+          <p>Sí. Una vez cargada, la app guarda lo esencial: tu nivel de aviso, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.</p>
         </details>
         <details class="faq">
           <summary>¿Quién ve mi plan familiar y mis datos?</summary>
-          <p>Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.</p>
+          <p>Nadie. El plan, tu nivel de aviso y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.</p>
         </details>
         <details class="faq">
           <summary>¿Esto reemplaza a la alerta de Defensa Civil?</summary>
-          <p>No. Es una estimación para prepararte antes, hecha por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si tu umbral se cruza, prepará el plan y consultá los canales oficiales.</p>
+          <p>No. Es un cálculo aproximado para prepararte antes, hecho por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si el río llega a tu nivel de aviso, armá el plan y llamá al 103 si tenés dudas.</p>
         </details>
         <details class="faq">
           <summary>¿Cada cuánto se actualiza el nivel?</summary>
@@ -286,7 +286,7 @@
         </div>
         <div>
           <span class="eti">La app</span>
-          <a href="/datos">Cómo se calcula tu umbral</a>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/preguntas">Preguntas frecuentes</a>

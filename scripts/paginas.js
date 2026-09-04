@@ -176,7 +176,7 @@ const pie = ({ frescura = false } = {}) => `      <footer class="pie-sitio">
         </div>
         <div>
           <span class="eti">La app</span>
-          <a href="/datos">Cómo se calcula tu umbral</a>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/preguntas">Preguntas frecuentes</a>
@@ -707,7 +707,8 @@ const htmlDatos = pagina({
       html: `        <p>
           Hacen falta tres datos: <b>la altura de tu terreno</b>, <b>dónde está
           el cero de la regla del puerto</b> y <b>a qué distancia del puerto
-          estás</b>. De los tres sale <b>tu umbral estimado</b>: la lectura del
+          estás</b>. De los tres sale <b>tu umbral estimado</b> —en la app,
+          «tu nivel de aviso»—: la lectura del
           hidrómetro a partir de la cual el nivel de agua equivalente alcanzaría
           la cota de tu terreno. Es una referencia para prepararte, no el minuto
           en que entra el agua. Cota Cero <b>no genera información hidrológica
@@ -1061,16 +1062,16 @@ ${NORMATIVA.map(
 /* ---------- /preguntas ---------- */
 const PREGUNTAS = [
   [
-    "¿Por qué mi umbral es distinto de la alerta oficial de 5,30 m?",
+    "¿Por qué mi nivel de aviso no es el 5,30 de la alerta?",
     "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.",
   ],
   [
-    "¿El agua llega exactamente cuando se cruza mi umbral?",
-    "No. El umbral es una referencia hidráulica estimada: no sabe de defensas, terraplenes, bombeo, drenaje urbano ni lluvia local. El agua puede llegar antes (por los desagües) o no llegar (si las defensas resisten). Sirve para decidir cuándo prepararte, no para predecir el minuto de la inundación. Por eso la app lo muestra redondeado: la cota del terreno viene de curvas cada 0,5 m.",
+    "¿El agua entra justo cuando el río llega a mi nivel de aviso?",
+    "No. Es un cálculo aproximado. No sabe del terraplén (el anillo de defensas), de las bombas ni de la lluvia. El agua puede llegar antes por los desagües, o no llegar. Sirve para saber cuándo prepararte, no para adivinar el minuto. Por eso el número va redondeado: la altura del terreno sale de un plano con líneas cada medio metro.",
   ],
   [
     "¿La app avisa sola cuando el río sube?",
-    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cruza los umbrales oficiales de 5,30 y 5,70 m. El aviso se arma en tu teléfono: el servidor no conoce tu umbral ni tu zona, sólo despierta a la app, que compara contra el umbral guardado en tu dispositivo.",
+    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.",
   ],
   [
     "¿De dónde sale la altura de mi terreno?",
@@ -1082,15 +1083,15 @@ const PREGUNTAS = [
   ],
   [
     "¿Funciona sin conexión?",
-    "Sí. Una vez cargada, la app guarda lo esencial: tu umbral, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
+    "Sí. Una vez cargada, la app guarda lo esencial: tu nivel de aviso, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
   ],
   [
     "¿Quién ve mi plan familiar y mis datos?",
-    "Nadie. El plan, tu umbral y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
+    "Nadie. El plan, tu nivel de aviso y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
   ],
   [
     "¿Esto reemplaza a la alerta de Defensa Civil?",
-    "No. Es una estimación para prepararte antes, hecha por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si tu umbral se cruza, prepará el plan y consultá los canales oficiales.",
+    "No. Es un cálculo aproximado para prepararte antes, hecho por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si el río llega a tu nivel de aviso, armá el plan y llamá al 103 si tenés dudas.",
   ],
   [
     "¿Cada cuánto se actualiza el nivel?",
@@ -1448,8 +1449,8 @@ ${listaBajantes}
           <h2>Recorré la serie año por año</h2>
           <p>
             Cada barra es un año: va del nivel más bajo al más alto que marcó el
-            hidrómetro. Las dos líneas punteadas son los umbrales oficiales de
-            alerta y evacuación. Tocá una barra para ver ese año en detalle.
+            hidrómetro. Las dos líneas punteadas son la alerta y la evacuación
+            de la ciudad. Tocá una barra para ver ese año en detalle.
           </p>
           <div id="h-franja" class="h-franja"></div>
           <p class="chico">
@@ -1834,7 +1835,7 @@ const CODIGO_WIDGET = `<iframe src="${SITIO}/widget"
 
 const CONDICIONES = [
   "No recortes el crédito: «Datos: INA · vía Cota Cero» es la trazabilidad del número que estás publicando. Sin eso, tu lector no puede ir a la fuente.",
-  "El widget muestra el nivel oficial y los umbrales oficiales — no umbrales personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.",
+  "El widget muestra el nivel oficial y la alerta y la evacuación de la ciudad — no niveles de aviso personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.",
   "En emergencia mandan las autoridades: si Defensa Civil comunica algo distinto de lo que dice el widget, vale lo de Defensa Civil.",
 ];
 
@@ -1846,7 +1847,8 @@ const htmlMedios = pagina({
   h1: "El río, embebido en tu nota",
   lead:
     "Un widget gratuito con el nivel del hidrómetro del Puerto, la tendencia y " +
-    "los umbrales oficiales, siempre actualizado. Pegás dos líneas de HTML y tu " +
+    "los niveles de alerta y evacuación de la ciudad, siempre actualizado. " +
+    "Pegás dos líneas de HTML y tu " +
     "nota sobre el río queda viva. Sin claves de API, sin cookies, sin rastreo " +
     "de tus lectores.",
   jsonld: null,
@@ -1914,8 +1916,8 @@ const LICENCIAS = [
 ];
 
 const PRIVACIDAD = [
-  ["Tu umbral, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
-  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la cota de tu terreno ni tu umbral — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
+  ["Tu nivel de aviso, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
+  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la altura de tu terreno ni tu nivel de aviso — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
   ["Sugerencias", "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible."],
   ["Cuántas personas la usan", "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno."],
 ];
@@ -1948,7 +1950,7 @@ const htmlLegal = pagina({
           organismo. Usa datos públicos de esas fuentes y las cita.
         </p>
         <p>
-          <b>Los umbrales personales son estimaciones.</b> Se calculan con un
+          <b>Los niveles de aviso son cálculos aproximados.</b> Se calculan con un
           modelo simplificado y con datos que traen margen de error (±0,5 m en
           la cota del terreno). El modelo no conoce defensas, terraplenes,
           bombeo ni desagües: el agua puede llegar antes o después de lo
@@ -1997,7 +1999,7 @@ ${PRIVACIDAD.map(
           <b>sí deja cookies en tu navegador</b> y manda los datos de tu visita
           a Google. Los dos corren en las páginas del sitio y
           <b>ninguno corre dentro de la app ni dentro del widget</b>: tu cota,
-          tu umbral y tu plan no salen de tu teléfono, y a los lectores de un
+          tu nivel de aviso y tu plan no salen de tu teléfono, y a los lectores de un
           medio que embebe el widget no los mide nadie.
         </p>`,
     },
