@@ -322,6 +322,19 @@ Las páginas generadas terminaban con un bloque de enlaces a otras páginas.
 **Se sacaron y no se vuelven a agregar.** Si una página necesita mandar a otra,
 el enlace va donde el texto lo pide, no en una lista de relleno al pie.
 
+### Dos trampas del marcado de la app
+
+**`#plan-impreso` es hijo directo de `<body>`, no del `<main>`.** El
+`@media print` esconde `body.app > *:not(#plan-impreso)`: metido adentro del
+`<main>` se lo lleva puesto la regla del padre y **imprimir el plan da una hoja
+en blanco**, sin ningún error.
+
+**Los comentarios HTML son cortos a propósito.** Viajan al navegador en cada
+visita: llegaron a ser 32 KB en todo el sitio. El razonamiento largo va en
+`README.md`, en `CLAUDE.md`, o —en las páginas generadas— como comentario de
+JavaScript dentro de `scripts/paginas.js`, que no se emite. En el HTML queda
+una marca de dos o tres palabras que dice adónde ir a buscarlo.
+
 ### Una clase, un componente
 
 `.cita` llegó a nombrar dos cosas distintas —las tarjetas de avisos de la

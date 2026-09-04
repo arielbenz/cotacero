@@ -292,12 +292,7 @@ function pagina({
     ...(jsonld ? [jsonld] : []),
   ];
   return `<!doctype html>
-<!--
-  ARCHIVO GENERADO — no editar a mano.
-  Lo emite scripts/paginas.js y la próxima corrida lo pisa entero.
-  Para cambiar algo de esta página se edita el generador:
-      node scripts/paginas.js
--->
+<!-- Generado por scripts/paginas.js — no editar a mano -->
 <html lang="es-AR">
   <head>
     <meta charset="utf-8" />
@@ -311,9 +306,8 @@ ${
       ruta === "/404" ? "" : `    <link rel="canonical" href="${url}" />\n`
     }
     <meta name="description" content="${esc(descripcion)}" />
-    <!-- Dos, con media: pinta la barra del navegador en el teléfono. Un
-         solo valor fijo dejaba la barra oscura sobre una página clara. -->
-    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    ${/* Dos con `media`: un solo valor fijo dejaba la barra del navegador
+         oscura sobre una página clara. */ ""}<meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Cota Cero" />
@@ -329,8 +323,8 @@ ${meta.indexable ? "" : '    <meta name="robots" content="noindex, follow" />\n'
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
-         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    ${/* 96 px porque Google exige cuadrado y múltiplo de 48: con 32 lo
+         descarta y muestra el que tenga cacheado. */ ""}
     <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
@@ -338,24 +332,18 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="stylesheet" href="/css/app.css" />
     <script src="/js/rio-barra.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
-    <!-- Google Analytics. El cargador es externo y la configuración vive en
-         /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
-         la CSP. No va en /app ni en /widget — ver el comentario de ese
-         archivo. -->
-    <script
+    ${/* El cargador va externo y la configuración en /js/analitica.js: el
+         <script> en línea del snippet oficial lo bloquea la CSP. No va en
+         /app ni en /widget — ver el encabezado de js/analitica.js. */ ""}<script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
     <script src="/js/analitica.js" defer></script>
 ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
-    <!-- La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
-         los mismos cuatro destinos. Antes tenía dos enlaces propios —volver y
-         contacto— y quedaba a la medida angosta del cuerpo, así que la marca
-         se corría de lugar según de qué página vinieras.
-         Lo único que no viaja es la píldora del nivel: la llena landing.js,
-         que estas páginas no cargan, y un hueco que no completa nadie es peor
-         que no tenerlo. -->
-    <div class="franja-estado" id="franja-estado" role="status"></div>
+    ${/* La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
+         los mismos cuatro destinos. Antes tenía dos enlaces propios y quedaba
+         a la medida angosta del cuerpo, así que la marca se corría de lugar
+         según de qué página vinieras. */ ""}<div class="franja-estado" id="franja-estado" role="status"></div>
 
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
@@ -364,13 +352,10 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
         <span class="chip-borde">NO OFICIAL</span>
-        <!-- El nivel en vivo, en la barra: es lo que hace que el dato siga a
-             mano después de scrollear más allá del hero. Arranca en gris y sin
-             número —no decimos "todo bien" antes de saberlo— y lo llena
-             js/landing.js con la misma lectura que el mockup. El aria-label lo
-             reescribe ahí también, porque "Río 4,86 m ▲ sube" leído en voz alta
-             no es una frase. -->
-        <a
+        ${/* Arranca en gris y sin número: no decimos "todo bien" antes de
+             saberlo. La llena js/rio-barra.js, que también reescribe el
+             aria-label —"Río 4,86 m ▲ sube" leído en voz alta no es una
+             frase—. */ ""}<a
           class="pildora-rio"
           id="pildora-rio"
           href="#abrir"
@@ -1447,10 +1432,8 @@ ${listaBajantes}
 
       <p id="h-cargando" class="chico" role="status">Cargando la línea de tiempo…</p>
 
-      <!-- Lo interactivo, y SÓLO lo interactivo, espera al JavaScript. Los
-           datos de arriba ya están en el HTML: si esto no carga, la página
-           sigue contando la historia completa. -->
-      <div id="h-contenido" hidden>
+      ${/* Lo interactivo, y SÓLO lo interactivo, espera al JavaScript: los
+           datos de arriba ya están en el HTML. */ ""}<div id="h-contenido" hidden>
         <section class="bloque">
           <h2>Recorré la serie año por año</h2>
           <p>

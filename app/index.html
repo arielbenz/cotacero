@@ -7,18 +7,14 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>Cota Cero — la app del nivel del río en Santa Fe</title>
-    <!-- La app genera ?ir=cota, ?ir=plan y ?ir=donde al navegar entre
-         pestañas: son la misma página. Sin canonical, un buscador las trata
-         como cuatro y reparte la señal. -->
+    <!-- ?ir= son la misma página: canónica sin parámetros -->
     <link rel="canonical" href="https://cotacerosf.com/app" />
     <meta
       name="description"
       content="La herramienta: el nivel del río Paraná, tu nivel de aviso, el plan familiar y los puntos de encuentro. Funciona sin señal una vez cargada."
     />
     <meta name="theme-color" content="#0B1418" />
-    <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
-         difundir esto. Las URL van absolutas: los rastreadores de vista previa
-         no siempre resuelven las relativas. -->
+    <!-- og: para cuando se comparte por WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cota Cero" />
     <meta
@@ -40,12 +36,7 @@
     <meta property="og:url" content="https://cotacerosf.com/app" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- Los controles nativos (select, scrollbars) siguen al tema. -->
-    <!-- NOINDEX, FOLLOW. La app es la interfaz de la herramienta, no un
-         documento: quien llega desde una búsqueda informativa cae acá con la
-         app vacía —sin cota cargada— en vez de en una página que le contesta.
-         Y repite los 30 puntos de encuentro, que ya tienen su propia página.
-         `follow` a propósito: se sigue rastreando y sigue pasando autoridad.
-         El motivo está escrito en lib/paginas.js, que es lo que manda. -->
+    <!-- noindex, follow: el motivo, en lib/paginas.js -->
     <meta name="robots" content="noindex, follow" />
     <meta name="color-scheme" content="dark light" />
     <script type="application/ld+json">
@@ -64,8 +55,7 @@
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
-         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    <!-- 96 px: Google descarta los de 32 -->
     <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -75,8 +65,7 @@
     />
     <meta name="apple-mobile-web-app-title" content="Cota Cero" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <!-- Las tipografías van self-hosteadas en /vendor/fonts. Precargamos las
-         dos que se ven arriba de todo, para que el encabezado no parpadee. -->
+    <!-- Precarga: sólo las dos que se ven arriba de todo -->
     <link
       rel="preload"
       href="/vendor/fonts/jakarta-800.woff2"
@@ -91,16 +80,11 @@
       type="font/woff2"
       crossorigin
     />
-    <!-- El motor del mapa (MapLibre, self-hosteado en /vendor) no va acá:
-         bloqueaba la primera pintura de toda la app, teléfonos de emergencia
-         incluidos, por una pestaña que quizá nadie abra. Se carga recién al
-         entrar a "Dónde ir". -->
+    <!-- MapLibre no va acá: se carga al abrir Dónde ir -->
     <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body class="app">
-    <!-- Primero en el DOM y sólo visible con el foco: para quien navega con
-         teclado o con switch, saltear la cabecera es la diferencia entre
-         llegar al río en un tabulador o en veinte. -->
+    <!-- Salto al contenido: sólo visible con el foco -->
     <a class="saltar" href="#contenido">Saltar al contenido</a>
     <header class="top">
       <div class="marca-bloque">
@@ -246,15 +230,7 @@
       </div>
     </noscript>
 
-    <!-- Primera visita: se muestra el río antes de pedir nada. Es un overlay y
-         no una vista, para no meter una quinta entrada en el sistema de
-         pestañas. Lo maneja js/app/bienvenida.js.
-
-         Es un <dialog> y no un <div>: con showModal() el foco queda adentro,
-         Escape cierra y el resto de la página queda inerte para un lector de
-         pantalla. Como <div> se podía tabular "por detrás" hacia contenido
-         tapado. Es el mismo motivo por el que la hoja de instalar ya usaba
-         <dialog>. -->
+    <!-- Primera visita. <dialog> por el foco y Escape -->
     <dialog id="bienvenida" class="bienvenida" aria-labelledby="bv-titulo">
       <div class="bienvenida-caja">
         <span class="lockup" style="margin-bottom: 28px">
@@ -310,8 +286,7 @@
           <button class="btn sec" type="button" data-accion="bv-despues">
             Ahora no, ver el río
           </button>
-          <!-- Enlace y no un tercer botón sólido: "Dos botones, no tres". Un
-               control que necesita menos peso pide ser un enlace. -->
+          <!-- Enlace, no un tercer botón: «Dos botones, no tres» -->
           <button
             class="enlace-crudo chico"
             type="button"
@@ -322,12 +297,7 @@
       </div>
     </dialog>
 
-    <!-- Las cinco vistas van adentro de un <main>: es lo que hace que el
-         "Saltar al contenido" tenga adónde saltar y que un lector de pantalla
-         pueda ir directo al contenido sin recorrer la cabecera.
-         #plan-impreso queda AFUERA, hijo directo de <body>: la regla de
-         impresión esconde `body.app > *:not(#plan-impreso)`, y adentro del
-         <main> se lo llevaría puesto. -->
+    <!-- #plan-impreso queda AFUERA: lo necesita el @media print -->
     <main id="contenido">
     <!-- ======================= RÍO ======================= -->
     <section
@@ -346,12 +316,7 @@
       <div class="tarjeta">
         <span class="eti">Hidrómetro · Dique 2, Puerto de Santa Fe</span>
         <div class="regla-caja">
-          <!-- Puro gráfico. Cada número que dibuja está como texto en la
-               leyenda de al lado, así que para un lector de pantalla esto
-               sólo sería ruido.
-               La numeración va en su propia columna, fuera de la pista: con
-               los números adentro se montaban con las pastillas de umbral,
-               que están a 40 cm una de otra. -->
+          <!-- Puro gráfico: cada número está como texto en la leyenda -->
           <div class="instrumento" aria-hidden="true">
             <div class="escala" id="escala"></div>
             <div class="regla" id="regla"></div>
@@ -361,10 +326,7 @@
               <div class="v" id="lg-actual">—</div>
               <div class="k">Nivel actual del río</div>
             </div>
-            <!-- Los tres números los pone pintarRio(): los umbrales los publica
-                 la estación del INA y el récord sale de la serie histórica.
-                 Escritos a mano, la marca de la regla se movía con el dato y el
-                 texto de al lado se quedaba en el viejo. -->
+            <!-- Los pone pintarRio(): salen de la estación, no del HTML -->
             <div class="leyenda-item" style="border-color: var(--alerta)">
               <div class="v" id="lg-alerta">—</div>
               <div class="k">
@@ -400,9 +362,7 @@
         ></div>
       </div>
 
-      <!-- Sin cota del terreno cargada, la app no puede responder su propia
-           pregunta. Antes no lo decía en esta pestaña: el renglón del umbral
-           simplemente no aparecía. -->
+      <!-- Sin altura cargada, la app no contesta su propia pregunta -->
       <div id="cta-cota"></div>
 
       <details class="tarjeta" id="det-manual">
@@ -424,9 +384,7 @@
         </p>
         <label class="campo"
           ><span>Altura del hidrómetro (m)</span>
-          <!-- type=text + inputmode: con type=number el navegador descarta
-               "3,40" y dejaba el campo vacío sin avisar nada. La app muestra
-               coma en todos lados; el campo tiene que aceptarla. -->
+          <!-- text + inputmode: type=number descartaba «3,40» -->
           <input
             type="text"
             inputmode="decimal"
@@ -451,9 +409,7 @@
         </p>
       </div>
 
-      <!-- La tendencia va después de la lluvia: es caudal simulado en m³/s y
-           la propia tarjeta aclara que no sirve para decidir. Estaba arriba,
-           en el lugar de la información accionable. -->
+      <!-- Después de la lluvia: no es el nivel de la regla -->
       <h2>¿Viene subiendo o bajando?</h2>
       <div class="tarjeta" id="tendencia">
         <span class="eti">Tendencia</span>
@@ -466,9 +422,7 @@
         alcanzan a sacar el agua de la ciudad.
       </div>
 
-      <!-- Sólo entran valores con fuente. El récord de 1992 y los dos
-           umbrales oficiales están publicados; los máximos de otras crecidas
-           no los pudimos verificar, así que no están. -->
+      <!-- Sólo valores con fuente publicada -->
       <h2>En contexto</h2>
       <div class="tarjeta" id="contexto-caja">
         <span class="eti">Dónde está el río hoy</span>
@@ -534,9 +488,7 @@
           <button class="btn sec" data-accion="abrir-dir">
             Buscar dirección
           </button>
-          <!-- La cuarta forma, y la única que no pide saber nada: ni la cota
-               ni la calle con altura. Para quien no sabe su dirección formal
-               pero reconoce su cuadra desde arriba. -->
+          <!-- La única que no pide saber ningún dato -->
           <button class="btn sec" type="button" data-accion="cota-mapa">
             Marcar mi casa en el mapa
           </button>
@@ -561,10 +513,7 @@
           no por tu puerta, y el cálculo va siempre medio metro por debajo. El
           número que vale es el de un relevamiento, la escritura, o el que te
           dé el municipio.
-          <!-- La explicación larga —cómo se interpola, por qué medio metro,
-               por qué se descartó el modelo satelital— vivía acá duplicada.
-               Ahora está toda en /datos, que el service worker precachea, así
-               que se lee sin señal igual. -->
+          <!-- La explicación larga vive en /datos -->
           <a href="/datos">Cómo se calcula, en detalle</a>.
         </div>
         </div>
@@ -636,8 +585,7 @@
       <h2>Antes de que suba <span class="cuenta" id="prog-previa"></span></h2>
       <div class="tarjeta" id="lista-previa"></div>
 
-      <!-- Qué significa el sello de las listas. Va una sola vez, al pie de las
-           dos, para no repetir la explicación en cada renglón. -->
+      <!-- El sello, una sola vez al pie de las dos listas -->
       <p class="sello-fuente">
         Los renglones con <b class="sello-oficial">plan municipal</b> salen del
         Plan de Contingencia de la Dirección de Gestión de Riesgos. El resto lo
@@ -667,13 +615,7 @@
 
     <!-- ======================= DÓNDE IR ======================= -->
     <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
-      <!-- Para quien no sabe la altura de su terreno ni quiere averiguarla
-           ahora. Hasta acá, la app no tenía nada que ofrecerle: sin zona y sin
-           altura no hay número, y los tres callejones del cálculo terminaban
-           pidiéndole un dato que no tiene. Esto es lo que sirve sin configurar
-           nada, y no es poco.
-           Va escondido y lo muestra la acción "ayuda": no es una quinta vista
-           —la barra se queda en cuatro— sino la primera tarjeta de ésta. -->
+      <!-- Lo que sirve sin configurar nada. Ver README -->
       <div id="ayuda-simple" class="tarjeta" hidden>
         <h2 style="margin-top: 0">Si no sabés nada de esto</h2>
         <ol class="pasos">
@@ -709,9 +651,7 @@
         Los 30 espacios del Plan de Contingencia municipal, con responsables
         capacitados. Identificá el tuyo <b>antes</b> de necesitarlo.
       </p>
-      <!-- La fuente, en la pantalla donde se usa el dato y no sólo en /datos:
-           estos treinta puntos y las recomendaciones del plan son del
-           municipio, no nuestros. -->
+      <!-- La fuente donde se usa el dato, no sólo en /datos -->
       <p class="sello-fuente">
         <span class="k">Fuente</span> Gestión de Riesgos · Municipalidad de Santa Fe
         <a
@@ -722,9 +662,7 @@
         >
       </p>
 
-      <!-- La grilla de dos columnas va acá, en un envoltorio propio, y NO en
-           la sección: si estuviera en la sección, los <h2> a ancho completo
-           cortarían cada fila y la segunda columna nunca se formaría. -->
+      <!-- Envoltorio propio: en la sección, los h2 se desalineaban -->
       <div class="mapa-y-lista">
         <div class="col-mapa">
           <div id="mapa"></div>
@@ -744,10 +682,7 @@
               data-input="filtrar-puntos"
           /></label>
 
-          <!-- Los 30 puntos van en el HTML, no inyectados por JS: así los indexa
-           un buscador y se ven aunque el script no arranque. app.js los lee de
-           acá, así que esto es la ÚNICA fuente de verdad — no hay copia en el
-           JS que se pueda desincronizar. -->
+          <!-- En el HTML, no inyectados: es la fuente de los 30 puntos -->
           <div class="tarjeta">
             <ul class="lista-plana" id="lista-puntos">
               <li data-lon="-60.72546604" data-lat="-31.5965">
@@ -1134,10 +1069,7 @@
       </div>
     </section>
 
-    <!-- ======================= AJUSTES =======================
-         No es una quinta pestaña: la barra de abajo se deja en cuatro para no
-         tocar los caminos que se usan en una emergencia. Se llega desde el
-         engranaje de la cabecera. -->
+    <!-- ===== AJUSTES ===== Se llega desde el engranaje, no de la barra -->
     <section class="vista" id="v-ajustes" aria-label="Ajustes" tabindex="-1">
       <h2 style="margin-top: 0">Ajustes</h2>
 
@@ -1164,11 +1096,7 @@
             </button>
           </div>
         </div>
-        <!-- El control existía en tema.js (aplicarTexto/fijarTexto, la acción
-             texto-set) desde hace rato, pero nunca tuvo botones: #seg-texto no
-             estaba en ningún HTML, así que no había forma de activarlo. Y
-             aunque la hubiera habido, no habría hecho nada, porque toda la
-             tipografía estaba en px. Las dos cosas se arreglan juntas. -->
+        <!-- Existía en tema.js sin botones, y todo estaba en px -->
         <div class="fila-ajuste">
           <div>
             <b>Tamaño del texto</b>
@@ -1194,8 +1122,7 @@
       <h3>Sobre esto</h3>
       <div class="tarjeta">
         <ul class="lista-plana">
-          <!-- Un solo renglón para /datos. Eran dos, con dos nombres y el
-               mismo destino, desde que /mi-cota se fusionó ahí adentro. -->
+          <!-- Un solo renglón: eran dos al mismo destino -->
           <li>
             <a class="punto" href="/datos"
               ><span class="n">Cómo se calcula, y de dónde salen los datos</span></a
@@ -1231,21 +1158,15 @@
     </section>
     </main>
 
-    <!-- Sólo existe al imprimir. La app recomienda tener los teléfonos en
-         papel y no se podía imprimir nada decente. -->
+    <!-- Sólo al imprimir. Lo llena prepararImpresion() -->
     <pre id="plan-impreso" aria-hidden="true"></pre>
 
-    <!-- Va en el pie: es una acción secundaria, y así queda a mano desde
-         cualquier pestaña sin ocupar un lugar en la nav. -->
-    <!-- El formulario vivía acá adentro, plegado. Ahora está en /contacto:
-         uno solo, con más categorías y con las pastillas accesibles. Enviar
-         necesita red igual, así que sin señal no se pierde nada — y el
-         service worker precachea /contacto, así que la página abre. -->
+    <!-- Al pie: a mano desde cualquier pestaña, sin ocupar la barra -->
+    <!-- El formulario vive en /contacto, precacheado -->
     <details class="sugerir" id="sugerir">
       <summary>Sugerir algo o avisar de un error</summary>
 
-      <!-- Lo primero, antes que nada: cualquier caja de texto en una app de
-           emergencia se puede leer como una vía para pedir auxilio. -->
+      <!-- Antes que nada: esto no es una vía para pedir auxilio -->
       <div class="aviso grave" style="margin: 12px 0">
         <b>Esto no es una vía para pedir ayuda.</b> Nadie lo lee en el momento.
         Si necesitás asistencia ahora:
@@ -1265,23 +1186,7 @@
       <a class="btn" href="/contacto">Escribirnos</a>
     </details>
 
-    <!-- El pie de la app es corto A PROPÓSITO. Lo institucional —qué es Cota
-         Cero, de dónde sale cada dato, el legal, quién la hace— vive en el
-         sitio desde que existe la portada, y Ajustes → "Sobre esto" tiene la
-         lista completa. Repetirlo acá abajo, en las cuatro pantallas, era
-         gastar el pie en cosas que ya están a un toque.
-
-         Lo que queda no es lo que sobró: son las dos frases que no pueden
-         faltar en NINGUNA pantalla. La portada afirma por escrito que la app
-         "lo dice en cada pantalla" —y es el único lugar de la app donde se
-         dice—, así que sacarlas de acá volvería falsa esa frase.
-
-         Se fue también "Niveles de alerta y evacuación según FICH-UNL y
-         Prefectura Naval Argentina": quedó vieja. Desde que la app lee la API
-         del INA esos dos umbrales los publica la estación (ver `nivelRio` en
-         lib/fuentes.js) y no esos dos organismos; Prefectura es dueña de la
-         escala, que es otra cosa. Y no hace falta decirlo acá: cada número de
-         la app ya lleva su sello de fuente con el enlace para ir a mirarlo. -->
+    <!-- Corto a propósito: sólo lo que no puede faltar. Ver README -->
     <div class="pie">
       <!-- Se muestra sólo si la app no está instalada; lo decide instalar.js. -->
       <p id="instalar-pie" class="instalar-pie" hidden>
@@ -1297,11 +1202,7 @@
       dicen que salgas, salí.<br />
       <span id="version"></span>
 
-      <!-- La firma se queda: una herramienta que dice "sin vínculo con
-           organismos oficiales" gana en que se vea quién responde por ella, y
-           es el contrapeso del renglón de arriba. Sin las pastillas de X e
-           Instagram, que no son de quién responde sino de dónde seguirlo: para
-           escribirnos está /contacto, en Ajustes. -->
+      <!-- La firma es el contrapeso del «sin vínculo oficial» -->
       <div class="firma">Hecho por <b>Ariel Benz</b></div>
     </div>
 
@@ -1338,16 +1239,9 @@
     </nav>
 
     <script type="module" src="/js/app/principal.js"></script>
-    <!-- El respaldo para un teléfono que no puede correr la app. Va SIN
-         `nomodule`: los navegadores que fallan por la sintaxis de 2020 sí
-         soportan módulos, así que con `nomodule` se saltearían justo el
-         respaldo que necesitan. Ver js/sin-modulos.js. -->
+    <!-- Respaldo sin módulos. Va SIN nomodule: ver js/sin-modulos.js -->
     <script src="/js/sin-modulos.js" defer></script>
-    <!-- Vercel Web Analytics. Va sólo el script externo: el snippet oficial
-         incluye además un <script> inline que nuestra CSP bloquea, y que sólo
-         sirve para encolar custom events (que son de plan Pro). Al ser
-         mismo-origen entra en `script-src 'self'` sin abrir la política.
-         En local da 404: la ruta la crea Vercel al desplegar. -->
+    <!-- Sólo el script externo: el inline lo bloquea la CSP -->
     <script defer src="/_vercel/insights/script.js"></script>
   </body>
 </html>

@@ -10,10 +10,7 @@
     <meta
       name="description"
       content="Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad." />
-    <!-- Dos, con media: es lo que pinta la barra del navegador en el
-         teléfono. Antes era un solo valor oscuro fijo, así que en modo
-         claro la página salía clara con la barra negra arriba. En
-         escritorio no se nota porque el navegador lo ignora. -->
+    <!-- Uno por tema: la barra del navegador -->
     <meta
       name="theme-color"
       content="#fafbfc"
@@ -88,8 +85,7 @@
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <!-- Google exige que el favicon del buscador sea cuadrado y múltiplo de
-         48 px: con 32 lo descarta y muestra el que tenga cacheado. -->
+    <!-- 96 px: Google descarta los de 32 -->
     <link
       rel="icon"
       type="image/png"
@@ -114,22 +110,14 @@
     <script src="/js/rio-barra.js" defer></script>
     <script src="/js/landing.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
-    <!-- Google Analytics. El cargador es externo y la configuración vive en
-         /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
-         la CSP. No va en /app ni en /widget — ver el comentario de ese
-         archivo. -->
+    <!-- Analytics: la config va en /js/analitica.js (CSP) -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
     <script src="/js/analitica.js" defer></script>
   </head>
   <body class="landing">
-    <!-- La franja de estado oficial. Nace vacía y vacía mide cero: en día
-         normal no reserva un pixel. Vive igual en el HTML porque un
-         role="status" que recién aparece con el aviso adentro no lo anuncia
-         ningún lector de pantalla — tiene que estar antes de que el texto
-         cambie. La llena js/landing.js sólo con una lectura FRESCA que pase
-         los 5,30 m; con dato viejo no se muestra nunca. -->
+    <!-- Franja de alerta: vacía mide cero. Ver README -->
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
     <div class="ancho">
@@ -166,12 +154,7 @@
           <span class="lockup-nombre">Cota Cero</span>
         </a>
         <span class="chip-borde">NO OFICIAL</span>
-        <!-- El nivel en vivo, en la barra: es lo que hace que el dato siga a
-             mano después de scrollear más allá del hero. Arranca en gris y sin
-             número —no decimos "todo bien" antes de saberlo— y lo llena
-             js/landing.js con la misma lectura que el mockup. El aria-label lo
-             reescribe ahí también, porque "Río 4,86 m ▲ sube" leído en voz alta
-             no es una frase. -->
+        <!-- Nivel en vivo: lo llena js/rio-barra.js -->
         <a
           class="pildora-rio"
           id="pildora-rio"
@@ -206,24 +189,7 @@
 
       <header class="hero">
         <div>
-          <!-- Acá había una píldora que decía "● SANTA FE · EMERGENCIA
-               HÍDRICA" con el punto pulsando. Se fue por dos motivos.
-
-               El primero es que mentía: el punto que late es el gesto de un
-               dato en vivo, y ahí no había ningún dato — era una cadena fija.
-               Ahora la barra tiene el nivel de verdad y la franja sale sola
-               cuando hay alerta: dos cosas con cara de "en vivo", una falsa,
-               es peor que ninguna.
-
-               El segundo es que tiraba el dato. "EMERGENCIA HÍDRICA" en
-               mayúsculas no es una consigna: es la Ley provincial 14.477, con
-               nombre, número y una página donde se puede ir a leer. Eso es lo
-               que quedó abajo, en el renglón que sí puede decirlo entero.
-
-               El H1 nombra el río a propósito: la frase funcionaba pero no
-               decía de qué río ni de dónde, y es la página que tiene que
-               contestar "nivel del Paraná en Santa Fe". La bajada pone el
-               hidrómetro; el renglón del pie, la ciudad y el marco legal. -->
+          <!-- Sin píldora acá: ver CLAUDE.md, «el mono en mayúsculas» -->
           <h1 class="titulo-hero">
             El río Paraná tiene un número.<br />Tu casa tiene otro.
           </h1>
@@ -249,17 +215,7 @@
           </p>
         </div>
 
-        <!-- El mockup no es una ilustración: arranca en el nivel real que
-             trae landing.js de /api/nivel, y de ahí para arriba se puede
-             mover —con el scroll o con el control— para ver qué significan
-             los umbrales.
-
-             Eso es una SIMULACIÓN y se dice así con todas las letras: el
-             número grande de arriba se queda SIEMPRE en el dato de hoy, la
-             marca "hoy" queda clavada en la regla y la lectura del pie avisa
-             cuando lo que se ve dejó de ser el nivel real. Un hero que mueve
-             el número del hidrómetro mientras alguien scrollea durante una
-             crecida sería mentirle en el peor momento posible. -->
+        <!-- Mockup: `real` no se mueve, `sim` sí. Ver README -->
         <div class="mockup-envoltura" id="abrir">
           <div class="mockup">
             <div class="mockup-cabecera">
@@ -271,13 +227,7 @@
               </div>
               <p class="chico" id="nivel-pie">Buscando el último dato…</p>
             </div>
-            <!-- Las líneas de alerta y evacuación vienen escritas con los
-                 valores de respaldo y su posición en el CSS: si el JavaScript
-                 no corre, la regla igual dice dónde están los umbrales. Cuando
-                 /api/nivel contesta, landing.js las reubica con los que
-                 publica la estación. La del récord empieza oculta porque su
-                 número sale de datos-abiertos/historia.json y acá no se
-                 escribe a mano ninguno. -->
+            <!-- Umbrales de respaldo en el marcado, por si no corre el JS -->
             <div class="regla-mini" id="regla-mini">
               <div class="rm-agua" id="rm-agua"></div>
               <div class="rm-linea" id="rm-superficie"></div>
@@ -293,9 +243,7 @@
               <div class="rm-umbral rm-hoy" id="rm-hoy" hidden><b></b></div>
               <span class="rm-ahora" id="rm-ahora"></span>
             </div>
-            <!-- El control está siempre en el marcado, deshabilitado hasta que
-                 llegue el dato: si apareciera recién ahí, la portada saltaría
-                 bajo el dedo de quien está leyendo el nivel. -->
+            <!-- Siempre en el marcado, para no saltar al llegar el dato -->
             <div class="mockup-sim">
               <div class="ms-fila">
                 <label class="eti" for="rm-rango">Mové el río</label>
@@ -320,9 +268,7 @@
       </header>
 
       <section class="franja-oscura">
-        <!-- Esto era un <p class="eti"> en mono y mayúsculas, o sea un titular
-             disfrazado de rótulo: la sección no tenía ningún <h2>. Ahora es lo
-             que siempre fue. -->
+        <!-- h2 de verdad, no un rótulo -->
         <h2>Santa Fe ya sabe lo que es</h2>
         <div class="hitos">
           <div>
@@ -398,11 +344,7 @@
         </div>
       </section>
 
-      <!-- Las dos secciones que siguen van en tarjeta, con el contenido a un
-           lado y la evidencia al otro. El rótulo numerado NO es decorativo:
-           02 y 03 ordenan el recorrido de la portada —cómo funciona, dónde ir,
-           qué no sabe— y ese orden es el argumento. Un rótulo suelto arriba de
-           un título era otra cosa y por eso se había ido. -->
+      <!-- 02 y 03 ordenan el recorrido: no son decoración -->
       <section class="tarjeta-seccion con-mapa">
         <div class="ts-texto">
           <p class="rotulo">02 — Dónde ir</p>
@@ -418,8 +360,7 @@
           </div>
           <a class="btn" href="/puntos-de-encuentro">Ver la lista completa</a>
         </div>
-        <!-- El mapa llega hasta el borde de la tarjeta: no lleva caja propia
-             ni padding. El recorte lo hace la tarjeta con overflow. -->
+        <!-- A sangre: recorta la tarjeta con overflow -->
         <div
           id="mapa-landing"
           role="img"
@@ -439,15 +380,7 @@
           </p>
           <a href="/datos">De dónde salen los datos →</a>
         </div>
-        <!-- No son tarjetas ilustrativas: es el texto exacto que la app
-             muestra, con la misma cara que tiene adentro (ver `.aviso` en
-             app.css). La sección afirma que la app avisa lo que no sabe;
-             dibujar esos avisos con otra piel sería ilustrar la afirmación
-             en vez de mostrarla.
-
-             La etiqueta va UNA vez, arriba: repetida en cada tarjeta se leía
-             como una categoría pegada a cada una y no como lo que es, el
-             encabezado de una lista. -->
+        <!-- Texto exacto de la app, con la cara de `.aviso` -->
         <div class="avisos-app">
           <blockquote class="aviso-app">
             <p class="rotulo rotulo-alerta">Aviso en la app</p>
@@ -463,9 +396,7 @@
               da Defensa Civil.»
             </p>
           </blockquote>
-          <!-- Ésta no es un aviso de la app sino una aclaración del proyecto:
-               conserva su etiqueta, no lleva el tinte de alerta y no va en
-               <blockquote>, porque no es una cita de ningún lado. -->
+          <!-- Aclaración del proyecto, no un aviso de la app -->
           <div class="aviso-app neutro">
             <p class="rotulo">Sin vínculo oficial</p>
             <p>
