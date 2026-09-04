@@ -34,6 +34,14 @@ export function ver(id, btn, desdeHistorial) {
 }
 
 export function irA(id, desdeHistorial) {
+  /* "ayuda" no es una vista: es "Dónde ir" con la tarjeta para quien no sabe
+     nada desplegada. Existe como destino para que /app?ir=ayuda funcione desde
+     un afiche, un enlace o un mensaje de WhatsApp. */
+  if (id === "ayuda") {
+    const t = document.getElementById("ayuda-simple");
+    if (t) t.hidden = false;
+    id = "donde";
+  }
   // Ajustes no tiene botón en la barra: se llega desde el engranaje de la
   // cabecera, así la barra de emergencia se queda en cuatro.
   if (id === "ajustes") {

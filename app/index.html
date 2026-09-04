@@ -310,6 +310,14 @@
           <button class="btn sec" type="button" data-accion="bv-despues">
             Ahora no, ver el río
           </button>
+          <!-- Enlace y no un tercer botón sólido: "Dos botones, no tres". Un
+               control que necesita menos peso pide ser un enlace. -->
+          <button
+            class="enlace-crudo chico"
+            type="button"
+            data-accion="bv-ayuda">
+            No sé nada de esto: ¿qué hago?
+          </button>
         </div>
       </div>
     </dialog>
@@ -653,6 +661,43 @@
 
     <!-- ======================= DÓNDE IR ======================= -->
     <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
+      <!-- Para quien no sabe la altura de su terreno ni quiere averiguarla
+           ahora. Hasta acá, la app no tenía nada que ofrecerle: sin zona y sin
+           altura no hay número, y los tres callejones del cálculo terminaban
+           pidiéndole un dato que no tiene. Esto es lo que sirve sin configurar
+           nada, y no es poco.
+           Va escondido y lo muestra la acción "ayuda": no es una quinta vista
+           —la barra se queda en cuatro— sino la primera tarjeta de ésta. -->
+      <div id="ayuda-simple" class="tarjeta" hidden>
+        <h2 style="margin-top: 0">Si no sabés nada de esto</h2>
+        <ol class="pasos">
+          <li>
+            Guardá este número. Si te dicen que salgas, salí.
+            <a class="btn-emergencia" href="tel:103"
+              ><b>103</b> Defensa Civil</a
+            >
+          </li>
+          <li>
+            Tocá <b>«Mostrar el más cercano a mí»</b>, acá abajo, y fijate
+            adónde ir si hay que salir.
+          </li>
+          <li>
+            Si hay agua que corre, no la cruces: 30 cm —menos que una rodilla—
+            te arrastran.
+          </li>
+          <li>
+            Cuando puedas, pedile a alguien que te ayude a cargar tu casa: así
+            te avisamos cuando el río importe para vos.
+            <button
+              class="btn sec mini"
+              type="button"
+              data-accion="ir"
+              data-vista="cota">
+              Cargar mi casa
+            </button>
+          </li>
+        </ol>
+      </div>
       <h2>Puntos de encuentro</h2>
       <p class="chico">
         Los 30 espacios del Plan de Contingencia municipal, con responsables

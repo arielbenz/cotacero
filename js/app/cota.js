@@ -27,6 +27,13 @@ import { aLaVista, ocupar } from "./vista.js";
    pesimista, así que las dos pantallas mostraban a la vez valores con hasta
    3 m de diferencia para lo mismo — y la regla mostraba el optimista.
    `crudo: true` da la traducción sin margen, sólo para el desglose. */
+/* La salida de emergencia de los callejones del cálculo: cuando no hay forma
+   de conseguir la altura, lo que queda por hacer no es nada — es el 103, el
+   punto de encuentro más cercano y no cruzar agua. Lleva a esa tarjeta. */
+const SALIDA_SIN_DATO =
+  ' <button class="enlace-crudo" type="button" data-accion="ayuda">' +
+  "No sé la altura de mi casa</button>";
+
 export function cotaEnHidrometro({ crudo = false } = {}) {
   if (estado.cota == null || kmDeZona() === null) return null;
   const cota =
@@ -165,9 +172,10 @@ export async function estimarCota() {
           pintarRio();
         } catch (err) {
           e.innerHTML =
-            "<b>No tenemos la cota de ese punto.</b> Las curvas de nivel del " +
-            "municipio cubren la ciudad, no toda el área metropolitana. " +
-            "Si tenés la altura en la escritura o en un plano, escribila arriba.";
+            "<b>No tenemos la altura de ese punto.</b> El plano del municipio " +
+            "cubre la ciudad, no toda el área metropolitana. " +
+            "Si tenés la altura en la escritura o en un plano, escribila arriba." +
+            SALIDA_SIN_DATO;
         }
       } finally {
         liberar();
@@ -176,10 +184,11 @@ export async function estimarCota() {
     },
     (err) => {
       liberar();
-      e.textContent =
-        err && err.code === 3
+      e.innerHTML =
+        (err && err.code === 3
           ? "La ubicación tardó demasiado. Probá al aire libre, buscá la dirección, o escribí la altura a mano."
-          : "No diste permiso de ubicación. Podés escribir la altura a mano.";
+          : "No diste permiso de ubicación. Podés escribir la altura a mano.") +
+        SALIDA_SIN_DATO;
       aLaVista(e);
     },
     { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 },

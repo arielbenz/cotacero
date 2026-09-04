@@ -196,6 +196,18 @@ const ACCIONES = {
   ajustes: () => irA("ajustes"),
   "bv-calcular": () => cerrarBienvenida("cota"),
   "bv-despues": () => cerrarBienvenida(),
+  /* El camino para quien no sabe la altura de su terreno: lo lleva a lo que
+     sirve sin configurar nada —el 103, el punto más cercano y las tres
+     reglas—. No es una vista nueva: es la primera tarjeta de "Dónde ir". */
+  ayuda: () => {
+    const t = document.getElementById("ayuda-simple");
+    if (t) t.hidden = false;
+    irA("donde");
+  },
+  "bv-ayuda": () => {
+    cerrarBienvenida();
+    ACCIONES.ayuda();
+  },
   "compartir-imagen": () => compartirImagen(),
   // El despachador ya pasa el elemento que se tocó: estas leen un data- suyo.
   "tema-set": (el) => {

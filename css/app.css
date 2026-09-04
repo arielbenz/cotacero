@@ -4455,6 +4455,23 @@ textarea:focus-visible {
   white-space: nowrap;
   text-decoration: none;
 }
+/* Dentro de la tarjeta de ayuda los dos controles van en su propio renglón:
+   incrustados en medio de la oración partían la frase ("salí. [103] "). Y el
+   color se re-declara porque `.pasos a` es (0,1,1) y le gana a
+   `.btn-emergencia` (0,1,0): sin esto el 103 salía azul sobre rojo. */
+#ayuda-simple .btn-emergencia,
+#ayuda-simple .btn {
+  display: flex;
+  width: fit-content;
+  margin: var(--e-3) 0 var(--e-2);
+}
+#ayuda-simple a.btn-emergencia {
+  color: #fff;
+}
+#ayuda-simple .pasos li {
+  margin-bottom: var(--e-4);
+}
+
 .btn-emergencia b {
   font-size: var(--t-l);
   letter-spacing: 0.02em;
