@@ -101,8 +101,9 @@ export async function buscarDireccion() {
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
       e.innerHTML =
-        "<b>Encontramos la dirección, pero no la cota de ese terreno.</b> Las curvas de " +
-        "nivel del municipio cubren la ciudad, no toda el área metropolitana.";
+        "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> El " +
+        "plano de alturas del municipio cubre la ciudad, no toda el área " +
+        "metropolitana.";
       return;
     }
     var alt = Math.round(res.cota * 100) / 100;
@@ -125,7 +126,7 @@ export async function buscarDireccion() {
   if (!r.exacta)
     e.innerHTML +=
       ' <b style="color:var(--alerta-texto)">Ubicó la calle, no la altura exacta</b>, ' +
-      "así que puede estar a varias cuadras. Si no es tu casa, cargá la cota a mano.";
+      "así que puede estar a varias cuadras. Si no es tu casa, escribí la altura a mano.";
   calcular();
   pintarRio();
 }

@@ -331,7 +331,7 @@
       <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
         <div class="titu">¿Hasta dónde llega el agua?</div>
         <p class="chico" style="margin: 0">
-          Buscando el nivel del río en el INA…
+          Buscando el nivel del río de hoy…
         </p>
       </div>
 
@@ -439,23 +439,23 @@
         <p class="chico" style="margin: 11px 0 0" id="lluvia-resumen"></p>
         <p class="chico" style="margin: 7px 0 0; color: var(--tenue)">
           Las barras están a escala. La línea marca los <b>40 mm en un día</b>,
-          desde donde el desagote empieza a complicarse.
+          desde donde empieza a costar sacar el agua de la ciudad.
         </p>
       </div>
 
       <!-- La tendencia va después de la lluvia: es caudal simulado en m³/s y
            la propia tarjeta aclara que no sirve para decidir. Estaba arriba,
            en el lugar de la información accionable. -->
-      <h2>Tendencia del caudal</h2>
+      <h2>¿Viene subiendo o bajando?</h2>
       <div class="tarjeta" id="tendencia">
         <span class="eti">Tendencia</span>
-        <p class="chico" style="margin: 0">Cargando el modelo de caudal…</p>
+        <p class="chico" style="margin: 0">Cargando el pronóstico…</p>
       </div>
 
       <div class="aviso">
         <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
         Los dos juntos, no por separado: con el río alto las bombas no
-        desagotan.
+        alcanzan a sacar el agua de la ciudad.
       </div>
 
       <!-- Sólo entran valores con fuente. El récord de 1992 y los dos
@@ -508,7 +508,8 @@
         <h3 style="margin-top: 0">2 · La cota de tu terreno</h3>
 
         <label class="campo"
-          ><span>Cota IGN (metros sobre el nivel del mar)</span>
+          ><span>Altura de tu terreno sobre el mar, en metros (la «cota
+            IGN» del plano o la escritura)</span>
           <input
             type="text"
             inputmode="decimal"

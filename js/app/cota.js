@@ -77,7 +77,7 @@ export function pintarOrigenCota() {
   const o = origenCota();
   if (!o) return (e.innerHTML = "");
   e.innerHTML =
-    "Cota <b>" +
+    "Altura del terreno <b>" +
     m(estado.cota) +
     "</b>, tomada de " +
     (o.ojo
@@ -102,7 +102,7 @@ export function marcarCotaManual() {
   }
   if (!isNaN(v) && (v < 0 || v > 40)) {
     est.innerHTML =
-      '<b style="color:var(--alerta-texto)">Esa cota está fuera de rango</b> (0 a 40 m sobre el nivel del mar).';
+      '<b style="color:var(--alerta-texto)">Esa altura no puede ser</b> (va de 0 a 40 m sobre el mar).';
     return;
   }
   estado.cota = isNaN(v) ? null : v;
@@ -141,7 +141,7 @@ export async function estimarCota() {
             '<b style="color:var(--alerta-texto)">La ubicación llegó con ±' +
             Math.round(prec) +
             " m de error.</b> A esa distancia el modelo mide otro terreno. " +
-            "Probá al aire libre, buscá la dirección, o cargá la cota a mano.";
+            "Probá al aire libre, buscá la dirección, o escribí la altura a mano.";
           return;
         }
         e.textContent = "Buscando entre las curvas de nivel…";
@@ -167,7 +167,7 @@ export async function estimarCota() {
           e.innerHTML =
             "<b>No tenemos la cota de ese punto.</b> Las curvas de nivel del " +
             "municipio cubren la ciudad, no toda el área metropolitana. " +
-            "Cargá la cota a mano si la conseguís.";
+            "Si tenés la altura en la escritura o en un plano, escribila arriba.";
         }
       } finally {
         liberar();
@@ -178,8 +178,8 @@ export async function estimarCota() {
       liberar();
       e.textContent =
         err && err.code === 3
-          ? "La ubicación tardó demasiado. Probá al aire libre, buscá la dirección, o cargá la cota a mano."
-          : "No diste permiso de ubicación. Podés cargar la cota a mano.";
+          ? "La ubicación tardó demasiado. Probá al aire libre, buscá la dirección, o escribí la altura a mano."
+          : "No diste permiso de ubicación. Podés escribir la altura a mano.";
       aLaVista(e);
     },
     { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 },
@@ -314,18 +314,18 @@ export function calcular() {
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
     <table style="width:100%;font-family:var(--mono);font-size: var(--t-s);border-collapse:collapse">
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cota de tu terreno<br>
+    <tr><td style="padding:6px 0;color:var(--tenue)">Altura de tu terreno<br>
         <span style="font-size: var(--t-xs)">según ${(origenCota() || {}).corto || "—"}</span></td>
-  <td style="text-align:right;font-weight:700">${m(estado.cota)} IGN</td></tr>
+  <td style="text-align:right;font-weight:700">${m(estado.cota)} sobre el mar</td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen por interpolar entre curvas</td>
+        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen de seguridad (el plano tiene líneas cada 50 cm)</td>
   <td style="text-align:right;color:var(--alerta-texto)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cota usada (la pesimista)</td>
+    <tr><td style="padding:6px 0;color:var(--tenue)">Altura usada (la más baja, por seguridad)</td>
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
         : ""
     }
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cero del hidrómetro${
+    <tr><td style="padding:6px 0;color:var(--tenue)">Cero de la regla del puerto${
       /* El INA publica 8,378 para esta escala y el cálculo usa 8,20. La
          diferencia son 18 cm en el umbral de cada persona, y está sin
          resolver: puede ser el mismo punto medido en dos sistemas de alturas
@@ -342,7 +342,7 @@ export function calcular() {
         : ""
     }</td>
   <td style="text-align:right">− ${CERO_IGN.toFixed(2).replace(".", ",")} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Pendiente del río (${km} km × 4,5 cm)${
+    <tr><td style="padding:6px 0;color:var(--tenue)">Caída del río hasta el puerto (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""
         : '<br><span style="color:var(--alerta-texto);font-size: var(--t-xs)">distancia estimada, no medida</span>'
@@ -369,18 +369,17 @@ ${
 
   if (estado.cotaEsEstimada) {
     html +=
-      '<div class="aviso"><b>Cota interpolada entre curvas de nivel.</b> ' +
-      "Sale de las curvas de la Municipalidad de Santa Fe (Secretaría de " +
-      "Recursos Hídricos), que vienen cada 50 cm y están en metros IGN, el " +
-      "mismo sistema que el cero del hidrómetro." +
+      '<div class="aviso"><b>Altura calculada entre dos líneas del plano.</b> ' +
+      "El plano de alturas del municipio tiene líneas cada 50 cm." +
       (estado.cotaDistancia != null
-        ? " La curva más cercana a ese punto está a " +
+        ? " La más cercana a ese punto está a " +
           Math.round(estado.cotaDistancia) +
           " m."
         : "") +
-      " El cálculo usa el escenario pesimista, medio metro por debajo.<br><br>" +
-      "Es un buen dato para orientarte, pero <b>no reemplaza un relevamiento " +
-      "de tu terreno</b>: la curva pasa cerca, no por tu puerta.</div>";
+      " La cuenta usa medio metro menos, por seguridad.<br><br>" +
+      "Es un buen dato para orientarte, pero <b>la línea pasa cerca de tu " +
+      "casa, no por tu puerta</b>. Si tenés la altura en la escritura o en un " +
+      "plano, ésa vale más.</div>";
   }
 
   /* Este aviso llegó a tener 124 palabras y aparecía justo debajo del

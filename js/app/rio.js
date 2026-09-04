@@ -232,7 +232,7 @@ export async function cargarTendencia() {
       txt = "Estable";
     }
 
-    caja.innerHTML = `<span class="eti">Caudal del Paraná · modelo GloFAS</span>
+    caja.innerHTML = `<span class="eti">Cuánta agua trae el río · pronóstico a 7 días</span>
 <div class="tend">
   <div class="flecha" style="color:${color}">${flecha}</div>
   <div>
@@ -246,12 +246,13 @@ export async function cargarTendencia() {
   </div>
 </div>
 ${sparkline(serie, hoyIdx)}
-<p class="chico" style="margin:9px 0 0">Es caudal simulado en metros cúbicos por segundo,
-  no la altura del hidrómetro. Sirve para ver la tendencia, no para decidir.</p>`;
+<p class="chico" style="margin:9px 0 0">Es un cálculo de cuánta agua baja por el río,
+  no el nivel de la regla del puerto. Sirve para ver si sube o baja, no para
+  decidir.</p>`;
   } catch (e) {
     caja.innerHTML =
       '<span class="eti">Tendencia</span>' +
-      '<p class="chico" style="margin:0">No se pudo cargar el modelo de caudal.</p>';
+      '<p class="chico" style="margin:0">No se pudo cargar el pronóstico.</p>';
   }
 }
 
@@ -651,13 +652,14 @@ function pintarContexto() {
   const p = percentilHistorico(estado.rio);
   if (p !== null)
     h +=
-      '<p class="chico" style="margin:12px 0 0">Desde ' +
+      /* En cada 100 días y no en porcentaje: "el 83 % de los 37.412 días
+         medidos" pide alfabetización estadística que no todo el mundo tiene. */
+      '<p class="chico" style="margin:12px 0 0">De cada 100 días medidos desde ' +
       historia.desde.slice(0, 4) +
-      ", el río estuvo por debajo del nivel de hoy en el <b>" +
+      ", en <b>" +
       p +
-      " %</b> de los " +
-      historia.dias.toLocaleString("es-AR") +
-      ' días medidos. <a href="/historia">Ver cien años del Paraná</a></p>';
+      "</b> el río estuvo más bajo que hoy. " +
+      '<a href="/historia">Ver cien años del Paraná</a></p>';
   txt.innerHTML = h;
 }
 
