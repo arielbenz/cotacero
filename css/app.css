@@ -1362,7 +1362,7 @@ input[type="range"] {
   /* 50ch y no 70: `ch` mide el ancho del cero, y en Plus Jakarta Sans el cero
      es bastante más ancho que la letra promedio, así que 72ch daban 104
      caracteres reales. Medido, 50ch quedan en unos 72 por renglón. */
-  max-width: 50ch;
+  max-width: 100%;
 }
 
 /* ---------- cabecera de página ---------- */
@@ -1864,7 +1864,6 @@ body.landing {
   font-size: var(--t-m);
   letter-spacing: -0.02em;
 }
-
 
 /* ---------- navegación del sitio ---------- */
 .nav-sitio {
@@ -3797,10 +3796,11 @@ textarea:focus-visible {
    escrita como cuenta se entiende sin leer.
    ========================================================================== */
 .cuenta-vertical {
-  margin: var(--e-5) 0;
+  margin: var(--e-5) auto;
   border: 1px solid var(--linea);
   border-radius: var(--r-m);
   overflow: hidden;
+  max-width: 400px;
 }
 .cv-fila {
   display: flex;
@@ -3843,9 +3843,9 @@ textarea:focus-visible {
    plano, y estirarlo en un teléfono no rompe nada. */
 .corte {
   display: block;
-  width: 100%;
+  width: 60%;
   height: auto;
-  margin: var(--e-5) 0;
+  margin: var(--e-5) auto;
   border-radius: var(--r-m);
   background: var(--panel-2);
   padding: var(--e-3);
@@ -3859,6 +3859,7 @@ textarea:focus-visible {
   padding: var(--e-5) var(--e-4);
   border-radius: var(--r-m);
   background: var(--panel-2);
+  max-width: 400px;
 }
 .cd-linea {
   display: flex;
@@ -4340,6 +4341,7 @@ textarea:focus-visible {
   font-family: var(--sans);
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
 }
 .btn-emergencia b {
   font-size: var(--t-l);
@@ -4348,7 +4350,6 @@ textarea:focus-visible {
 /* El botón del 103 se suma a la lista de exclusiones de la regla general de
    enlaces —junto a .btn, .lockup, .punto y .charla—: si no, hereda el color
    de acento y queda azul sobre rojo, ilegible. */
-.btn-emergencia,
 
 /* Las pastillas de categoría son radios de verdad. El input queda accesible
    —no `display:none`, que lo saca del foco— y se dibuja el label. */

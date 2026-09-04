@@ -2,9 +2,9 @@
 // la regla que se mueve, el mapa perezoso y el renglón de frescura del pie.
 //
 // El estado del río y la barra viven en js/rio-barra.js, que va en todas las
-// páginas y se carga ANTES que éste. De ahí salen `rio`, `suscribir`, `$`,
-// `m`, `minutosDesde`, `estaVencido` y las constantes de vencimiento: son dos
-// <script> clásicos y comparten el ámbito global.
+// páginas y se carga ANTES que éste. Expone `window.CC` con lo que hace falta
+// acá; se toma de ahí y no del ámbito global, porque ese ámbito lo comparten
+// todos los <script> clásicos de la página y pisarlo rompe al otro entero.
 //
 // Va en archivo aparte y no en línea porque la CSP lleva `script-src 'self'`:
 // sin 'unsafe-inline' no corre un solo script embebido.
@@ -22,6 +22,19 @@ if (
 ) {
   location.replace("/app");
 }
+
+/* Lo que aporta js/rio-barra.js. `$` se declara acá y no allá: es un nombre
+   demasiado común para dejarlo suelto en el ámbito global. */
+const $ = (id) => document.getElementById(id);
+const {
+  rio,
+  suscribir,
+  m,
+  minutosDesde,
+  estaVencido,
+  EN_MINUTOS,
+  VENCE_MINUTOS,
+} = window.CC;
 
 const m1 = (v) => (Math.round(v * 10) / 10).toFixed(1).replace(".", ",");
 const MES =

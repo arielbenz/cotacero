@@ -150,9 +150,15 @@ el 301 se prueba en local. Pasó al fusionar `/mi-cota` dentro de `/datos`.
 píldora del nivel y la franja de alerta las pinta `js/rio-barra.js`, que va en
 la portada **y** en las nueve generadas. Se separó de `landing.js` por peso:
 ése son 30 KB con el mockup y MapLibre, y mandarlos a `/legal` para pintar una
-píldora era pagar 30 KB por 7. Son dos `<script>` clásicos y comparten ámbito
-global: **`rio-barra.js` va primero** y `landing.js` usa su store sin importar
-nada. Si se declara algo con el mismo nombre en los dos, el segundo revienta.
+píldora era pagar 30 KB por 7. **`rio-barra.js` va envuelto en una IIFE y expone
+un solo nombre, `window.CC`.** No es estilo: los `<script>` clásicos comparten
+el ámbito global, y como ese archivo va en TODAS las páginas, un `const` suelto
+ahí arriba choca con `contacto.js`, `historia.js` o `medios.js`. Un nombre
+repetido —`$` alcanza— hace que el OTRO archivo no se ejecute **entero**, con un
+SyntaxError en consola y nada más. Ya pasó: se llevó puestos el formulario de
+`/contacto` y toda la página `/historia`, y ninguna de las dos daba señales de
+estar rota. Cualquier archivo nuevo que vaya en todas las páginas va envuelto
+igual.
 
 **El estado en vivo de la portada tiene un solo dueño.** El mockup del hero, la
 píldora de la barra, la franja de alerta y el renglón de frescura del pie se

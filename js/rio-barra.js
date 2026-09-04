@@ -8,10 +8,17 @@
 // hidrómetro, la regla que se mueve y la carga perezosa de MapLibre. Mandarlo
 // entero a /legal para pintar una píldora era pagar 30 KB por 7.
 //
-// Los dos son <script> clásicos, así que comparten el ámbito global: landing.js
-// usa `rio`, `suscribir`, `m` y las constantes de vencimiento de acá sin
-// importar nada. ÉSTE VA PRIMERO.
+// VA ENVUELTO EN UNA IIFE, y esto no es estilo: este archivo se carga en TODAS
+// las páginas, y al lado corren contacto.js, historia.js y medios.js. Un
+// `const` suelto acá arriba vive en el ámbito global compartido de los scripts
+// clásicos, así que un nombre repetido —`$`, por ejemplo— hace que el SEGUNDO
+// archivo no se ejecute ENTERO, con un SyntaxError y nada más. Pasó: se
+// llevó puesto el formulario de /contacto y la página /historia completa.
+//
+// Hacia afuera se expone un solo nombre, `CC`, con lo que landing.js necesita.
+// ÉSTE VA PRIMERO.
 
+(() => {
 const $ = (id) => document.getElementById(id);
 const m = (v) => v.toFixed(2).replace(".", ",");
 
@@ -298,3 +305,16 @@ suscribir(pintarFranja);
 
 leerNivel();
 leerUmbralPropio();
+
+  /* La única puerta hacia afuera. landing.js toma de acá lo que necesita para
+     el mockup y el renglón de frescura del pie. */
+  window.CC = {
+    rio,
+    suscribir,
+    m,
+    minutosDesde,
+    estaVencido,
+    EN_MINUTOS,
+    VENCE_MINUTOS,
+  };
+})();
