@@ -27,6 +27,27 @@ import { aLaVista, ocupar } from "./vista.js";
    pesimista, así que las dos pantallas mostraban a la vez valores con hasta
    3 m de diferencia para lo mismo — y la regla mostraba el optimista.
    `crudo: true` da la traducción sin margen, sólo para el desglose. */
+/* Guardar una altura estimada: lo hacían por su cuenta el GPS, la búsqueda por
+   dirección y ahora el mapa, con el mismo bloque de siete líneas copiado. Tres
+   copias del mismo guardado es una que se olvida de un campo.
+   `distancia` sólo la trae el camino del GPS y el del mapa. */
+export function fijarCotaEstimada(alt, origen, detalle, distancia) {
+  estado.cota = alt;
+  estado.cotaEsEstimada = true;
+  estado.cotaOrigen = origen;
+  estado.cotaDetalle = detalle || "";
+  if (distancia != null) estado.cotaDistancia = distancia;
+  const campo = document.getElementById("in-cota");
+  if (campo) campo.value = enCampo(alt);
+  guardado.set("cc_cota", String(alt));
+  guardado.set("cc_cota_est", "1");
+  guardado.set("cc_cota_origen", origen);
+  guardado.set("cc_cota_detalle", estado.cotaDetalle);
+  pintarOrigenCota();
+  calcular();
+  pintarRio();
+}
+
 /* La salida de emergencia de los callejones del cálculo: cuando no hay forma
    de conseguir la altura, lo que queda por hacer no es nada — es el 103, el
    punto de encuentro más cercano y no cruzar agua. Lleva a esa tarjeta. */
@@ -63,6 +84,15 @@ export function origenCota() {
         "Sale de <b>dónde estabas parado</b> cuando tocaste el botón" +
         (estado.cotaDetalle ? " (" + atr(estado.cotaDetalle) + ")" : "") +
         ". Si no era tu casa, este número no sirve.",
+      ojo: true,
+    };
+  if (estado.cotaOrigen === "mapa")
+    return {
+      // "tomada de " + esto: tiene que encajar sin quedar "de el".
+      corto: "un punto que marcaste en el mapa",
+      largo:
+        "Sale de <b>dónde tocaste en el mapa</b>. Un dedo abarca media cuadra: " +
+        "si ése no era tu terreno, marcalo de nuevo.",
       ojo: true,
     };
   if (estado.cotaOrigen === "direccion")
@@ -156,20 +186,12 @@ export async function estimarCota() {
           const r = await elevacionDe(la, lo);
           if (!r) throw new Error("fuera de cobertura");
           const alt = Math.round(r.cota * 100) / 100;
-          estado.cota = alt;
-          estado.cotaEsEstimada = true;
-          estado.cotaDistancia = r.distancia;
-          estado.cotaOrigen = "gps";
-          estado.cotaDetalle =
-            typeof prec === "number" ? "±" + Math.round(prec) + " m" : "";
-          document.getElementById("in-cota").value = enCampo(alt);
-          guardado.set("cc_cota", String(alt));
-          guardado.set("cc_cota_est", "1");
-          guardado.set("cc_cota_origen", "gps");
-          guardado.set("cc_cota_detalle", estado.cotaDetalle);
-          pintarOrigenCota();
-          calcular();
-          pintarRio();
+          fijarCotaEstimada(
+            alt,
+            "gps",
+            typeof prec === "number" ? "±" + Math.round(prec) + " m" : "",
+            r.distancia,
+          );
         } catch (err) {
           e.innerHTML =
             "<b>No tenemos la altura de ese punto.</b> El plano del municipio " +

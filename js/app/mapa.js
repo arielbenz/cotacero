@@ -4,13 +4,12 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import { calcular, pintarOrigenCota } from "./cota.js";
+import { fijarCotaEstimada } from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
-import { enCampo, m } from "./formato.js";
+import { m } from "./formato.js";
 import { pintarPuntos } from "./puntos.js";
-import { pintarRio } from "./rio.js";
-import { aLaVista, ocupar } from "./vista.js";
+import { aLaVista, irA, ocupar } from "./vista.js";
 
 /* ================= MAPA ================= */
 export let mapa = null,
@@ -111,24 +110,17 @@ export async function buscarDireccion() {
   } finally {
     liberar();
   }
-  estado.cota = alt;
-  estado.cotaEsEstimada = true;
-  estado.cotaOrigen = "direccion";
-  // Guardamos qué encontró, no lo que la persona escribió: el geocodificador
+  // Se guarda qué encontró, no lo que la persona escribió: el geocodificador
   // puede haber entendido otra cosa, y así se puede desmentir.
-  estado.cotaDetalle = r.nombre.split(",").slice(0, 4).join(",").trim();
-  document.getElementById("in-cota").value = enCampo(alt);
-  guardado.set("cc_cota", String(alt));
-  guardado.set("cc_cota_est", "1");
-  guardado.set("cc_cota_origen", "direccion");
-  guardado.set("cc_cota_detalle", estado.cotaDetalle);
-  pintarOrigenCota();
+  fijarCotaEstimada(
+    alt,
+    "direccion",
+    r.nombre.split(",").slice(0, 4).join(",").trim(),
+  );
   if (!r.exacta)
     e.innerHTML +=
       ' <b style="color:var(--alerta-texto)">Ubicó la calle, no la altura exacta</b>, ' +
       "así que puede estar a varias cuadras. Si no es tu casa, escribí la altura a mano.";
-  calcular();
-  pintarRio();
 }
 
 /* Baja MapLibre bajo demanda. Una sola vez, aunque se pida de nuevo.
@@ -360,3 +352,60 @@ export function ubicarmeEnMapa() {
 }
 
 /* ================= LISTA DE PUNTOS ================= */
+
+/* ---------- marcar la casa tocando el mapa ----------
+   La cuarta forma de conseguir la altura, y la única que no pide saber nada:
+   ni la cota, ni la calle y altura exacta. Para quien no sabe su dirección
+   formal pero reconoce su cuadra desde arriba.
+   Reutiliza el mapa de "Dónde ir" —no arma un segundo mapa— y elevacionDe(),
+   que ya trabaja con lat/lon sueltos contra las curvas precacheadas.
+   No se guarda ninguna coordenada: sólo la altura que sale de ella. */
+export async function marcarCasaEnMapa() {
+  const est = document.getElementById("estado-cota");
+  irA("donde");
+  await armarMapa();
+  if (!mapa) {
+    if (est)
+      est.innerHTML =
+        "<b>Este teléfono no puede mostrar el mapa.</b> Probá con «Buscar " +
+        "dirección», o escribí la altura a mano.";
+    irA("cota");
+    return;
+  }
+  const em = document.getElementById("estado-mapa");
+  const pedir = () => {
+    if (em)
+      em.innerHTML =
+        "<b>Acercá el mapa hasta ver tu cuadra y tocá tu casa.</b>";
+  };
+  pedir();
+  const alTocar = async (e) => {
+    /* Sin zoom suficiente el dedo tapa varias cuadras y la altura sería de
+       cualquier lado: se pide acercar y se sigue esperando. */
+    if (mapa.getZoom() < 15) {
+      if (em)
+        em.innerHTML =
+          "<b>Acercá más.</b> Desde esta altura el dedo tapa varias cuadras.";
+      mapa.once("click", alTocar);
+      return;
+    }
+    const r = await elevacionDe(e.lngLat.lat, e.lngLat.lng);
+    if (!r) {
+      if (em)
+        em.innerHTML =
+          "<b>Ese punto queda fuera del plano de alturas del municipio.</b> " +
+          "Cubre la ciudad, no toda el área metropolitana.";
+      mapa.once("click", alTocar);
+      return;
+    }
+    fijarCotaEstimada(
+      Math.round(r.cota * 100) / 100,
+      "mapa",
+      "punto marcado a mano en el mapa",
+      r.distancia,
+    );
+    if (em) em.textContent = "";
+    irA("cota");
+  };
+  mapa.once("click", alTocar);
+}

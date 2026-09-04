@@ -38,6 +38,7 @@ import {
   abrirBuscadorDireccion,
   buscarDireccion,
   mapa,
+  marcarCasaEnMapa,
   ubicarPuntos,
   ubicarmeEnMapa,
 } from "./mapa.js";
@@ -199,6 +200,7 @@ const ACCIONES = {
   /* El camino para quien no sabe la altura de su terreno: lo lleva a lo que
      sirve sin configurar nada —el 103, el punto más cercano y las tres
      reglas—. No es una vista nueva: es la primera tarjeta de "Dónde ir". */
+  "cota-mapa": () => marcarCasaEnMapa(),
   ayuda: () => {
     const t = document.getElementById("ayuda-simple");
     if (t) t.hidden = false;
