@@ -755,6 +755,38 @@ Dos detalles que resuelve el sistema y antes se resolvían a mano:
 La única excepción es `.btn-emergencia`, el 103 de `/contacto`: va rojo porque
 no es una acción de la interfaz, es un teléfono de emergencia.
 
+## Los ocho estados y cómo se dicen
+
+La misma situación se cuenta en tres lugares: el veredicto de la pantalla del
+río (`js/app/rio.js`, `pintarVeredictoRio`), el de «Mi casa» (`js/app/cota.js`,
+`calcular`) y la notificación (`sw.js`, `armarAviso`). **No comparten código y
+no pueden**: `sw.js` es un `<script>` clásico y no puede importar los módulos
+ES de la app; registrarlo como módulo dejaría afuera justo a los Android
+viejos, que son el motivo de todo esto. Así que las frases están copiadas a
+mano y **esta tabla es la fuente**: si tocás una, revisá las tres.
+
+Dos reglas para los tres lugares: en los estados graves el texto **empieza con
+el verbo** de lo que hay que hacer, no con lo que está pasando, y **lleva el
+103**. Antes era al revés — «Nivel de alerta» sólo describía y «Nivel de
+evacuación» delegaba, o sea que los dos estados más graves de la escala eran
+los que menos instrucción daban.
+
+| # | Cuándo | Título | Con qué empieza |
+| --- | --- | --- | --- |
+| 1 | Sin dato del río | Cambió el nivel del río | Abrí Cota Cero para ver cuánto mide hoy |
+| 2 | El río pasó tu nivel de aviso | El río pasó tu nivel de aviso | **Mové a las personas, los remedios y los documentos** … 103 |
+| 3 | Río ≥ evacuación de la ciudad | Evacuación en la ciudad | **Si Defensa Civil dice que salgas, salí** … 30 cm te arrastra … 103 |
+| 4 | Río ≥ alerta de la ciudad | Alerta en la ciudad | **Armá la mochila y avisale a tu familia** … Dudas: 103 |
+| 5 | Faltan ≤ 20 cm | Faltan unos N cm para tu nivel de aviso | **Terminá la mochila y avisale a tu familia** |
+| 6 | Faltan ≤ 50 cm | Faltan unos N cm para tu nivel de aviso | **Andá armando la mochila** |
+| 7 | Subió, con nivel cargado | El río subió a X m | Faltan unos N para tu nivel de aviso. Por ahora, seguí mirando |
+| 8 | Subió, sin nivel cargado | El río subió a X m | Cargá tu casa en la app y te avisamos cuando el río importe para vos |
+
+**Los cuerpos de las notificaciones no pasan de 180 caracteres.** Android corta
+ahí, y el 2 —el más importante— llegó a 203: la línea que se cortaba era
+justamente la del 103. Se mide corriendo `armarAviso()` en un sandbox, sin
+navegador.
+
 ## Las pantallas de la app
 
 Cuatro pestañas —Río, Mi umbral, Mi plan, Dónde ir— más:

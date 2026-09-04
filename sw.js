@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v73";
+const VERSION = "cota-cero-v74";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -328,36 +328,59 @@ const dosDec = (v) => v.toFixed(2).replace(".", ",");
 const unDec = (v) =>
   "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
 
+/* Los ocho estados. La notificación llega con la app CERRADA, así que cada
+   cuerpo tiene que entenderse solo: sin la app abierta no hay contexto que
+   valga. Por eso en los graves va primero el verbo de lo que hay que hacer y
+   siempre el 103; antes el de alerta decía "Arrancan las evacuaciones fuera
+   del anillo" —sin verbo para la persona y con "el anillo" a secas, que en la
+   calle no se sabe si te incluye—.
+
+   Las frases son las mismas que las del veredicto de la pantalla, pero
+   copiadas a mano: este archivo es un <script> clásico y no puede importar los
+   módulos de la app, y registrarlo como módulo dejaría afuera justo a los
+   Android viejos. Si tocás una, revisá las tres: acá, en rio.js
+   pintarVeredictoRio() y en cota.js calcular(). Ver README §"Los ocho estados
+   y cómo se dicen". */
 function armarAviso(nivel, umbral, cerca, oficiales) {
   const ALERTA = (oficiales && oficiales.alerta) || ALERTA_OFICIAL;
   const EVACUACION = (oficiales && oficiales.evacuacion) || EVACUACION_OFICIAL;
   if (nivel == null)
     return {
-      titulo: "El río se movió",
-      cuerpo: "Abrí Cota Cero para ver el nivel de hoy.",
+      titulo: "Cambió el nivel del río",
+      cuerpo: "Abrí Cota Cero para ver cuánto mide hoy.",
       urgente: false,
       ir: "/app",
     };
   if (umbral != null && nivel >= umbral)
     return {
-      titulo: "El río superó tu umbral",
+      titulo: "El río pasó tu nivel de aviso",
+      /* El más importante de los ocho, y el que más se pasaba de largo: a 203
+         caracteres Android lo cortaba justo antes del 103. Se va la
+         explicación —"el agua puede llegar aunque no la veas" ya está en la
+         pantalla— y queda la acción, el dato y el teléfono. */
       cuerpo:
-        `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}. ` +
-        "Aunque no veas agua, prepará el plan. Si Defensa Civil indica evacuar, evacuá.",
+        "Mové a las personas, los remedios y los documentos. " +
+        `El río está en ${dosDec(nivel)} m y tu nivel de aviso es ${unDec(umbral)}. ` +
+        "Si Defensa Civil dice que salgas, salí. 103.",
       urgente: true,
       ir: "/app?ir=plan",
     };
   if (nivel >= EVACUACION)
     return {
-      titulo: "Nivel de evacuación",
-      cuerpo: `El río superó los ${umbralTxt(EVACUACION)} m (${dosDec(nivel)} m). Seguí las indicaciones del municipio.`,
+      titulo: `Evacuación en la ciudad: ${dosDec(nivel)} m`,
+      cuerpo:
+        `Si Defensa Civil dice que salgas, salí. El río pasó los ${umbralTxt(EVACUACION)} m. ` +
+        "No cruces agua que corre: con 30 cm te arrastra. Ayuda: 103.",
       urgente: true,
       ir: "/app?ir=donde",
     };
   if (nivel >= ALERTA)
     return {
-      titulo: "Nivel de alerta",
-      cuerpo: `El río superó los ${umbralTxt(ALERTA)} m (${dosDec(nivel)} m). Arrancan las evacuaciones fuera del anillo.`,
+      titulo: `Alerta en la ciudad: ${dosDec(nivel)} m`,
+      cuerpo:
+        "Armá la mochila y avisale a tu familia. " +
+        `El río pasó los ${umbralTxt(ALERTA)} m: afuera del terraplén ya empiezan a sacar gente. ` +
+        "Dudas: 103.",
       urgente: true,
       ir: "/app?ir=donde",
     };
@@ -366,21 +389,21 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
     // Aviso anticipado, sólo si lo pidió: a 20 cm es urgente, a 50 no.
     if (cerca && falta <= 0.2)
       return {
-        titulo: "Falta muy poco para tu umbral",
-        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}: unos ${distancia(falta)}. Andá preparando el plan.`,
+        titulo: `Faltan unos ${distancia(falta)} para tu nivel de aviso`,
+        cuerpo: `El río está en ${dosDec(nivel)} m; tu nivel de aviso es ${unDec(umbral)}. Terminá la mochila y avisale a tu familia.`,
         urgente: true,
         ir: "/app?ir=plan",
       };
     if (cerca && falta <= 0.5)
       return {
-        titulo: `Unos ${distancia(falta)} hasta tu umbral`,
-        cuerpo: `El río está en ${dosDec(nivel)} m y tu umbral estimado es ${unDec(umbral)}.`,
+        titulo: `Faltan unos ${distancia(falta)} para tu nivel de aviso`,
+        cuerpo: `El río está en ${dosDec(nivel)} m. Andá armando la mochila.`,
         urgente: false,
         ir: "/app?ir=plan",
       };
     return {
       titulo: `El río subió a ${dosDec(nivel)} m`,
-      cuerpo: `Faltan unos ${distancia(falta)} hasta tu umbral estimado (${unDec(umbral)}).`,
+      cuerpo: `Faltan unos ${distancia(falta)} para tu nivel de aviso (${unDec(umbral)}). Por ahora, seguí mirando.`,
       urgente: false,
       ir: "/app",
     };
@@ -388,7 +411,7 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
   return {
     titulo: `El río subió a ${dosDec(nivel)} m`,
     cuerpo:
-      "Calculá tu umbral en la app para saber qué significa para tu casa.",
+      "Cargá tu casa en la app y te avisamos cuando el río importe para vos.",
     urgente: false,
     ir: "/app?ir=cota",
   };
