@@ -396,9 +396,23 @@ la ejecución de scripts, no los estilos.
 ## Mapa
 
 MapLibre GL (BSD-3), servido desde `vendor/`. Va self-hosteado a propósito:
-no depende de ningún CDN, el service worker lo cachea —así el mapa abre sin
-conexión, sin tiles pero con los 30 puntos— y deja la CSP con `script-src
-'self'` sin una sola excepción.
+no depende de ningún CDN y deja la CSP con `script-src 'self'` sin una sola
+excepción.
+
+**No se precachea**, y eso es deliberado: son 275 KB comprimidos —el 41 % de
+todo lo que bajaba la primera visita a `/app`— por una pestaña que mucha gente
+no abre nunca. En un teléfono con datos contados, eso es plata. El modo sin
+conexión no se pierde: la rama de red-primero del service worker guarda todo
+`.js|.css` del propio origen, así que la primera vez que alguien abre «Dónde
+ir» queda cacheado y de ahí en más el mapa abre sin señal (sin tiles, pero con
+los 30 puntos).
+
+**Y se pregunta por WebGL antes de bajarlo.** MapLibre dibuja con WebGL; sin
+WebGL fallaba igual, pero después de gastar los 275 KB. Ahora
+`cargarMapLibre()` prueba un canvas primero y, si no hay, cae directo al
+mensaje de siempre sin pedir un solo byte. La lista de los 30 puntos no
+depende del mapa: sus coordenadas salen del HTML y «el más cercano a mí» se
+calcula sin él.
 
 El basemap son los tiles del **Instituto Geográfico Nacional**, los mismos que
 usa el GeoPortal de la Municipalidad. Sin clave, sin cuota y de un organismo

@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v67";
+const VERSION = "cota-cero-v68";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -52,10 +52,14 @@ const ESENCIALES = [
   "/js/app/rio.js",
   "/js/app/tema.js",
   "/js/app/vista.js",
-  // Con esto el mapa abre sin conexión. Los tiles no se cachean (son muchos
-  // y pesados), así que sale el fondo liso, pero los 30 puntos se ven igual.
-  "/vendor/maplibre-gl.js",
-  "/vendor/maplibre-gl.css",
+  /* MapLibre NO se precachea: son 275 KB comprimidos —el 41 % de todo lo que
+     bajaba la primera visita— por una pestaña que mucha gente no abre nunca.
+     En un teléfono con datos contados eso es plata.
+     No se pierde el modo sin conexión: la rama de red-primero de más abajo
+     guarda todo `.js|.css` del propio origen, así que la primera vez que
+     alguien abre "Dónde ir" queda cacheado y desde entonces el mapa abre sin
+     señal. Los tiles no se cachean nunca (son muchos y pesados): sale el fondo
+     liso con los 30 puntos, que es lo que importa. */
   // Las tipografías ahora son nuestras: precacheadas andan sin conexión de
   // verdad, no con los fallbacks del sistema.
   "/vendor/fonts/jakarta-500.woff2",

@@ -138,6 +138,21 @@ let promesaMapLibre = null;
 
 function cargarMapLibre() {
   if (promesaMapLibre) return promesaMapLibre;
+
+  /* Antes de pedir nada: MapLibre dibuja con WebGL, y sin WebGL falla igual
+     pero DESPUÉS de bajar 275 KB. En un teléfono viejo con datos contados eso
+     es gastarle el crédito para mostrarle un error. Se pregunta primero. */
+  const prueba = document.createElement("canvas");
+  const hayWebGL = Boolean(
+    prueba.getContext("webgl2") ||
+      prueba.getContext("webgl") ||
+      prueba.getContext("experimental-webgl"),
+  );
+  if (!hayWebGL) {
+    promesaMapLibre = Promise.reject(new Error("este teléfono no tiene WebGL"));
+    return promesaMapLibre;
+  }
+
   promesaMapLibre = new Promise((ok, mal) => {
     const css = document.createElement("link");
     css.rel = "stylesheet";
@@ -222,9 +237,15 @@ export async function armarMapa() {
   try {
     await cargarMapLibre();
   } catch (e) {
+    /* Sin mapa la pestaña sigue sirviendo: la lista de abajo está completa y
+       cada punto abre en la app de mapas del teléfono. Se saca el alto fijo
+       del contenedor para no dejar 340 px de caja vacía empujando la lista
+       fuera de la pantalla. */
+    cont.style.height = "auto";
     cont.innerHTML =
-      '<div style="padding:18px"><p class="chico">No se pudo cargar el mapa. ' +
-      "La lista de puntos de acá abajo funciona igual.</p></div>";
+      '<div style="padding:18px"><p class="chico">Este teléfono no puede ' +
+      "mostrar el mapa. La lista de acá abajo funciona igual, y cada lugar " +
+      "abre en la aplicación de mapas del teléfono.</p></div>";
     mapaPedido = false;
     return;
   }
