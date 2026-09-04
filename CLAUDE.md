@@ -492,6 +492,17 @@ afloja: media app cacheada abre y se rompe callada, que es lo peor de los dos
 mundos. Si esa tanda falla, la instalación **no** se cae —el sitio igual anda
 sin señal— y los módulos se cachean igual por la rama de red primero.
 
+**El service worker no toca NADA de otro origen.** Era una lista de hosts
+—IGN, OpenStreetMap, Open-Meteo— y se quedó corta el día que el worker empezó a
+correr también en las páginas del sitio, que son las que llevan analytics: el
+tag de Google entraba por la rama de caché primero, el worker lo volvía a pedir
+con `fetch()` y ahí **dejaba de ser un `<script>` para chequearse contra
+`connect-src`**, que no lo lista —`script-src` sí—. El navegador lo bloqueaba y
+en su lugar quedaba nuestro 504. Ahora es una sola regla,
+`url.origin !== location.origin`, porque interceptar otro origen no aporta nada:
+la rama de caché primero sólo guarda lo del propio origen. Una regla no se queda
+corta; una lista sí.
+
 **Las tipografías salieron del precache y no se perdió nada.** El sitio las
 baja para pintar la página, así que precachearlas con `cache: "reload"` era
 bajarlas dos veces. La rama de caché primero las guarda en la segunda página

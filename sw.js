@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v84";
+const VERSION = "cota-cero-v85";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -247,20 +247,28 @@ self.addEventListener("fetch", (e) => {
   )
     return;
 
-  // Tiles del IGN y Open-Meteo: a la red. Cachear tiles no vale la pena.
-  if (
-    url.hostname.includes("ign.gob.ar") ||
-    url.hostname.includes("openstreetmap.org") ||
-    url.hostname.includes("open-meteo.com")
-  )
-    return;
+  /* NADA de otro origen pasa por acá. Antes era una lista de hosts —IGN,
+     OpenStreetMap, Open-Meteo— y la lista se quedó corta el día que el
+     service worker empezó a correr también en las páginas del sitio, que
+     son las que llevan analytics: el tag de Google entraba por la rama de
+     caché primero, el worker lo volvía a pedir con `fetch()` y ahí dejaba de
+     ser un <script> para pasar a chequearse contra `connect-src`, que no lo
+     lista. Resultado: el tag bloqueado por CSP y un 504 nuestro en su lugar.
+
+     Una regla en vez de una lista, porque interceptar otro origen no aporta
+     NADA: la rama de caché primero de más abajo sólo guarda lo del propio
+     origen, así que lo único que hacíamos era volver a emitir el pedido con
+     otro contexto de seguridad. Y de paso, ninguna lista se queda corta la
+     próxima vez. */
+  if (url.origin !== location.origin) return;
 
   // app.js y app.css: red primero, igual que el HTML, y por el mismo motivo.
   // Si fueran caché primero, alguien podría quedar con el HTML nuevo y el JS
   // viejo — y en esta app eso significa cálculos mal apareados con la
   // interfaz que los muestra. Revalidar cuesta un 304; el desfasaje no se
   // paga con nada.
-  if (url.origin === location.origin && /\.(js|css)$/.test(url.pathname)) {
+  // (ya sabemos que es del propio origen: lo de afuera salió arriba)
+  if (/\.(js|css)$/.test(url.pathname)) {
     e.respondWith(
       fetch(req)
         .then((r) => {
@@ -325,7 +333,7 @@ self.addEventListener("fetch", (e) => {
       if (hit) return hit;
       return fetch(req)
         .then((r) => {
-          if (r.ok && url.origin === location.origin) {
+          if (r.ok) {
             const copia = r.clone();
             caches.open(VERSION).then((c) => c.put(req, copia));
           }
