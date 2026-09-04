@@ -207,6 +207,19 @@ if ("serviceWorker" in navigator) {
       // Que al menos quede dicho: sin esto, la app no abre sin señal.
       console.error("No se pudo registrar el service worker:", e.message);
     });
-  if (document.readyState === "complete") registrar();
-  else window.addEventListener("load", registrar, { once: true });
+  /* Y le pedimos la tanda de /app. El service worker precachea de arranque
+     sólo lo que necesita el SITIO —lo registran también las páginas, para que
+     /puntos-de-encuentro cumpla lo que promete—; los módulos de la app, las
+     curvas y las tipografías son 275 KB más que no tiene por qué bajarse
+     alguien que entró a leer /legal. Los pide quien los usa. */
+  const calentar = () =>
+    navigator.serviceWorker.ready
+      .then((r) => r.active && r.active.postMessage({ tipo: "calentar-app" }))
+      .catch(() => {});
+
+  if (document.readyState === "complete") registrar().then(calentar);
+  else
+    window.addEventListener("load", () => registrar().then(calentar), {
+      once: true,
+    });
 }

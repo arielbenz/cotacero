@@ -322,6 +322,32 @@ suscribir(pintarFranja);
 leerNivel();
 leerUmbralPropio();
 
+/* ---------- el service worker, también desde el sitio ----------
+   Se registraba SÓLO desde /app, y eso dejaba una promesa escrita sin cumplir:
+   la bajada de /puntos-de-encuentro dice "esta página funciona sin conexión",
+   pero quien llega ahí desde un buscador y nunca abre la app no tenía service
+   worker. Era la página de evacuación afirmando algo que no hacía.
+
+   Se registra desde acá porque este archivo va en TODAS las páginas del sitio.
+   El precache está partido en dos justamente para esto: la tanda crítica son
+   los HTML y las dos hojas de estilo —lo que el sitio necesita—, y lo de /app
+   se calienta aparte. Ver sw.js.
+
+   Después de `load` y no antes: registrar compite con el render de la página, y
+   acá el dato del río llega primero. Si la página ya cargó —este archivo va con
+   defer y puede evaluarse tarde—, se hace en el acto: enganchar un listener a
+   un `load` que ya pasó es el bug que dejó la app sin caché durante semanas
+   (ver js/app/instalar.js). */
+if ("serviceWorker" in navigator) {
+  const registrar = () =>
+    navigator.serviceWorker.register("/sw.js").catch((e) => {
+      // Que quede dicho: sin esto el sitio no abre sin señal.
+      console.error("No se pudo registrar el service worker:", e.message);
+    });
+  if (document.readyState === "complete") registrar();
+  else window.addEventListener("load", registrar, { once: true });
+}
+
   /* La única puerta hacia afuera. landing.js toma de acá lo que necesita para
      el mockup y el renglón de frescura del pie. */
   window.CC = {

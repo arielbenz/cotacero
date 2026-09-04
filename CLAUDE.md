@@ -466,6 +466,40 @@ promesa que la app hace por escrito.
 
 ### Sin conexión
 
+**El service worker lo registran las dos mitades.** `js/app/instalar.js` para
+`/app` y `js/rio-barra.js` para las once páginas del sitio. Antes lo registraba
+sólo la app, y eso dejaba una promesa escrita sin cumplir: la bajada de
+`/puntos-de-encuentro` dice «esta página funciona sin conexión», pero quien
+llegaba ahí desde un buscador y nunca abría la app no tenía service worker.
+Era la página de evacuación afirmando algo que no hacía. Agregar las páginas al
+precache no alcanzaba: eso arregla *qué* se cachea, no *si el worker llega a
+instalarse*.
+
+**Por eso el precache va en dos tandas** (`CRITICOS` y `DEL_APP` en `sw.js`):
+
+| Tanda | Qué | Cuánto | Quién la paga |
+| --- | --- | --- | --- |
+| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
+| `DEL_APP` | los 21 módulos, `curvas.json`, las tipografías, los íconos | 284 KB | sólo quien abre `/app` |
+
+La segunda **no se pide en `install`**. La pide la app con un
+`postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la
+instalación, quien entró a leer dos párrafos de `/legal` se bajaría igual los
+módulos de la app y las seis tipografías, y partirla no habría servido de nada.
+
+Las dos van con `addAll`, que es todo o nada. Que la segunda sea aparte no la
+afloja: media app cacheada abre y se rompe callada, que es lo peor de los dos
+mundos. Si esa tanda falla, la instalación **no** se cae —el sitio igual anda
+sin señal— y los módulos se cachean igual por la rama de red primero.
+
+**Las tipografías salieron del precache y no se perdió nada.** El sitio las
+baja para pintar la página, así que precachearlas con `cache: "reload"` era
+bajarlas dos veces. La rama de caché primero las guarda en la segunda página
+que alguien mira, y sin señal el sitio sale con Plus Jakarta Sans — verificado.
+Lo único que queda afuera: quien mira UNA sola página y se queda sin señal ve
+la tipografía del sistema. Es legible, y no vale 164 KB duplicados.
+
+
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
 fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central.

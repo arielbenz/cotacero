@@ -23,8 +23,30 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v82";
-const ESENCIALES = [
+const VERSION = "cota-cero-v84";
+/* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
+
+   Antes era una sola lista de 387 KB comprimidos y el service worker se
+   registraba SÓLO desde /app. Eso dejaba una promesa sin cumplir: la bajada de
+   /puntos-de-encuentro dice "esta página funciona sin conexión", pero quien
+   llega ahí desde un buscador y nunca abre la app no tenía service worker, así
+   que no funcionaba. Y era justo la página de evacuación.
+
+   Ahora el sitio también lo registra (ver js/rio-barra.js). Para que eso no le
+   cueste 387 KB a quien entró a leer /legal:
+
+   CRITICOS  — lo que el SITIO necesita para abrir sin señal: los HTML, las dos
+               hojas de estilo y los dos scripts que van en todas las páginas.
+               Van con `cache.addAll`, que es TODO O NADA: si uno falta, la
+               instalación entera falla. Eso es a propósito.
+
+   DEL_APP   — lo que sólo hace falta en /app: sus módulos, las curvas, las
+               tipografías, los íconos. Se calienta DESPUÉS, sin bloquear la
+               instalación y sin voltearla si falla. Si esa tanda no llegara,
+               el sitio igual anda sin señal y la app se cachea sola por la
+               rama de red-primero de más abajo, que guarda cada módulo que la
+               app efectivamente carga. */
+const CRITICOS = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
   /* Sólo las URL limpias. `/index.html` y `/app/index.html` estaban acá y
@@ -34,7 +56,6 @@ const ESENCIALES = [
      redirigida —es todo o nada—, así que dejarlas habría dejado la app sin
      modo sin conexión, en silencio, que es como falla siempre esto. */
   "/",
-  "/app",
   "/css/app.css",
   /* La hoja de estilo de la guía para imprimir. Va acá y no por la rama de
      red-primero porque /guia sin ella no es una hoja: es una lista suelta de
@@ -55,6 +76,37 @@ const ESENCIALES = [
      sin conexión. Son el mismo código, uno para cada mundo. */
   "/lib/comun.js",
   "/js/rio-barra.js",
+  /* Las páginas de contenido, TODAS. Antes no se precacheaba ninguna —la app
+     explicaba todo adentro justamente porque sin señal no había adónde ir— y
+     después se precachearon tres. Las otras seis no fallaban sin señal: el
+     respaldo de navegación les servía la PORTADA, así que pedías /legal y te
+     daba el home sin decir nada. Peor que un error, porque parece que anduvo.
+
+     Y una de esas seis, /puntos-de-encuentro, decía en su propia bajada "esta
+     página funciona sin conexión". Era la página de evacuación afirmando algo
+     que no cumplía.
+
+     Son ~132 KB crudos, ~35 KB comprimidos. `scripts/paginas.js` verifica que
+     esta lista y el registro de páginas digan lo mismo, así que una página
+     nueva que se olvide de acá revienta al generar. */
+  "/datos",
+  "/historia",
+  "/contacto",
+  "/preguntas",
+  "/legal",
+  "/sobre",
+  "/charlas",
+  "/para-medios",
+  "/puntos-de-encuentro",
+  /* La guía para imprimir. Es la que más razones tiene de estar acá: alguien
+     que la busca sin señal la busca justamente para imprimirla y salir.
+     El PDF no se precachea —son 72 KB por algo que se baja una vez—, pero la
+     rama de caché primero lo guarda en cuanto se descarga una vez. */
+  "/guia",
+];
+
+const DEL_APP = [
+  "/app",
   "/lib/fuentes.js",
   "/js/app/principal.js",
   "/js/app/avisos.js",
@@ -99,51 +151,62 @@ const ESENCIALES = [
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
   "/datos-abiertos/curvas.json",
-  /* Las páginas de contenido, TODAS. Antes no se precacheaba ninguna —la app
-     explicaba todo adentro justamente porque sin señal no había adónde ir— y
-     después se precachearon tres. Las otras seis no fallaban sin señal: el
-     respaldo de navegación les servía la PORTADA, así que pedías /legal y te
-     daba el home sin decir nada. Peor que un error, porque parece que anduvo.
-
-     Y una de esas seis, /puntos-de-encuentro, decía en su propia bajada "esta
-     página funciona sin conexión". Era la página de evacuación afirmando algo
-     que no cumplía.
-
-     Son ~132 KB crudos, ~35 KB comprimidos. `scripts/paginas.js` verifica que
-     esta lista y el registro de páginas digan lo mismo, así que una página
-     nueva que se olvide de acá revienta al generar. */
-  "/datos",
-  "/historia",
-  "/contacto",
-  "/preguntas",
-  "/legal",
-  "/sobre",
-  "/charlas",
-  "/para-medios",
-  "/puntos-de-encuentro",
-  /* La guía para imprimir. Es la que más razones tiene de estar acá: alguien
-     que la busca sin señal la busca justamente para imprimirla y salir.
-     El PDF no se precachea —son 72 KB por algo que se baja una vez—, pero la
-     rama de caché primero lo guarda en cuanto se descarga una vez. */
-  "/guia",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",
   "/img/apple-touch-icon.png",
 ];
 
+/* La unión. `scripts/paginas.js` verifica contra esto que estén los 21 módulos
+   y las 10 páginas generadas, y que no sobre ninguna ruta muerta. */
+const ESENCIALES = CRITICOS.concat(DEL_APP);
+
+// `cache: "reload"` salta el caché HTTP del navegador. Sin esto, subir
+// VERSION puede volver a guardar los mismos archivos viejos y el bump no
+// sirve de nada — pasó con el manifest.
+const frescas = (rutas) => rutas.map((u) => new Request(u, { cache: "reload" }));
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches
       .open(VERSION)
-      // `cache: "reload"` salta el caché HTTP del navegador. Sin esto, subir
-      // VERSION puede volver a guardar los mismos archivos viejos y el bump
-      // no sirve de nada — pasó con el manifest.
-      .then((c) =>
-        c.addAll(ESENCIALES.map((u) => new Request(u, { cache: "reload" }))),
-      )
+      .then(async (c) => {
+        // Tanda 1: todo o nada. Si esto falla no hay modo sin conexión, y
+        // queremos que falle fuerte.
+        await c.addAll(frescas(CRITICOS));
+        /* La tanda 2 NO se pide acá. Si se pidiera, quien entró a leer dos
+           párrafos de /legal se bajaría igual los módulos de la app, las
+           curvas y las seis tipografías —275 KB comprimidos— en segundo plano,
+           y el partido en dos no habría servido de nada.
+           La pide /app, que es quien los necesita: ver el mensaje de abajo. */
+      })
       .then(() => self.skipWaiting()),
   );
+});
+
+/* La tanda de /app, a pedido. La manda js/app/instalar.js cuando alguien
+   abre la app, y no antes.
+
+   Va con addAll para que /app conserve el todo-o-nada dentro de la tanda:
+   media app cacheada abre y se rompe callada, que es lo peor de los dos
+   mundos. Si falla, no pasa nada grave: la rama de red-primero de más arriba
+   guarda cada módulo que la app efectivamente carga, así que después de una
+   visita a /app están todos igual. */
+let calentando = null;
+self.addEventListener("message", (e) => {
+  if (!e.data || e.data.tipo !== "calentar-app") return;
+  if (calentando) return; // una sola vez por arranque del worker
+  calentando = caches
+    .open(VERSION)
+    .then((c) => c.addAll(frescas(DEL_APP)))
+    .catch((err) => {
+      calentando = null;
+      console.warn(
+        "precache de /app incompleto, se cachea al usarla:",
+        err.message,
+      );
+    });
+  e.waitUntil(calentando);
 });
 
 self.addEventListener("activate", (e) => {

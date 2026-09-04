@@ -959,6 +959,43 @@ dispositivo son las sugerencias, y ahí el formulario lo dice.
 El service worker no toca `/_vercel/`: cachear ese script serviría una versión
 vieja para siempre.
 
+## Quién registra el service worker, y qué precachea
+
+Lo registraba **sólo `/app`**. El sitio precacheaba sus once páginas para andar
+sin señal, pero ese precache no corría nunca para quien no abría la app — y la
+bajada de `/puntos-de-encuentro` dice, con todas las letras, *«esta página
+funciona sin conexión»*. Alguien que llegaba de un buscador a la página de
+evacuación leía una promesa falsa. El arreglo anterior —meter las páginas en
+el precache— resolvió *qué* se cachea, no *si el worker llega a instalarse*.
+
+Ahora lo registran las dos mitades: `js/app/instalar.js` para la app y
+`js/rio-barra.js` para las once páginas, que es el archivo que ya iba en todas.
+En los dos casos después de `load`, y comprobando `document.readyState` en vez
+de esperar el evento — el bug que dejó la app sin caché durante semanas.
+
+Registrar en todas las páginas hacía que quien entra a leer `/legal` se bajara
+los 387 KB del precache entero. Así que va en dos tandas:
+
+| Tanda | Qué | Cuánto | Quién la paga |
+| --- | --- | --- | --- |
+| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
+| `DEL_APP` | los 21 módulos, `curvas.json`, las tipografías, los íconos | 284 KB | sólo quien abre `/app` |
+
+La segunda **no se pide en `install`**: la pide la app con un `postMessage`.
+Pedirla en la instalación habría sido partirla para nada.
+
+Las dos van con `addAll`, que es todo o nada. Que la segunda sea aparte no la
+afloja —media app cacheada abre y se rompe callada—; lo que cambia es que su
+fracaso no voltea la instalación, así que el sitio anda sin señal igual.
+
+**Las tipografías salieron del precache y no se perdió nada.** El sitio las
+baja para pintar la página: precachearlas con `cache: "reload"` era bajarlas
+dos veces. La rama de caché primero las guarda en la segunda página que alguien
+mira, y sin señal el sitio sale con Plus Jakarta Sans — medido, con las cinco
+variantes cargadas. Queda un solo caso afuera: quien mira UNA página y se queda
+sin señal ve la tipografía del sistema. Es legible, y no vale 164 KB
+duplicados.
+
 ## Lo compartido: `lib/comun.js`
 
 El proyecto corre en cuatro contextos que no se pueden importar entre sí —los
