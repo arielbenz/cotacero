@@ -333,28 +333,35 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <script defer src="/_vercel/insights/script.js"></script>
 ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
-    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
-         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
-         ése es para leer y se queda en la medida angosta. -->
-    <div class="ancho alineado-lectura">
+    <!-- La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
+         los mismos cuatro destinos. Antes tenía dos enlaces propios —volver y
+         contacto— y quedaba a la medida angosta del cuerpo, así que la marca
+         se corría de lugar según de qué página vinieras.
+         Lo único que no viaja es la píldora del nivel: la llena landing.js,
+         que estas páginas no cargan, y un hueco que no completa nadie es peor
+         que no tenerlo. -->
+    <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           ${marcaSvg("mp")}
           <span class="lockup-nombre">Cota Cero</span>
         </a>
+        <span class="chip-borde">NO OFICIAL</span>
         <details class="nav-menu">
           <summary aria-label="Menú de secciones">
             <span class="nav-burger" aria-hidden="true"></span>
           </summary>
           <div class="nav-enlaces">
-            <a href="/">← Volver a la portada</a>
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
             <a href="/contacto">Contacto</a>
           </div>
         </details>
       </nav>
     </div>
 
-    <div class="ancho angosto">
+    <div class="ancho">
 ${antes ? antes + "\n" : ""}      <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
 ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones + "\n" : ""}${

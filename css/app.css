@@ -158,7 +158,6 @@
      angosto porque son para leer, no para recorrer. Van como variables para
      que no haya dos números sueltos que se desincronicen. */
   --ancho-sitio: 1100px;
-  --ancho-lectura: 880px;
 
   /* ---- escalas ---- */
   --t-hero: 64px; /* el número del hidrómetro */
@@ -1347,11 +1346,23 @@ input[type="range"] {
   margin: 0 auto;
   padding: 0 var(--e-5);
 }
-/* Las páginas de contenido usan una medida más angosta que la portada: son
-   para leer, no para recorrer. La cabecera y el pie no la usan — ver
-   .pie-envoltura y el nav, que van siempre al ancho de sitio. */
-.ancho.angosto {
-  max-width: var(--ancho-lectura);
+/* Todas las páginas van al mismo ancho: la barra, el cuerpo y el pie arrancan
+   en la misma vertical se venga de donde se venga. Antes el cuerpo de las
+   páginas de contenido iba a una medida más angosta y la marca se corría de
+   lugar entre la portada y el resto.
+
+   Lo que sigue acotado es la LÍNEA, que es lo que de verdad se lee: a 1100 px
+   un párrafo suelto llegaba a 133 caracteres —medido en /legal— y eso no se
+   lee. El límite pasó del contenedor al renglón, que es donde tiene que
+   estar: así una tabla o una rejilla usa todo el ancho y un párrafo no. */
+.bloque p,
+.bloque ul,
+.bloque ol,
+.pg-lead {
+  /* 50ch y no 70: `ch` mide el ancho del cero, y en Plus Jakarta Sans el cero
+     es bastante más ancho que la letra promedio, así que 72ch daban 104
+     caracteres reales. Medido, 50ch quedan en unos 72 por renglón. */
+  max-width: 50ch;
 }
 
 /* ---------- cabecera de página ---------- */
@@ -1854,21 +1865,6 @@ body.landing {
   letter-spacing: -0.02em;
 }
 
-/* En las páginas de contenido la barra ocupa el ancho de sitio —la marca
-   arranca donde arranca en la portada— pero el botón de la derecha se alinea
-   con la columna de lectura, que es más angosta: si no, queda flotando 110 px
-   afuera del borde de las tarjetas y se lee como un descuido.
-
-   La cuenta: el borde derecho de la barra está en centro + ancho/2 y el de la
-   columna de lectura en centro + lectura/2, así que sobra (ancho − lectura)/2.
-   El porcentaje se resuelve contra el ancho del contenedor, de modo que 50% es
-   ancho/2 y la resta sale sola a cualquier tamaño de ventana; el max() la
-   apaga cuando la ventana es más angosta que la columna de lectura y las dos
-   medidas coinciden. En la portada no se aplica: ahí barra y contenido ya
-   miden lo mismo. */
-.ancho.alineado-lectura > .nav-sitio {
-  padding-right: max(0px, 50% - (var(--ancho-lectura) / 2 - var(--e-5)));
-}
 
 /* ---------- navegación del sitio ---------- */
 .nav-sitio {

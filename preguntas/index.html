@@ -139,10 +139,14 @@
     <script defer src="/_vercel/insights/script.js"></script>
   </head>
   <body class="landing">
-    <!-- La cabecera va al ancho de sitio, igual que en la portada: la marca
-         arranca en la misma vertical se venga de donde se venga. El cuerpo, no:
-         ése es para leer y se queda en la medida angosta. -->
-    <div class="ancho alineado-lectura">
+    <!-- La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
+         los mismos cuatro destinos. Antes tenía dos enlaces propios —volver y
+         contacto— y quedaba a la medida angosta del cuerpo, así que la marca
+         se corría de lugar según de qué página vinieras.
+         Lo único que no viaja es la píldora del nivel: la llena landing.js,
+         que estas páginas no cargan, y un hueco que no completa nadie es peor
+         que no tenerlo. -->
+    <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
@@ -153,19 +157,22 @@
           </svg>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
+        <span class="chip-borde">NO OFICIAL</span>
         <details class="nav-menu">
           <summary aria-label="Menú de secciones">
             <span class="nav-burger" aria-hidden="true"></span>
           </summary>
           <div class="nav-enlaces">
-            <a href="/">← Volver a la portada</a>
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
             <a href="/contacto">Contacto</a>
           </div>
         </details>
       </nav>
     </div>
 
-    <div class="ancho angosto">
+    <div class="ancho">
       <header class="pg-cabecera">
         <h1>Preguntas sobre el río, tu cota y las inundaciones</h1>
         <p class="pg-lead">Las dudas que más aparecen, contestadas sin vueltas.</p>
