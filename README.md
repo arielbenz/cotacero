@@ -959,6 +959,41 @@ dispositivo son las sugerencias, y ahí el formulario lo dice.
 El service worker no toca `/_vercel/`: cachear ese script serviría una versión
 vieja para siempre.
 
+## A quién no le llegamos todavía
+
+Cota Cero es una página web. Para usarla hacen falta un teléfono con navegador
+de los últimos seis años, datos o wifi **al menos una vez**, y poder leer. En
+los barrios que más se inundan, eso deja gente afuera, y conviene tenerlo
+escrito en vez de descubrirlo cada vez que alguien pregunta.
+
+Lo verificado hoy: **no hay ninguna forma de saber el nivel del río sin un
+teléfono así.** Ni SMS, ni USSD, ni una línea para llamar y escuchar, ni bot de
+WhatsApp, ni correo, ni RSS, ni audio. El único aviso que sale es el push, que
+exige la app instalada.
+
+Esta tabla es lo que haría falta para cada canal. Los costos son órdenes de
+magnitud, no presupuestos.
+
+| Canal | A quién alcanza | Qué haría falta | Costo | Qué rompe |
+| --- | --- | --- | --- | --- |
+| **Afiche imprimible** — teléfonos, 30 cm/60 cm, puntos y un QR. Sin el nivel del día, que en papel miente | a quien no tiene teléfono, por mano de un vecino | una página `/afiche` en `scripts/paginas.js` y el `@media print` que ya existe | una tarde, cero pesos | nada |
+| **Audio en la app** — un botón «Escuchar» que lea el veredicto | quien no lee bien pero tiene teléfono | `speechSynthesis`; en Android las voces en español vienen instaladas y andan sin red | un día, cero pesos | nada |
+| **Lectura fácil / pictogramas** | idem | reescribir los ocho estados con pautas de lectura fácil y **validarlos con una organización que sepa hacerlo**; sin eso no vale | acuerdo, no plata | nada |
+| **Qom, mocoví, guaraní** | comunidades del Gran Santa Fe | traductores **humanos** de esas comunidades para los ocho estados, los teléfonos y las tres reglas. Traducción automática acá sería peor que nada | acuerdo institucional | nada |
+| **RSS del nivel** | radios barriales, otras webs | que `api/cron/avisar.js` escriba un feed estático | horas, cero pesos | nada |
+| **Radio** — que una FM barrial lea el nivel | quien no tiene datos | el feed de arriba y alguien que llame | tiempo de gestión | nada |
+| **Línea de voz** — llamás y escuchás el nivel | quien no tiene datos, y quien no lee | un número con IVR y texto‑a‑voz leyendo `/api/nivel` | dólares por mes + por minuto | nada, si no se guardan los números que llaman |
+| **SMS de alerta** | teléfono sin internet | proveedor de SMS, alta con consentimiento, y **guardar números de teléfono** | centavos de dólar por mensaje × personas × avisos | **la promesa de privacidad.** Hoy el servidor guarda un solo dato opaco; un número de celular es un dato personal. Habría que reescribir `/legal` |
+| **Bot de WhatsApp** | casi todos | cuenta de WhatsApp Business API, plantillas aprobadas por Meta, y guardar números | por conversación | lo mismo que SMS |
+| **USSD** (`*123#`) | teléfonos con teclas | acuerdo con las operadoras | fuera de alcance para un proyecto ciudadano | — |
+
+**Orden sugerido si alguna vez se hace:** afiche → audio → RSS y radio → línea
+de voz. Los tres primeros no tocan la privacidad ni cuestan plata.
+
+**Y la línea que no se cruza sin decidirlo antes:** cualquier canal que guarde
+un número de teléfono cambia lo que la app promete por escrito en `/legal` y en
+`/para-medios`. Eso se decide antes de escribir una línea de código, no después.
+
 ## Pendientes
 
 - Los km río arriba de cada zona son estimaciones propias, salvo
