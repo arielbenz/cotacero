@@ -33,8 +33,9 @@ un detalle de implementación: preguntá antes.
 Sin tests, la verificación es esta y en este orden:
 
 1. `node --check <archivo>` en cada `.js` tocado.
-2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `app/index.html`
-   o `lib/fuentes.js`.
+2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `app/index.html`,
+   `lib/fuentes.js` **o `lib/comun.js`** —de este último sale un archivo
+   generado, ver abajo—.
 3. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
    abierta. Los módulos (`lib/`, `scripts/`) se pueden probar importándolos
    desde Node.
@@ -114,6 +115,42 @@ Cada archivo dentro de `api/` se publica como una función de Vercel, y el plan
 Hobby topea en **12**. Hoy hay 8. Todo lo compartido va en `lib/`, que no se
 publica.
 
+### Cuatro mundos que no se importan entre sí
+
+El proyecto corre en cuatro contextos y **ninguno puede importar del otro**:
+
+    módulos ES      js/app/*                  import ✅
+    clásicos        landing, rio-barra,       nada
+                    historia, widget
+    service worker  sw.js                     importScripts
+    Node            scripts/, api/, lib/      import ✅
+
+Cada cosa que hacía falta en dos de esos cuatro terminaba copiada, y así los
+umbrales oficiales llegaron a estar escritos a mano en **ocho** archivos. Son
+un número de seguridad: una copia vieja hace que ese consumidor avise tarde.
+
+**`lib/comun.js` es la única fuente** de los umbrales de respaldo, el filtro de
+plausibilidad (`umbralesDe`), `VENCE_HORAS` y el formato de los números
+(`nm`, `m`, `mU`, `mCm`). Los módulos y Node lo importan. Los otros dos leen
+**`lib/comun-clasico.js`**, que **lo emite `scripts/paginas.js`** sacándole los
+`export` y envolviéndolo en una IIFE que publica un solo nombre, `CC_COMUN`.
+
+Tres cosas de ahí:
+
+- **`lib/comun.js` no puede tener `import`.** El gemelo sale de una
+  transformación de texto y eso sólo funciona si el archivo no depende de
+  nadie. Nada de DOM, nada de fetch, nada de estado.
+- **Tocar `lib/comun.js` sin correr `node scripts/paginas.js` deja el gemelo
+  viejo**, y entonces la app dice un número y el sitio otro. Es el único modo
+  de romperlo.
+- **`comun-clasico.js` se carga ANTES que `rio-barra.js`** en las once páginas
+  y antes que `widget.js`. Van con `defer`, que conserva el orden.
+
+`sw.js` lo trae con `importScripts`. Registrarlo como módulo habría sido más
+prolijo y dejaba afuera justo a los Android viejos que este proyecto sostiene
+a mano; `importScripts` funciona en un worker clásico y el navegador guarda lo
+importado junto al service worker, así que sigue andando sin señal.
+
 ### Fuentes únicas de verdad
 
 Estas cosas viven en **un solo lugar** y se leen desde los demás. Duplicarlas
@@ -126,10 +163,14 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                           |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                             |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
+| Umbrales de respaldo (5,30 / 5,70)            | `lib/comun.js`                                     | `lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron |
+| El filtro de plausibilidad de umbrales        | `lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                              |
+| Cómo se escribe un número (la coma, `mU`)     | `lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                       |
+| Cuándo vence un dato (48 h)                   | `lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                 |
 | Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                           |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie     |
-| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres |
+| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `lib/comun.js`; ver el comentario en `sw.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la

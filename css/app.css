@@ -1856,9 +1856,6 @@ input[type="range"] {
   width: auto;
   padding: 0 var(--e-6);
 }
-.pie-simple {
-  grid-template-columns: 1.4fr 1fr;
-}
 
 .pagina {
   padding: var(--e-5) 0 var(--e-7);
@@ -2722,12 +2719,6 @@ p.pie-frescura,
   width: auto;
   padding: 0 var(--e-6);
 }
-.mapa-caja {
-  border-radius: var(--r-l);
-  overflow: hidden;
-  box-shadow: var(--sombra);
-  background: var(--panel-2);
-}
 #mapa-landing {
   height: 100%;
   min-height: 460px;
@@ -3295,9 +3286,6 @@ html.texto-grande {
   }
   .pg-cabecera h1 {
     font-size: var(--t-xxl);
-  }
-  .pie-simple {
-    grid-template-columns: 1fr;
   }
   /* Tercera vez que muerde el mismo bug de cascada, así que queda anotado: la
      caja de cierre se define como `.landing .cta`, y una consulta de medios NO

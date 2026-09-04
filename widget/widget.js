@@ -8,16 +8,21 @@
    de la app, y publicado en un medio se leería como pronóstico de inundación.
    Ver la página /para-medios, condición 2. */
 
-/* Respaldo de los umbrales oficiales: los de verdad los publica la estación
-   del INA y llegan en /api/nivel. Con `let` para poder adoptarlos, y con las
-   marcas de la regla redibujadas cuando eso pasa. */
-let ALERTA = 5.3;
-let EVACUACION = 5.7;
+/* Los umbrales de respaldo, el filtro de plausibilidad, el vencimiento y la
+   coma decimal salen de lib/comun-clasico.js, el mismo archivo que leen el
+   sitio y el service worker. Es un pedido más desde el iframe, del propio
+   origen —la CSP del widget no se toca—, y a cambio el widget deja de tener
+   su propia copia del 5,30 y del filtro. */
+const { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm } = self.CC_COMUN;
+
+/* Con `let` para poder adoptar los que publica la estación, y con las marcas
+   de la regla redibujadas cuando eso pasa. */
+let ALERTA = UMBRALES_RESPALDO.alerta;
+let EVACUACION = UMBRALES_RESPALDO.evacuacion;
 const ESCALA_MAX = 8; // la misma regla de 0 a 8 m que usa la app
-const VENCE_HORAS = 48; // pasado esto el dato deja de presentarse como de hoy
 
 const $ = (id) => document.getElementById(id);
-const dosDec = (v) => v.toFixed(2).replace(".", ",");
+const dosDec = (v) => nm(v, 2);
 
 /* El tema llega por querystring porque el widget vive en un iframe: adentro no
    se sabe si el sitio que lo embebe es claro u oscuro, y prefers-color-scheme
@@ -44,16 +49,11 @@ function pintar(d) {
   if (!isFinite(nivel)) return fallar();
 
   // Mismo filtro de plausibilidad que la app: la evacuación tiene que estar
-  // por encima de la alerta o no se adopta nada.
-  if (
-    typeof d.alerta === "number" &&
-    typeof d.evacuacion === "number" &&
-    d.alerta > 0 &&
-    d.evacuacion > d.alerta &&
-    d.evacuacion < 10
-  ) {
-    ALERTA = d.alerta;
-    EVACUACION = d.evacuacion;
+  // por encima de la alerta o no se adopta nada. Ahora literalmente el mismo.
+  const of = umbralesDe(d);
+  if (of) {
+    ALERTA = of.alerta;
+    EVACUACION = of.evacuacion;
     marcarUmbrales();
   }
 

@@ -36,7 +36,9 @@ const {
   VENCE_MINUTOS,
 } = window.CC;
 
-const m1 = (v) => (Math.round(v * 10) / 10).toFixed(1).replace(".", ",");
+/* El formato y los umbrales de respaldo, de lib/comun-clasico.js. */
+const { UMBRALES_RESPALDO, nm } = self.CC_COMUN;
+const m1 = (v) => nm(Math.round(v * 10) / 10, 1);
 const MES =
   "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(
     " ",
@@ -76,8 +78,9 @@ const menosMovimiento = () =>
    ========================================================================== */
 
 let real = null; // metros, dato del INA
-let alerta = 5.3; // respaldo: los publica la estación y llegan en la respuesta
-let evacuacion = 5.7;
+// respaldo: los publica la estación y llegan en la respuesta
+let alerta = UMBRALES_RESPALDO.alerta;
+let evacuacion = UMBRALES_RESPALDO.evacuacion;
 let record = null; // { valor, anio, fecha }, sale de historia.json
 let anios = []; // máximos anuales, para decir cuán raro es un nivel
 let sim = null; // metros, lo que dibuja la regla

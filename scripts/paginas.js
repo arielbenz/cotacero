@@ -333,6 +333,7 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
+    <script src="/lib/comun-clasico.js" defer></script>
     <script src="/js/rio-barra.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
     ${/* El cargador va externo y la configuración en /js/analitica.js: el
@@ -2155,6 +2156,41 @@ ${LICENCIAS.map(
   sueltos: [
   ],
 });
+
+/* ---------- lib/comun-clasico.js ----------
+   El gemelo clásico de lib/comun.js, para los dos contextos que no pueden
+   importar: el service worker (que lo trae con importScripts) y los scripts
+   clásicos del sitio (con un <script> común).
+
+   Sale de sacarle los `export` al original y envolverlo en una IIFE que
+   publica un solo nombre, `self.CC_COMUN` — el mismo motivo por el que
+   `rio-barra.js` va envuelto: los scripts clásicos comparten el ámbito global
+   y un `const` suelto arriba de todo se lleva puesto el archivo siguiente,
+   entero y en silencio.
+
+   Los nombres que expone se DERIVAN de los `export` del original: agregar uno
+   allá lo publica acá solo, sin una segunda lista que se desincronice. */
+const fuenteComun = await readFile(join(RAIZ, "lib", "comun.js"), "utf8");
+const nombresComun = [
+  ...fuenteComun.matchAll(/^export (?:const|let|function)\s+([A-Za-z_$][\w$]*)/gm),
+].map((x) => x[1]);
+if (nombresComun.length < 5)
+  throw new Error(
+    "lib/comun.js: no se reconocieron sus exports. ¿Cambió la forma del archivo?",
+  );
+const comunClasico =
+  "/* GENERADO por scripts/paginas.js desde lib/comun.js. NO EDITAR:\n" +
+  "   el próximo `node scripts/paginas.js` lo pisa. El original es lib/comun.js. */\n" +
+  '(function (raiz) {\n  "use strict";\n' +
+  fuenteComun.replace(/^export /gm, "") +
+  "\n  raiz.CC_COMUN = { " +
+  nombresComun.join(", ") +
+  " };\n})(typeof self !== \"undefined\" ? self : globalThis);\n";
+await writeFile(join(RAIZ, "lib", "comun-clasico.js"), comunClasico);
+console.log(
+  "escrito: /lib/comun-clasico.js  (" + nombresComun.length + " nombres: " +
+    nombresComun.join(", ") + ")",
+);
 
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
    Se emiten desde acá, que ya las leyó de app/index.html, para que no exista

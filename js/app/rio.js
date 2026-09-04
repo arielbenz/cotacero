@@ -29,10 +29,14 @@ import {
   fijarRecord,
   fijarUmbrales,
 } from "./oficiales.js";
+/* El filtro de plausibilidad, compartido con el sitio, el widget y el
+   service worker: era el mismo `if` escrito en cinco archivos. */
+import { umbralesDe } from "/lib/comun.js";
 
 // Lo sella cargarRio() y lo lee refrescarSiHaceFalta(). Va acá y no al
 // lado del listener para no asignarlo antes de su propia declaración.
 export let ultimoRefresco = 0;
+
 
 /* ---------------- navegación ---------------- */
 
@@ -41,10 +45,9 @@ export let ultimoRefresco = 0;
    silencioso de la API no puede dejar la regla con la evacuación por debajo
    de la alerta. */
 function adoptarUmbrales(j) {
-  const a = j.alerta,
-    e = j.evacuacion;
-  if (typeof a !== "number" || typeof e !== "number") return;
-  if (!(a > 0 && e > a && e < 10)) return;
+  const of = umbralesDe(j);
+  if (!of) return;
+  const { alerta: a, evacuacion: e } = of;
   if (a === ALERTA && e === EVACUACION) return;
   fijarUmbrales(a, e);
   REFERENCIAS[0][1] = a;

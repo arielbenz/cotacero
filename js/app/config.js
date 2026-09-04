@@ -41,7 +41,11 @@ export const ESCALA_MAX = 8;
    de la app. Por eso ya no se usa un modelo satelital. */
 export const ERROR_DEM = 0.5;
 
-export const VENCE_HORAS = 48; // a partir de acá el dato guardado no se presenta como vigente
+/* A partir de acá el dato guardado no se presenta como vigente. Sale de
+   lib/comun.js, que es de donde lo lee también la barra del sitio: eran dos
+   constantes con la misma intención y unidades distintas (48 h contra
+   48 * 60 minutos), sostenidas por un comentario que pedía no olvidarse. */
+export { VENCE_HORAS } from "/lib/comun.js";
 
 export const REFRESCO_MS = 5 * 60 * 1000; // piso entre refrescos automáticos
 

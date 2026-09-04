@@ -12,30 +12,14 @@ export const atr = (t) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-export const m = (v) =>
-  v == null || isNaN(v) ? "—" : v.toFixed(2).replace(".", ",") + " m";
-
-/* El umbral NUNCA se muestra con dos decimales. La cota del terreno sale de
-   curvas cada 50 cm: el segundo decimal sería precisión inventada, y en un
-   número que se usa para decidir si sacar a alguien de la casa la precisión
-   inventada se lee como certeza. Un decimal y tilde de aproximación.
-   Única excepción: el desglose del cálculo, que conserva la aritmética exacta
-   y aclara al pie por qué la pantalla muestra otra cosa. */
-export const mU = (v) =>
-  v == null || isNaN(v)
-    ? "—"
-    : "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
-
-/* El margen contra el umbral también se presenta como aproximado. Debajo del
-   metro va en centímetros, que es como se habla de esto cuando falta poco;
-   arriba, en metros con un decimal — "217 cm" no lo lee nadie, y el segundo
-   decimal sería la misma precisión inventada que en el umbral. */
-export const mCm = (v) => {
-  const a = Math.abs(v);
-  return a < 1
-    ? Math.round(a * 100) + " cm"
-    : (Math.round(a * 10) / 10).toFixed(1).replace(".", ",") + " m";
-};
+/* m(), mU() y mCm() viven en lib/comun.js y se re-exportan acá para que el
+   resto de la app siga importándolas de donde siempre. Estaban escritas acá,
+   y otra vez en sw.js, en rio-barra.js, en landing.js, en historia.js, en
+   widget.js y en paginas.js — siete copias de la misma coma decimal, con
+   cinco nombres distintos. El service worker las lee del gemelo clásico que
+   emite scripts/paginas.js. */
+export { m, mU, mCm, nm } from "/lib/comun.js";
+import { nm } from "/lib/comun.js";
 
 /* Acepta coma o punto. La app muestra "16,40" en todos lados y los campos
    pedían "16.40": la persona escribía lo que veía, el navegador descartaba el
@@ -48,8 +32,7 @@ export const aNumero = (v) =>
   );
 
 /* Y al revés, para precargar los campos con el mismo formato que se muestra. */
-export const enCampo = (v) =>
-  v == null || isNaN(v) ? "" : v.toFixed(2).replace(".", ",");
+export const enCampo = (v) => (v == null || isNaN(v) ? "" : nm(v, 2));
 
 /* El INA publica "DD/MM/AAAA HH:MM" y Date no parsea ese formato:
    lo desarmamos a mano. Devuelve null si no se entiende. */

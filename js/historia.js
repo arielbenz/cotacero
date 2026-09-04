@@ -21,8 +21,10 @@
 
 const $ = (s) => document.querySelector(s);
 
-const m1 = (v) => (Math.round(v * 10) / 10).toFixed(1).replace(".", ",");
-const m2 = (v) => v.toFixed(2).replace(".", ",");
+/* La coma decimal, de lib/comun-clasico.js: es la misma de toda la app. */
+const { nm } = self.CC_COMUN;
+const m1 = (v) => nm(Math.round(v * 10) / 10, 1);
+const m2 = (v) => nm(v, 2);
 const MES = "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(" ");
 /* Las fechas del archivo son AAAA-MM-DD. `new Date("1992-06-22")` las lee en
    UTC y en Argentina eso da el día anterior: el récord aparecía como 21 de
@@ -42,7 +44,9 @@ let H = null; // el JSON
 let anios = []; // [{a, max, fmax, min, fmin, n, da, de}]
 let modo = "anios";
 let idx = 0; // año seleccionado
-let nivelLibre = 5.3; // metros, en el modo "mover el río"
+/* Arranca en la alerta de la ciudad, que es el número que la gente conoce.
+   Sale de lib/comun.js para no ser un 5,3 más escrito a mano. */
+let nivelLibre = self.CC_COMUN.UMBRALES_RESPALDO.alerta;
 let reproduciendo = null;
 
 const menosMovimiento = () =>

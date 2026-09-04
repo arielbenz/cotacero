@@ -106,7 +106,9 @@
       type="font/woff2"
       crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
-    <!-- rio-barra.js primero: landing.js usa su store. -->
+    <!-- comun-clasico primero (lo generan desde lib/comun.js), después
+         rio-barra, que arma el store que usa landing.js. -->
+    <script src="/lib/comun-clasico.js" defer></script>
     <script src="/js/rio-barra.js" defer></script>
     <script src="/js/landing.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>

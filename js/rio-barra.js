@@ -19,8 +19,15 @@
 // ÉSTE VA PRIMERO.
 
 (() => {
+/* Los umbrales de respaldo, el filtro de plausibilidad, el vencimiento y el
+   formato salen de lib/comun-clasico.js, que va cargado antes que éste.
+   Es el mismo código que importan los módulos de la app y el que trae el
+   service worker con importScripts: una sola coma decimal y un solo 5,30. */
+const { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm } = self.CC_COMUN;
+
 const $ = (id) => document.getElementById(id);
-const m = (v) => v.toFixed(2).replace(".", ",");
+/* Acá el número va SIN la unidad: la píldora la pone aparte. */
+const m = (v) => nm(v, 2);
 
 /* ==========================================================================
    1 bis. EL ESTADO DEL RÍO, EN UN SOLO LUGAR
@@ -46,8 +53,9 @@ const rio = {
   delta: null, // variación contra la lectura anterior, en metros
   fechaTexto: "", // "DD/MM/AAAA HH:MM", tal como la publica el INA
   fecha: null, // la misma, ya parseada
-  alerta: 5.3, // respaldo: los publica la estación y llegan en la respuesta
-  evacuacion: 5.7,
+  // respaldo: los publica la estación y llegan en la respuesta
+  alerta: UMBRALES_RESPALDO.alerta,
+  evacuacion: UMBRALES_RESPALDO.evacuacion,
   umbral: null, // el umbral personal, si esta persona ya lo calculó en la app
 };
 
@@ -89,15 +97,16 @@ function fechaINA(txt) {
 /* Minutos desde la lectura, o null si no sabemos de cuándo es. */
 const minutosDesde = (d) => (d ? Math.max(0, (Date.now() - d.getTime()) / 6e4) : null);
 
-/* Cuándo un dato deja de poder presentarse como vigente. Son las mismas 48 h
-   que usa la app (VENCE_HORAS en js/app/config.js) y NO los 90 minutos que
+/* Cuándo un dato deja de poder presentarse como vigente. Son literalmente las
+   mismas 48 h que usa la app —VENCE_HORAS de lib/comun.js, ya no una segunda
+   constante que había que acordarse de mover— y NO los 90 minutos que
    pedía el diseño: el INA publica UNA lectura por día, sellada a las 00:00,
    así que a las 01:31 de la mañana el dato de hoy ya figuraría vencido todos
    los días del año. Los 90 minutos siguen valiendo para otra cosa —abajo de
    eso la frescura se cuenta en minutos y no en horas—, que es la única parte
    de esa regla que el ritmo de publicación del INA soporta. */
 const EN_MINUTOS = 90;
-const VENCE_MINUTOS = 48 * 60;
+const VENCE_MINUTOS = VENCE_HORAS * 60;
 
 const estaVencido = () => {
   const m = minutosDesde(rio.fecha);
@@ -150,8 +159,15 @@ async function leerNivel() {
     /* Los umbrales oficiales los publica la estación del INA y vienen en la
        respuesta. Los del objeto son el respaldo para cuando contesta el
        reporte diario, que no los trae. */
-    if (typeof j.alerta === "number") rio.alerta = j.alerta;
-    if (typeof j.evacuacion === "number") rio.evacuacion = j.evacuacion;
+    /* Con el MISMO filtro que la app, el widget y el service worker. Acá no
+       estaba: se adoptaba cualquier número que viniera, así que una respuesta
+       con la evacuación por debajo de la alerta habría pintado la franja de
+       la portada con el río en aguas medias. */
+    const of = umbralesDe(j);
+    if (of) {
+      rio.alerta = of.alerta;
+      rio.evacuacion = of.evacuacion;
+    }
     rio.altura = j.altura;
     rio.delta = typeof j.delta === "number" ? j.delta : null;
     rio.fechaTexto = j.fecha_dato || "";

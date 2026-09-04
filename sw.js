@@ -12,9 +12,18 @@
 //                que puede estar viejo, antes que servir un número de ayer
 //                como si fuera de hoy.
 
+/* Lo compartido con la app, el sitio y Node. Un service worker clásico no
+   puede importar módulos —y registrarlo como módulo dejaría afuera justo a
+   los Android viejos que este proyecto sostiene a mano—, pero SÍ puede
+   importScripts. Con esto los umbrales oficiales, el filtro de plausibilidad
+   y el formato de los números dejan de estar copiados acá adentro.
+   lib/comun-clasico.js lo emite scripts/paginas.js desde lib/comun.js. */
+importScripts("/lib/comun-clasico.js");
+const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
+
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v81";
+const VERSION = "cota-cero-v82";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -38,6 +47,13 @@ const ESENCIALES = [
   // módulos, así que sin esto /app no abre sin conexión.
   // La barra del río va en todas las páginas del sitio: sin esto, sin conexión
   // la píldora se queda en su estado inicial en vez de decir "sin dato".
+  /* El gemelo clásico de lib/comun.js. El service worker lo trae con
+     importScripts —eso el navegador lo guarda solo—, pero las páginas del
+     sitio lo piden con un <script> común y sin esto no abrirían sin señal. */
+  "/lib/comun-clasico.js",
+  /* Y el original, que importan los módulos de la app: sin esto /app no abre
+     sin conexión. Son el mismo código, uno para cada mundo. */
+  "/lib/comun.js",
   "/js/rio-barra.js",
   "/lib/fuentes.js",
   "/js/app/principal.js",
@@ -272,28 +288,9 @@ self.addEventListener("fetch", (e) => {
    contra el umbral que la app guardó en este dispositivo.
    ========================================================================== */
 
-/* Los umbrales oficiales del Puerto. Son el arranque y el respaldo: desde
-   que /api/nivel lee la API del INA, la respuesta trae los que publica la
-   propia estación, y `armarAviso` usa ésos. Que acá sigan escritos importa
-   para el caso en que el aviso se arma sin haber podido leer el nivel. */
-const ALERTA_OFICIAL = 5.3;
-const EVACUACION_OFICIAL = 5.7;
-
-/* Los umbrales oficiales se escriben igual que en la app —"5,30 m", dos
-   decimales— para que nadie compare el aviso con la pantalla y crea que son
-   dos números distintos. */
-const umbralTxt = (v) => v.toFixed(2).replace(".", ",");
-
-/* Distancias como las dice la app: en centímetros cuando falta menos de un
-   metro, en metros con un decimal cuando falta más. El aviso decía "Faltan
-   unos 360 cm", que es exactamente lo que `mCm()` en app.js existe para
-   evitar — nadie lee 360 cm. */
-const distancia = (v) => {
-  const a = Math.abs(v);
-  return a < 1
-    ? Math.round(a * 100) + " cm"
-    : (Math.round(a * 10) / 10).toFixed(1).replace(".", ",") + " m";
-};
+/* Los umbrales oficiales, el formato de los números y la distancia salen de
+   lib/comun.js, arriba. Estaban escritos acá y el aviso podía quedar diciendo
+   un número con otro redondeo que la pantalla. */
 
 /* El service worker no puede leer localStorage, así que la app espeja el
    umbral a IndexedDB. */
@@ -344,12 +341,6 @@ async function leerUmbral() {
   }
 }
 
-const dosDec = (v) => v.toFixed(2).replace(".", ",");
-/* El umbral se redondea a un decimal en todos lados, avisos incluidos: sale de
-   curvas cada 50 cm y el segundo decimal sería precisión inventada. */
-const unDec = (v) =>
-  "≈ " + (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " m";
-
 /* Los ocho estados. La notificación llega con la app CERRADA, así que cada
    cuerpo tiene que entenderse solo: sin la app abierta no hay contexto que
    valga. Por eso en los graves va primero el verbo de lo que hay que hacer y
@@ -358,14 +349,20 @@ const unDec = (v) =>
    calle no se sabe si te incluye—.
 
    Las frases son las mismas que las del veredicto de la pantalla, pero
-   copiadas a mano: este archivo es un <script> clásico y no puede importar los
-   módulos de la app, y registrarlo como módulo dejaría afuera justo a los
-   Android viejos. Si tocás una, revisá las tres: acá, en rio.js
+   copiadas a mano. Si tocás una, revisá las tres: acá, en rio.js
    pintarVeredictoRio() y en cota.js calcular(). Ver README §"Los ocho estados
-   y cómo se dicen". */
+   y cómo se dicen".
+
+   Ya NO es que no se pueda compartirlas: desde que este archivo trae
+   lib/comun-clasico.js con importScripts, la puerta está abierta y los textos
+   podrían mudarse ahí. No se hizo todavía porque no son constantes sueltas
+   —cada uno interpola el nivel, el umbral y los oficiales, y el de la pantalla
+   además lleva marcado— y mudarlos mal es peor que tenerlos copiados. Queda
+   como el próximo paso obvio. */
 function armarAviso(nivel, umbral, cerca, oficiales) {
-  const ALERTA = (oficiales && oficiales.alerta) || ALERTA_OFICIAL;
-  const EVACUACION = (oficiales && oficiales.evacuacion) || EVACUACION_OFICIAL;
+  const ALERTA = (oficiales && oficiales.alerta) || UMBRALES_RESPALDO.alerta;
+  const EVACUACION =
+    (oficiales && oficiales.evacuacion) || UMBRALES_RESPALDO.evacuacion;
   if (nivel == null)
     return {
       titulo: "Cambió el nivel del río",
@@ -382,26 +379,26 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
          pantalla— y queda la acción, el dato y el teléfono. */
       cuerpo:
         "Mové a las personas, los remedios y los documentos. " +
-        `El río está en ${dosDec(nivel)} m y tu nivel de aviso es ${unDec(umbral)}. ` +
+        `El río está en ${nm(nivel, 2)} m y tu nivel de aviso es ${mU(umbral)}. ` +
         "Si Defensa Civil dice que salgas, salí. 103.",
       urgente: true,
       ir: "/app?ir=plan",
     };
   if (nivel >= EVACUACION)
     return {
-      titulo: `Evacuación en la ciudad: ${dosDec(nivel)} m`,
+      titulo: `Evacuación en la ciudad: ${nm(nivel, 2)} m`,
       cuerpo:
-        `Si Defensa Civil dice que salgas, salí. El río pasó los ${umbralTxt(EVACUACION)} m. ` +
+        `Si Defensa Civil dice que salgas, salí. El río pasó los ${nm(EVACUACION, 2)} m. ` +
         "No cruces agua que corre: con 30 cm te arrastra. Ayuda: 103.",
       urgente: true,
       ir: "/app?ir=donde",
     };
   if (nivel >= ALERTA)
     return {
-      titulo: `Alerta en la ciudad: ${dosDec(nivel)} m`,
+      titulo: `Alerta en la ciudad: ${nm(nivel, 2)} m`,
       cuerpo:
         "Armá la mochila y avisale a tu familia. " +
-        `El río pasó los ${umbralTxt(ALERTA)} m: afuera del terraplén ya empiezan a sacar gente. ` +
+        `El río pasó los ${nm(ALERTA, 2)} m: afuera del terraplén ya empiezan a sacar gente. ` +
         "Dudas: 103.",
       urgente: true,
       ir: "/app?ir=donde",
@@ -411,27 +408,27 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
     // Aviso anticipado, sólo si lo pidió: a 20 cm es urgente, a 50 no.
     if (cerca && falta <= 0.2)
       return {
-        titulo: `Faltan unos ${distancia(falta)} para tu nivel de aviso`,
-        cuerpo: `El río está en ${dosDec(nivel)} m; tu nivel de aviso es ${unDec(umbral)}. Terminá la mochila y avisale a tu familia.`,
+        titulo: `Faltan unos ${mCm(falta)} para tu nivel de aviso`,
+        cuerpo: `El río está en ${nm(nivel, 2)} m; tu nivel de aviso es ${mU(umbral)}. Terminá la mochila y avisale a tu familia.`,
         urgente: true,
         ir: "/app?ir=plan",
       };
     if (cerca && falta <= 0.5)
       return {
-        titulo: `Faltan unos ${distancia(falta)} para tu nivel de aviso`,
-        cuerpo: `El río está en ${dosDec(nivel)} m. Andá armando la mochila.`,
+        titulo: `Faltan unos ${mCm(falta)} para tu nivel de aviso`,
+        cuerpo: `El río está en ${nm(nivel, 2)} m. Andá armando la mochila.`,
         urgente: false,
         ir: "/app?ir=plan",
       };
     return {
-      titulo: `El río subió a ${dosDec(nivel)} m`,
-      cuerpo: `Faltan unos ${distancia(falta)} para tu nivel de aviso (${unDec(umbral)}). Por ahora, seguí mirando.`,
+      titulo: `El río subió a ${nm(nivel, 2)} m`,
+      cuerpo: `Faltan unos ${mCm(falta)} para tu nivel de aviso (${mU(umbral)}). Por ahora, seguí mirando.`,
       urgente: false,
       ir: "/app",
     };
   }
   return {
-    titulo: `El río subió a ${dosDec(nivel)} m`,
+    titulo: `El río subió a ${nm(nivel, 2)} m`,
     cuerpo:
       "Cargá tu casa en la app y te avisamos cuando el río importe para vos.",
     urgente: false,
@@ -450,16 +447,10 @@ self.addEventListener("push", (e) => {
           const j = await r.json();
           if (typeof j.altura === "number") nivel = j.altura;
           // Los umbrales que publica la estación, con el mismo filtro de
-          // plausibilidad que aplica la app: un cambio raro de la API no
-          // puede hacernos avisar de evacuación por debajo de la alerta.
-          if (
-            typeof j.alerta === "number" &&
-            typeof j.evacuacion === "number" &&
-            j.alerta > 0 &&
-            j.evacuacion > j.alerta &&
-            j.evacuacion < 10
-          )
-            oficiales = { alerta: j.alerta, evacuacion: j.evacuacion };
+          // plausibilidad que aplica la app —ahora literalmente el mismo, no
+          // una copia: un cambio raro de la API no puede hacernos avisar de
+          // evacuación por debajo de la alerta.
+          oficiales = umbralesDe(j);
         }
       } catch (err) {
         /* sin red: avisamos igual, en genérico */

@@ -6,7 +6,7 @@
 import { ERROR_DEM, MOCHILA, PREVIA, ZONAS } from "./config.js";
 import { cotaEnHidrometro, origenCota } from "./cota.js";
 import { TELEFONOS, estado, guardado } from "./estado.js";
-import { m, mU } from "./formato.js";
+import { m, mU, nm } from "./formato.js";
 import { faltanMochila, pintarRio } from "./rio.js";
 
 /* ================= PLAN ================= */
@@ -122,7 +122,7 @@ function textoPlan() {
       "Si el río llega ahí, el agua puede llegar a tu terreno.\n" +
       (estado.cotaEsEstimada
         ? "La altura del terreno va " +
-          ERROR_DEM.toFixed(2).replace(".", ",") +
+          nm(ERROR_DEM, 2) +
           " m más abajo, por seguridad.\n"
         : "") +
       "Es un cálculo aproximado, no una orden: la evacuación la indica Defensa Civil (103).\n\n";

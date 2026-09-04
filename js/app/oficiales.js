@@ -9,15 +9,17 @@
    sólo lectura, así que nadie más puede asignarlos aunque quiera; el resto
    del código los ve actualizados por el enlace vivo del import. */
 
+import { UMBRALES_RESPALDO } from "/lib/comun.js";
+
 /* Los umbrales oficiales del Puerto. Van con `let` y no con `const` porque
    desde que la app lee la API del INA los publica la propia estación
    (`nivel_alerta` / `nivel_evacuacion`): estos valores son el arranque y el
    respaldo para cuando contesta el reporte diario, que no los trae. Si el INA
    los corrigiera, la app se entera sola en vez de mostrar dos números
    distintos que los de la fuente. */
-export let ALERTA = 5.3;
+export let ALERTA = UMBRALES_RESPALDO.alerta;
 
-export let EVACUACION = 5.7;
+export let EVACUACION = UMBRALES_RESPALDO.evacuacion;
 
 /* El récord vigente del hidrómetro del Puerto. Da la escala real de la
    decisión: de la alerta al récord hay poco más de dos metros, y sin esa

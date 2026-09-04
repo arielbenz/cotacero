@@ -959,6 +959,48 @@ dispositivo son las sugerencias, y ahí el formulario lo dice.
 El service worker no toca `/_vercel/`: cachear ese script serviría una versión
 vieja para siempre.
 
+## Lo compartido: `lib/comun.js`
+
+El proyecto corre en cuatro contextos que no se pueden importar entre sí —los
+módulos ES de la app, los scripts clásicos del sitio, el service worker y
+Node—. Cada cosa que hacía falta en dos de esos cuatro terminaba copiada, y
+así se llegó a esto:
+
+| Qué | Copias que había |
+| --- | --- |
+| Los umbrales oficiales 5,30 / 5,70 | 8 archivos |
+| «un número con coma decimal» | 7 veces, con 5 nombres distintos |
+| El filtro de plausibilidad de umbrales | 5 archivos |
+| Cuándo vence un dato (48 h) | 3 archivos, con 2 unidades |
+
+Hoy todo eso vive en `lib/comun.js` y no hay ninguna copia. Los módulos y Node
+lo importan; los otros dos leen `lib/comun-clasico.js`, que **emite
+`scripts/paginas.js`** sacándole los `export` al original y envolviéndolo en
+una IIFE que publica un solo nombre, `CC_COMUN`. Los nombres que expone se
+derivan de los `export` del original, así que agregar uno lo publica en los dos
+mundos sin una segunda lista.
+
+`sw.js` lo trae con `importScripts`, que funciona en un worker clásico y no
+obliga a registrarlo como módulo —eso habría dejado afuera justo a los Android
+viejos que este proyecto sostiene a mano—. El navegador guarda lo importado
+junto al service worker, así que sigue andando sin señal; se verificó con el
+servidor apagado.
+
+**Los umbrales son un número de seguridad**, no una constante cualquiera: los
+publica la estación del INA en cada consulta y los de `lib/comun.js` son el
+arranque y el respaldo. Con ocho copias, la que quedara vieja hacía que ese
+consumidor avisara tarde.
+
+Y una que estaba rota sin que se notara: **`rio-barra.js` adoptaba los
+umbrales de la API sin filtrarlos.** El filtro estaba en la app, en el widget y
+en el service worker, pero no ahí — así que una respuesta con la evacuación por
+debajo de la alerta habría pintado la franja de la portada con el río en aguas
+medias. Al pasar a `umbralesDe()` compartido, se arregló solo.
+
+Lo único que puede romper esto: **tocar `lib/comun.js` y no correr
+`node scripts/paginas.js`**. El gemelo queda viejo y la app dice un número
+mientras el sitio dice otro.
+
 ## La hoja para imprimir
 
 `/guia` es lo contrario del plan que imprime la app: sale **en blanco**, con

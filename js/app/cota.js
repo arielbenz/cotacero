@@ -14,7 +14,7 @@ import {
 } from "./config.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { estado, guardado, kmDeZona } from "./estado.js";
-import { aNumero, atr, enCampo, m, mCm, mU } from "./formato.js";
+import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
 import { pintarRio } from "./rio.js";
@@ -351,7 +351,7 @@ export function calcular() {
     ${
       estado.cotaEsEstimada
         ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen de seguridad (el plano tiene líneas cada 50 cm)</td>
-  <td style="text-align:right;color:var(--alerta-texto)">− ${ERROR_DEM.toFixed(2).replace(".", ",")} m</td></tr>
+  <td style="text-align:right;color:var(--alerta-texto)">− ${nm(ERROR_DEM, 2)} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Altura usada (la más baja, por seguridad)</td>
   <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
         : ""
@@ -372,13 +372,13 @@ export function calcular() {
             .replace(".", ",")} m — <a href="/datos#abiertas">por qué usamos ${m(CERO_IGN)}</a></span>`
         : ""
     }</td>
-  <td style="text-align:right">− ${CERO_IGN.toFixed(2).replace(".", ",")} m</td></tr>
+  <td style="text-align:right">− ${nm(CERO_IGN, 2)} m</td></tr>
     <tr><td style="padding:6px 0;color:var(--tenue)">Caída del río hasta el puerto (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""
         : '<br><span style="color:var(--alerta-texto);font-size: var(--t-xs)">distancia estimada, no medida</span>'
     }</td>
-  <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
+  <td style="text-align:right">− ${nm(PENDIENTE * km, 2)} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
   <td style="padding:9px 0;font-weight:700">Tu nivel de aviso</td>
   <td style="text-align:right;font-weight:700;color:var(--acento)">${m(ref)}</td></tr>
