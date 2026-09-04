@@ -237,10 +237,16 @@
       </div>
     </noscript>
 
-    <!-- Primera visita: se muestra el río antes de pedir nada. Es un
-         overlay y no una vista, para no meter una quinta entrada en el
-         sistema de pestañas. Lo maneja app.js. -->
-    <div id="bienvenida" class="bienvenida" hidden>
+    <!-- Primera visita: se muestra el río antes de pedir nada. Es un overlay y
+         no una vista, para no meter una quinta entrada en el sistema de
+         pestañas. Lo maneja js/app/bienvenida.js.
+
+         Es un <dialog> y no un <div>: con showModal() el foco queda adentro,
+         Escape cierra y el resto de la página queda inerte para un lector de
+         pantalla. Como <div> se podía tabular "por detrás" hacia contenido
+         tapado. Es el mismo motivo por el que la hoja de instalar ya usaba
+         <dialog>. -->
+    <dialog id="bienvenida" class="bienvenida" aria-labelledby="bv-titulo">
       <div class="bienvenida-caja">
         <span class="lockup" style="margin-bottom: 28px">
           <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
@@ -281,7 +287,7 @@
           —<span class="unidad" id="bv-pie">buscando el dato…</span>
         </div>
         <div class="tarjeta" style="margin: 20px 0 0">
-          <b>¿Y a tu casa cuándo le llega?</b>
+          <b id="bv-titulo">¿Y a tu casa cuándo le llega?</b>
           <p class="chico" style="margin: 6px 0 0">
             Con tu zona y la cota de tu terreno, la app estima tu umbral: la
             lectura del hidrómetro que te sirve de referencia. Dos minutos, y se
@@ -297,7 +303,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- ======================= RÍO ======================= -->
     <section

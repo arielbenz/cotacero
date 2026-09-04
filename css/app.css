@@ -2905,19 +2905,38 @@ p.pie-frescura,
 /* [hidden] del navegador es display:none, pero pierde contra cualquier regla
    de autor que fije display. Sin esta línea el overlay no se ocultaba nunca.
    Vale para todo lo que se oculta con el atributo y tiene display propio. */
-.bienvenida[hidden],
 .instalar-pie[hidden] {
   display: none;
 }
-.bienvenida {
+/* IMPRESCINDIBLE, y no es obvio: el navegador esconde un <dialog> cerrado con
+   `dialog:not([open]) { display: none }`, que es (0,1,1). Un `.bienvenida
+   { display: flex }` a secas es (0,1,0)… pero gana igual, porque el UA
+   stylesheet pierde contra cualquier hoja de autor. Sin esta regla, la
+   bienvenida se ve SIEMPRE. Es el mismo bug de cascada que ya mordió antes. */
+dialog.bienvenida:not([open]) {
+  display: none;
+}
+dialog.bienvenida {
   position: fixed;
   inset: 0;
   z-index: 80;
+  /* Un <dialog> trae borde, ancho automático y márgenes propios: se anulan
+     para que ocupe la pantalla como lo hacía el <div>. */
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: none;
   background: var(--fondo);
+  color: var(--texto);
   display: flex;
   align-items: center;
   padding: var(--e-5);
   overflow-y: auto;
+}
+dialog.bienvenida::backdrop {
+  background: var(--fondo);
 }
 body.con-bienvenida {
   overflow: hidden;

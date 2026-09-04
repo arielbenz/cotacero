@@ -20,14 +20,32 @@ export function mostrarBienvenida() {
   if (!caja) return;
   // Si ya cargó la cota de su terreno alguna vez, esto no tiene nada que ofrecerle.
   if (guardado.get(YA_ENTRO) === "1" || guardado.get("cc_cota")) return;
-  caja.hidden = false;
+
+  /* showModal() atrapa el foco, habilita Escape y deja el resto de la página
+     inerte para un lector de pantalla. Si el navegador no tiene <dialog>
+     —iOS anterior a 15.4— se cae al atributo `open`, que lo deja exactamente
+     como estaba antes: visible, sin trampa de foco. */
+  if (typeof caja.showModal === "function") caja.showModal();
+  else caja.setAttribute("open", "");
+
+  /* Escape dispara `close` sin pasar por nuestros botones: equivale a "Ahora
+     no". Se registra una sola vez. */
+  if (!caja.dataset.enganchado) {
+    caja.dataset.enganchado = "1";
+    caja.addEventListener("close", () => cerrarBienvenida());
+  }
   document.body.classList.add("con-bienvenida");
 }
 
 export function cerrarBienvenida(ir) {
   const caja = document.getElementById("bienvenida");
   guardado.set(YA_ENTRO, "1");
-  if (caja) caja.hidden = true;
+  /* Ojo con el ciclo: close() dispara el evento `close`, que vuelve a llamar
+     acá. La guarda de `open` lo corta. */
+  if (caja && caja.open) {
+    if (typeof caja.close === "function") caja.close();
+    else caja.removeAttribute("open");
+  }
   document.body.classList.remove("con-bienvenida");
   if (ir) irA(ir);
 }
