@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v62";
+const VERSION = "cota-cero-v63";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -28,6 +28,9 @@ const ESENCIALES = [
   // mismo, y revienta si alguien agrega un módulo y se olvida de acá.
   // El registro de fuentes: la app lo importa de verdad desde que son
   // módulos, así que sin esto /app no abre sin conexión.
+  // La barra del río va en todas las páginas del sitio: sin esto, sin conexión
+  // la píldora se queda en su estado inicial en vez de decir "sin dato".
+  "/js/rio-barra.js",
   "/lib/fuentes.js",
   "/js/app/principal.js",
   "/js/app/avisos.js",

@@ -330,6 +330,7 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/rio-barra.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <!-- Google Analytics. El cargador es externo y la configuración vive en
          /js/analitica.js: el <script> en línea del snippet oficial lo bloquea
@@ -348,6 +349,8 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
          Lo único que no viaja es la píldora del nivel: la llena landing.js,
          que estas páginas no cargan, y un hueco que no completa nadie es peor
          que no tenerlo. -->
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -355,6 +358,31 @@ ${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
           <span class="lockup-nombre">Cota Cero</span>
         </a>
         <span class="chip-borde">NO OFICIAL</span>
+        <!-- El nivel en vivo, en la barra: es lo que hace que el dato siga a
+             mano después de scrollear más allá del hero. Arranca en gris y sin
+             número —no decimos "todo bien" antes de saberlo— y lo llena
+             js/landing.js con la misma lectura que el mockup. El aria-label lo
+             reescribe ahí también, porque "Río 4,86 m ▲ sube" leído en voz alta
+             no es una frase. -->
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span
+            class="punto-estado"
+            id="pildora-punto"
+            aria-hidden="true"></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
         <details class="nav-menu">
           <summary aria-label="Menú de secciones">
             <span class="nav-burger" aria-hidden="true"></span>

@@ -146,6 +146,14 @@ falla entero y la app se queda sin modo sin conexión, en silencio.
 `scripts/servir.js` aplica esos `redirects` igual que las cabeceras, así que
 el 301 se prueba en local. Pasó al fusionar `/mi-cota` dentro de `/datos`.
 
+**La barra es la misma en todas las páginas, con el dato incluido.** La
+píldora del nivel y la franja de alerta las pinta `js/rio-barra.js`, que va en
+la portada **y** en las nueve generadas. Se separó de `landing.js` por peso:
+ése son 30 KB con el mockup y MapLibre, y mandarlos a `/legal` para pintar una
+píldora era pagar 30 KB por 7. Son dos `<script>` clásicos y comparten ámbito
+global: **`rio-barra.js` va primero** y `landing.js` usa su store sin importar
+nada. Si se declara algo con el mismo nombre en los dos, el segundo revienta.
+
 **El estado en vivo de la portada tiene un solo dueño.** El mockup del hero, la
 píldora de la barra, la franja de alerta y el renglón de frescura del pie se
 suscriben al objeto `rio` de `js/landing.js`. Una pieza nueva **se suscribe**,
