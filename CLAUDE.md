@@ -159,6 +159,18 @@ falla entero y la app se queda sin modo sin conexión, en silencio.
 `scripts/servir.js` aplica esos `redirects` igual que las cabeceras, así que
 el 301 se prueba en local. Pasó al fusionar `/mi-cota` dentro de `/datos`.
 
+**`vercel.json` no admite comentarios, ni siquiera con el truco de la clave
+`"//"`.** El validador de Vercel rechaza cualquier propiedad de más y el deploy
+falla entero con `should NOT have additional property "//"`. El porqué de cada
+regla va acá, no en el JSON. Los dos que estaban escritos ahí:
+
+- `/index.html` y `/(.*)/index.html` redirigen a la URL limpia porque cada
+  página existía en dos URLs con 200. La canónica las consolidaba, pero era
+  rastreo gastado en leer dos veces lo mismo.
+- Se escriben con `(.*)` y no con `:ruta` porque `scripts/servir.js` traduce
+  grupos, no parámetros con nombre, y así el 308 se prueba en local igual que
+  en Vercel.
+
 **La barra es la misma en todas las páginas, con el dato incluido.** La
 píldora del nivel y la franja de alerta las pinta `js/rio-barra.js`, que va en
 la portada **y** en las nueve generadas. Se separó de `landing.js` por peso:
