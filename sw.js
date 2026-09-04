@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v79";
+const VERSION = "cota-cero-v81";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -27,6 +27,10 @@ const ESENCIALES = [
   "/",
   "/app",
   "/css/app.css",
+  /* La hoja de estilo de la guía para imprimir. Va acá y no por la rama de
+     red-primero porque /guia sin ella no es una hoja: es una lista suelta de
+     casillas sin columnas ni recuadros. */
+  "/css/guia.css",
   // La app son módulos ES: hay que precachearlos TODOS o /app no abre sin
   // conexión. scripts/paginas.js verifica que esta lista y js/app/ digan lo
   // mismo, y revienta si alguien agrega un módulo y se olvida de acá.
@@ -56,6 +60,10 @@ const ESENCIALES = [
   "/js/app/rio.js",
   "/js/app/tema.js",
   "/js/app/vista.js",
+  /* Las listas de la mochila y del checklist previo viven en lib/ para que
+     también las lea el generador de la guía impresa. La app las importa desde
+     config.js, así que sin esto /app no abre sin conexión. */
+  "/lib/listas.js",
   /* MapLibre NO se precachea: son 275 KB comprimidos —el 41 % de todo lo que
      bajaba la primera visita— por una pestaña que mucha gente no abre nunca.
      En un teléfono con datos contados eso es plata.
@@ -97,6 +105,11 @@ const ESENCIALES = [
   "/charlas",
   "/para-medios",
   "/puntos-de-encuentro",
+  /* La guía para imprimir. Es la que más razones tiene de estar acá: alguien
+     que la busca sin señal la busca justamente para imprimirla y salir.
+     El PDF no se precachea —son 72 KB por algo que se baja una vez—, pero la
+     rama de caché primero lo guarda en cuanto se descarga una vez. */
+  "/guia",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",

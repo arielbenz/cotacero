@@ -17,6 +17,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/historia.js          # baja la serie del INA -> datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> datos-abiertos/curvas.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
+    node scripts/guia-pdf.js          # imprime /guia a guia.pdf (Chrome headless)
     node scripts/vapid.js             # claves de push, se corre una sola vez
 
 **No hay `package.json`, ni dependencias, ni build step, ni tests, ni linter.**
@@ -59,6 +60,16 @@ módulo y que no sobre ninguna ruta muerta— y falla al generar.
 pasado antes de que el grafo termine de evaluarse: el listener se enganchaba a
 un evento que ya no volvía, y como el registro va con `.catch()` el fallo era
 mudo. Ver `js/app/instalar.js`.
+
+**`guia.pdf` es un artefacto, no una fuente.** Sale de imprimir `/guia` con
+`node scripts/guia-pdf.js`, así que **cualquier cambio en el generador o en
+`css/guia.css` obliga a volver a correrlo** —si no, el papel que la gente
+descarga dice una cosa y la página otra. El script falla ruidoso si la hoja
+se pasa de **una carilla**: fotocopiar cien de dos carillas es el doble de
+plata, y esa hoja se reparte en centros vecinales.
+
+Las dos listas de la guía —mochila y previa— salen de `lib/listas.js`, las
+mismas que usa la app. No hay una segunda copia que se pueda desincronizar.
 
 **Subir `VERSION` en `sw.js` en cada deploy**, o todo lo que va por caché
 primero (íconos, tipografías) queda congelado.
@@ -115,6 +126,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                           |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                             |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
+| Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                           |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie     |
 | Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres |
@@ -368,7 +380,8 @@ hasta 3 m de diferencia para lo mismo en la misma pantalla.
 
 ### Las listas del plan se guardan por índice
 
-Cada casilla de `MOCHILA` y `PREVIA` (`js/app/config.js`) persiste como `cc_mo3`,
+Cada casilla de `MOCHILA` y `PREVIA` (`lib/listas.js`, que `js/app/config.js`
+re-exporta) persiste como `cc_mo3`,
 `cc_pv5`… **por su posición**. Reordenar un renglón le mueve el tilde a todo el
 que ya venía llenando el plan. Se agrega al final; si hay que reordenar, hace
 falta una migración como `limpiarGuardadoViejo()`.

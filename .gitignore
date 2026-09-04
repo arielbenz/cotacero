@@ -3,3 +3,6 @@
 .env*.local
 .vercel
 .DS_Store
+
+# Chrome descartable de scripts/guia-pdf.js
+.chrome-guia/

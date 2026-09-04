@@ -27,6 +27,7 @@ import {
   ENDPOINTS,
 } from "../lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
+import { MOCHILA, PREVIA } from "../lib/listas.js";
 import {
   CATEGORIAS,
   CATEGORIA_POR_DEFECTO,
@@ -178,6 +179,7 @@ const pie = ({ frescura = false } = {}) => `      <footer class="pie-sitio">
           <span class="eti">La app</span>
           <a href="/datos">Cómo se calcula tu nivel de aviso</a>
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/guia">Guía para imprimir</a>
           <a href="/historia">Cien años del Paraná</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/charlas">Charlas para seguir pensando</a>
@@ -270,6 +272,7 @@ function pagina({
   sueltos,
   bloquesFinales,
   script,
+  css,
 }) {
   const meta = PAGINAS[clave];
   if (!meta) throw new Error("pagina(): no existe la clave «" + clave + "» en lib/paginas.js");
@@ -338,7 +341,7 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
     <script src="/js/analitica.js" defer></script>
-${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
+${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
     ${/* La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
          los mismos cuatro destinos. Antes tenía dos enlaces propios y quedaba
@@ -1209,6 +1212,140 @@ const NUMERO_CHARLAS =
     CHARLAS.length
   ] || String(CHARLAS.length);
 
+/* ---------- /guia: la hoja para imprimir ----------
+   Es lo contrario del plan que imprime la app: ésta sale EN BLANCO, con
+   renglones y casillas, para llenar con birome. El público es el que la app no
+   alcanza —quien no tiene teléfono, o lo tiene y nunca cargó nada—, y el
+   camino es que alguien la imprima en el centro vecinal y la reparta.
+
+   Las dos listas salen de lib/listas.js, las MISMAS que usa la app: si mañana
+   se agrega algo a la mochila, aparece acá solo. Los teléfonos también son los
+   verificados del proyecto, no una lista nueva.
+
+   Entra en UNA carilla A4 y eso no es estética: fotocopiar cien de dos
+   carillas es el doble de plata. `node scripts/guia-pdf.js` lo verifica y
+   avisa si se pasó. */
+const renglones = (n) =>
+  Array.from({ length: n }, () => '<span class="g-linea"></span>').join("");
+
+const casillas = (lista) =>
+  lista
+    .map(
+      ([texto, municipal]) =>
+        `<li><span class="g-caja"></span><span${municipal ? ' class="g-muni"' : ""}>${esc(texto)}</span></li>`,
+    )
+    .join("\n          ");
+
+/* Los cinco que entran y sirven en una crecida. Los siete completos están en
+   la app y en /puntos-de-encuentro. */
+const TELEFONOS_GUIA = [
+  ["Defensa Civil", "103"],
+  ["Emergencias", "911"],
+  ["Bomberos", "100"],
+  ["Prefectura (emergencias náuticas)", "106"],
+  ["Municipalidad", "0800-777-5000"],
+];
+
+const htmlGuia = pagina({
+  clave: "guia",
+  css: "/css/guia.css",
+  h1: "Guía de emergencia por crecida",
+  lead:
+    "Una hoja para llenar a mano y pegar en la heladera. Imprimila, completala " +
+    "con la familia y dejala donde todos la vean. No necesita señal ni batería.",
+  acciones: `        <p class="pg-acciones">
+          <a class="btn" href="/guia.pdf" download>Descargar el PDF</a>
+        </p>`,
+  bloques: [
+    {
+      html: `        <div class="guia-hoja">
+        <header class="g-cab">
+          <div class="g-marca">
+            ${marcaSvg("mg")}
+            <div>
+              <b>Guía de emergencia por crecida</b>
+              <span class="g-familia">Familia <span class="g-linea g-larga"></span></span>
+            </div>
+          </div>
+          <a class="g-103" href="tel:103"><span>Defensa civil</span><b>103</b></a>
+        </header>
+
+        <section class="g-umbral">
+          <span class="g-eti">Nuestro nivel de aviso <em>(lo dice la app, en «Mi casa»)</em></span>
+          <p class="g-frase">
+            Nos preparamos y salimos cuando el río llegue a
+            <span class="g-linea g-media"></span> m, o cuando lo indique
+            Defensa Civil — lo que pase primero.
+          </p>
+          <p class="g-chico">
+            Alerta de la ciudad ${nm(ESTACION.alerta, 2)} m · evacuación
+            ${nm(ESTACION.evacuacion, 2)} m. El nivel de aviso es un cálculo
+            aproximado, no el momento en que entra el agua.
+          </p>
+        </section>
+
+        <div class="g-cols">
+          <div>
+            <h2 class="g-h">Nos encontramos en</h2>
+            <p class="g-campo">Punto principal: <span class="g-linea"></span></p>
+            <p class="g-campo">Si no se puede: <span class="g-linea"></span></p>
+            <p class="g-chico">
+              Los puntos oficiales abren cuando el municipio los activa:
+              confirmá al 103 antes de salir.
+            </p>
+
+            <h2 class="g-h">Teléfonos</h2>
+            ${/* Dos renglones en blanco arriba de la lista fija: el teléfono
+                 que importa en una crecida suele ser el de un familiar de otro
+                 barrio, no el de un organismo. Sin la bajada nadie sabe qué
+                 escribir ahí y quedan vacíos. */ ""}
+            <p class="g-campo g-sub">Un familiar o vecino fuera de la zona:</p>
+            <p class="g-campo">${renglones(2)}</p>
+            <table class="g-tel">
+${TELEFONOS_GUIA.map(([q, n]) => `              <tr><td>${esc(q)}</td><td>${esc(n)}</td></tr>`).join("\n")}
+            </table>
+
+            <h2 class="g-h">Quién hace qué</h2>
+            <p class="g-campo">${renglones(3)}</p>
+
+            <h2 class="g-h">Si tenemos que salir</h2>
+            <ul class="g-reglas">
+              <li><b>No cruzar agua que corre</b>, ni a pie ni en auto.</li>
+              <li>30 cm —menos que una rodilla— arrastran a una persona.</li>
+              <li>60 cm —por la cintura de un chico— arrastran un auto.</li>
+              <li>Cortar la luz y el gas. Llevar esta hoja.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="g-h">Mochila de emergencia</h2>
+            <ul class="g-lista">
+          ${casillas(MOCHILA)}
+            </ul>
+
+            <h2 class="g-h">En la casa, antes</h2>
+            <ul class="g-lista">
+          ${casillas(PREVIA)}
+            </ul>
+            <p class="g-chico g-sello">
+              ● Los renglones marcados están en el Plan de Contingencia de la
+              Municipalidad de Santa Fe. El resto lo agregamos nosotros.
+            </p>
+          </div>
+        </div>
+
+        <footer class="g-pie">
+          <span>Cota Cero es una herramienta ciudadana que ayuda a interpretar
+          información pública. El nivel de aviso es un cálculo aproximado; la
+          orden de evacuación la da Defensa Civil. Nivel diario del río: reporte
+          del INA.</span>
+          <b>cotacerosf.com</b>
+        </footer>
+      </div>`,
+    },
+  ],
+});
+
 const htmlCharlas = pagina({
   clave: "charlas",
   migaja: "Charlas",
@@ -2062,6 +2199,7 @@ for (const [ruta, html] of [
   ["historia", htmlHistoria],
   ["preguntas", htmlPreguntas],
   ["legal", htmlLegal],
+  ["guia", htmlGuia],
   ["charlas", htmlCharlas],
   ["para-medios", htmlMedios],
 ]) {

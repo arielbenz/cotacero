@@ -1,0 +1,253 @@
+/* css/guia.css — la hoja imprimible de /guia.
+   Va aparte de app.css y sólo en esta página: no comparte nada con el resto
+   del sitio, y meterlo allá lo haría viajar en las trece.
+
+   Está pensada para el papel primero y para la pantalla después. Todo en mm y
+   en pt donde importa el tamaño físico; los tokens de color de app.css sirven
+   en pantalla, pero al imprimir se fuerzan a negro sobre blanco: una hoja de
+   emergencia se fotocopia, y una fotocopia de gris claro no se lee. */
+
+.guia-hoja {
+  --g-tinta: #16242c;
+  --g-linea: #b9c4c9;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 8mm;
+  background: #fff;
+  color: var(--g-tinta);
+  font-size: 10.5pt;
+  line-height: 1.45;
+}
+
+/* ---------- cabecera ---------- */
+.g-cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e-5);
+  padding-bottom: var(--e-3);
+  border-bottom: 2px solid var(--g-tinta);
+}
+.g-marca {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  color: var(--g-tinta);
+}
+.g-marca b {
+  display: block;
+  font-size: 15pt;
+  letter-spacing: -0.01em;
+}
+.g-familia {
+  display: block;
+  font-size: 9pt;
+  color: #5a6b73;
+}
+/* El 103 en un recuadro rojo y grande: si de esta hoja se lee una sola cosa,
+   que sea el teléfono al que hay que llamar. */
+.g-103 {
+  display: block;
+  padding: 3mm 5mm;
+  border-radius: 3mm;
+  background: #c0392b;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1.1;
+}
+.g-103 span {
+  display: block;
+  font-size: 7.5pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.g-103 b {
+  font-size: 20pt;
+}
+
+/* ---------- el renglón para llenar a mano ----------
+   Un borde inferior y no un guión bajo repetido: el guión se corta distinto en
+   cada tipografía y queda escalonado. */
+.g-linea {
+  display: inline-block;
+  min-width: 34mm;
+  border-bottom: 1px solid var(--g-linea);
+  /* Alto de escritura: menos de esto y no entra una birome cómoda. */
+  height: 5.5mm;
+  vertical-align: bottom;
+}
+.g-larga { min-width: 62mm; }
+.g-media { min-width: 26mm; }
+.g-campo .g-linea { display: block; margin-bottom: 1.5mm; }
+
+/* ---------- el nivel de aviso, arriba de todo ---------- */
+.g-umbral {
+  margin: 3mm 0;
+  padding: 3mm 4mm;
+  border: 1.5px solid var(--g-tinta);
+  border-radius: 3mm;
+}
+/* La bajada de un campo para llenar: dice qué se escribe en el renglón. */
+.g-sub {
+  font-size: 8.5pt;
+  color: #5a6b73;
+  margin-bottom: 0.5mm;
+}
+.g-eti {
+  display: block;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2mm;
+}
+.g-eti em { font-style: normal; font-weight: 500; text-transform: none; letter-spacing: 0; }
+.guia-hoja .g-frase { font-size: 11.5pt; font-weight: 700; line-height: 1.35; margin: 0; }
+.g-chico { font-size: 8.5pt; color: #5a6b73; margin: 2mm 0 0; }
+
+/* ---------- las dos columnas ---------- */
+.g-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7mm;
+  margin-top: 3mm;
+}
+.guia-hoja .g-h {
+  font-size: 9pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 4mm 0 1.5mm;
+  padding-bottom: 1mm;
+  border-bottom: 1.5px solid var(--g-tinta);
+}
+.guia-hoja .g-cols > div > .g-h:first-child { margin-top: 0; }
+.g-campo { margin: 0 0 2mm; }
+
+.g-tel { width: 100%; border-collapse: collapse; font-size: 10pt; }
+.g-tel td { padding: 1mm 0; }
+.g-tel td:last-child { text-align: right; font-weight: 700; }
+
+.g-lista, .g-reglas { list-style: none; margin: 0; padding: 0; }
+.g-lista li {
+  font-size: 9.5pt;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5mm;
+  padding: 0.35mm 0;
+}
+/* La casilla se dibuja con un borde, no con un carácter: ☐ cambia de tamaño
+   según la tipografía que tenga la máquina que imprime. */
+.g-caja {
+  flex: none;
+  width: 4mm;
+  height: 4mm;
+  margin-top: 0.6mm;
+  border: 1.2px solid var(--g-tinta);
+  border-radius: 0.8mm;
+}
+/* El punto marca los renglones que vienen del Plan de Contingencia municipal:
+   la hoja no se atribuye recomendaciones que no son suyas. */
+.g-muni::after {
+  content: "●";
+  margin-left: 1.5mm;
+  font-size: 6pt;
+  color: #5a6b73;
+}
+.g-sello { margin-top: 3mm; }
+.g-reglas li { padding: 0.8mm 0 0.8mm 4mm; text-indent: -4mm; }
+.g-reglas li::before { content: "— "; }
+
+.g-pie {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e-5);
+  margin-top: 4mm;
+  padding-top: 2mm;
+  border-top: 1px solid var(--g-linea);
+  font-size: 8pt;
+  color: #5a6b73;
+}
+.g-pie b { color: var(--g-tinta); white-space: nowrap; }
+
+/* ---------- en pantalla ---------- */
+.guia-hoja {
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra);
+}
+@media (max-width: 700px) {
+  .guia-hoja { padding: var(--e-5); }
+  .g-cols { grid-template-columns: 1fr; gap: var(--e-4); }
+  .g-cab { flex-direction: column; }
+}
+
+/* ---------- en papel ----------
+   Sale sola la hoja: sin barra, sin pie del sitio, sin botones. Y en negro
+   sobre blanco pase lo que pase, porque el tema oscuro del navegador no tiene
+   por qué gastar el tóner de nadie. */
+@media print {
+  /* Los márgenes los pone la hoja, no el navegador: así el relleno propio no
+     se suma al del papel y todo entra en UNA carilla. */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* El h1 y la bajada son instrucciones de pantalla —"imprimila, completala"—:
+     en la hoja impresa sobran, y son 187 px que empujan todo a una segunda
+     carilla. Fotocopiar cien de dos carillas es el doble de plata. */
+  .pg-cabecera {
+    display: none !important;
+  }
+  .guia-hoja {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+  }
+  .guia-hoja * { color: #000; }
+  .g-103 {
+    background: #c0392b !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .g-103 * { color: #fff !important; }
+  .g-chico, .g-familia, .g-pie { color: #333; }
+
+  /* Apretado para UNA carilla. Lo que se recorta es aire, nunca el tamaño de
+     letra: esta hoja la va a leer alguien apurado y con poca luz. */
+  .guia-hoja .g-h { margin: 3mm 0 1.2mm; }
+  .g-lista li { padding: 0.15mm 0; }
+  .g-reglas li { padding: 0.5mm 0 0.5mm 4mm; }
+  .g-umbral { margin: 2mm 0; padding: 2.5mm 3.5mm; }
+  .guia-hoja .g-frase { font-size: 11pt; line-height: 1.3; }
+  .g-umbral .g-chico { margin-top: 1.5mm; }
+  .g-eti { margin-bottom: 1.2mm; }
+  /* El aire de más va al margen de la hoja, no adentro de los recuadros: el
+     último párrafo de una caja no arrastra su margen. */
+  .g-umbral > :last-child,
+  .g-cols p:last-child,
+  .g-cols ul:last-child { margin-bottom: 0; }
+  /* El cuerpo entra en la carilla a 10pt y ahí se queda. Achicar la letra es
+     lo último que se toca: esta hoja la lee alguien apurado y con poca luz. */
+  .guia-hoja { font-size: 10pt; }
+  .g-lista li { font-size: 9.5pt; }
+  .g-tel { font-size: 9.5pt; }
+  .g-tel td { padding: 0.7mm 0; }
+  .g-reglas li { font-size: 9.5pt; }
+  .g-chico { font-size: 8.5pt; }
+  .g-cab { padding-bottom: 2mm; }
+  .g-cols { margin-top: 2.5mm; gap: 6mm; }
+  .g-pie { margin-top: 3mm; }
+  .g-linea { height: 5mm; }
+  /* Que no parta la hoja por la mitad de una lista. */
+  .g-cols > div, .g-lista, .g-umbral { break-inside: avoid; }
+}

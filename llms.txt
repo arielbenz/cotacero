@@ -22,6 +22,7 @@ lo más importante que hay que conservar.
 - [Sobre Cota Cero: qué es y quién lo hace](https://cotacerosf.com/sobre): Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe.
 - [Contacto](https://cotacerosf.com/contacto): Escribinos si encontraste un dato mal, si falta tu zona o si algo no se entiende. Lo lee una persona. No es una vía para pedir ayuda en una emergencia.
 - [Widget del nivel del río para medios](https://cotacerosf.com/para-medios): Widget gratuito con el nivel del río Paraná en el Puerto de Santa Fe. Dos líneas de HTML, sin claves, sin cookies y sin rastreo.
+- [Guía de emergencia por crecida, para imprimir](https://cotacerosf.com/guia): Una hoja para llenar a mano y pegar en la heladera: a qué nivel del río salir, adónde ir, los teléfonos y la mochila. Se imprime y funciona sin señal.
 - [Charlas sobre inundaciones y datos abiertos](https://cotacerosf.com/charlas): Charlas TED y TEDx sobre prepararse antes de la emergencia, organizarse entre vecinos, convivir con el agua y abrir los datos públicos.
 - [Legal y privacidad](https://cotacerosf.com/legal): Descargo de responsabilidad, qué datos quedan en tu teléfono y cuáles no salen nunca de ahí, y las licencias de todo lo que usa Cota Cero.
 

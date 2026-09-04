@@ -1891,7 +1891,7 @@ body.landing {
   margin-bottom: var(--e-4);
 }
 .landing
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia) {
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103) {
   color: var(--acento);
 }
 
@@ -2164,7 +2164,7 @@ body.landing {
    blanco y subrayado, que es lo único que lo distingue del texto de al lado. */
 .landing
   .franja-estado
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
 .franja-estado a {
   margin-left: auto;
   color: var(--sobre-solido);
@@ -2175,7 +2175,7 @@ body.landing {
 }
 .landing
   .franja-estado
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):hover,
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):hover,
 .franja-estado a:hover {
   color: var(--sobre-solido);
 }
@@ -2208,7 +2208,7 @@ p.pie-frescura,
   }
   .landing
     .franja-estado
-    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
+    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
   .franja-estado a {
     margin-left: 0;
   }
@@ -2854,7 +2854,7 @@ p.pie-frescura,
    no se aplicaba nunca y el pie salía azul. */
 .landing
   .pie-sitio
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia),
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
 .pie-sitio a {
   font-weight: 600;
   font-size: var(--t-s);

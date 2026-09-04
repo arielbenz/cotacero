@@ -8,6 +8,7 @@
   <url><loc>https://cotacerosf.com/sobre</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://cotacerosf.com/contacto</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://cotacerosf.com/para-medios</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cotacerosf.com/guia</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cotacerosf.com/charlas</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
   <url><loc>https://cotacerosf.com/legal</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
