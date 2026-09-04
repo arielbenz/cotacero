@@ -169,15 +169,24 @@
 
     <noscript>
       <style>
+        /* Sin la app no hay pestañas ni navegación. Y se van también las dos
+           cosas que sin JavaScript son ruido: los botones de tema y ajustes
+           —que quedan como dos círculos vacíos, porque su ícono lo escribe
+           tema.js— y el desplegable de sugerencias, que en una emergencia no
+           es lo que alguien vino a buscar. */
         .vista,
-        nav {
+        nav,
+        .acciones-top,
+        .sugerir {
           display: none !important;
         }
       </style>
       <div style="padding: 18px; max-width: 640px; margin: 0 auto">
         <div class="aviso grave">
-          <b>Esta página necesita JavaScript</b> para leer el nivel del río y
-          estimar tu umbral. Lo que no puede depender de eso es esto:
+          <b>En este teléfono la app no puede abrirse entera.</b> Lo que sí
+          funciona está acá abajo: los teléfonos y qué hacer si tenés que
+          salir. El nivel del río de hoy está en la portada:
+          <a href="/">cotacerosf.com</a>.
         </div>
         <h2>Teléfonos</h2>
         <div class="tarjeta">
@@ -1224,6 +1233,11 @@
     </nav>
 
     <script type="module" src="/js/app/principal.js"></script>
+    <!-- El respaldo para un teléfono que no puede correr la app. Va SIN
+         `nomodule`: los navegadores que fallan por la sintaxis de 2020 sí
+         soportan módulos, así que con `nomodule` se saltearían justo el
+         respaldo que necesitan. Ver js/sin-modulos.js. -->
+    <script src="/js/sin-modulos.js" defer></script>
     <!-- Vercel Web Analytics. Va sólo el script externo: el snippet oficial
          incluye además un <script> inline que nuestra CSP bloquea, y que sólo
          sirve para encolar custom events (que son de plan Pro). Al ser

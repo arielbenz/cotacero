@@ -8,6 +8,17 @@
    entrada en ACCIONES (clics, vía data-accion) o en ENTRADAS (campos, vía
    data-input). Un onclick no va a correr y el fallo es mudo. */
 
+/* La marca de que la app arrancó de verdad.
+   Está escrita arriba de los imports pero corre DESPUÉS de todos ellos: en un
+   módulo ES las importaciones se evalúan primero. Eso es justo lo que la hace
+   servir de prueba — si cualquiera de los 21 módulos revienta (sintaxis de
+   2020 en un Android viejo, un 404 que corta el grafo), esta línea no llega a
+   ejecutarse y la clase no aparece.
+   js/sin-modulos.js mira esa clase para decidir si muestra el respaldo con los
+   teléfonos y los puntos de encuentro. Si la sacás de acá, ese respaldo se
+   activa siempre. */
+document.documentElement.classList.add("con-modulos");
+
 import { activarAvisos, desactivarAvisos } from "./avisos.js";
 import { cerrarBienvenida, mostrarBienvenida } from "./bienvenida.js";
 import { compartirImagen } from "./compartir.js";
