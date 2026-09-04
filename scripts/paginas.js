@@ -2185,4 +2185,29 @@ if (sobran.length)
       "\ncache.addAll() es todo-o-nada: con uno solo que falte, la app se " +
       "queda sin modo sin conexión.",
   );
+/* Lo mismo con las páginas generadas. Seis de las nueve no estaban en el
+   precache y NO fallaban sin señal: el respaldo de navegación les servía la
+   portada, así que pedir /legal devolvía el home en silencio. Una de ellas,
+   /puntos-de-encuentro, decía en su propia bajada que funcionaba sin conexión.
+   Un modo de falla que se ve como un éxito no se descubre nunca: se verifica
+   acá, donde revienta. */
+const rutasGeneradas = Object.values(PAGINAS)
+  .filter((p) => p.generada)
+  .map((p) => p.ruta)
+  /* /404 queda afuera: no es una ruta que alguien navegue, es lo que sirve
+     Vercel cuando no encuentra otra cosa. Precachearla sería pedirle a la
+     caché una URL que no existe, y con eso `cache.addAll()` falla entero. */
+  .filter((r) => r !== "/404");
+const sinCachear = rutasGeneradas.filter((r) => !sw.includes(`"${r}"`));
+if (sinCachear.length)
+  throw new Error(
+    "sw.js no precachea estas páginas: " +
+      sinCachear.join(", ") +
+      "\nSin señal el service worker les sirve la portada en su lugar, sin " +
+      "avisar. Agregalas a ESENCIALES.",
+  );
+
 console.log("service worker: precachea los " + modulos.length + " módulos de la app");
+console.log(
+  "service worker: precachea las " + rutasGeneradas.length + " páginas generadas",
+);

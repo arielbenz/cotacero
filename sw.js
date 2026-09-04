@@ -14,7 +14,7 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v64";
+const VERSION = "cota-cero-v65";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
@@ -67,13 +67,28 @@ const ESENCIALES = [
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
   "/datos-abiertos/curvas.json",
-  /* Las páginas de contenido. Antes no se precacheaba ninguna: la app
-     explicaba todo adentro justamente porque sin señal no había adónde ir.
-     Ahora la explicación vive en el sitio, así que el sitio tiene que abrir
-     sin señal. Son ~90 KB crudos, ~25 KB comprimidos. */
+  /* Las páginas de contenido, TODAS. Antes no se precacheaba ninguna —la app
+     explicaba todo adentro justamente porque sin señal no había adónde ir— y
+     después se precachearon tres. Las otras seis no fallaban sin señal: el
+     respaldo de navegación les servía la PORTADA, así que pedías /legal y te
+     daba el home sin decir nada. Peor que un error, porque parece que anduvo.
+
+     Y una de esas seis, /puntos-de-encuentro, decía en su propia bajada "esta
+     página funciona sin conexión". Era la página de evacuación afirmando algo
+     que no cumplía.
+
+     Son ~132 KB crudos, ~35 KB comprimidos. `scripts/paginas.js` verifica que
+     esta lista y el registro de páginas digan lo mismo, así que una página
+     nueva que se olvide de acá revienta al generar. */
   "/datos",
   "/historia",
   "/contacto",
+  "/preguntas",
+  "/legal",
+  "/sobre",
+  "/charlas",
+  "/para-medios",
+  "/puntos-de-encuentro",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",
