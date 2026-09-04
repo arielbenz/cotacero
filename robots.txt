@@ -1,11 +1,16 @@
 # Cota Cero — Santa Fe
 User-agent: *
 Allow: /
+
 # /api/ son funciones, no páginas: no hay nada que indexar y cada visita
 # consume una invocación.
 Disallow: /api/
-Disallow: /vendor/
-Disallow: /lib/
 Disallow: /_vercel/
+
+# OJO: /vendor/ y /lib/ NO se bloquean, aunque no sean páginas. Ahí viven las
+# seis tipografías que la portada precarga y los módulos que la app importa, y
+# un buscador que no puede bajarlos renderiza el sitio distinto de como lo ve
+# una persona. Bloquear recursos de render es de las cosas que Google pide
+# explícitamente no hacer.
 
 Sitemap: https://cotacerosf.com/sitemap.xml

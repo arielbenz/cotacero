@@ -14,14 +14,18 @@
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v77";
+const VERSION = "cota-cero-v78";
 const ESENCIALES = [
   // La landing y la app son dos documentos distintos: la primera es la puerta
   // de entrada desde un buscador, la segunda es la herramienta.
+  /* Sólo las URL limpias. `/index.html` y `/app/index.html` estaban acá y
+     salieron: ahora redirigen con 308 a `/` y `/app` (ver `redirects` en
+     vercel.json, que las sacó de circulación porque cada página existía en
+     dos URLs indexables). Y `cache.addAll()` REVIENTA con una respuesta
+     redirigida —es todo o nada—, así que dejarlas habría dejado la app sin
+     modo sin conexión, en silencio, que es como falla siempre esto. */
   "/",
-  "/index.html",
   "/app",
-  "/app/index.html",
   "/css/app.css",
   // La app son módulos ES: hay que precachearlos TODOS o /app no abre sin
   // conexión. scripts/paginas.js verifica que esta lista y js/app/ digan lo
@@ -144,7 +148,12 @@ self.addEventListener("fetch", (e) => {
   // pero una copia guardada de estos dos archivos no caduca nunca, y a un
   // navegador que ya los pidió le quedaría una versión vieja del mapa del
   // sitio para siempre. Son dos archivos de 1 KB: no hay nada que ahorrar.
-  if (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") return;
+  if (
+    url.pathname === "/robots.txt" ||
+    url.pathname === "/sitemap.xml" ||
+    url.pathname === "/llms.txt"
+  )
+    return;
 
   // Tiles del IGN y Open-Meteo: a la red. Cachear tiles no vale la pena.
   if (

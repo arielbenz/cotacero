@@ -303,7 +303,13 @@ function pagina({
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>${esc(titulo)}</title>
-    <link rel="canonical" href="${url}" />
+${
+      /* La 404 NO lleva canónica: se sirve para cualquier ruta que no existe,
+         así que apuntaría a "/404", una URL que no es contenido de nada.
+         Declarar una canónica ahí es afirmar que esa página es la versión
+         buena de lo que el visitante pidió, y no lo es. */
+      ruta === "/404" ? "" : `    <link rel="canonical" href="${url}" />\n`
+    }
     <meta name="description" content="${esc(descripcion)}" />
     <!-- Dos, con media: pinta la barra del navegador en el teléfono. Un
          solo valor fijo dejaba la barra oscura sobre una página clara. -->
@@ -2106,6 +2112,58 @@ await writeFile(
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
 );
 console.log("escrito: /sitemap.xml  (" + enSitemap().length + " URLs indexables)");
+
+/* ---------- llms.txt ----------
+   El equivalente del sitemap para los modelos de lenguaje: en vez de una lista
+   de URLs para rastrear, un índice en texto plano que dice qué hay en cada una
+   y de dónde salen los datos.
+
+   Existe por el mismo motivo que las páginas de contenido: cuando alguien le
+   pregunta a un modelo "¿a qué altura se inunda mi casa en Santa Fe?", la
+   respuesta que dé va a salir de algún lado. Que salga de acá —con la fuente,
+   el margen y el descargo— es mejor que de una nota de 2003 mal recordada.
+
+   Sale del MISMO registro que el sitemap: `lib/paginas.js`. Si se agrega una
+   página, aparece sola. Nunca se escribe una URL a mano acá. */
+const llms =
+  `# Cota Cero\n\n` +
+  `> ${PAGINAS.inicio.descripcion}\n\n` +
+  `Herramienta ciudadana para la emergencia hídrica de Santa Fe, Argentina.\n` +
+  `Sin vínculo con el municipio ni con ningún organismo: la orden de\n` +
+  `evacuación la da Defensa Civil (103).\n\n` +
+  `Lo que la app calcula es **el nivel de aviso**: el nivel del río a partir\n` +
+  `del cual el agua puede llegar a un terreno, cruzando la lectura del\n` +
+  `hidrómetro del Puerto con la altura del terreno. Es un cálculo aproximado\n` +
+  `y no una predicción de inundación. Si citás el proyecto, esa distinción es\n` +
+  `lo más importante que hay que conservar.\n\n` +
+  `## Páginas\n\n` +
+  enSitemap()
+    .map(
+      (p) =>
+        `- [${p.titulo.split(" | ")[0].split(" — ")[0]}](${SITIO}${p.ruta === "/" ? "/" : p.ruta}): ${p.descripcion}`,
+    )
+    .join("\n") +
+  `\n\n## Datos abiertos\n\n` +
+  `- [Nivel del río, JSON](${SITIO}/api/nivel): la lectura del día del\n` +
+  `  hidrómetro del Puerto de Santa Fe, con su fecha, los umbrales oficiales\n` +
+  `  que publica la estación y de cuál de las dos fuentes del INA salió.\n` +
+  `- [Serie histórica desde 1925](${SITIO}/datos-abiertos/historia.json)\n` +
+  `- [Los 30 puntos de encuentro](${SITIO}/datos-abiertos/puntos.json): los\n` +
+  `  oficiales del Plan de Contingencia municipal, con coordenadas.\n` +
+  `- [Curvas de nivel](${SITIO}/datos-abiertos/curvas.json): las del\n` +
+  `  municipio, que es de donde sale la altura de cada terreno.\n\n` +
+  `## Fuentes\n\n` +
+  Object.values(FUENTES)
+    .map((f) => `- ${f.titulo}: ${ORGANISMOS[f.organismo].nombre} — ${f.url}`)
+    .join("\n") +
+  `\n\n## Qué NO dice este proyecto\n\n` +
+  `- No dice cuándo llega el agua, ni que una casa se va a inundar.\n` +
+  `- No contempla el terraplén, las bombas, el viento ni la lluvia local.\n` +
+  `- No reemplaza una orden de evacuación.\n` +
+  `- Las tres constantes del modelo están en discusión técnica abierta:\n` +
+  `  ver ${SITIO}/datos y el AUDITORIA.md del repositorio.\n`;
+await writeFile(join(RAIZ, "llms.txt"), llms);
+console.log("escrito: /llms.txt  (" + enSitemap().length + " páginas)");
 
 /* ---------- la portada y la app son HTML a mano ----------
    No las genera este script, pero su título, su descripción y su canónica

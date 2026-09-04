@@ -4,6 +4,18 @@
       "source": "/mi-cota",
       "destination": "/datos",
       "permanent": true
+    },
+    {
+      "//": "Cada página existía en dos URLs: /datos y /datos/index.html, las dos con 200. La canónica las consolidaba, pero es rastreo gastado en leer dos veces lo mismo.",
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "//2": "Con (.*) y no con :ruta — scripts/servir.js traduce grupos, no parámetros con nombre, y así el 308 se prueba en local igual que en Vercel.",
+      "source": "/(.*)/index.html",
+      "destination": "/$1",
+      "permanent": true
     }
   ],
   "headers": [

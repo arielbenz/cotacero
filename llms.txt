@@ -1,0 +1,54 @@
+# Cota Cero
+
+> Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad.
+
+Herramienta ciudadana para la emergencia hídrica de Santa Fe, Argentina.
+Sin vínculo con el municipio ni con ningún organismo: la orden de
+evacuación la da Defensa Civil (103).
+
+Lo que la app calcula es **el nivel de aviso**: el nivel del río a partir
+del cual el agua puede llegar a un terreno, cruzando la lectura del
+hidrómetro del Puerto con la altura del terreno. Es un cálculo aproximado
+y no una predicción de inundación. Si citás el proyecto, esa distinción es
+lo más importante que hay que conservar.
+
+## Páginas
+
+- [Nivel del río Paraná en Santa Fe hoy](https://cotacerosf.com/): Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad.
+- [Puntos de encuentro por inundación en Santa Fe](https://cotacerosf.com/puntos-de-encuentro): Los 30 puntos de encuentro del Plan de Contingencia de la Municipalidad de Santa Fe, con su dirección y cómo llegar. Fuente: Gestión de Riesgos.
+- [Cota de tu terreno y datos del río en Santa Fe](https://cotacerosf.com/datos): Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso.
+- [Crecidas históricas del río Paraná en Santa Fe](https://cotacerosf.com/historia): Las mayores crecidas y las bajantes más hondas del Paraná en Santa Fe, con la serie diaria del INA desde 1925. La de 1992 sigue siendo el récord.
+- [Preguntas sobre el río Paraná en Santa Fe](https://cotacerosf.com/preguntas): Cuál es el nivel de alerta y el de evacuación, qué significa la altura del río, cómo saber la cota de tu terreno y de dónde salen los datos.
+- [Sobre Cota Cero: qué es y quién lo hace](https://cotacerosf.com/sobre): Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe.
+- [Contacto](https://cotacerosf.com/contacto): Escribinos si encontraste un dato mal, si falta tu zona o si algo no se entiende. Lo lee una persona. No es una vía para pedir ayuda en una emergencia.
+- [Widget del nivel del río para medios](https://cotacerosf.com/para-medios): Widget gratuito con el nivel del río Paraná en el Puerto de Santa Fe. Dos líneas de HTML, sin claves, sin cookies y sin rastreo.
+- [Charlas sobre inundaciones y datos abiertos](https://cotacerosf.com/charlas): Charlas TED y TEDx sobre prepararse antes de la emergencia, organizarse entre vecinos, convivir con el agua y abrir los datos públicos.
+- [Legal y privacidad](https://cotacerosf.com/legal): Descargo de responsabilidad, qué datos quedan en tu teléfono y cuáles no salen nunca de ahí, y las licencias de todo lo que usa Cota Cero.
+
+## Datos abiertos
+
+- [Nivel del río, JSON](https://cotacerosf.com/api/nivel): la lectura del día del
+  hidrómetro del Puerto de Santa Fe, con su fecha, los umbrales oficiales
+  que publica la estación y de cuál de las dos fuentes del INA salió.
+- [Serie histórica desde 1925](https://cotacerosf.com/datos-abiertos/historia.json)
+- [Los 30 puntos de encuentro](https://cotacerosf.com/datos-abiertos/puntos.json): los
+  oficiales del Plan de Contingencia municipal, con coordenadas.
+- [Curvas de nivel](https://cotacerosf.com/datos-abiertos/curvas.json): las del
+  municipio, que es de donde sale la altura de cada terreno.
+
+## Fuentes
+
+- El nivel del río: Instituto Nacional del Agua — https://alerta.ina.gob.ar/a5/diario/reporte_diario
+- La altura de tu terreno: Municipalidad de Santa Fe — https://geo.santafeciudad.gov.ar/
+- Puntos de encuentro y qué hacer: Dirección de Gestión de Riesgos — https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/plan-de-contingencia/
+- Cien años de mediciones: Instituto Nacional del Agua — https://alerta.ina.gob.ar/a5/obs/puntual/series/30
+- El sistema de alturas: Instituto Geográfico Nacional — https://www.ign.gob.ar/NuestrasActividades/Geodesia/Nivelacion/Escalas
+- Cartografía provincial: Infraestructura de Datos Espaciales de Santa Fe — https://www.santafe.gov.ar/idesf/geoportal/paginas/servicios-OGC
+
+## Qué NO dice este proyecto
+
+- No dice cuándo llega el agua, ni que una casa se va a inundar.
+- No contempla el terraplén, las bombas, el viento ni la lluvia local.
+- No reemplaza una orden de evacuación.
+- Las tres constantes del modelo están en discusión técnica abierta:
+  ver https://cotacerosf.com/datos y el AUDITORIA.md del repositorio.
