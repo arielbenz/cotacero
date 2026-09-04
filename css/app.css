@@ -3465,18 +3465,26 @@ html.texto-grande {
   display: none;
 }
 @media print {
-  /* Lo único que tiene sentido en papel es el plan, y en texto plano: los
-     campos de formulario se imprimen mal y los textarea se recortan. */
-  body > *:not(#plan-impreso) {
-    display: none !important;
-  }
   html,
   body {
     background: #fff;
     color: #000;
     padding: 0;
   }
-  #plan-impreso {
+
+  /* ---------- la app ----------
+     Lo único que tiene sentido en papel es el plan, y en texto plano: los
+     campos de formulario se imprimen mal y los textarea se recortan.
+
+     La regla va acotada a `body.app` y no a `body` a secas. Sin eso, como este
+     archivo lo cargan las trece páginas, imprimir /puntos-de-encuentro para
+     pegarlo en la heladera daba una HOJA EN BLANCO: escondía todo y buscaba un
+     #plan-impreso que en el sitio no existe. Justo la página que en su bajada
+     promete funcionar sin conexión. */
+  body.app > *:not(#plan-impreso) {
+    display: none !important;
+  }
+  body.app #plan-impreso {
     display: block;
     white-space: pre-wrap;
     font-family: ui-monospace, monospace;
@@ -3484,6 +3492,43 @@ html.texto-grande {
     line-height: 1.45;
     color: #000;
     padding: 0;
+  }
+
+  /* ---------- el sitio ----------
+     Papel es para llevar: se van la navegación, el pie, los botones y todo lo
+     que se toca. Queda el texto, y en /puntos-de-encuentro los 30 lugares con
+     su dirección y los teléfonos. */
+  .franja-estado,
+  .nav-sitio,
+  .pie-envoltura,
+  .pie-cierre,
+  .pg-acciones,
+  .pg-cta,
+  .chips-ancla,
+  .btn,
+  .sugerir {
+    display: none !important;
+  }
+  /* Una sola columna: dos columnas de papel se leen peor y parten las fichas. */
+  .rejilla-puntos,
+  .rejilla-2,
+  .tres,
+  .hitos {
+    display: block;
+  }
+  .rejilla-puntos li,
+  .telefonos-emergencia > div,
+  .bloque,
+  .tarjeta {
+    break-inside: avoid;
+  }
+  /* "Abrir en mapas →" no hace nada en una hoja. */
+  .punto .ir {
+    display: none;
+  }
+  .punto {
+    color: #000;
+    text-decoration: none;
   }
 }
 
