@@ -101,6 +101,11 @@ import { irA, pintarConexion, ver } from "./vista.js";
                        de agua equivalente alcanzaría esa cota, según el modelo.
    Llamarle "tu cota" al umbral está prohibido: son cosas distintas y mezclarlas
    es exactamente lo que hacía sonar esto como una predicción de inundación.
+
+   EN LA INTERFAZ los tres se dicen en llano y la palabra "umbral" NO aparece:
+   "el río está en X", "la altura de tu terreno" y "tu nivel de aviso". Acá
+   adentro sí, que es donde tiene sentido. Ver CLAUDE.md, "Tres conceptos,
+   tres nombres".
    ========================================================================== */
 
 /* ================= ARRANQUE ================= */

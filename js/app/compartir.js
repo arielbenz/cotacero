@@ -5,7 +5,7 @@
 
 import { cotaEnHidrometro } from "./cota.js";
 import { estado } from "./estado.js";
-import { m, mU } from "./formato.js";
+import { m, mCm, mU } from "./formato.js";
 import { ALERTA, EVACUACION, RECORD, etiquetaRecord } from "./oficiales.js";
 import { ocupar } from "./vista.js";
 
@@ -81,12 +81,14 @@ async function armarImagen() {
   g.fillStyle = tenue;
   const linea2 =
     u == null
-      ? "Cargá tu umbral en la app para saber qué significa"
+      ? "Cargá tu casa en la app para saber qué significa para vos"
       : estado.rio != null && estado.rio >= u
-        ? "El río superó mi umbral estimado (" + mU(u) + ")"
-        : "Unos " +
-          Math.round(((u ?? 0) - (estado.rio ?? 0)) * 100) +
-          " cm hasta mi umbral estimado (" +
+        ? "El río pasó mi nivel de aviso (" + mU(u) + ")"
+        : /* mCm() y no centímetros crudos: acá salía "360 cm", que es
+             exactamente lo que esa función existe para evitar. */
+          "Faltan unos " +
+          mCm((u ?? 0) - (estado.rio ?? 0)) +
+          " para mi nivel de aviso (" +
           mU(u) +
           ")";
   g.fillText(linea2, 76, 540);
@@ -117,10 +119,10 @@ async function armarImagen() {
     g.font = F(700, 30);
     g.fillText(texto, x + 18, yy - 16);
   };
-  marca(ALERTA, "Alerta " + m(ALERTA).replace(" m", ""), "#e8a33d");
-  marca(EVACUACION, "Evacuación " + m(EVACUACION).replace(" m", ""), "#e15f49");
+  marca(ALERTA, "Alerta ciudad " + m(ALERTA).replace(" m", ""), "#e8a33d");
+  marca(EVACUACION, "Evacuación ciudad " + m(EVACUACION).replace(" m", ""), "#e15f49");
   marca(RECORD, etiquetaRecord() + "   " + m(RECORD).replace(" m", ""), tenue);
-  if (u != null && u <= TOPE) marca(u, "MI UMBRAL   " + mU(u), claro);
+  if (u != null && u <= TOPE) marca(u, "MI NIVEL DE AVISO   " + mU(u), claro);
 
   // Pie: fuente y dominio, para que la imagen se defienda sola cuando la
   // reenvían diez veces sin contexto.
@@ -128,7 +130,7 @@ async function armarImagen() {
   g.font = F(500, 27);
   const fecha = estado.rioFecha ? " · dato del " + estado.rioFecha : "";
   g.fillText(
-    "Umbral estimado, no una orden de evacuación" + fecha,
+    "Cálculo aproximado, no una orden de evacuación" + fecha,
     x,
     y + al + 60,
   );

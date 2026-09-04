@@ -8,7 +8,7 @@
 import { CONFIG } from "./config.js";
 import { cotaEnHidrometro } from "./cota.js";
 import { guardado } from "./estado.js";
-import { m } from "./formato.js";
+import { mU } from "./formato.js";
 import { ALERTA } from "./oficiales.js";
 import { aLaVista, ocupar } from "./vista.js";
 
@@ -153,8 +153,9 @@ export async function desactivarAvisos() {
 
 const LETRA_CHICA =
   '<p class="chico" style="margin:9px 0 0">Para avisarte, el servidor guarda ' +
-  "sólo una dirección anónima de tu navegador. <b>No guarda tu umbral, la cota " +
-  "de tu terreno, tu dirección ni tu plan</b>: el aviso lo arma tu teléfono.</p>";
+  "sólo una dirección anónima de tu navegador. <b>No guarda tu nivel de aviso, " +
+  "la altura de tu terreno, tu dirección ni tu plan</b>: el aviso lo arma tu " +
+  "teléfono.</p>";
 
 /* Aviso anticipado: además del cruce del umbral, avisar cuando falten 50 y
    20 cm. Lo decide el service worker con lo que se espeja a IndexedDB. */
@@ -172,7 +173,7 @@ function conmutadorCerca() {
 }
 
 export async function pintarAvisos() {
-  // La tarjeta vive en dos lugares: al pie de "Mi umbral", que es donde acabás
+  // La tarjeta vive en dos lugares: al pie de "Mi casa", que es donde acabás
   // de fijar tu umbral y es el momento natural para activarlos, y en Ajustes,
   // que es donde alguien los va a buscar después.
   const cajas = [
@@ -221,9 +222,9 @@ export async function pintarAvisos() {
   if (sub) {
     caja.innerHTML = envoltura(
       '<p class="chico" style="margin:0"><b style="color:var(--ok-texto)">Avisos activados.</b> ' +
-        "Te avisamos cuando el río llegue a <b>" +
-        m(umbral) +
-        "</b>, y también si cruza los umbrales oficiales de 5,30 y 5,70 m.</p>" +
+        "Te avisamos cuando el río llegue a tu nivel de aviso (<b>" +
+        mU(umbral) +
+        "</b>), y también si pasa la alerta o la evacuación de la ciudad.</p>" +
         conmutadorCerca() +
         '<button class="btn sec mini" style="margin-top:11px;display:block" ' +
         'data-accion="avisos-off">Desactivar avisos</button>',
@@ -235,12 +236,12 @@ export async function pintarAvisos() {
   // en terreno alto es al revés, y la frase quedaba diciendo un disparate.
   const antesQueLaAlerta =
     umbral < ALERTA
-      ? " — tu lectura crítica, que llega <b>antes</b> que la alerta general de 5,30 m"
-      : " — tu lectura crítica. También te avisamos si cruza los umbrales oficiales de 5,30 y 5,70 m";
+      ? " — tu nivel de aviso, que llega <b>antes</b> que la alerta de la ciudad"
+      : " — tu nivel de aviso. También te avisamos si pasa la alerta o la evacuación de la ciudad";
   caja.innerHTML = envoltura(
     '<p class="chico" style="margin:0">La app sólo sirve si la abrís. Podemos ' +
       "avisarte cuando el río llegue a <b>" +
-      m(umbral) +
+      mU(umbral) +
       "</b>" +
       antesQueLaAlerta +
       ".</p>" +

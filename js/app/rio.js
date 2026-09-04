@@ -369,8 +369,8 @@ export function pintarRio() {
     wrap.style.display = "block";
     document.getElementById("lg-cota").textContent = mU(critico);
     document.getElementById("lg-cota-k").textContent = estado.cotaEsEstimada
-      ? "Tu umbral estimado, con la cota interpolada entre las curvas del municipio y el margen ya descontado"
-      : "Tu umbral estimado: la lectura de referencia en el puerto para tu terreno";
+      ? "Tu nivel de aviso: si el río llega acá, el agua puede llegar a tu terreno. Es aproximado, con medio metro de margen ya descontado"
+      : "Tu nivel de aviso: si el río llega acá, el agua puede llegar a tu terreno. Es aproximado";
   } else wrap.style.display = "none";
 
   pintarVeredictoRio();
@@ -395,17 +395,17 @@ function pintarCtaCota() {
        contexto de la pantalla. Una sola, no un bloque legal — el descargo
        completo vive en la pestaña Mi umbral y en /legal. */
     cta.innerHTML =
-      '<div class="aviso" style="margin-bottom:14px">Tu umbral se estima con la ' +
-      "cota de tu terreno (±0,5 m) y la pendiente del río: una referencia para " +
-      "prepararte, <b>no el momento exacto en que entra el agua</b>.</div>";
+      '<div class="aviso" style="margin-bottom:14px">Tu nivel de aviso sale de la ' +
+      "altura de tu terreno (con medio metro de margen) y de la caída del río. " +
+      "Sirve para prepararte antes. <b>No dice cuándo entra el agua.</b></div>";
     return;
   }
   cta.innerHTML =
     '<div class="aviso" style="margin-bottom:14px"><b>Todavía no sé dónde vivís.</b> ' +
-    "Con tu zona y la cota de tu terreno estimo tu umbral: la lectura del " +
-    "hidrómetro que te sirve de referencia." +
+    "Cargá tu casa y te digo a qué nivel del río el agua puede llegar a tu " +
+    "terreno. Es un cálculo aproximado." +
     '<button class="btn mini" style="margin-top:11px;display:block" data-accion="ir" data-vista="cota">' +
-    "Calcular mi umbral</button></div>";
+    "Cargar mi casa</button></div>";
 }
 
 /* El pie decía "Actualizado <hoy>": la fecha del render, no la del dato. Abajo
@@ -445,30 +445,43 @@ function pintarVeredictoRio() {
     return;
   }
   let cls, titu, txt;
+  /* Los dos estados graves EMPIEZAN con el verbo de lo que hay que hacer, no
+     con lo que está pasando, y llevan el 103. Antes el de alerta sólo
+     describía —"arrancan las evacuaciones en los sectores fuera del anillo de
+     defensas"— y el de evacuación delegaba sin decir qué hacer mientras tanto:
+     los dos estados más graves de la escala eran los que menos instrucción
+     daban. Los 5,30 y 5,70 salen de las constantes, no escritos a mano.
+     Ver README §"Los ocho estados y cómo se dicen". */
   if (r >= EVACUACION) {
     cls = "v-peligro";
-    titu = "Nivel de evacuación";
+    titu = "Evacuación en la ciudad";
     txt =
-      "El río superó los 5,70 m. Seguí las indicaciones de Defensa Civil y del municipio.";
+      "<b>Si Defensa Civil dice que salgas, salí.</b> El río pasó los " +
+      m(EVACUACION) +
+      ". Si necesitás ayuda para salir, llamá al 103. No cruces agua que " +
+      "corre: con 30 cm —menos que una rodilla— te arrastra.";
   } else if (r >= ALERTA) {
     cls = "v-peligro";
-    titu = "Nivel de alerta";
+    titu = "Alerta en la ciudad";
     txt =
-      "El río superó los 5,30 m. A esta altura arrancan las evacuaciones en los sectores fuera del anillo de defensas.";
+      "<b>Armá la mochila y avisale a tu familia.</b> El río pasó los " +
+      m(ALERTA) +
+      ". En los barrios de afuera del terraplén (el anillo de defensas) ya " +
+      "empiezan a sacar gente. Si te dicen que salgas, salí. Dudas: 103.";
   } else if (r >= 4.3) {
     cls = "v-alerta";
     titu = "Atención";
     txt =
-      "Faltan " +
-      m(ALERTA - r).replace(" m", "") +
-      " m para el nivel de alerta. Buen momento para tener la mochila lista.";
+      "<b>Armá la mochila hoy.</b> Faltan " +
+      mCm(ALERTA - r) +
+      " para la alerta de la ciudad.";
   } else {
     cls = "v-ok";
-    titu = "Nivel normal";
+    titu = "Río normal";
     txt =
       "Faltan " +
-      m(ALERTA - r).replace(" m", "") +
-      " m para el nivel de alerta. Es el momento de prepararse, no de esperar.";
+      mCm(ALERTA - r) +
+      " para la alerta de la ciudad. Es el momento de prepararse, no de esperar.";
   }
   // El INA publica la diferencia contra el registro anterior y hasta
   // ahora se guardaba sin mostrarse nunca.
@@ -508,14 +521,14 @@ function pintarVeredictoRio() {
     const tono = superado ? "peligro" : cls === "v-ok" ? "ok" : "alerta";
     celdas =
       '<div class="celdas-umbral">' +
-      '<div class="celda"><span class="k">Tu umbral estimado</span>' +
+      '<div class="celda"><span class="k">Tu nivel de aviso</span>' +
       '<span class="v">' +
       mU(u) +
       "</span></div>" +
       '<div class="celda t-' +
       tono +
-      '"><span class="k">Margen hoy</span><span class="v">' +
-      (superado ? "superado" : "≈ " + mCm(margen)) +
+      '"><span class="k">Le falta</span><span class="v">' +
+      (superado ? "ya lo pasó" : "≈ " + mCm(margen)) +
       "</span></div></div>";
     /* Y una oración en prosa, que es como esto se cuenta en la vereda.
        El ritmo sale del delta que publica el INA, no de una proyección propia:
@@ -534,17 +547,26 @@ function pintarVeredictoRio() {
           "."
         : "";
     txt = superado
-      ? "El nivel superó tu umbral estimado (" +
+      ? "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
+        "Defensa Civil (103).</b> El río está en " +
+        m(r) +
+        " y tu nivel de aviso es " +
         mU(u) +
-        "). Aunque no veas agua todavía, mové personas y medicación y seguí a Defensa Civil."
-      : "El río está a unos " +
-        mCm(margen) +
-        " de tu umbral estimado (" +
-        mU(u) +
-        ")." +
-        ritmo;
-    if (superado) titu = "El río superó tu umbral";
-    else if (margen <= 0.5) titu = "Cerca de tu umbral";
+        ": el agua puede llegar a tu terreno aunque todavía no la veas. " +
+        "No cruces agua que corre: con 30 cm —menos que una rodilla— te arrastra."
+      : (margen <= 0.5
+          ? "<b>Terminá la mochila y avisale a tu familia.</b> Faltan unos " +
+            mCm(margen) +
+            " para tu nivel de aviso (" +
+            mU(u) +
+            ")."
+          : "El río está a unos " +
+            mCm(margen) +
+            " de tu nivel de aviso (" +
+            mU(u) +
+            ").") + ritmo;
+    if (superado) titu = "El río pasó tu nivel de aviso";
+    else if (margen <= 0.5) titu = "Cerca de tu nivel de aviso";
   }
   // Con el río en alerta la app tenía todo para decir "te faltan 7 cosas de
   // la mochila" y no lo decía: las dos pestañas no se hablaban.

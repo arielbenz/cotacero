@@ -116,15 +116,16 @@ function textoPlan() {
       ((ZONAS.find((z) => z.id === estado.zona) || {}).n || "sin elegir") +
       "\n";
     t +=
-      "Umbral estimado (lectura de referencia en el puerto): " +
+      "Tu nivel de aviso (en la regla del puerto): " +
       mU(cotaEnHidrometro()) +
-      (estado.cotaEsEstimada
-        ? " (escenario pesimista: la cota interpolada menos " +
-          ERROR_DEM.toFixed(2).replace(".", ",") +
-          " m)"
-        : "") +
       "\n" +
-      "Es una estimación, no una orden: la evacuación la indica Defensa Civil (103).\n\n";
+      "Si el río llega ahí, el agua puede llegar a tu terreno.\n" +
+      (estado.cotaEsEstimada
+        ? "La altura del terreno va " +
+          ERROR_DEM.toFixed(2).replace(".", ",") +
+          " m más abajo, por seguridad.\n"
+        : "") +
+      "Es un cálculo aproximado, no una orden: la evacuación la indica Defensa Civil (103).\n\n";
   }
   t += "Punto de encuentro: " + (g("p-punto") || "—") + "\n";
   t += "Contacto fuera de la zona: " + (g("p-contacto") || "—") + "\n";
@@ -142,7 +143,10 @@ function textoPlan() {
   TELEFONOS.forEach(([q, n]) => {
     t += "  " + n + "  " + q + "\n";
   });
-  t += "\nNo cruzar agua en movimiento, ni a pie ni en auto.\n";
+  t +=
+    "\nNo cruzar agua que corre, ni a pie ni en auto:\n" +
+    "  30 cm (menos que una rodilla) arrastran a una persona.\n" +
+    "  60 cm (por la cintura de un chico) arrastran un auto.\n";
   return t;
 }
 

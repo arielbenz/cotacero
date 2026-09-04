@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://cotacerosf.com/app" />
     <meta
       name="description"
-      content="La herramienta: el nivel del río Paraná, tu referencia estimada, el plan familiar y los puntos de encuentro. Funciona sin señal una vez cargada."
+      content="La herramienta: el nivel del río Paraná, tu nivel de aviso, el plan familiar y los puntos de encuentro. Funciona sin señal una vez cargada."
     />
     <meta name="theme-color" content="#0B1418" />
     <!-- Para cuando el link se comparte por WhatsApp, que es como se va a
@@ -27,7 +27,7 @@
     />
     <meta
       property="og:description"
-      content="Calculá a qué altura del río el agua llega a tu casa. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
+      content="Calculá a qué nivel del río el agua puede llegar a tu terreno. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
     />
     <meta property="og:image" content="https://cotacerosf.com/img/og.png" />
     <meta property="og:image:width" content="1200" />
@@ -291,16 +291,16 @@
           —<span class="unidad" id="bv-pie">buscando el dato…</span>
         </div>
         <div class="tarjeta" style="margin: 20px 0 0">
-          <b id="bv-titulo">¿Y a tu casa cuándo le llega?</b>
+          <b id="bv-titulo">¿Y para tu casa?</b>
           <p class="chico" style="margin: 6px 0 0">
-            Con tu zona y la cota de tu terreno, la app estima tu umbral: la
-            lectura del hidrómetro que te sirve de referencia. Dos minutos, y se
-            guarda sólo en este teléfono.
+            Decinos dónde vivís y la app calcula tu nivel de aviso: el nivel del
+            río a partir del cual el agua puede llegar a tu terreno. Es un
+            cálculo aproximado. Dos minutos, y queda sólo en este teléfono.
           </p>
         </div>
         <div class="bienvenida-botones">
           <button class="btn" type="button" data-accion="bv-calcular">
-            Calcular mi umbral
+            Cargar mi casa
           </button>
           <button class="btn sec" type="button" data-accion="bv-despues">
             Ahora no, ver el río
@@ -373,8 +373,8 @@
             >
               <div class="v" id="lg-cota">—</div>
               <div class="k" id="lg-cota-k">
-                Tu umbral estimado: la lectura de referencia en el puerto para
-                tu terreno
+                Tu nivel de aviso: si el río llega acá, el agua puede llegar a
+                tu terreno. Es aproximado.
               </div>
             </div>
           </div>
@@ -466,7 +466,7 @@
       <h2>Compartir</h2>
       <div class="tarjeta">
         <p class="chico" style="margin: 0 0 12px">
-          Genera una imagen con el nivel de hoy y tu umbral, para mandar por
+          Genera una imagen con el nivel de hoy y tu nivel de aviso, para mandar por
           WhatsApp. Se arma en tu teléfono: no se sube nada.
         </p>
         <button class="btn sec" type="button" data-accion="compartir-imagen">
@@ -481,13 +481,13 @@
       </div>
     </section>
 
-    <!-- ======================= MI UMBRAL ======================= -->
-    <section class="vista" id="v-cota" aria-label="Mi umbral" tabindex="-1">
-      <h2>¿A qué altura del río te toca a vos?</h2>
+    <!-- ======================= MI CASA ======================= -->
+    <section class="vista" id="v-cota" aria-label="Mi casa" tabindex="-1">
+      <h2>¿A qué nivel del río te toca prepararte?</h2>
       <p class="chico">
-        El hidrómetro dice cuánto subió el agua. La cota de tu terreno dice a
-        qué altura estás. Cruzándolos sale tu umbral estimado: la lectura del
-        hidrómetro que te sirve de referencia.
+        El río tiene una regla en el puerto. Tu terreno tiene una altura. Con
+        las dos, la app calcula tu nivel de aviso: el nivel del río a partir
+        del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.
       </p>
 
       <div class="tarjeta">
@@ -1256,7 +1256,7 @@
           <path d="M3 20h18" />
           <path d="M3 20l6-11 4 6 3-4 5 9" />
         </svg>
-        <span>Mi umbral</span>
+        <span>Mi casa</span>
       </button>
       <button data-accion="ver" data-vista="plan">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

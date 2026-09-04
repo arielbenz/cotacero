@@ -253,53 +253,62 @@ export function calcular() {
     titu = "",
     txt = "";
   const ref = criticoPeor;
+  /* Ver README §"Los ocho estados y cómo se dicen". El grave empieza con el
+     verbo y lleva el 103; "Margen ajustado/amplio" eran vocabulario contable. */
   if (r != null && r >= ref) {
     cls = "v-peligro";
-    titu = "El río superó tu umbral";
+    titu = "El río pasó tu nivel de aviso";
     txt =
-      "Con el río en " +
+      "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
+      "Defensa Civil (103).</b> Con el río en " +
       m(r) +
-      ", el nivel de agua equivalente en tu zona alcanza o supera la cota de tu terreno. " +
-      "Aunque no veas agua todavía, mové personas y medicación y seguí a Defensa Civil.";
+      ", el agua puede llegar a tu terreno aunque todavía no la veas.";
   } else if (ref <= ALERTA) {
     cls = "v-peligro";
-    titu = "Tu umbral queda debajo de la alerta";
+    titu = "Tu nivel de aviso llega antes que la alerta de la ciudad";
     txt =
-      "Tu umbral estimado es " +
+      "Tu nivel de aviso es " +
       mU(ref) +
-      ", o sea <b>antes</b> de los 5,30 m " +
-      "que disparan el aviso general: en este terreno conviene prepararse antes " +
-      "de que suene la alerta.";
+      ". La alerta de la ciudad suena a los " +
+      m(ALERTA) +
+      ": para vos, eso es tarde. <b>Preparate antes de que suene.</b>";
   } else if (ref <= EVACUACION) {
     cls = "v-alerta";
-    titu = "Tu umbral cae en zona de evacuación";
+    titu = "Tu nivel de aviso cae entre la alerta y la evacuación";
     txt =
-      "Tu umbral estimado queda entre los 5,30 y los 5,70 m del hidrómetro: " +
-      "el tramo en el que la ciudad ya está evacuando sectores.";
+      "Tu nivel de aviso es " +
+      mU(ref) +
+      ", entre los " +
+      m(ALERTA) +
+      " y los " +
+      m(EVACUACION) +
+      " de la ciudad. Cuando la ciudad esté en alerta, <b>vos ya tenés que " +
+      "tener todo listo para salir.</b>";
   } else if (ref <= 6.5) {
     cls = "v-alerta";
-    titu = "Margen ajustado";
+    titu = "Tenés poco margen";
     txt =
-      "Tu umbral estimado es " +
+      "Tu nivel de aviso es " +
       mU(ref) +
-      ", por encima del nivel de evacuación, pero dentro del escenario que el " +
-      "municipio dice estar planificando.";
+      ": más alto que la evacuación de la ciudad, pero dentro de lo que el " +
+      "municipio dice estar planificando. <b>Con la ciudad en alerta, armá " +
+      "la mochila.</b>";
   } else {
     cls = "v-ok";
-    titu = "Margen amplio";
+    titu = "Tenés margen";
     txt =
-      "Tu umbral estimado es " +
+      "Tu nivel de aviso es " +
       mU(ref) +
-      ". Para dimensionar: el récord de " +
+      ". Para comparar: la crecida más grande, la de " +
       RECORD_ANIO +
-      " fue " +
+      ", llegó a " +
       m(RECORD) +
-      ".";
+      ". Igual: si Defensa Civil dice que salgas, salí.";
   }
 
   html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
     <p style="margin:0 0 12px;font-size: var(--t-base)">${txt}</p>
-    <span class="eti">Tu umbral estimado · lectura de referencia en el puerto</span>
+    <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
     <div class="dato">${mU(ref)}</div></div>`;
 
   // desglose
@@ -340,7 +349,7 @@ export function calcular() {
     }</td>
   <td style="text-align:right">− ${(PENDIENTE * km).toFixed(2).replace(".", ",")} m</td></tr>
     <tr style="border-top:1px solid var(--linea)">
-  <td style="padding:9px 0;font-weight:700">Tu umbral estimado</td>
+  <td style="padding:9px 0;font-weight:700">Tu nivel de aviso</td>
   <td style="text-align:right;font-weight:700;color:var(--acento)">${m(ref)}</td></tr>
     </table>
     <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
@@ -352,7 +361,7 @@ precisión que el dato no tiene.</p>`;
     html += `<p class="chico" style="margin:12px 0 0">Hoy el río está en ${m(r)}.
 ${
   falta > 0
-    ? "Faltan unos <b>" + mCm(falta) + "</b> hasta tu umbral estimado."
+    ? "Faltan unos <b>" + mCm(falta) + "</b> para tu nivel de aviso."
     : '<b style="color:var(--peligro-texto)">Ya lo superó.</b>'
 }</p>`;
   }
@@ -374,17 +383,19 @@ ${
       "de tu terreno</b>: la curva pasa cerca, no por tu puerta.</div>";
   }
 
+  /* Este aviso llegó a tener 124 palabras y aparecía justo debajo del
+     resultado: el momento exacto en que la persona acaba de recibir su número
+     es el peor para un párrafo con doble negación y una subordinada de 37
+     palabras. Queda lo que hay que saber ahí; el resto —la validación de
+     1992, la lluvia como otra fuente de inundación, el detalle del modelo—
+     vive en /datos#no-dice, que es adonde va el enlace. */
   html +=
-    '<div class="aviso grave"><b>Esto es una estimación, no una orden.</b> ' +
-    "El umbral es una referencia hidráulica: el modelo asume terreno parejo y no " +
-    "contempla el anillo de defensas, las bombas, el viento sur que empuja el agua, " +
-    "ni las lluvias que se acumulan del lado de adentro. El agua puede llegar antes " +
-    "por los desagües, o no llegar si las defensas resisten. " +
-    "Y coincide bien con la crecida de 1992 — el único caso usado como control: " +
-    "una sola validación no lo convierte en modelo predictivo. " +
-    "Esto mira <b>una parte</b> del riesgo: la relación entre el río y tu terreno. " +
-    'Santa Fe también se inunda por lluvia. <a href="/datos#no-dice">Qué no dice este número</a>. ' +
-    "Si el municipio o Defensa Civil indican evacuar, evacuá aunque acá diga que tenés margen.</div>";
+    '<div class="aviso grave"><b>Es un cálculo aproximado, no una orden.</b> ' +
+    "No tiene en cuenta el terraplén (el anillo de defensas), las bombas, el " +
+    "viento ni la lluvia. El agua puede llegar antes por los desagües, o no " +
+    'llegar. <a href="/datos#no-dice">Qué no dice este número</a>. ' +
+    "<b>Si Defensa Civil o el municipio dicen que salgas, salí, aunque acá " +
+    "diga que tenés margen.</b></div>";
 
   cont.innerHTML = html;
   pintarRio();
