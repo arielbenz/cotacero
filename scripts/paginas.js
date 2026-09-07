@@ -540,6 +540,12 @@ ${lista}
           grupos son nuestros, deducidos de las coordenadas para que puedas
           ubicarte: no son los distritos del Plan de Contingencia.
         </p>
+        <p class="chico">
+          Para tenerlo en papel: la
+          <a href="/guia">guía de emergencia</a> entra en una carilla e incluye
+          un renglón para escribir tu punto de encuentro y el de repuesto. Se
+          imprime, se pega en la heladera y no necesita batería.
+        </p>
         <div class="telefonos-emergencia">
           <div><b>103</b><span>Defensa Civil — activación de puntos y evacuación</span></div>
           <div><b>107</b><span>Emergencias médicas</span></div>
@@ -941,6 +947,8 @@ ${CORTE_SVG}
           que impiden que el río entre por los desagües, <b>bombeo</b> y
           <b>reservorios</b>. El modelo asume terreno parejo y agua libre: no
           sabe si entre el río y tu casa hay un terraplén o no hay nada.
+          Ésta y otras del mismo tipo están contestadas cortas en
+          <a href="/preguntas">preguntas frecuentes</a>.
         </p>
         <p>
           Y mira <b>una sola</b> de las dos maneras de inundarse, la
@@ -1871,7 +1879,8 @@ const htmlSobre = pagina({
             Municipalidad de Santa Fe, Secretaría de Recursos Hídricos.</li>
           <li><b>Los puntos de encuentro</b> — Plan de Contingencia de la
             Dirección de Gestión de Riesgos.</li>
-          <li><b>La serie histórica</b> — INA, lecturas diarias desde 1925.</li>
+          <li><b>La serie histórica</b> — INA, lecturas diarias desde 1925,
+            con <a href="/historia">las crecidas y las bajantes año por año</a>.</li>
         </ul>
         <p>
           Cada una está enlazada, con el dato crudo al lado, en
@@ -2127,7 +2136,7 @@ ${PRIVACIDAD.map(
           a Google. Los dos corren en las páginas del sitio y
           <b>ninguno corre dentro de la app ni dentro del widget</b>: tu cota,
           tu nivel de aviso y tu plan no salen de tu teléfono, y a los lectores de un
-          medio que embebe el widget no los mide nadie.
+          <a href="/para-medios">medio que embebe el widget</a> no los mide nadie.
         </p>`,
     },
     {
@@ -2252,16 +2261,68 @@ console.log("puntos leídos de app/index.html: " + puntos.length);
    listar una página que ya no existe ni olvidarse de una nueva. Sólo entra
    lo indexable — nada de /api, assets, manifest ni service worker.
 
-   Sin `lastmod`: poner la fecha de hoy en cada corrida sería decirle a Google
-   que todas las páginas cambiaron cuando no cambió ninguna, y una fecha
-   inventada es peor que ninguna. */
+   El `lastmod` sale de git, no del reloj. Poner la fecha de hoy en cada corrida
+   sería decirle a Google que todas las páginas cambiaron cuando no cambió
+   ninguna, y una fecha inventada es peor que ninguna — por eso durante un
+   tiempo no hubo `lastmod` en absoluto. Pero la fecha real existe: es la del
+   último commit que tocó el HTML de esa página. Si el archivo en disco todavía
+   no está commiteado, entonces está cambiando ahora y va con la fecha de hoy.
+
+   Importa porque de los tres campos del sitemap, `lastmod` es el único que
+   Google dice usar: `changefreq` y `priority` los ignora. Se dejan igual
+   porque otros rastreadores sí los miran y no cuestan nada. */
+function ultimoCambio(ruta) {
+  const archivo =
+    ruta === "/" ? "index.html" : ruta.replace(/^\//, "") + "/index.html";
+  const git = (args) =>
+    execFileSync("git", args, { cwd: RAIZ, encoding: "utf8" }).trim();
+
+  /* La trampa: el pie de TODAS las páginas lleva "Última actualización del
+     sitio", que sale del último commit del repo. Sin este filtro, cualquier
+     commit reescribe las once páginas y el lastmod colapsa a "fecha del
+     último deploy" para todas — cierto, pero sin ninguna información. Un
+     cambio que sólo mueve ese renglón no cuenta como cambio de la página. */
+  const soloElPie = (diff) => {
+    const lineas = diff
+      .split("\n")
+      .filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l));
+    return (
+      lineas.length > 0 &&
+      lineas.every((l) => l.includes("Última actualización del sitio"))
+    );
+  };
+
+  try {
+    // Sin commitear: si lo que cambió no es sólo el pie, está cambiando hoy.
+    if (git(["status", "--porcelain", "--", archivo])) {
+      if (!soloElPie(git(["diff", "-U0", "--", archivo])))
+        return new Date().toISOString().slice(0, 10);
+    }
+    // Y hacia atrás, hasta el commit que tocó algo más que ese renglón.
+    for (const linea of git(["log", "--format=%H %cs", "--", archivo]).split(
+      "\n",
+    )) {
+      const [sha, fecha] = linea.split(" ");
+      if (!sha) continue;
+      if (!soloElPie(git(["show", "--format=", "-U0", sha, "--", archivo])))
+        return fecha;
+    }
+    return null;
+  } catch {
+    return null; // sin git (o el archivo nunca se commiteó): mejor sin fecha
+  }
+}
+
 const urls = enSitemap()
-  .map(
-    (p) =>
+  .map((p) => {
+    const cambio = ultimoCambio(p.ruta);
+    return (
       `  <url><loc>${SITIO}${p.ruta === "/" ? "/" : p.ruta}</loc>` +
+      (cambio ? `<lastmod>${cambio}</lastmod>` : "") +
       `<changefreq>${p.frecuencia}</changefreq>` +
-      `<priority>${p.prioridad}</priority></url>`,
-  )
+      `<priority>${p.prioridad}</priority></url>`
+    );
+  })
   .join("\n");
 await writeFile(
   join(RAIZ, "sitemap.xml"),
