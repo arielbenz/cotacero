@@ -294,6 +294,19 @@ tabla, para que el local se parezca a producción.
 cuadrado y múltiplo de 48: con los 32 px que había lo descartaba y mostraba el
 que tuviera cacheado. Los emite `node scripts/iconos.js`.
 
+**Y el atributo `sizes` tiene que decir 96, no 32.** Cuando el archivo pasó de
+32 a 96 px, el `<link rel="icon" href="/favicon.ico" sizes="32x32">` quedó igual
+en las trece páginas: el archivo estaba bien y el marcado seguía anunciando el
+tamaño por el que Google lo descartaba. Si volvés a cambiar el tamaño del
+`.ico`, ese atributo se cambia en `index.html`, `app/index.html` y
+`scripts/paginas.js` — las páginas generadas salen del último.
+
+**El `.ico` se sirve como `image/x-icon`, fijado en `vercel.json`.** Por
+extensión Vercel lo daría como `image/vnd.microsoft.icon`, que es el tipo
+registrado en IANA pero el que menos herramientas manejan; con `nosniff`, una
+que sólo acepte `image/x-icon` no lo lee. `x-icon` es el de facto y lo entienden
+todas.
+
 **`/app` va con `noindex, follow`, y `/widget` y la 404 también.** El motivo de
 cada una está escrito en `lib/paginas.js`, en `razonNoindex`. La app es una
 interfaz, no un documento: las páginas de contenido existen justamente porque

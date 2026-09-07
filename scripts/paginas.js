@@ -325,7 +325,7 @@ ${
 ${meta.indexable ? "" : '    <meta name="robots" content="noindex, follow" />\n'}    <meta name="color-scheme" content="dark light" />
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="96x96" />
     ${/* 96 px porque Google exige cuadrado y múltiplo de 48: con 32 lo
          descarta y muestra el que tenga cacheado. */ ""}
     <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
