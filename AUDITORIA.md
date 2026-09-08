@@ -143,9 +143,6 @@ siquiera se puede aplicar acá.
 Lo que sí deja: **"el cero" no es único por ciudad, es por instrumento.**
 Cualquier pregunta a un organismo tiene que nombrar la escala, no el puerto.
 
-(De paso: el `/mi-cota` de la app citaba 9,57 para Paraná y 3,03 para Rosario.
-Son los ceros de los _mareógrafos_, no los de las escalas. Corregido.)
-
 ### Intento de resolverlo empíricamente (no alcanzó)
 
 Se comparó la cota que la app interpola de las curvas municipales contra los
@@ -153,11 +150,19 @@ Se comparó la cota que la app interpola de las curvas municipales contra los
 y `ign:nivelacion_precision`, que sí están en SRVN16), en los 16 puntos que
 caen dentro de la cobertura de las curvas:
 
-    n                          16
-    sesgo medio            +0,045 m
-    mediana                −0,283 m
-    desvío estándar         1,327 m
+    n                              16
+    media                      +0,045 m
+    IC 95% de la media   [−0,662 , +0,752]
     error estándar de la media  0,332 m
+    mediana                    −0,304 m
+    desvío estándar             1,327 m
+    mínimo / máximo     −1,819 / +3,057 m
+
+Reproducido el 8/9/2026 con los datos crudos y el código de producción; los
+scripts están en `datos-crudos/`. El residuo **no es ruido**: correlaciona
+−0,67 con la cota IGN, o sea que la interpolación comprime hacia el medio del
+rango. Un sesgo estructural de ese tamaño hace que la media del residuo mida
+sobre todo dónde cayeron los puntos, y no un desplazamiento de datum.
 
 **El test no puede distinguir 18 cm**: el error estándar de la media es casi el
 doble de la diferencia que se quería medir. Y hay un sesgo conocido en contra:
@@ -298,6 +303,37 @@ Web API pública, y **sería la primera opción**. No se pudo usar:
 Conviene reintentar más adelante: si `/pub/` se estabiliza, es la ruta correcta
 por ser la documentada. Mientras tanto, `/a5` es la que el INA usa en
 producción y la que responde.
+
+---
+
+## 6 bis. El código, revisado entero (8/9/2026)
+
+Barrido de los 11.122 renglones de JavaScript y los 4.858 de CSS contra lo que
+los documentos afirman.
+
+**Las constantes están cada una en un solo lugar.** `CERO_IGN`, `PENDIENTE` y
+`ERROR_DEM` en `js/app/config.js`; `VENCE_HORAS` y `UMBRALES_RESPALDO` en
+`lib/comun.js`. Ningún archivo vuelve a escribir 8,20 · 0,045 · 0,5 · 5,30 ·
+5,70 ni las 48 horas a mano.
+
+**Los números que los documentos afirman, verificados contra el código:**
+
+    169 curvas de nivel                       ✔
+    30 puntos de encuentro                    ✔
+    8 funciones en api/ (el tope es 12)       ✔
+    15 renglones de mochila, 11 de previa     ✔
+    20 módulos en js/app/ + 3 de lib/         ✔
+    11 zonas, contando "otro"                 ✔
+
+**Lo que sobra y conviene sacar:**
+
+- **11 clases de CSS que no usa nadie**, ni por literal ni construidas por
+  concatenación: `btn-claro`, `neutra`, `solo-lectores`, `b-hoy`, `b-alerta`,
+  `b-peligro`, `b-record`, `h-record`, `h-tenue`, `estado-mal`, `estado-bien`.
+- **2 exports sin un solo consumidor**: `FUENTE` en `lib/ina.js` y `porRuta` en
+  `lib/paginas.js`.
+
+No hay ningún `TODO`, `FIXME` ni `HACK` en el código.
 
 ---
 

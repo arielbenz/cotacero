@@ -27,9 +27,10 @@ predictivo de inundación: falta la revisión de especialistas y organismos
 competentes (Gestión de Riesgos, INA, FICH-UNL). Hasta entonces lo que la app
 calcula son niveles de referencia estimados, y así se nombran en la interfaz.
 
-Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m. **Ya no
-están escritos a mano**: los publica la estación del INA en cada consulta y la
-app los adopta (con un filtro de plausibilidad). Las constantes que quedan en
+Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m. **Los
+publica la estación del INA en cada consulta** y la app los adopta con un
+filtro de plausibilidad; los de `lib/comun.js` son el arranque y el respaldo
+para cuando contesta el reporte diario, que no los trae. Las constantes que quedan en
 `js/app/oficiales.js`, `sw.js`, `landing.js` y el widget son el respaldo para cuando contesta
 el reporte diario, que no los trae.
 
@@ -65,7 +66,8 @@ pegado.
 
 **Falsa precisión.** La cota del terreno viene de curvas cada 0,5 m, así que el
 umbral **nunca** se muestra con dos decimales: un decimal y tilde de
-aproximación (`mU()` en `js/app/formato.js`, `unDec()` en `sw.js`). La única excepción es
+aproximación: `mU()`, que sale de `lib/comun.js` y la usan la app, el sitio y
+el service worker. La única excepción es
 el desglose del cálculo, que conserva la aritmética exacta y aclara al pie por
 qué la pantalla muestra otra cosa.
 
@@ -164,10 +166,11 @@ sobre todo el sitio.
 ## La app son módulos
 
 `app/index.html` carga `/js/app/principal.js` con `type="module"` y de ahí
-cuelga el resto. Antes era un solo `app.js` de 3.100 líneas.
+cuelga el resto: 20 módulos en `js/app/`, más `lib/comun.js`, `lib/fuentes.js`
+y `lib/listas.js`, que la app importa de `lib/` para compartirlos con Node.
 
-**Qué cambió para quien lo toca.** Ya no hay globals: escribir `estado` en la
-consola del navegador no devuelve nada. Para hurgar desde ahí:
+**No hay globals**: escribir `estado` en la consola del navegador no devuelve
+nada. Para hurgar desde ahí:
 
     const rio = await import('/js/app/rio.js')
 
@@ -224,11 +227,9 @@ El detalle está en `AUDITORIA.md` §6. Conviene reintentar cada tanto.
 
 `ESTACION` y `ENDPOINTS` viven en `lib/fuentes.js`, que es donde están escritos
 **una sola vez** los organismos, sus URLs y los identificadores de la estación.
-Antes eso estaba repartido entre la app, `scripts/paginas.js`, `lib/ina.js` y
-el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
-
-Ya no hay excepción: desde que la app son módulos, `js/app/fuentes.js`
-importa `/lib/fuentes.js` directo. La copia a mano en `FUENTES_APP` se murió.
+Si cambia un enlace, cambia ahí. `js/app/fuentes.js` importa `/lib/fuentes.js`
+directo —el navegador lo carga como cualquier módulo, porque es puro dato—, así
+que no hay una segunda lista que se pueda desincronizar.
 
 **Ojo con las atribuciones escritas a mano.** El pie de la app decía «Niveles
 de alerta y evacuación según FICH-UNL y Prefectura Naval Argentina», que era
@@ -324,10 +325,10 @@ plegados.
 
 **`/historia` sirve sus datos en HTML.** Las crecidas, las bajantes, los
 umbrales y la tabla de los 102 años los emite `scripts/paginas.js` desde
-`datos-abiertos/historia.json`. `js/historia.js` quedó para lo único que
-necesita JavaScript: la franja del siglo y el tanque que se recorre. Antes esa
-página tenía 328 palabras y ni un número; ahora tiene 1.372 y la serie
-completa. **No volver a mover contenido al JavaScript**: es la página que
+`datos-abiertos/historia.json`. `js/historia.js` hace lo único que
+necesita JavaScript: la franja del siglo y el tanque que se recorre. El resto
+—1.372 palabras y la serie completa— está en el marcado.
+**No mover contenido al JavaScript**: es la página que
 existe para contar la historia del río.
 
 **El CLS de `/app` era 0,264.** Cuatro tarjetas de la pantalla del río se
@@ -342,10 +343,10 @@ dos (`favicon-96.png` y el `.ico` de la raíz) con `node scripts/iconos.js`. El
 no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
 así que el cambio no se ve enseguida.
 
-**Las páginas de contenido se precachean.** `/datos`, `/historia` y
-`/contacto` entran en `ESENCIALES`. Es lo que permitió sacar de la app las
-explicaciones largas que ya estaban en el sitio: la app enlaza y el enlace
-abre aunque no haya señal. Son ~25 KB comprimidos.
+**Las once páginas del sitio se precachean**, en la tanda `CRITICOS` de
+`sw.js` —ver «Quién registra el service worker, y qué precachea»—. Por eso la
+app puede sacarse las explicaciones largas de encima y enlazarlas: el enlace
+abre aunque no haya señal.
 
 **Dos trampas del service worker, las dos aprendidas rompiéndolo.**
 `cache.addAll()` es todo o nada: una sola ruta muerta en el precache y la app
@@ -526,10 +527,9 @@ de inicio. La app lo detecta y lo explica en vez de quedarse muda.
 
 `beforeinstallprompt` existe sólo en Chromium, y aun ahí Chrome lo dispara
 cuando quiere. En iPhone no existe: Safari deja instalar únicamente desde su
-menú Compartir. Antes el botón dependía de ese evento, así que en iOS no
-aparecía nunca.
+menú Compartir, así que un botón atado a ese evento no aparecería nunca en iOS.
 
-Ahora hay dos caminos. Si el navegador ofrece el diálogo, se usa. Si no, el
+Por eso hay dos caminos. Si el navegador ofrece el diálogo, se usa. Si no, el
 botón abre una hoja con los pasos del navegador que corresponda —Safari,
 Chrome/Edge en iPhone, Firefox, Chromium— y en iPhone fuera de Safari avisa
 que puede no estar la opción.
@@ -682,8 +682,8 @@ reemplaza el bloque entre los marcadores `<!-- PIE:inicio -->` y
 `<!-- PIE:fin -->` —ahí con `pie({ frescura: true })`, que agrega el renglón de
 la última lectura del INA; va sólo en la portada porque quien lo llena es
 `landing.js`, y en las nueve páginas generadas quedarían nueve renglones vacíos
-que no completa nadie—. Antes eran dos copias y ya se habían desincronizado: a la
-de las páginas le faltaban una columna entera y el teléfono de emergencias.
+que no completa nadie—. Es una sola función, así que las once páginas y la portada no
+pueden mostrar pies distintos.
 
 **Cómo se prueba el ancho de teléfono.** Chrome headless no baja de unos
 485 px de viewport, así que `--window-size=390` no prueba nada: hay que meter
@@ -739,7 +739,7 @@ desaparecía sobre las cajas oscuras—, y el negro hacía de principal en el
 sitio mientras el azul hacía de principal en la app: dos jerarquías distintas
 en el mismo producto, y ninguna pantalla diciendo cuál era LA acción.
 
-Dos detalles que resuelve el sistema y antes se resolvían a mano:
+Dos detalles que resuelve el sistema, sin que haya que elegir clase:
 
 - **Superficies invertidas.** La franja histórica, la caja de cierre, los
   bloques oscuros y la caja de código son oscuros en los dos temas: ahí el
@@ -767,9 +767,8 @@ mano y **esta tabla es la fuente**: si tocás una, revisá las tres.
 
 Dos reglas para los tres lugares: en los estados graves el texto **empieza con
 el verbo** de lo que hay que hacer, no con lo que está pasando, y **lleva el
-103**. Antes era al revés — «Nivel de alerta» sólo describía y «Nivel de
-evacuación» delegaba, o sea que los dos estados más graves de la escala eran
-los que menos instrucción daban.
+103**. Un estado grave que describe en vez de instruir es el que menos sirve
+justo cuando más se lo lee.
 
 | # | Cuándo | Título | Con qué empieza |
 | --- | --- | --- | --- |
@@ -1062,11 +1061,10 @@ publica la estación del INA en cada consulta y los de `lib/comun.js` son el
 arranque y el respaldo. Con ocho copias, la que quedara vieja hacía que ese
 consumidor avisara tarde.
 
-Y una que estaba rota sin que se notara: **`rio-barra.js` adoptaba los
-umbrales de la API sin filtrarlos.** El filtro estaba en la app, en el widget y
-en el service worker, pero no ahí — así que una respuesta con la evacuación por
-debajo de la alerta habría pintado la franja de la portada con el río en aguas
-medias. Al pasar a `umbralesDe()` compartido, se arregló solo.
+**El filtro de plausibilidad corre en los cuatro** —la app, la barra del sitio,
+el widget y el service worker— y es literalmente la misma función. Sin él, una
+respuesta con la evacuación por debajo de la alerta pintaría la franja de la
+portada con el río en aguas medias.
 
 Lo único que puede romper esto: **tocar `lib/comun.js` y no correr
 `node scripts/paginas.js`**. El gemelo queda viejo y la app dice un número
@@ -1182,7 +1180,10 @@ un número de teléfono cambia lo que la app promete por escrito en `/legal` y e
 - **La cota de Arroyo Leyes en 1992 (16,70 IGN) sigue sin fuente primaria.**
   Es el único dato independiente del modelo y viene de una nota de prensa.
   Conseguir el registro original es lo de mayor rendimiento pendiente.
-- **El margen de la cota (±0,5 m) no debería ser una constante.** 21 de las 169
-  curvas están fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay
-  ninguna. El margen tendría que salir de la separación local entre las dos
-  curvas usadas para interpolar.
+- **El margen de la cota (±0,5 m) no debería ser una constante.** Medido en
+  2.025 puntos de malla sobre la cobertura, el salto entre las dos curvas que la
+  app usa para interpolar va de **0,10 a 6,20 m** —mediana 0,50, p75 1,20, p90
+  2,20—. En el **25,4 %** del área el intervalo real es el doble o más del
+  nominal y en el **15,3 %** es menos de la mitad. Falta decidir la convención
+  antes de tocarlo: con el intervalo entero el aviso llegaría antes en el 38 %
+  del área; con medio intervalo llegaría **después** en el 72 %.

@@ -388,8 +388,9 @@ existe una fuente oficial.
 ### Falsa precisión
 
 El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
-~0,5 m. Un decimal y tilde de aproximación (`mU()` en `js/app/formato.js`, `unDec()`
-en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
+~0,5 m. Un decimal y tilde de aproximación: `mU()`, que sale de `lib/comun.js`
+y la usan la app, el sitio y el service worker. La única excepción es el
+desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
 ### El mono en mayúsculas etiqueta una cosa
