@@ -1439,30 +1439,10 @@ const CRECIDAS = [...HIST].sort((a, b) => b.max - a.max).slice(0, 8);
 const BAJANTES = [...HIST].sort((a, b) => a.min - b.min).slice(0, 8);
 const RECORD = CRECIDAS[0];
 
-const listaCrecidas = CRECIDAS.map(
-  (e, i) => `          <li>
-            <span class="h-puesto">${i + 1}</span>
-            <div>
-              <b>${e.anio}</b> · ${nm(e.max, 2)} m<br>
-              <span class="chico">Máximo el ${enPalabras(e.fmax)}. ${
-                e.da
-                  ? `${e.da} ${e.da === 1 ? "día" : "días"} en nivel de alerta` +
-                    (e.de ? `, de los cuales ${e.de} en nivel de evacuación.` : ".")
-                  : "No llegó al nivel de alerta."
-              }</span>
-            </div>
-          </li>`,
-).join("\n");
-
-const listaBajantes = BAJANTES.map(
-  (e, i) => `          <li>
-            <span class="h-puesto">${i + 1}</span>
-            <div>
-              <b>${e.anio}</b> · ${nm(e.min, 2)} m<br>
-              <span class="chico">Mínimo el ${enPalabras(e.fmin)}.</span>
-            </div>
-          </li>`,
-).join("\n");
+/* Los rankings de crecidas y bajantes salieron de la página: quedaban dos
+   listas de ocho puestos arriba de la tabla completa, que ya trae los mismos
+   años con los mismos números. CRECIDAS y BAJANTES siguen calculándose porque
+   los usa el resumen de arriba (el récord y la bajante más honda). */
 
 const tablaHist = HIST.map(
   (e) => `                  <tr><td>${e.anio}</td><td>${nm(e.max, 2)}</td><td>${nm(e.min, 2)}</td><td>${e.da}</td></tr>`,
@@ -1527,29 +1507,6 @@ const htmlHistoria = pagina({
           cita seguido queda afuera: no la reconstruimos desde recortes de
           diario.
         </p>
-      </section>
-
-      <section class="bloque">
-        <h2>Las mayores crecidas registradas</h2>
-        <p>
-          Ordenadas por la altura máxima de cada año. No es una lista escrita a
-          mano: es la serie del INA ordenada de mayor a menor.
-        </p>
-        <ol class="h-ranking">
-${listaCrecidas}
-        </ol>
-      </section>
-
-      <section class="bloque">
-        <h2>Las bajantes más hondas</h2>
-        <p>
-          El cero del hidrómetro no es el fondo del río: por debajo de cero
-          sigue habiendo agua. Un número negativo significa que el río está más
-          abajo que el cero de esa escala.
-        </p>
-        <ol class="h-ranking">
-${listaBajantes}
-        </ol>
       </section>
 
       <section class="bloque" id="umbrales">
@@ -2036,6 +1993,18 @@ ${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
           ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
           Escribinos por el <a href="/contacto">formulario de sugerencias</a>
           de la app: a prensa contestamos rápido.
+        </p>
+        ${/* Preguntar es la única manera que tenemos, y el motivo es el mismo
+             que la promesa de arriba: el widget no carga analytics ni deja
+             cookies, así que del lado del servidor no queda rastro de quién lo
+             embebe. Se podría contar el dominio del medio sin tocar al lector
+             —document.referrer adentro del iframe—, pero eso volvería falsa la
+             frase de /legal que dice que lo único que sale del dispositivo son
+             las sugerencias. Se eligió preguntar. */ ""}
+        <p class="chico">
+          Y si lo publicás, <b>contanos</b>. El widget no lleva cookies ni
+          analytics: no sabemos quién lo tiene puesto, y no queremos saberlo
+          midiendo a tus lectores. Preguntar es la única forma que nos queda.
         </p>`,
     },
   ],
