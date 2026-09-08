@@ -294,15 +294,28 @@ export function calcular() {
       "Defensa Civil (103).</b> Con el río en " +
       m(r) +
       ", el agua puede llegar a tu terreno aunque todavía no la veas.";
+    /* Los dos números conviven, y cómo se dicen importa. La alerta de la
+       ciudad es UN umbral operativo para toda Santa Fe —con él se activa el
+       plan de contingencia— y tiene que ser uno solo. El nivel de aviso es
+       otro, propio, porque cada terreno está a otra altura y a otra distancia
+       del Puerto. El personal no corrige ni reemplaza al oficial: sirve para
+       prepararse antes, no para decidir en lugar de Defensa Civil.
+
+       Acá decía "para vos, eso es tarde", hablando de la alerta municipal. Se
+       lee como que el aviso oficial llega tarde, y eso deja al proyecto
+       enfrentado con el organismo que algún día tiene que revisarlo. */
   } else if (ref <= ALERTA) {
     cls = "v-peligro";
-    titu = "Tu nivel de aviso llega antes que la alerta de la ciudad";
+    titu = "Tu terreno tiene su propio número";
     txt =
       "Tu nivel de aviso es " +
       mU(ref) +
-      ". La alerta de la ciudad suena a los " +
+      ". La alerta de la ciudad —" +
       m(ALERTA) +
-      ": para vos, eso es tarde. <b>Preparate antes de que suene.</b>";
+      "— es un solo umbral para toda Santa Fe y sirve para activar el plan de " +
+      "contingencia. El tuyo es más bajo porque tu terreno está a otra altura " +
+      "y a otra distancia del Puerto: <b>te sirve para prepararte antes</b>. " +
+      "La orden de evacuación la sigue dando Defensa Civil.";
   } else if (ref <= EVACUACION) {
     cls = "v-alerta";
     titu = "Tu nivel de aviso cae entre la alerta y la evacuación";
@@ -313,8 +326,8 @@ export function calcular() {
       m(ALERTA) +
       " y los " +
       m(EVACUACION) +
-      " de la ciudad. Cuando la ciudad esté en alerta, <b>vos ya tenés que " +
-      "tener todo listo para salir.</b>";
+      " de la ciudad. Cuando la ciudad entre en alerta, para vos es el " +
+      "momento de <b>terminar de preparar la salida</b>.";
   } else if (ref <= 6.5) {
     cls = "v-alerta";
     titu = "Tenés poco margen";

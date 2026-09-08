@@ -900,8 +900,45 @@ ${CORTE_SVG}
     bloque({
       id: "firme",
       kicker: "4 · Qué tan firme es esto",
-      titulo: "Lo que está en discusión, lo que se comprobó y lo que falta",
-      html: `        <h3 id="abiertas">Dos números que todavía no están cerrados</h3>
+      titulo: "Lo que se comprobó, lo que está en discusión y lo que falta",
+      /* El orden es deliberado y se cambió a propósito: antes los cuatro
+         subtítulos abrían en negativo —"no están cerrados", "no es estar
+         inundado", "no es estar validado"— y quien leía en diagonal se llevaba
+         sólo eso. Ahora va primero lo que se comprobó y después lo que falta,
+         con el MISMO peso: cada uno tiene su h3, ninguno queda en letra chica
+         ni plegado. No se sacó ni se suavizó una sola admisión; se movieron de
+         lugar. */
+      html: `        <p>
+          Todo modelo se apoya en supuestos discutibles. Preferimos publicar los
+          nuestros antes de que los encuentre otro: un límite que escribe quien
+          hizo la herramienta se puede revisar y corregir a tiempo. Acá está lo
+          que comprobamos, lo que seguimos discutiendo y lo que falta.
+        </p>
+
+        <h3>Lo que se comprobó: la crecida de ${RECORD_ANIO}</h3>
+        <p>
+          <b>Comprobación histórica.</b> El modelo se contrastó contra un
+          caso independiente y coincidió muy bien.
+        </p>
+        <table class="cuenta">
+          <tr><td>Puerto de Santa Fe, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
+          <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
+          <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
+        </table>
+        <p style="margin-top:20px">
+          Un centímetro. Es el mejor dato independiente que tenemos, y es
+          <b>un punto, de una crecida, de un año</b>. Una coincidencia histórica
+          no demuestra que el modelo valga para todos los lugares y todas las
+          condiciones.
+        </p>
+        <p>
+          También se comprobó de dónde <b>no</b> sacar la altura del terreno: la
+          app usaba un modelo satelital y se lo midió contra 36 puntos de
+          nivelación del IGN, con un resultado tan malo que se descartó la
+          fuente entera — <a href="#terreno">la medición está más arriba</a>.
+        </p>
+
+        <h3 id="abiertas">Lo que está en discusión: dos números que todavía no están cerrados</h3>
         <p>
           Están acá, y no escondidos en un archivo interno, porque son
           exactamente las dos cosas que un especialista debería revisarnos.
@@ -939,7 +976,20 @@ ${CORTE_SVG}
         </p>
         ${selloFuente("altimetria", "ceros de escala y sistema de alturas")}
 
-        <h3 id="no-dice">Estar por debajo del agua no es estar inundado</h3>
+        <h3>Lo que falta: que lo revisen especialistas</h3>
+        <p>
+          <b>Validación científica.</b> Ningún organismo ni universidad
+          revisó este modelo. Nadie lo aprobó.
+        </p>
+        <p class="chico" style="margin-top:18px">
+          Hasta que lo revisen especialistas —Gestión de Riesgos, INA, FICH-UNL,
+          Recursos Hídricos— lo que la app publica son <b>niveles de referencia
+          estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no
+          tiene vínculo con esos organismos ni cuenta con su aval: usa sus datos
+          públicos y los cita.
+        </p>
+
+        <h3 id="no-dice">Lo que no sabe: estar por debajo del agua no es estar inundado</h3>
         <p>
           «Si mi terreno está por debajo del nivel equivalente del río, ¿por qué
           no estoy con agua adentro?» Porque buena parte de la ciudad está
@@ -964,39 +1014,7 @@ ${CORTE_SVG}
           el agua entró por un tramo abierto de una defensa existente. Que haya
           obra no es garantía, y la app no sabe en qué estado está.
         </div>
-        ${selloFuente("emergencias", "Plan de Contingencia")}
-
-        <h3>Coincidir con ${RECORD_ANIO} no es estar validado</h3>
-        <table class="cuenta">
-          <tr><td>Puerto de Santa Fe, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
-          <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
-          <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
-        </table>
-        <p style="margin-top:20px">
-          Un centímetro. Es el mejor dato independiente que tenemos, y es
-          <b>un punto, de una crecida, de un año</b>. Una coincidencia histórica
-          no demuestra que el modelo valga para todos los lugares y todas las
-          condiciones.
-        </p>
-        <div class="rejilla-2" style="margin-top:18px">
-          <div class="mini-tarjeta">
-            <p class="kicker">Lo que sí hay</p>
-            <p><b>Comprobación histórica.</b> El modelo se contrastó contra un
-            caso independiente y coincidió muy bien.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <p class="kicker kicker-alerta">Lo que falta</p>
-            <p><b>Validación científica.</b> Ningún organismo ni universidad
-            revisó este modelo. Nadie lo aprobó.</p>
-          </div>
-        </div>
-        <p class="chico" style="margin-top:18px">
-          Hasta que lo revisen especialistas —Gestión de Riesgos, INA, FICH-UNL,
-          Recursos Hídricos— lo que la app publica son <b>niveles de referencia
-          estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no
-          tiene vínculo con esos organismos ni cuenta con su aval: usa sus datos
-          públicos y los cita.
-        </p>`,
+        ${selloFuente("emergencias", "Plan de Contingencia")}`,
     }),
     bloque({
       oscuro: true,
@@ -1066,7 +1084,7 @@ ${NORMATIVA.map(
 const PREGUNTAS = [
   [
     "¿Por qué mi nivel de aviso no es el 5,30 de la alerta?",
-    "La alerta oficial es una sola para toda la ciudad; tu terreno tiene su propia altura. Si tu terreno es bajo o está río arriba, el agua puede comprometerte antes de los 5,30 m — mostrar eso es exactamente el propósito de la app. Al revés también: hay terrenos altos donde el agua llega bastante después.",
+    "La alerta de la ciudad es un solo número para toda Santa Fe, y tiene que serlo: es el umbral con el que se activa el plan de contingencia. Tu terreno además tiene el suyo, porque está a otra altura y a otra distancia del Puerto. Si es bajo o está río arriba, tu número va a ser más chico que los 5,30 m; si es alto, más grande. Los dos conviven: el tuyo sirve para prepararte antes, no para decidir en lugar de Defensa Civil.",
   ],
   [
     "¿El agua entra justo cuando el río llega a mi nivel de aviso?",
