@@ -1,0 +1,110 @@
+  puntos descargados dentro del bbox de curvas: 16
+  tipos de marca: Chapa pilar · Chapa exterior
+  redes: Alta Precisión · Precisión
+  con cota interpolable: 16 · sin cobertura útil: 0
+
+  ===== RESIDUO  (cota interpolada − cota IGN) =====
+  n                            16
+  media                        0.045 m
+  IC 95% de la media           [-0.662 , 0.752] m
+  error estándar de la media   0.332 m
+  mediana                      -0.304 m
+  desvío estándar              1.327 m
+  mínimo / máximo              -1.819 / 3.057 m
+
+  histograma (bins de 0,5 m)
+    -2.000 a  -1.500  █ 1
+    -1.500 a  -1.000  █ 1
+    -1.000 a  -0.500  █████ 5
+    -0.500 a   0.000  ███ 3
+     0.000 a   0.500  ██ 2
+     0.500 a   1.000  █ 1
+     1.000 a   1.500  █ 1
+     1.500 a   2.000  
+     2.000 a   2.500  █ 1
+     2.500 a   3.000  
+     3.000 a   3.500  █ 1
+
+  detalle
+    -1.819 m  IGN 16.052  interp 14.233  PF3N(133)  Chapa pilar
+    -1.422 m  IGN  15.86  interp 14.438  PF2N(54)  Chapa pilar
+    -0.955 m  IGN 16.477  interp 15.522  NODAL 141  Chapa exterior
+    -0.935 m  IGN 17.068  interp 16.133  PF1n(82)D  Chapa pilar
+    -0.619 m  IGN 16.884  interp 16.265  PF23n(102)B  Chapa pilar
+    -0.553 m  IGN 17.831  interp 17.278  PF22n(102)B  Chapa pilar
+    -0.517 m  IGN 16.893  interp 16.376  PF4N(55)  Chapa pilar
+    -0.325 m  IGN 17.204  interp 16.879  PF1N(55)  Chapa pilar
+    -0.283 m  IGN  16.21  interp 15.927  PF5N(133)  Chapa pilar
+    -0.019 m  IGN 16.809  interp 16.790  PF1N(133)  Chapa pilar
+     0.100 m  IGN 15.714  interp 15.814  PF6N(133)  Chapa pilar
+     0.204 m  IGN 14.215  interp 14.419  PF3N(55)  Chapa pilar
+     0.970 m  IGN 15.119  interp 16.089  PF1N(54)  Chapa pilar
+     1.425 m  IGN 13.728  interp 15.153  PF4N(133)  Chapa pilar
+     2.410 m  IGN  15.04  interp 17.450  PF2N(55)  Chapa pilar
+     3.057 m  IGN   14.2  interp 17.257  PF2N(133)  Chapa pilar
+
+  ===== INTERVALO LOCAL entre las dos curvas usadas =====
+  puntos de malla con cobertura: 2025 de 2025
+  mínimo   0.10 m
+  p25      0.50 m
+  mediana  0.50 m
+  p75      1.20 m
+  p90      2.20 m
+  máximo   6.20 m
+
+  El margen que informa la app es 0,50 m fijo (medio intervalo de 1,0 m).
+  medio intervalo local > 0,50 m (la app informa DE MENOS): 515 puntos (25.43%)
+  medio intervalo local < 0,25 m (la app informa DE MÁS):   310 puntos (15.31%)
+
+  saltos presentes:
+     0.10 m  ██ 76
+     0.13 m  █ 10
+     0.20 m  ██ 62
+     0.30 m  ████ 130
+     0.40 m  █ 32
+     0.50 m  ████████████████████████████ 939
+     0.60 m  █ 4
+     0.64 m  ██ 53
+     0.70 m  ████ 137
+     0.80 m  █ 7
+     0.90 m  █ 11
+     1.00 m  █ 49
+     1.20 m  ████ 139
+     1.33 m  █ 4
+     1.50 m  █ 30
+     1.90 m  █ 20
+     2.00 m  █ 7
+     2.20 m  ████ 149
+     2.40 m  █ 9
+     2.50 m  █ 4
+     2.70 m  █ 13
+     2.90 m  █ 4
+     3.00 m  █ 5
+     3.20 m  █ 4
+     3.40 m  ██ 55
+     3.53 m  █ 8
+     3.70 m  █ 3
+     3.80 m  █ 6
+     3.90 m  █ 6
+     4.00 m  █ 6
+     4.03 m  █ 9
+     4.10 m  █ 12
+     4.30 m  █ 7
+     4.40 m  █ 1
+     4.70 m  █ 6
+     5.00 m  █ 1
+     5.50 m  █ 1
+     6.00 m  █ 2
+     6.20 m  █ 4
+
+  === intervalo local vs. el margen fijo de 0,50 m ===
+  intervalo local > 1,00 m (el doble del nominal): 25.43% del área
+  intervalo local > 2,00 m:                        15.56% del área
+  intervalo local < 0,50 m:                        15.31% del área
+
+  === los 16 puntos ===
+  intervalo local en esos 16: mediana 0.50 m · máx 2.20 m
+  distancia a la curva más cercana: mediana 160.07 m · máx 1102.40 m
+  correlación residuo vs. cota IGN:      r = -0.67
+  correlación |residuo| vs. intervalo:   r = -0.23
+  correlación |residuo| vs. distancia:   r = 0.19
