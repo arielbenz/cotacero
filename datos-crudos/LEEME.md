@@ -30,6 +30,15 @@ a mano y por separado.
   líneas, cose confluencias a 60 m y corre Dijkstra desde el hidrómetro.
 - `salida-tarea2-PARCIAL-<fecha>.txt` — la corrida que NO valida.
 
-**No usar estos km.** El control contra Arroyo Leyes (24 km publicados) no da:
-cinco de las ocho zonas quedan en componentes desconectados del grafo. Ver el
-informe en el mensaje que acompaña este commit.
+- `analisis-km-cauce-v2-<fecha>.mjs` — segundo intento, sumando los BORDES de
+  los polígonos de agua: cerca de Santa Fe el Paraná está mapeado como
+  polígono, no como línea.
+- `analisis-km-sensibilidad-<fecha>.mjs` y su salida — barrido de la
+  tolerancia de cosido.
+
+**No usar estos km.** El método no produce un número defendible: la distancia
+medida a Arroyo Leyes va de **20,6 a 31,8 km** según la tolerancia con que se
+cosen las confluencias, que es un parámetro sin significado físico. Elegir la
+que da 24 sería ajustar el método al resultado que se quiere validar — el mismo
+vicio circular que ya tiene la pendiente. A 4,5 cm/km ese rango son 50 cm de
+umbral: más que el error que se quería corregir.
