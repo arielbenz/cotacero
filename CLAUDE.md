@@ -18,6 +18,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/curvas.js            # baja las curvas del municipio -> datos-abiertos/curvas.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
     node scripts/guia-pdf.js          # imprime /guia a guia.pdf (Chrome headless)
+    node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
     node scripts/vapid.js             # claves de push, se corre una sola vez
 
 **No hay `package.json`, ni dependencias, ni build step, ni tests, ni linter.**
@@ -61,6 +62,23 @@ módulo y que no sobre ninguna ruta muerta— y falla al generar.
 pasado antes de que el grafo termine de evaluarse: el listener se enganchaba a
 un evento que ya no volvía, y como el registro va con `.catch()` el fallo era
 mudo. Ver `js/app/instalar.js`.
+
+**Las miniaturas de `/charlas` se alojan acá, no se enlazan a TED.** Las baja
+`node scripts/charlas.js` desde el `og:image` de cada charla y las guarda en
+`img/charlas/` — 120 KB las ocho, en JPEG. Enlazar a `pi.tedcdn.com` chocaría
+con tres cosas a la vez: la CSP es `img-src 'self'`, `/charlas` está
+precacheada, y le mandaría a TED la IP de cada lector, que es justo lo que
+`/legal` promete que no pasa. **No se precachean**: son decorativas y duplicar
+la tanda crítica por ellas no vale; la rama de caché primero las guarda en
+cuanto alguien abre la página.
+
+Van en JPEG y no en WebP ni AVIF: `sips` —que viene con macOS y evita una
+dependencia— no escribe WebP, y AVIF deja afuera a los Android viejos.
+
+El mismo script trae la **duración** y **avisa si no coincide** con la escrita
+en `lib/charlas.js`. No la escribe solo a propósito: un dato que se escribe
+solo es un dato que nadie revisa. La lista vive en `lib/charlas.js` y no dentro
+del generador porque la leen los dos scripts.
 
 **`guia.pdf` es un artefacto, no una fuente.** Sale de imprimir `/guia` con
 `node scripts/guia-pdf.js`, así que **cualquier cambio en el generador o en
