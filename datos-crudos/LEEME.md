@@ -20,3 +20,16 @@ a mano y por separado.
   curvas que la app usa, en una malla sobre toda la cobertura.
 - `analisis-correlaciones-<fecha>.mjs` — cierra con las correlaciones.
 - `salida-tarea1-<fecha>.txt` — la salida completa de los tres.
+
+## Tarea 2 — los km sobre el cauce (SIN TERMINAR: la validación no pasa)
+
+- `ign-lineas_de_aguas_continentales_*-<fecha>.json` — red hidrográfica del IGN.
+- `ign-localidad_bahra-*-<fecha>.json`, `ign-sublocalidad_entidad_bahra-*` —
+  puntos oficiales de localidades (BAHRA).
+- `analisis-km-cauce-<fecha>.mjs` — arma un grafo con los vértices de las
+  líneas, cose confluencias a 60 m y corre Dijkstra desde el hidrómetro.
+- `salida-tarea2-PARCIAL-<fecha>.txt` — la corrida que NO valida.
+
+**No usar estos km.** El control contra Arroyo Leyes (24 km publicados) no da:
+cinco de las ocho zonas quedan en componentes desconectados del grafo. Ver el
+informe en el mensaje que acompaña este commit.

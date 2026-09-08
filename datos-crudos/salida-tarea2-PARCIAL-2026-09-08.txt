@@ -1,0 +1,16 @@
+  red: 32 líneas · 3177 nodos · 4606 segmentos
+  confluencias cosidas a menos de 60 m: 1254
+  hidrómetro: nodo a 442 m de la traza
+
+  zona                        app   medido   dif    impacto   punto usado
+  Santa Fe — centro / puerto    0     0.0     0.0      0 cm   el hidrómetro mismo (km 0 por definición)  [a 442 m del cauce]
+  Alto Verde                    2     1.0    -1.0     -4 cm   Vecinal Pro Mejoras Alto Verde (municipal)  [a 756 m del cauce]
+  Guadalupe / Costanera Este    4    s/red                     Vecinal Guadalupe Oeste (municipal)  [a 3423 m del cauce]
+  La Guardia                    7     6.6    -0.4     -2 cm   Capilla Ntra. Sra. de la Guardia (municipal)  [a 622 m del cauce]
+  Colastiné Norte              11    s/red                     Estación Colastiné Norte (municipal)  [a 2027 m del cauce]
+  San José del Rincón          16    s/red                     BAHRA / IGN  [a 1790 m del cauce]
+  Arroyo Leyes                 24    s/red                     BAHRA / IGN  [a 3930 m del cauce]
+  Santa Rosa de Calchines      40    s/red                     BAHRA / IGN  [a 10005 m del cauce]
+
+  VALIDACIÓN — Arroyo Leyes tiene que dar cerca de 24 km:
+   medido sin red contra 24 publicados → NO PASA, el método hay que revisarlo
