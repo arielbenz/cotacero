@@ -28,6 +28,7 @@ import {
 } from "../lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
 import { MOCHILA, PREVIA } from "../lib/listas.js";
+import { CHARLAS } from "../lib/charlas.js";
 import {
   CATEGORIAS,
   CATEGORIA_POR_DEFECTO,
@@ -103,7 +104,12 @@ const puntos = [
     const x = trozo.match(
       new RegExp(`class="${cls}"[^>]*>([\\s\\S]*?)<\\/span\\s*>`),
     );
-    return x ? x[1].replace(/<[^>]+>/g, "").replace(/\\s+/g, " ").trim() : "";
+    return x
+      ? x[1]
+          .replace(/<[^>]+>/g, "")
+          .replace(/\\s+/g, " ")
+          .trim()
+      : "";
   };
   return { lon: +m[1], lat: +m[2], nombre: t("n"), direccion: t("d") };
 });
@@ -225,13 +231,11 @@ ${
    bloques de tarjeta. `bloques` es una lista de {kicker, titulo, html, oscuro};
    si un bloque no lleva kicker ni título, sale como texto suelto. */
 function bloque({ id, kicker, kickerAlerta, titulo, html, oscuro, borde }) {
-  const clases =
-    "bloque" + (oscuro ? " oscuro" : "") + (borde ? " borde" : "");
+  const clases = "bloque" + (oscuro ? " oscuro" : "") + (borde ? " borde" : "");
   return `      <section class="${clases}"${id ? ` id="${id}"` : ""}>
 ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${esc(kicker)}</p>\n` : ""}${titulo ? `        <h2>${esc(titulo)}</h2>\n` : ""}${html}
       </section>`;
 }
-
 
 /* Un paso del cálculo: número al costado, y el valor del ejemplo en una
    pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
@@ -275,7 +279,10 @@ function pagina({
   css,
 }) {
   const meta = PAGINAS[clave];
-  if (!meta) throw new Error("pagina(): no existe la clave «" + clave + "» en lib/paginas.js");
+  if (!meta)
+    throw new Error(
+      "pagina(): no existe la clave «" + clave + "» en lib/paginas.js",
+    );
   const { ruta, titulo, descripcion } = meta;
   const url = SITIO + ruta;
   const estructurados = [
@@ -302,15 +309,17 @@ function pagina({
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>${esc(titulo)}</title>
 ${
-      /* La 404 NO lleva canónica: se sirve para cualquier ruta que no existe,
+  /* La 404 NO lleva canónica: se sirve para cualquier ruta que no existe,
          así que apuntaría a "/404", una URL que no es contenido de nada.
          Declarar una canónica ahí es afirmar que esa página es la versión
          buena de lo que el visitante pidió, y no lo es. */
-      ruta === "/404" ? "" : `    <link rel="canonical" href="${url}" />\n`
-    }
+  ruta === "/404" ? "" : `    <link rel="canonical" href="${url}" />\n`
+}
     <meta name="description" content="${esc(descripcion)}" />
-    ${/* Dos con `media`: un solo valor fijo dejaba la barra del navegador
-         oscura sobre una página clara. */ ""}<meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    ${
+      /* Dos con `media`: un solo valor fijo dejaba la barra del navegador
+         oscura sobre una página clara. */ ""
+    }<meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Cota Cero" />
@@ -326,8 +335,10 @@ ${meta.indexable ? "" : '    <meta name="robots" content="noindex, follow" />\n'
 ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stringify(b, null, 2).replace(/^/gm, "      ")}\n    </script>`).join("\n")}
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.ico" sizes="96x96" />
-    ${/* 96 px porque Google exige cuadrado y múltiplo de 48: con 32 lo
-         descarta y muestra el que tenga cacheado. */ ""}
+    ${
+      /* 96 px porque Google exige cuadrado y múltiplo de 48: con 32 lo
+         descarta y muestra el que tenga cacheado. */ ""
+    }
     <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
@@ -336,18 +347,22 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <script src="/lib/comun-clasico.js" defer></script>
     <script src="/js/rio-barra.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
-    ${/* El cargador va externo y la configuración en /js/analitica.js: el
+    ${
+      /* El cargador va externo y la configuración en /js/analitica.js: el
          <script> en línea del snippet oficial lo bloquea la CSP. No va en
-         /app ni en /widget — ver el encabezado de js/analitica.js. */ ""}<script
+         /app ni en /widget — ver el encabezado de js/analitica.js. */ ""
+    }<script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
     <script src="/js/analitica.js" defer></script>
 ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
-    ${/* La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
+    ${
+      /* La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
          los mismos cuatro destinos. Antes tenía dos enlaces propios y quedaba
          a la medida angosta del cuerpo, así que la marca se corría de lugar
-         según de qué página vinieras. */ ""}<div class="franja-estado" id="franja-estado" role="status"></div>
+         según de qué página vinieras. */ ""
+    }<div class="franja-estado" id="franja-estado" role="status"></div>
 
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
@@ -356,10 +371,12 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
           <span class="lockup-nombre">Cota Cero</span>
         </a>
         <span class="chip-borde">NO OFICIAL</span>
-        ${/* Arranca en gris y sin número: no decimos "todo bien" antes de
+        ${
+          /* Arranca en gris y sin número: no decimos "todo bien" antes de
              saberlo. La llena js/rio-barra.js, que también reescribe el
              aria-label —"Río 4,86 m ▲ sube" leído en voz alta no es una
-             frase—. */ ""}<a
+             frase—. */ ""
+        }<a
           class="pildora-rio"
           id="pildora-rio"
           href="#abrir"
@@ -396,12 +413,14 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
 ${antes ? antes + "\n" : ""}      <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
 ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones + "\n" : ""}${
+    anclas
+      ? `        <nav class="chips-ancla" aria-label="En esta página">\n` +
         anclas
-          ? `        <nav class="chips-ancla" aria-label="En esta página">\n` +
-            anclas.map((a) => `          <a href="#${a.id}">${esc(a.n)}</a>`).join("\n") +
-            `\n        </nav>\n`
-          : ""
-      }      </header>
+          .map((a) => `          <a href="#${a.id}">${esc(a.n)}</a>`)
+          .join("\n") +
+        `\n        </nav>\n`
+      : ""
+  }      </header>
 
       <main>
 ${[
@@ -495,7 +514,10 @@ const htmlPuntos = pagina({
   clave: "puntos",
   migaja: "Puntos de encuentro",
   chip: "Santa Fe · oficiales del municipio",
-  h1: "Los " + puntos.length + " puntos de encuentro ante una inundación en Santa Fe",
+  h1:
+    "Los " +
+    puntos.length +
+    " puntos de encuentro ante una inundación en Santa Fe",
   lead:
     "Ante una evacuación, acercate al más próximo a tu casa. Esta página " +
     "funciona sin conexión y se puede compartir por WhatsApp. En la app los ves " +
@@ -1052,7 +1074,14 @@ ${CORTE_SVG}
           la página del organismo y el dato crudo, tal como lo pide la app.
         </p>
         <div class="fuentes-rejilla">
-${["nivelRio", "topografia", "emergencias", "altimetria", "historia", "cartografia"]
+${[
+  "nivelRio",
+  "topografia",
+  "emergencias",
+  "altimetria",
+  "historia",
+  "cartografia",
+]
   .map(tarjetaFuente)
   .join("\n")}
         </div>
@@ -1152,8 +1181,7 @@ const htmlPreguntas = pagina({
         </p>`,
     },
   ],
-  sueltos: [
-  ],
+  sueltos: [],
 });
 
 /* ---------- /charlas ----------
@@ -1163,74 +1191,7 @@ const htmlPreguntas = pagina({
    Kongjian Yu es de TEDxBoston 2022, no una charla TED sin fecha. La de Yu va
    sin duración a propósito: no la pude confirmar en la fuente y no se inventa
    un número para llenar un casillero. */
-const CHARLAS = [
-  {
-    tono: "peligro",
-    sello: "TEDx",
-    duracion: "9 min",
-    titulo: "Cómo dar un paso al frente ante un desastre",
-    ficha: "Caitria y Morgan O'Neill · TEDxBoston, 2012",
-    original: "How to step up in the face of disaster",
-    url: "https://www.ted.com/talks/caitria_morgan_o_neill_how_to_step_up_in_the_face_of_disaster",
-    texto:
-      "Dos hermanas de 20 y 24 años organizaron la recuperación de su pueblo tras un tornado y convirtieron lo aprendido en un sistema para cualquier comunidad. Es la charla más cercana al espíritu de Cota Cero: los vecinos no reemplazan a las autoridades — se preparan para ayudarlas mejor.",
-  },
-  {
-    tono: "peligro",
-    sello: "TEDx",
-    duracion: "Charla",
-    titulo: "Sabemos cómo salvar vidas en un desastre: ¿por qué no lo hacemos?",
-    ficha: "Sarah Tuneberg · TEDxMileHigh, 2019",
-    original: "We know how to save lives in disasters - why don't we?",
-    url: "https://www.ted.com/talks/sarah_tuneberg_why_we_need_to_invest_in_data_driven_disaster_mitigation",
-    texto:
-      "Llamar «naturales» a las inundaciones, los incendios y las olas de calor tapa la responsabilidad humana y nos deja a todos libres de culpa. Su punto es incómodo y es el correcto: lo que falta no es saber cómo evitar muertes, sino decidir invertir en evitarlas. De toda la lista, es la que queda más cerca de 2003.",
-  },
-  {
-    tono: "alerta",
-    sello: "TED",
-    duracion: "15 min",
-    titulo: "Preparémonos para nuestro nuevo clima",
-    ficha: "Vicki Arroyo · TEDGlobal, 2012",
-    original: "Let's prepare for our new climate",
-    url: "https://www.ted.com/talks/vicki_arroyo_let_s_prepare_for_our_new_climate",
-    texto:
-      "Adaptación en serio: casas y ciudades preparadas para más inundaciones y más incertidumbre, con ejemplos concretos de todo el mundo — incluida Nueva Orleans, su ciudad. El argumento de fondo es el de esta app: prepararse antes cuesta mucho menos que reconstruir después.",
-  },
-  {
-    tono: "agua",
-    sello: "TEDx",
-    duracion: "Charla",
-    titulo: "Ciudades esponja, planeta esponja",
-    ficha: "Kongjian Yu · TEDxBoston, 2022",
-    original: "Sponge City and Sponge Planet",
-    url: "https://www.ted.com/talks/kongjian_yu_sponge_city_and_sponge_planet",
-    texto:
-      "El paisajista que convenció a más de 200 ciudades de dejar de pelear contra el agua y absorberla con parques, humedales y suelo permeable. Ilumina justo lo que el modelo de Cota Cero declara no saber: el drenaje urbano y las defensas deciden tanto como el nivel del río.",
-  },
-  {
-    tono: "agua",
-    sello: "TED",
-    duracion: "13 min",
-    titulo: "Cómo convertir ciudades que se hunden en paisajes contra la inundación",
-    ficha: "Kotchakorn Voraakhom · TEDWomen, 2018",
-    original: "How to transform sinking cities into landscapes that fight floods",
-    url: "https://www.ted.com/talks/kotchakorn_voraakhom_how_to_transform_sinking_cities_into_landscapes_that_fight_floods",
-    texto:
-      "Bangkok se hunde en su propio delta y esta paisajista construyó ahí un parque que retiene un millón de galones de lluvia. Misma idea que la de Yu, pero desde una ciudad de delta del sur global: terreno blando, río grande y presupuesto real.",
-  },
-  {
-    tono: "ok",
-    sello: "TED",
-    duracion: "5 min",
-    titulo: "El año en que los datos abiertos se hicieron globales",
-    ficha: "Tim Berners-Lee · TED University, 2010",
-    original: "The year open data went worldwide",
-    url: "https://www.ted.com/talks/tim_berners_lee_the_year_open_data_went_worldwide",
-    texto:
-      "El inventor de la web muestra qué pasa cuando gobiernos e instituciones liberan sus datos crudos — incluido el mapeo voluntario de Haití en OpenStreetMap tras el terremoto. Cota Cero existe exactamente por eso: el INA, el IGN y el municipio publican; nosotros sólo conectamos.",
-  },
-];
+
 
 /* Escrito con palabras y no con un número: "Seis charlas" en un lead y luego
    siete en la lista es el clásico literal que se desincroniza de los datos. */
@@ -1322,10 +1283,12 @@ const htmlGuia = pagina({
             </p>
 
             <h2 class="g-h">Teléfonos</h2>
-            ${/* Dos renglones en blanco arriba de la lista fija: el teléfono
+            ${
+              /* Dos renglones en blanco arriba de la lista fija: el teléfono
                  que importa en una crecida suele ser el de un familiar de otro
                  barrio, no el de un organismo. Sin la bajada nadie sabe qué
-                 escribir ahí y quedan vacíos. */ ""}
+                 escribir ahí y quedan vacíos. */ ""
+            }
             <p class="g-campo g-sub">Un familiar o vecino fuera de la zona:</p>
             <p class="g-campo">${renglones(2)}</p>
             <table class="g-tel">
@@ -1399,10 +1362,21 @@ const htmlCharlas = pagina({
   sueltos: [
     `      <section class="charlas">
 ${CHARLAS.map(
-  (c) => `        <a class="charla t-${c.tono}" href="${c.url}" target="_blank" rel="noopener">
-          <span class="sello">
-            <span class="s">${esc(c.sello)}</span>
-            <span class="t">${esc(c.duracion)}</span>
+  (
+    c,
+  ) => `        <a class="charla t-${c.tono}" href="${c.url}" target="_blank" rel="noopener">
+          ${/* La miniatura es el fotograma que TED publica como og:image,
+               alojado acá y no enlazado a pi.tedcdn.com: la CSP es
+               img-src 'self', /charlas está precacheada, y enlazarla le
+               mandaría a TED la IP de cada lector. Las baja
+               scripts/charlas.js. `alt` vacío y aria-hidden porque el título
+               que sigue dice lo mismo: para un lector de pantalla la imagen
+               es ruido, no información. */ ""}
+          <span class="mini">
+            <img src="/img/charlas/${c.url.replace(/.*\/talks\//, "")}.jpg"
+                 width="320" height="180" loading="lazy" decoding="async"
+                 alt="" aria-hidden="true" />
+            <span class="dur">${Math.round(c.duracion / 60)} min</span>
           </span>
           <span class="cuerpo">
             <span class="tit">${esc(c.titulo)}</span>
@@ -1440,7 +1414,10 @@ ${CHARLAS.map(
    datos-abiertos/historia.json que usa el navegador. El JavaScript quedó para
    lo que de verdad lo necesita —la franja del siglo y el tanque que se
    recorre—, y ya no reescribe estas listas. */
-const MESES = "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(" ");
+const MESES =
+  "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(
+    " ",
+  );
 const enPalabras = (f) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f || "");
   return m ? `${+m[3]} de ${MESES[+m[2] - 1]} de ${m[1]}` : "";
@@ -1449,8 +1426,14 @@ const anioDe = (f) => (f || "").slice(0, 4);
 
 /* [anio, max, fecha_max, min, fecha_min, dias, dias_alerta, dias_evac] */
 const filaHist = (f) => ({
-  anio: f[0], max: f[1], fmax: f[2], min: f[3], fmin: f[4],
-  dias: f[5], da: f[6], de: f[7],
+  anio: f[0],
+  max: f[1],
+  fmax: f[2],
+  min: f[3],
+  fmin: f[4],
+  dias: f[5],
+  da: f[6],
+  de: f[7],
 });
 const HIST = historia ? historia.anios.map(filaHist) : [];
 const CRECIDAS = [...HIST].sort((a, b) => b.max - a.max).slice(0, 8);
@@ -1463,7 +1446,8 @@ const RECORD = CRECIDAS[0];
    los usa el resumen de arriba (el récord y la bajante más honda). */
 
 const tablaHist = HIST.map(
-  (e) => `                  <tr><td>${e.anio}</td><td>${nm(e.max, 2)}</td><td>${nm(e.min, 2)}</td><td>${e.da}</td></tr>`,
+  (e) =>
+    `                  <tr><td>${e.anio}</td><td>${nm(e.max, 2)}</td><td>${nm(e.min, 2)}</td><td>${e.da}</td></tr>`,
 ).join("\n");
 
 /* ---------- /historia ----------
@@ -1498,7 +1482,9 @@ const htmlHistoria = pagina({
       url: ORGANISMOS.ina.url,
     },
     isAccessibleForFree: true,
-    temporalCoverage: historia ? historia.desde + "/" + historia.hasta : undefined,
+    temporalCoverage: historia
+      ? historia.desde + "/" + historia.hasta
+      : undefined,
     variableMeasured: "Altura hidrométrica, en metros sobre el cero de escala",
     url: SITIO + "/historia",
   },
@@ -1553,8 +1539,10 @@ const htmlHistoria = pagina({
 
       <p id="h-cargando" class="chico" role="status">Cargando la línea de tiempo…</p>
 
-      ${/* Lo interactivo, y SÓLO lo interactivo, espera al JavaScript: los
-           datos de arriba ya están en el HTML. */ ""}<div id="h-contenido" hidden>
+      ${
+        /* Lo interactivo, y SÓLO lo interactivo, espera al JavaScript: los
+           datos de arriba ya están en el HTML. */ ""
+      }<div id="h-contenido" hidden>
         <section class="bloque">
           <h2>Recorré la serie año por año</h2>
           <p>
@@ -1694,7 +1682,10 @@ const AVISO_EMERGENCIA = `      <div class="aviso-emergencia">
 
 const opcionesCategoria = Object.entries(CATEGORIAS)
   .map(
-    ([clave, etiqueta]) => `            <input type="radio" name="categoria" id="cat-${clave}"
+    ([
+      clave,
+      etiqueta,
+    ]) => `            <input type="radio" name="categoria" id="cat-${clave}"
               value="${clave}" class="cat-radio"${clave === CATEGORIA_POR_DEFECTO ? " checked" : ""} />
             <label class="cat-chip" for="cat-${clave}">${esc(etiqueta)}</label>`,
   )
@@ -1826,6 +1817,37 @@ const htmlSobre = pagina({
           Es gratis, no pide registro, no tiene publicidad y funciona sin
           señal una vez cargada.
           <a href="/datos">Ver de dónde sale cada dato</a>.
+        </p>`,
+    },
+    {
+      kicker: "Por qué",
+      titulo: "Un Niño declarado, y seis charlas",
+      /* Ojo con el tiempo verbal. En presente —"está declarado otra vez"— esto
+         es una afirmación sobre el hoy que nada refresca, y un dato que
+         envejece en silencio es justo lo que este proyecto no hace. En pasado
+         cuenta el origen y sigue siendo cierto dentro de diez años. Si alguna
+         vez se quiere mostrar el estado actual de El Niño, va con su fuente y
+         su fecha, como todo lo demás. */
+      html: `        <p>
+          <b>El Niño</b> es el patrón con el que llegaron las crecidas de 1983,
+          1992 y 2016: cuando se declara, llueve por encima de lo normal en toda
+          la cuenca. Cota Cero empezó con uno declarado.
+        </p>
+        <p>
+          Al mismo tiempo estaban estas charlas, que dicen cosas incómodas y
+          correctas. Que dos hermanas de veinte años pudieron organizar la
+          recuperación de su pueblo después de un tornado. Que lo que falta para
+          evitar muertes en un desastre <b>no es saber cómo</b>, sino decidir
+          invertir en evitarlas.
+        </p>
+        <p>
+          Las dos cosas juntas dejan una pregunta obvia. El nivel del río se
+          publica todos los días. La altura de un terreno también.
+          <b>¿Por qué nadie los pone en la misma escala?</b>
+        </p>
+        <p>
+          Cota Cero es esa pregunta, contestada.
+          <a href="/charlas">Las seis charlas, con lo que aporta cada una</a>.
         </p>`,
     },
     {
@@ -1966,7 +1988,7 @@ const htmlMedios = pagina({
   bloques: [
     {
       kicker: "Así se ve",
-      titulo: "Claro y oscuro, del ancho que quieras",
+      titulo: "Claro y oscuro",
       html: `        <p>
           No son capturas: los dos son el widget de verdad, leyendo el reporte
           del INA ahora mismo.
@@ -2012,13 +2034,15 @@ ${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
           Escribinos por el <a href="/contacto">formulario de sugerencias</a>
           de la app: a prensa contestamos rápido.
         </p>
-        ${/* Preguntar es la única manera que tenemos, y el motivo es el mismo
+        ${
+          /* Preguntar es la única manera que tenemos, y el motivo es el mismo
              que la promesa de arriba: el widget no carga analytics ni deja
              cookies, así que del lado del servidor no queda rastro de quién lo
              embebe. Se podría contar el dominio del medio sin tocar al lector
              —document.referrer adentro del iframe—, pero eso volvería falsa la
              frase de /legal que dice que lo único que sale del dispositivo son
-             las sugerencias. Se eligió preguntar. */ ""}
+             las sugerencias. Se eligió preguntar. */ ""
+        }
         <p class="chico">
           Y si lo publicás, <b>contanos</b>. El widget no lleva cookies ni
           analytics: no sabemos quién lo tiene puesto, y no queremos saberlo
@@ -2030,19 +2054,51 @@ ${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
 
 /* ---------- /legal ---------- */
 const LICENCIAS = [
-  ["MapLibre GL JS", "Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app."],
-  ["OpenStreetMap / Nominatim", 'Búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.'],
-  ["Instituto Geográfico Nacional", 'Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.'],
-  ["Municipalidad de Santa Fe", 'Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.'],
-  ["INA", 'Alturas hidrométricas diarias del Paraná, del <a href="' + FUENTES.nivelRio.url + '" target="_blank" rel="noopener">reporte público del Instituto Nacional del Agua</a>.'],
-  ["Plus Jakarta Sans y JetBrains Mono", "Tipografías, bajo SIL Open Font License. Van self-hosteadas: no se consulta ningún servicio de fuentes."],
+  [
+    "MapLibre GL JS",
+    "Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app.",
+  ],
+  [
+    "OpenStreetMap / Nominatim",
+    'Búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.',
+  ],
+  [
+    "Instituto Geográfico Nacional",
+    'Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
+  ],
+  [
+    "Municipalidad de Santa Fe",
+    'Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.',
+  ],
+  [
+    "INA",
+    'Alturas hidrométricas diarias del Paraná, del <a href="' +
+      FUENTES.nivelRio.url +
+      '" target="_blank" rel="noopener">reporte público del Instituto Nacional del Agua</a>.',
+  ],
+  [
+    "Plus Jakarta Sans y JetBrains Mono",
+    "Tipografías, bajo SIL Open Font License. Van self-hosteadas: no se consulta ningún servicio de fuentes.",
+  ],
 ];
 
 const PRIVACIDAD = [
-  ["Tu nivel de aviso, tu zona y tu plan familiar", "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran."],
-  ["Avisos", "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la altura de tu terreno ni tu nivel de aviso — el aviso se arma en tu teléfono. Al desuscribirte, se borra."],
-  ["Sugerencias", "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible."],
-  ["Cuántas personas la usan", "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno."],
+  [
+    "Tu nivel de aviso, tu zona y tu plan familiar",
+    "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran.",
+  ],
+  [
+    "Avisos",
+    "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la altura de tu terreno ni tu nivel de aviso — el aviso se arma en tu teléfono. Al desuscribirte, se borra.",
+  ],
+  [
+    "Sugerencias",
+    "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible.",
+  ],
+  [
+    "Cuántas personas la usan",
+    "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno.",
+  ],
 ];
 
 const htmlLegal = pagina({
@@ -2149,8 +2205,7 @@ ${LICENCIAS.map(
         </p>`,
     },
   ],
-  sueltos: [
-  ],
+  sueltos: [],
 });
 
 /* ---------- lib/comun-clasico.js ----------
@@ -2168,7 +2223,9 @@ ${LICENCIAS.map(
    allá lo publica acá solo, sin una segunda lista que se desincronice. */
 const fuenteComun = await readFile(join(RAIZ, "lib", "comun.js"), "utf8");
 const nombresComun = [
-  ...fuenteComun.matchAll(/^export (?:const|let|function)\s+([A-Za-z_$][\w$]*)/gm),
+  ...fuenteComun.matchAll(
+    /^export (?:const|let|function)\s+([A-Za-z_$][\w$]*)/gm,
+  ),
 ].map((x) => x[1]);
 if (nombresComun.length < 5)
   throw new Error(
@@ -2181,11 +2238,14 @@ const comunClasico =
   fuenteComun.replace(/^export /gm, "") +
   "\n  raiz.CC_COMUN = { " +
   nombresComun.join(", ") +
-  " };\n})(typeof self !== \"undefined\" ? self : globalThis);\n";
+  ' };\n})(typeof self !== "undefined" ? self : globalThis);\n';
 await writeFile(join(RAIZ, "lib", "comun-clasico.js"), comunClasico);
 console.log(
-  "escrito: /lib/comun-clasico.js  (" + nombresComun.length + " nombres: " +
-    nombresComun.join(", ") + ")",
+  "escrito: /lib/comun-clasico.js  (" +
+    nombresComun.length +
+    " nombres: " +
+    nombresComun.join(", ") +
+    ")",
 );
 
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
@@ -2196,7 +2256,9 @@ await writeFile(
   join(RAIZ, "datos-abiertos", "puntos.json"),
   JSON.stringify(puntos.map((p) => [p.nombre, p.direccion, p.lon, p.lat])),
 );
-console.log("escrito: /datos-abiertos/puntos.json  (" + puntos.length + " puntos)");
+console.log(
+  "escrito: /datos-abiertos/puntos.json  (" + puntos.length + " puntos)",
+);
 
 /* La portada es HTML escrito a mano, pero su pie sale de la misma constante:
    se reemplaza el bloque entre los marcadores. Si alguien lo edita a mano,
@@ -2211,7 +2273,12 @@ if (i === -1 || f === -1)
   throw new Error("index.html no tiene los marcadores PIE");
 const cabecera = antes.slice(i, antes.indexOf("-->", i) + 4);
 const despues =
-  antes.slice(0, i) + cabecera + "\n" + pie({ frescura: true }) + "\n" + antes.slice(f);
+  antes.slice(0, i) +
+  cabecera +
+  "\n" +
+  pie({ frescura: true }) +
+  "\n" +
+  antes.slice(f);
 if (despues !== antes) {
   await writeFile(portada, despues);
   console.log("actualizado: el pie de index.html");
@@ -2316,7 +2383,9 @@ await writeFile(
   `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
 );
-console.log("escrito: /sitemap.xml  (" + enSitemap().length + " URLs indexables)");
+console.log(
+  "escrito: /sitemap.xml  (" + enSitemap().length + " URLs indexables)",
+);
 
 /* ---------- llms.txt ----------
    El equivalente del sitemap para los modelos de lenguaje: en vez de una lista
@@ -2390,18 +2459,41 @@ const catalogo = {
     {
       anchor: `${SITIO}/api/nivel`,
       "service-doc": [
-        { href: `${SITIO}/datos`, type: "text/html", title: "De dónde sale cada dato y cómo se calcula" },
+        {
+          href: `${SITIO}/datos`,
+          type: "text/html",
+          title: "De dónde sale cada dato y cómo se calcula",
+        },
       ],
       describedby: [
-        { href: `${SITIO}/llms.txt`, type: "text/markdown", title: "Qué es Cota Cero, en texto plano" },
+        {
+          href: `${SITIO}/llms.txt`,
+          type: "text/markdown",
+          title: "Qué es Cota Cero, en texto plano",
+        },
       ],
       author: [{ href: `${SITIO}/sobre`, type: "text/html" }],
-      license: [{ href: `${SITIO}/legal`, type: "text/html", title: "Licencias y atribuciones" }],
+      license: [
+        {
+          href: `${SITIO}/legal`,
+          type: "text/html",
+          title: "Licencias y atribuciones",
+        },
+      ],
     },
     ...[
-      ["/datos-abiertos/historia.json", "Serie diaria del río en Santa Fe desde 1925 (INA)"],
-      ["/datos-abiertos/puntos.json", "Los 30 puntos de encuentro del Plan de Contingencia municipal"],
-      ["/datos-abiertos/curvas.json", "Curvas de nivel de la Municipalidad, cada 50 cm en metros IGN"],
+      [
+        "/datos-abiertos/historia.json",
+        "Serie diaria del río en Santa Fe desde 1925 (INA)",
+      ],
+      [
+        "/datos-abiertos/puntos.json",
+        "Los 30 puntos de encuentro del Plan de Contingencia municipal",
+      ],
+      [
+        "/datos-abiertos/curvas.json",
+        "Curvas de nivel de la Municipalidad, cada 50 cm en metros IGN",
+      ],
     ].map(([ruta, titulo]) => ({
       anchor: SITIO + ruta,
       title: titulo,
@@ -2417,7 +2509,9 @@ await writeFile(
   JSON.stringify(catalogo, null, 2) + "\n",
 );
 console.log(
-  "escrito: /.well-known/api-catalog  (" + catalogo.linkset.length + " recursos)",
+  "escrito: /.well-known/api-catalog  (" +
+    catalogo.linkset.length +
+    " recursos)",
 );
 
 /* ---------- la portada y la app son HTML a mano ----------
@@ -2425,7 +2519,8 @@ console.log(
    tienen que decir lo mismo que lib/paginas.js o el registro deja de ser la
    fuente de verdad. En vez de reescribirles el <head> —que es frágil— se
    comprueba y se falla fuerte. */
-const enHtml = (h, re) => (h.match(re) || [, ""])[1].replace(/\s+/g, " ").trim();
+const enHtml = (h, re) =>
+  (h.match(re) || [, ""])[1].replace(/\s+/g, " ").trim();
 for (const clave of ["inicio", "app", "widget"]) {
   const meta = PAGINAS[clave];
   const archivo =
@@ -2438,7 +2533,9 @@ for (const clave of ["inicio", "app", "widget"]) {
   const problemas = [];
   const titulo = enHtml(h, /<title>([\s\S]*?)<\/title>/);
   if (titulo !== meta.titulo)
-    problemas.push(`  <title> dice   «${titulo}»\n  y debería decir «${meta.titulo}»`);
+    problemas.push(
+      `  <title> dice   «${titulo}»\n  y debería decir «${meta.titulo}»`,
+    );
   if (meta.descripcion) {
     const desc = enHtml(h, /<meta\s+name="description"\s+content="([^"]*)"/);
     if (desc !== meta.descripcion)
@@ -2449,7 +2546,7 @@ for (const clave of ["inicio", "app", "widget"]) {
     problemas.push(
       meta.indexable
         ? "  tiene noindex y el registro la marca indexable"
-        : "  le falta <meta name=\"robots\" content=\"noindex, follow\">",
+        : '  le falta <meta name="robots" content="noindex, follow">',
     );
   if (problemas.length)
     throw new Error(
@@ -2486,7 +2583,8 @@ if (faltan.length)
 const enPrecache = [...sw.matchAll(/^\s*"(\/[^"]+)",$/gm)].map((m) => m[1]);
 const sobran = [];
 for (const ruta of enPrecache) {
-  if (ruta.startsWith("/vendor/") || ruta === "/" || !/\.[a-z]+$/.test(ruta)) continue;
+  if (ruta.startsWith("/vendor/") || ruta === "/" || !/\.[a-z]+$/.test(ruta))
+    continue;
   try {
     await readFile(join(RAIZ, ruta.replace(/^\//, "")));
   } catch {
@@ -2522,7 +2620,11 @@ if (sinCachear.length)
       "avisar. Agregalas a ESENCIALES.",
   );
 
-console.log("service worker: precachea los " + modulos.length + " módulos de la app");
 console.log(
-  "service worker: precachea las " + rutasGeneradas.length + " páginas generadas",
+  "service worker: precachea los " + modulos.length + " módulos de la app",
+);
+console.log(
+  "service worker: precachea las " +
+    rutasGeneradas.length +
+    " páginas generadas",
 );

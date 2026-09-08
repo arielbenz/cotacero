@@ -1580,7 +1580,7 @@ input[type="range"] {
 }
 .charla {
   display: grid;
-  grid-template-columns: 96px 1fr;
+  grid-template-columns: 160px 1fr;
   gap: var(--e-5);
   align-items: start;
   padding: var(--e-5);
@@ -1590,42 +1590,65 @@ input[type="range"] {
   color: var(--texto);
   text-decoration: none;
 }
-.charla .sello {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--e-1);
-  min-height: 96px;
-  padding: var(--e-4) var(--e-2);
+/* La miniatura: el fotograma que publica TED, alojado acá. El `aspect-ratio`
+   con el `width`/`height` del <img> reserva el alto antes de que la imagen
+   baje — es la misma regla que el resto del sitio, no dejar que la página
+   salte bajo el dedo de quien está leyendo. */
+.charla .mini {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
   border-radius: var(--r-m);
-  text-align: center;
+  overflow: hidden;
+  background: var(--panel-2);
 }
-.charla .sello .s {
+.charla .mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* La duración va encima de la imagen, como en cualquier lista de videos, con
+   su propio fondo sólido: sobre un fotograma cualquiera no hay contraste que
+   se pueda garantizar. */
+.charla .dur {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(9, 14, 17, 0.82);
+  color: #fff;
   font-family: var(--mono);
   font-size: var(--t-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.5;
 }
-.charla .sello .t {
-  font-weight: 800;
-  font-size: var(--t-l);
-  line-height: 1.1;
+/* El tono ya no pinta un sello: pinta el filo de la miniatura. La lista sigue
+   leyéndose como un arco —de la urgencia a los datos abiertos— sin gastar una
+   columna entera en decirlo.
+
+   Va en un ::after y no como `box-shadow: inset` sobre `.mini`: la sombra
+   interior se pinta debajo del contenido, así que la <img> al 100 % la tapaba
+   entera y el filo no se veía. */
+.charla .mini::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px currentColor;
 }
-.charla.t-peligro .sello {
-  background: var(--peligro-tinte);
+.charla.t-peligro .mini {
   color: var(--peligro-texto);
 }
-.charla.t-alerta .sello {
-  background: var(--alerta-tinte);
+.charla.t-alerta .mini {
   color: var(--alerta-texto);
 }
-.charla.t-agua .sello {
-  background: var(--agua-tinte);
+.charla.t-agua .mini {
   color: var(--acento);
 }
-.charla.t-ok .sello {
-  background: var(--ok-tinte);
+.charla.t-ok .mini {
   color: var(--ok-texto);
 }
 .charla .cuerpo {
@@ -2777,6 +2800,30 @@ p.pie-frescura,
 }
 
 /* ---------- llamada final ---------- */
+/* La tarjeta para medios, debajo de la caja de cierre. Sin botón y sin número
+   de secuencia a propósito: la acción principal de la portada es una sola
+   —abrir la app— y esto se dirige a otro público, el que publica en vez de
+   consultar. Sin ella el único acceso a /para-medios es el pie, donde se
+   pierde. La marca del lado derecho es decoración honesta: no es un dato en
+   vivo, así que no compite con el store de landing.js. */
+.landing section.tarjeta-medios {
+  grid-template-columns: 1fr auto;
+  padding: var(--e-7);
+  margin-bottom: calc(var(--e-7) * 1.25);
+}
+.tarjeta-medios h2 {
+  font-size: var(--t-xl);
+}
+.medios-marca {
+  color: var(--texto);
+  opacity: 0.14;
+}
+.medios-marca svg {
+  width: 116px;
+  height: 116px;
+  display: block;
+}
+
 .landing .cta {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -3295,9 +3342,19 @@ html.texto-grande {
      selector de acá tiene que ser tan específico como el de la definición. */
   .hero,
   .tarjeta-seccion,
-  .landing .cta {
+  .landing .cta,
+  .landing section.tarjeta-medios {
     grid-template-columns: 1fr;
     gap: var(--e-6);
+  }
+  /* Cuarta vez, y por lo mismo: `.landing section.tarjeta-medios` es (0,2,1) y
+     le gana a `.tarjeta-seccion` de arriba aunque esté dentro de la consulta.
+     Sin nombrarla acá, en el teléfono la tarjeta quedaba en dos columnas con el
+     texto en 162 px al lado de la marca.
+     Y la marca se va: son 116 px de decoración en la pantalla donde el espacio
+     vertical es justo lo que falta. */
+  .medios-marca {
+    display: none;
   }
   /* En una columna el mapa va debajo del texto y necesita un alto propio: el
      `height: 100%` del escritorio le sirve para llenar la fila al lado del
@@ -3450,21 +3507,14 @@ html.texto-grande {
     grid-template-columns: 1fr;
     gap: var(--e-4);
   }
-  /* El sello pasa a ser una pastilla horizontal: en una columna de 350 px un
-     cuadrado de 96 px al costado le come un tercio del ancho al texto. */
-  .charla .sello {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--e-3);
-    min-height: 0;
-    /* En el teléfono la ficha es una grilla de una sola columna: sin
-       justify-self la pastilla se estira de lado a lado. */
+  /* La miniatura pasa arriba del texto y NO a lo ancho. Al costado, 160 px en
+     una columna de 350 le comen la mitad al texto; a lo ancho, un 16:9 son
+     175 px de alto por tarjeta y son ocho tarjetas: la página pasaba de 3.200
+     a 5.800 px. Con 180 px queda en 1,5 veces la de escritorio. */
+  .charla .mini {
+    width: 180px;
+    max-width: 100%;
     justify-self: start;
-    padding: var(--e-2) var(--e-4);
-    border-radius: var(--r-full);
-  }
-  .charla .sello .t {
-    font-size: var(--t-base);
   }
   .charla .tit {
     font-size: var(--t-m);
