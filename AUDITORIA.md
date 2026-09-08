@@ -356,6 +356,68 @@ poder copiarse y mandarse.
 
 ---
 
+### Lo que agregó la corrida del 8/9/2026
+
+Todo lo de abajo salió de bajar datos de las APIs, no de leer documentos. Los
+crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
+
+**La más importante, al INA — y toca el modelo, no una constante:**
+
+15. **¿Sobre qué cuerpo de agua está el hidrómetro del Puerto de Santa Fe?**
+    Cruzando 13.357 días de las series 30 (Santa Fe) y 29 (Paraná ciudad),
+    convertidas a cota IGN con el `cero_ign` que declara cada una, la
+    superficie en Paraná da **0,72 m MÁS ALTA** que en Santa Fe. Paraná está
+    aguas abajo: eso no puede ser un gradiente. O los dos ceros no están en el
+    mismo sistema vertical, o el hidrómetro del Puerto no está sobre el cauce
+    principal del Paraná sino sobre el riacho. Si es lo segundo, «la pendiente
+    del Paraná» no es lo que traduce cota a lectura del Puerto, y el modelo
+    entero se apoya en eso.
+
+16. ¿Los `cero_ign` de las series 26, 27, 28, 29, 30 y 31 están todos en el
+    mismo sistema de alturas? El catálogo los publica sin declarar el sistema.
+
+17. Medido sobre 13.196 días, el desnivel Hernandarias − Santa Fe **se achata
+    cuando el río crece**: 5,271 m en aguas bajas contra 5,124 m con el Puerto
+    por encima de 5,70 (−3,6 cm por cada metro de altura, r = −0,17). ¿Hay una
+    curva publicada de pendiente contra caudal para el tramo?
+
+**Al IGN:**
+
+18. Las capas `ign:nivelacion_alta_precision`, `ign:nivelacion_precision` y
+    `ign:nivelacion_topografica`, **¿en qué sistema de alturas están?** El
+    `GetCapabilities` del WFS (475 KB) trae los tres `Abstract` vacíos y no
+    menciona SRVN en ningún lado.
+19. De los 16 puntos que caen dentro de la ciudad, 15 son «Chapa pilar» y 1
+    «Chapa exterior»: placas sobre pilares y estructuras. **¿Hay puntos de la
+    red con marca a nivel del terreno en el ejido de Santa Fe?** Sin eso, la
+    comparación contra las curvas no mide la misma superficie y por eso no
+    puede resolver los 18 cm.
+
+**A la Municipalidad:**
+
+20. **¿Cuál es la leyenda de `sitmax:zona_seguridad_hidrica`?** La capa publica
+    19 polígonos con un único atributo, `id`. Sin saber qué significa cada zona
+    no se puede usar ni citar.
+21. ¿Existe un límite oficial —o al menos un punto— para **La Vuelta del
+    Paraguayo**? No está en las 86 vecinales de `ac_reclamosxvecinal` ni en
+    BAHRA, y es una de las once zonas de la app.
+22. Entre el 7 y el 8 de septiembre de 2026 el GeoServer estuvo devolviendo
+    **403 detrás de Cloudflare**, con y sin `User-Agent` de navegador. ¿Hay una
+    forma estable de consumir el WFS, o conviene coordinar una descarga
+    periódica? Es la fuente de las curvas: si se cae, no hay cómo regenerarlas.
+
+**A quien tenga la traza del río (IGN, Prefectura, Hidrovía):**
+
+23. ¿Existe publicada la **línea de eje del Paraná** en el tramo, o los
+    **kilómetros oficiales de la vía navegable**? Con las capas del IGN la
+    distancia sobre el cauce no se puede medir de forma estable: cerca de Santa
+    Fe el río está mapeado como polígono y no como línea, y al armar la red con
+    los bordes la distancia a Arroyo Leyes va de **20,6 a 31,8 km** según la
+    tolerancia con que se cosen las confluencias. Sin un eje, los km de cada
+    zona no se pueden cerrar — y a 4,5 cm/km, ese rango son 50 cm de umbral.
+
+---
+
 ## 8. Lo que NO se cambió, a propósito
 
 - **`CERO_IGN` sigue en 8,20.** Sin saber el datum de las curvas, mover esto es
@@ -363,6 +425,13 @@ poder copiarse y mandarse.
 - **`PENDIENTE` sigue en 0,045.** No hay evidencia para otro valor, y menos
   para valores distintos por tramo.
 - **`ERROR_DEM` sigue en 0,5.** No hay una medición limpia del error real.
+  Lo que sí se midió el 8/9/2026 es que **no debería ser una constante**: el
+  salto entre las dos curvas que la app usa para interpolar va de 0,10 a 6,20 m
+  según el lugar (mediana 0,50, p75 1,20, p90 2,20, en 2.025 puntos de malla
+  sobre la cobertura). En el 25,4 % del área el intervalo real es el doble o
+  más del nominal. Falta decidir la convención antes de tocarlo: con el
+  intervalo entero el aviso llegaría antes en el 38 % del área, y con medio
+  intervalo llegaría **después** en el 72 %.
 - **No se agregó ninguna capa nueva al mapa.** Las de la IDESF y las
   municipales de reservorios y desagües existen, pero ninguna contesta una
   pregunta que la gente se esté haciendo hoy en la app.

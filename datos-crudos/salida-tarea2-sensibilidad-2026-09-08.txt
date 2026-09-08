@@ -1,0 +1,13 @@
+Sensibilidad del método a la tolerancia de cosido (parámetro sin significado físico)
+
+  TOL=  80  polígonos=no   nodos=  8549  conectadas=1/7  Leyes=s/red   [— — 6.5 — — — —]
+  TOL=  80  polígonos=sí  nodos= 12212  conectadas=4/7  Leyes=30.0 km   [— 22.6 7.0 8.6 — 30.0 —]
+  TOL= 150  polígonos=no   nodos=  5458  conectadas=1/7  Leyes=s/red   [— — 6.2 — — — —]
+  TOL= 150  polígonos=sí  nodos=  7900  conectadas=4/7  Leyes=24.9 km   [— 20.4 6.5 8.2 — 24.9 —]
+  TOL= 300  polígonos=no   nodos=  3123  conectadas=1/7  Leyes=s/red   [— — 5.9 — — — —]
+  TOL= 300  polígonos=sí  nodos=  4431  conectadas=5/7  Leyes=22.6 km   [— 15.4 6.7 7.5 99.7 22.6 —]
+  TOL= 500  polígonos=no   nodos=  1996  conectadas=5/7  Leyes=31.8 km   [1.6 — 6.0 16.4 17.8 31.8 —]
+  TOL= 500  polígonos=sí  nodos=  2749  conectadas=6/7  Leyes=20.6 km   [1.6 9.0 6.6 7.2 19.2 20.6 —]
+
+Columnas: [Alto Verde, Guadalupe, La Guardia, Colastiné N, Rincón, Arroyo Leyes, Calchines]
+Publicado para Arroyo Leyes: 24 km
