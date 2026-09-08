@@ -234,17 +234,25 @@ export async function pintarAvisos() {
 
   // Ojo con dar por sentado que tu umbral es más bajo que la alerta oficial:
   // en terreno alto es al revés, y la frase quedaba diciendo un disparate.
-  const antesQueLaAlerta =
+  /* Los dos números conviven y así se dicen. La alerta de la ciudad es un
+     umbral operativo, uno solo para toda Santa Fe, con el que se activa el plan
+     de contingencia; el nivel de aviso depende de la altura del terreno y de la
+     distancia al Puerto. Nunca se los pone a competir: acá decía que el propio
+     "llega ANTES que la alerta de la ciudad", que se lee como que el aviso
+     oficial llega tarde. No es eso, y además nos deja enfrentados con el
+     organismo que algún día tiene que revisarnos. */
+  const glosaUmbral =
     umbral < ALERTA
-      ? " — tu nivel de aviso, que llega <b>antes</b> que la alerta de la ciudad"
-      : " — tu nivel de aviso. También te avisamos si pasa la alerta o la evacuación de la ciudad";
+      ? " — tu nivel de aviso, <b>más bajo</b> que la alerta de la ciudad porque tu terreno está a otra altura"
+      : " — tu nivel de aviso, <b>más alto</b> que la alerta de la ciudad porque tu terreno está a otra altura";
   caja.innerHTML = envoltura(
     '<p class="chico" style="margin:0">La app sólo sirve si la abrís. Podemos ' +
       "avisarte cuando el río llegue a <b>" +
       mU(umbral) +
       "</b>" +
-      antesQueLaAlerta +
-      ".</p>" +
+      glosaUmbral +
+      ". También te avisamos si el río pasa la alerta o la evacuación de la " +
+      "ciudad.</p>" +
       '<button class="btn mini" style="margin-top:11px;display:block" ' +
       'data-accion="avisos-on">Avisarme</button>' +
       LETRA_CHICA,
