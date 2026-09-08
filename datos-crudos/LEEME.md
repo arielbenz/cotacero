@@ -42,3 +42,30 @@ cosen las confluencias, que es un parámetro sin significado físico. Elegir la
 que da 24 sería ajustar el método al resultado que se quiere validar — el mismo
 vicio circular que ya tiene la pendiente. A 4,5 cm/km ese rango son 50 cm de
 umbral: más que el error que se quería corregir.
+
+## El GeoServer municipal volvió (8/9/2026)
+
+Estuvo devolviendo 403 detrás de Cloudflare y volvió a responder el mismo día.
+
+**`curvas.json` está al día**: se regeneró y da 169 curvas, las mismas cotas
+(12,5 a 22,5 m IGN), la misma área y los mismos 7.280 vértices que la copia
+commiteada del 30/8/2026. Lo único distinto era el campo `generado`, así que se
+restauró la copia commiteada para no ensuciar el árbol con una fecha.
+
+- `muni-vecinales-<fecha>.json` — capa `sitmax:ac_reclamosxvecinal`, 86
+  polígonos de vecinal con su nombre. Es lo más parecido a un límite de barrio
+  que publica el municipio.
+
+Centroides que sirven como punto representativo de zona:
+
+    Alto Verde        -60.68744  -31.67548   (2 vecinales)
+    Guadalupe         -60.67339  -31.59948   (4 vecinales)
+    La Guardia        -60.62866  -31.64795   (1 vecinal)
+    Colastiné Sur     -60.61253  -31.66014   (1 vecinal)   <- la que faltaba
+    Colastiné Norte   -60.60393  -31.62373   (1 vecinal)
+
+**Sigue sin haber punto para La Vuelta del Paraguayo**: es un paraje ribereño
+fuera del sistema de vecinales y tampoco está en BAHRA.
+
+Ojo: esto NO arregla la Tarea 2. Mejores puntos no cambian que la distancia
+medida dependa de la tolerancia de cosido.
