@@ -69,3 +69,34 @@ fuera del sistema de vecinales y tampoco está en BAHRA.
 
 Ojo: esto NO arregla la Tarea 2. Mejores puntos no cambian que la distancia
 medida dependa de la tolerancia de cosido.
+
+## Tarea 3 — la pendiente (paso 1: qué estaciones hay)
+
+- `ina-catalogo-series-altura-<fecha>.json` — catálogo completo del INA,
+  1.133 series de altura (`/a5/obs/puntual/series?var_id=2`).
+
+**Sí hay otras estaciones en el tramo, y con un siglo de datos solapados.**
+Seis sobre el Paraná (red PARANAINF), cinco de ellas con `cero_ign` declarado
+por el propio INA:
+
+    serie  estación        cero_ign  alerta  desde
+       26  La Paz            16,46     5,8   1903
+       27  Santa Elena         —       6,9   1912
+       28  Hernandarias      13,46     5,5   1912
+       30  Santa Fe           8,378    5,3   1925   <- la que usa la app
+       29  Paraná             9,432    4,7   1902
+       31  Diamante           6,747    5,3   1902
+
+Y dentro de la ciudad, sobre el sistema Setúbal:
+
+    30115  Santa Fe - La Guardia   8,28   —   2001-2026
+
+**Ojo con el cero de Santa Fe.** El INA declara 8,378 y la app usa 8,20. Si se
+convierten las alturas a cota IGN con el cero del INA, se está adoptando
+implícitamente el número que el proyecto decidió NO usar. Sobre 30 km eso
+mueve la pendiente 0,6 cm/km — el 13 % de los 4,5 cm/km.
+
+**Y una dependencia que hay que decir:** la pendiente es Δcota / Δkm, y Δkm
+entre estaciones se mide sobre el cauce. Eso es la Tarea 2, que no validó.
+Lo que SÍ se puede calcular sin distancia es si el desnivel entre dos
+estaciones cambia con el caudal: eso responde solo si un valor único alcanza.
