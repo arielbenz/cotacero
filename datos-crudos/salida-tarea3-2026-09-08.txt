@@ -1,0 +1,32 @@
+
+  ===== Hernandarias menos Santa Fe =====
+  días con dato en las dos: 13196
+  desnivel medio  5.236 m   (desvío 0.255 m)
+
+  altura en el Puerto      n     desnivel medio   mín      máx
+   0.0 a 2.0 m            1463       5.271 m    4.032    6.332
+   2.0 a 3.0 m            3759       5.274 m    2.152    6.522
+   3.0 a 4.0 m            3953       5.254 m    1.672    6.472
+   4.0 a 5.0 m            2728       5.188 m    4.012    5.842
+   5.0 a 5.3 m             465       5.088 m    4.112    5.972
+   5.3 a 5.7 m             261       5.155 m    4.542    5.932
+   5.7 a 10.0 m            504       5.124 m   -1.198    5.972
+
+  correlación desnivel vs altura en el Puerto: r = -0.17
+  por cada metro que sube el Puerto, el desnivel cambia -3.6 cm
+
+  ===== Paraná (ciudad) menos Santa Fe =====
+  días con dato en las dos: 13357
+  desnivel medio  0.717 m   (desvío 0.133 m)
+
+  altura en el Puerto      n     desnivel medio   mín      máx
+   0.0 a 2.0 m            1472       0.763 m    0.034    1.304
+   2.0 a 3.0 m            3819       0.758 m    0.424    1.204
+   3.0 a 4.0 m            3973       0.735 m   -0.316    1.234
+   4.0 a 5.0 m            2771       0.673 m    0.254    1.064
+   5.0 a 5.3 m             477       0.594 m    0.134    1.044
+   5.3 a 5.7 m             279       0.627 m    0.294    0.974
+   5.7 a 10.0 m            503       0.530 m    0.244    0.904
+
+  correlación desnivel vs altura en el Puerto: r = -0.39
+  por cada metro que sube el Puerto, el desnivel cambia -4.2 cm

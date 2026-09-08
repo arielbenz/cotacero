@@ -100,3 +100,28 @@ mueve la pendiente 0,6 cm/km — el 13 % de los 4,5 cm/km.
 entre estaciones se mide sobre el cauce. Eso es la Tarea 2, que no validó.
 Lo que SÍ se puede calcular sin distancia es si el desnivel entre dos
 estaciones cambia con el caudal: eso responde solo si un valor único alcanza.
+
+### Paso 2: el desnivel entre estaciones sí cambia con el caudal
+
+`ina-serie-{30,28,29}-1990-2026-<fecha>.json` — series diarias 1990-2026
+(~15.400 registros cada una). `analisis-pendiente-<fecha>.mjs` las cruza.
+
+Convertidas a cota IGN con el cero que declara cada estación:
+
+    Hernandarias − Santa Fe   13.196 días   5,236 m  (desvío 0,255)
+      aguas bajas (0-2 m)     5,271 m       en crecida (>5,7 m)  5,124 m
+      r = −0,17 · −3,6 cm por cada metro que sube el Puerto
+
+    Paraná − Santa Fe         13.357 días   0,717 m  (desvío 0,133)
+      aguas bajas (0-2 m)     0,763 m       en crecida (>5,7 m)  0,530 m
+      r = −0,39 · −4,2 cm por cada metro que sube el Puerto
+
+**Un valor único de pendiente es una simplificación medible**, no una sospecha:
+el desnivel se achata cuando el río crece.
+
+**Y una anomalía que hay que explicar antes de usar nada de esto:** Paraná
+ciudad está aguas ABAJO de Santa Fe y su superficie de agua da 0,72 m MÁS
+ALTA. Eso no puede ser un gradiente. O los ceros declarados no están en el
+mismo sistema, o —más probable— el hidrómetro del Puerto de Santa Fe no está
+sobre el cauce principal del Paraná sino sobre el riacho, que es otra cosa
+hidráulicamente.
