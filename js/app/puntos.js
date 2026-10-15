@@ -1,5 +1,6 @@
 /* js/app/puntos.js — la lista de puntos de encuentro y su filtro. */
 
+import { esIOS } from "./avisos.js";
 import { PUNTOS } from "./estado.js";
 import { atr, m } from "./formato.js";
 import { coordsPuntos, distanciaKm, mapa, miPos } from "./mapa.js";
@@ -45,10 +46,16 @@ export function pintarPuntos(filtro = "", destacar = null) {
   cont.innerHTML = mostrar
     .map(([n, d]) => {
       const c = coordsPuntos[n];
-      // geo: abre la app de mapas que la persona ya tenga en el teléfono
-      const href = c
-        ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${encodeURIComponent(n)})`
-        : `geo:0,0?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`;
+      // geo: abre la app de mapas que la persona ya tenga en el teléfono.
+      // Safari en iPhone no lo entiende y el toque no hacía nada: ahí va el
+      // enlace de Apple Maps, que abre la app de Mapas del sistema.
+      const href = esIOS()
+        ? c
+          ? `https://maps.apple.com/?ll=${c[1]},${c[0]}&q=${encodeURIComponent(n)}`
+          : `https://maps.apple.com/?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`
+        : c
+          ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${encodeURIComponent(n)})`
+          : `geo:0,0?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`;
       const km =
         miPos && c ? " · " + distanciaKm(miPos, c).toFixed(1) + " km" : "";
       return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"

@@ -84,10 +84,10 @@ function pintar(d) {
     falta > 0
       ? "Faltan <b>" +
         Math.round(falta * 100) +
-        " cm</b> para la alerta oficial de 5,30 m."
+        " cm</b> para la alerta de la ciudad, 5,30 m."
       : nivel >= EVACUACION
-        ? "El río <b>superó el nivel de evacuación</b> de 5,70 m."
-        : "El río <b>superó la alerta oficial</b> de 5,30 m.";
+        ? "El río <b>superó la evacuación de la ciudad</b>, 5,70 m."
+        : "El río <b>superó la alerta de la ciudad</b>, 5,30 m.";
 
   if (viejo)
     $("falta").innerHTML +=

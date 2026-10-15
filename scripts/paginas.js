@@ -176,10 +176,10 @@ const pie = ({ frescura = false } = {}) => `      <footer class="pie-sitio">
             <span class="lockup-nombre">Cota Cero</span>
           </span>
           <p class="chico">
-            Hecha por vecinos de Santa Fe. Sin vínculo con el municipio: la
+            Hecha por un vecino de Santa Fe. Sin vínculo con el municipio: la
             orden de evacuación la da la Defensa Civil.
           </p>
-          <p class="chip-tel">Emergencias <b>103</b></p>
+          ${/* Un enlace tel:, no un <p>: tenía cara de botón y no llamaba. */ ""}<a class="chip-tel" href="tel:103">Emergencias <b>103</b></a>
         </div>
         <div>
           <span class="eti">La app</span>
@@ -379,7 +379,7 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
         }<a
           class="pildora-rio"
           id="pildora-rio"
-          href="#abrir"
+          href="/#abrir"
           aria-label="Nivel del río, todavía sin dato">
           <span
             class="punto-estado"

@@ -338,6 +338,34 @@ leerUmbralPropio();
    defer y puede evaluarse tarde—, se hace en el acto: enganchar un listener a
    un `load` que ya pasó es el bug que dejó la app sin caché durante semanas
    (ver js/app/instalar.js). */
+/* Los puntos de encuentro son <a href="geo:…">: en Android abren la app de
+   mapas que la persona ya tenga, sin una línea de JavaScript. Safari en iPhone
+   no entiende geo:, y tocar un punto no hacía nada —en la página de
+   evacuación—. Ahí se reescriben a maps.apple.com, que el iPhone abre en la
+   app de Mapas del sistema. El nombre va al final entre paréntesis y puede
+   traer paréntesis propios: por eso el .* codicioso hasta el último. */
+const esIOS =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+if (esIOS) {
+  const GEO = /^geo:(-?[\d.]+),(-?[\d.]+)\?q=-?[\d.]+,-?[\d.]+\((.*)\)$/;
+  document.querySelectorAll('a[href^="geo:"]').forEach((a) => {
+    const p = GEO.exec(a.getAttribute("href"));
+    if (!p) return;
+    let nombre = p[3];
+    try {
+      nombre = decodeURIComponent(nombre);
+    } catch (e) {}
+    a.href =
+      "https://maps.apple.com/?ll=" +
+      p[1] +
+      "," +
+      p[2] +
+      "&q=" +
+      encodeURIComponent(nombre);
+  });
+}
+
 if ("serviceWorker" in navigator) {
   const registrar = () =>
     navigator.serviceWorker.register("/sw.js").catch((e) => {

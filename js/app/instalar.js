@@ -5,6 +5,7 @@
    corresponda. */
 
 import { esIOS, estaInstalada } from "./avisos.js";
+import { cotaEnHidrometro } from "./cota.js";
 import { guardado } from "./estado.js";
 import { m } from "./formato.js";
 
@@ -139,6 +140,10 @@ function mostrarBotonInstalar() {
   // estabas leyendo, la perdías. Ahora se queda hasta que la cierren, y si la
   // cierran no vuelve a molestar: para eso queda el enlace del pie.
   if (guardado.get("cc_no_instalar") === "1") return;
+  // Hasta que la persona tiene su nivel de aviso, la barra no sale: en la
+  // primera visita tapaba justo los botones de «Mi casa», que es lo que vino
+  // a hacer. Con el número calculado la ofrece ofrecerConResultado().
+  if (cotaEnHidrometro() == null) return;
 
   const caja = document.createElement("div");
   caja.id = "barra-instalar";
@@ -160,6 +165,17 @@ function mostrarBotonInstalar() {
   caja.append(b, x);
   document.body.appendChild(caja);
   document.body.classList.add("con-instalar");
+}
+
+/* Con el número recién calculado, instalar es guardarlo: es el mejor momento
+   para ofrecerlo. Unos segundos después y no en el mismo instante, que lo que
+   la persona está leyendo es el resultado. Una vez por sesión. */
+let ofrecidaConResultado = false;
+export function ofrecerConResultado() {
+  if (ofrecidaConResultado || cotaEnHidrometro() == null) return;
+  if (!promptInstalar && !esMovil()) return;
+  ofrecidaConResultado = true;
+  setTimeout(mostrarBotonInstalar, 4000);
 }
 
 /* Saca la barra y devuelve al body su padding normal. */
