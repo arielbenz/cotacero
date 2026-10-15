@@ -478,6 +478,14 @@ Los grupos —Norte, Centro, Sur, Alto Verde, La Costa— **los deducimos de las
 coordenadas**, para orientar. No son los distritos del Plan de Contingencia
 municipal, que no publicamos porque no los tenemos, y la página lo dice.
 
+**Cada punto es un `<a href="geo:…">`, salvo en iPhone.** En Android `geo:`
+abre la app de mapas que la persona ya tenga, sin JavaScript. Safari en iOS no
+lo entiende: tocar un punto no hacía nada, y era la página de evacuación. En
+iPhone se reescriben a `https://maps.apple.com/?ll=…&q=…`, que abre la app de
+Mapas del sistema — en el sitio lo hace `js/rio-barra.js` sobre el HTML ya
+emitido; en la app, `js/app/puntos.js` al dibujar la lista. El HTML generado
+sigue diciendo `geo:` a propósito: sin JavaScript, Android sigue andando.
+
 Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
 `api/` se publica como una función de Vercel, y en Hobby hay un tope de 12.
 
@@ -955,6 +963,11 @@ existe. En local da 404, es normal.
 Es sin cookies y agregada: no identifica personas. La promesa del plan familiar
 —"se guarda en este teléfono"— sigue siendo cierta; lo único que sale del
 dispositivo son las sugerencias, y ahí el formulario lo dice.
+
+**Va sólo en las páginas del sitio, no en `/app` ni en `/widget`**, igual que
+Google Analytics. Estuvo en `/app` hasta octubre de 2026 mientras `/legal`
+decía que ninguno de los dos corría ahí. Lo que se cuenta de la app sale del
+contador propio (§«Cuántos la usan»).
 
 El service worker no toca `/_vercel/`: cachear ese script serviría una versión
 vieja para siempre.

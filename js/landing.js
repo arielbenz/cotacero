@@ -282,7 +282,8 @@ function pintarLectura() {
       ".";
   } else {
     const ref = sim >= evacuacion ? evacuacion : alerta;
-    const nombre = ref === evacuacion ? "la evacuación" : "la alerta oficial";
+    const nombre =
+      ref === evacuacion ? "la evacuación de la ciudad" : "la alerta de la ciudad";
     const d = sim - ref;
     const dist =
       Math.abs(d) < 1 ? Math.round(Math.abs(d) * 100) + " cm" : m1(Math.abs(d)) + " m";
@@ -324,8 +325,8 @@ function pintarGlobo() {
   const cm = Math.round((alerta - real) * 100);
   globo.innerHTML =
     cm > 0
-      ? "Hoy faltan <b>" + cm + " cm</b><br>para la alerta oficial"
-      : "El río ya pasó<br><b>la alerta oficial</b>";
+      ? "Hoy faltan <b>" + cm + " cm</b><br>para la alerta de la ciudad"
+      : "El río ya pasó<br><b>la alerta de la ciudad</b>";
   globo.hidden = false;
 }
 

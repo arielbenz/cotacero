@@ -25,7 +25,7 @@
       property="og:description"
       content="Calculá a qué nivel del río el agua puede llegar a tu terreno. Puntos de encuentro, pronóstico y plan familiar para la emergencia hídrica de Santa Fe."
     />
-    <meta property="og:image" content="https://cotacerosf.com/img/og.png" />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -141,7 +141,16 @@
           data-accion="ajustes"
           aria-label="Ajustes"
         >
-          <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="19"
+            height="19"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
             <circle cx="12" cy="12" r="3.2" />
             <path
               d="M12 2.6v2.2M12 19.2v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"
@@ -307,7 +316,7 @@
       tabindex="-1"
     >
       <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
-        <div class="titu">¿Hasta dónde llega el agua?</div>
+        <div class="titu">El río tiene un número. Tu casa tiene otro.</div>
         <p class="chico" style="margin: 0">
           Buscando el nivel del río de hoy…
         </p>
@@ -330,12 +339,13 @@
             <div class="leyenda-item" style="border-color: var(--alerta)">
               <div class="v" id="lg-alerta">—</div>
               <div class="k">
-                Alerta. Empiezan evacuaciones fuera del anillo de defensas
+                Alerta de la ciudad. Empiezan evacuaciones fuera del anillo de
+                defensas
               </div>
             </div>
             <div class="leyenda-item" style="border-color: var(--peligro)">
               <div class="v" id="lg-evac">—</div>
-              <div class="k">Evacuación</div>
+              <div class="k">Evacuación de la ciudad</div>
             </div>
             <div class="leyenda-item" style="border-color: var(--tenue)">
               <div class="v" id="lg-record">—</div>
@@ -1241,7 +1251,6 @@
     <script type="module" src="/js/app/principal.js"></script>
     <!-- Respaldo sin módulos. Va SIN nomodule: ver js/sin-modulos.js -->
     <script src="/js/sin-modulos.js" defer></script>
-    <!-- Sólo el script externo: el inline lo bloquea la CSP -->
-    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Sin analítica: lo promete /legal -->
   </body>
 </html>

@@ -104,6 +104,27 @@ try {
   await enviar(ws, ++id, "Page.enable");
   await enviar(ws, ++id, "Runtime.enable");
 
+  /* La pestaña arranca en about:blank y navega sola: evaluar en el acto
+     corría contra esa navegación y a veces le preguntaba al about:blank
+     —título vacío, cero casillas— y fallaba. Se espera a que el documento
+     sea la guía y haya terminado de cargar, igual que esperarA() con el
+     servidor. */
+  let cargada = false;
+  for (let i = 0; i < 40 && !cargada; i++) {
+    let r = null;
+    try {
+      r = await enviar(ws, ++id, "Runtime.evaluate", {
+        expression: `location.href === ${JSON.stringify(URL_GUIA)} && document.readyState === "complete"`,
+        returnByValue: true,
+      });
+    } catch (e) {
+      /* el documento cambió en el medio de la pregunta: se vuelve a probar */
+    }
+    cargada = r?.result?.value === true;
+    if (!cargada) await esperar(250);
+  }
+  if (!cargada) morir(`la guía no terminó de cargar en ${URL_GUIA}`);
+
   /* Las tipografías son nuestras y van self-hosteadas: sin esperarlas, el PDF
      sale con la fuente del sistema y los renglones caen en otro lado. Se
      espera al evento, no a un cronómetro. */

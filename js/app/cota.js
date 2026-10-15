@@ -17,7 +17,7 @@ import { estado, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
-import { pintarRio } from "./rio.js";
+import { aniosQueLlegaron, pintarRio } from "./rio.js";
 import { aLaVista, ocupar } from "./vista.js";
 
 /* Traduce una cota IGN a lectura de hidrómetro.
@@ -312,7 +312,7 @@ export function calcular() {
       mU(ref) +
       ". La alerta de la ciudad —" +
       m(ALERTA) +
-      "— es un solo umbral para toda Santa Fe y sirve para activar el plan de " +
+      "— es una sola para toda Santa Fe y sirve para activar el plan de " +
       "contingencia. El tuyo es más bajo porque tu terreno está a otra altura " +
       "y a otra distancia del Puerto: <b>te sirve para prepararte antes</b>. " +
       "La orden de evacuación la sigue dando Defensa Civil.";
@@ -337,6 +337,48 @@ export function calcular() {
       ": más alto que la evacuación de la ciudad, pero dentro de lo que el " +
       "municipio dice estar planificando. <b>Con la ciudad en alerta, armá " +
       "la mochila.</b>";
+  } else if (ref < RECORD) {
+    /* Era «Tenés margen», en verde, para todo lo que pasara los 6,5 m. Con
+       ≈ 7,0 m eso decía verde en el titular y «la de 1992 llegó a 7,43» en el
+       renglón siguiente: el río pasó los 7 m tres veces en cuarenta años. Por
+       debajo del récord el verde no corresponde. Los años salen de la serie
+       del INA; si todavía no llegó, se compara con el récord. */
+    cls = "v-neutro";
+    titu = "Margen amplio, pero no fuera de alcance";
+    const h = aniosQueLlegaron(ref);
+    let cuando;
+    if (h && h.anios.length && h.anios.length <= 4)
+      cuando =
+        "El río lo superó en " +
+        h.anios.slice(0, -1).join(", ") +
+        (h.anios.length > 1 ? " y " : "") +
+        h.anios[h.anios.length - 1] +
+        ".";
+    else if (h && h.anios.length)
+      cuando =
+        "El río lo superó en " +
+        h.anios.length +
+        " de los " +
+        h.medidos +
+        " años medidos desde " +
+        h.desde +
+        "; la última vez, en " +
+        h.anios[h.anios.length - 1] +
+        ".";
+    else
+      cuando =
+        "La crecida más grande, la de " +
+        RECORD_ANIO +
+        ", llegó a " +
+        m(RECORD) +
+        ".";
+    txt =
+      "Tu nivel de aviso es " +
+      mU(ref) +
+      ": más alto que lo que el municipio dice estar planificando. " +
+      cuando +
+      " <b>Si la ciudad entra en evacuación, tené la mochila lista.</b> Y si " +
+      "Defensa Civil dice que salgas, salí.";
   } else {
     cls = "v-ok";
     titu = "Tenés margen";

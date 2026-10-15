@@ -888,7 +888,11 @@ input[type="range"] {
    dos botones, `.caja-codigo` de /para-medios, lleva sólo el secundario—. Si
    algún día una lleva los dos, van a salir idénticos y hay que resolverlo
    ahí: el azul de relleno es uno solo. El botón separa 9,51:1 del fondo y su
-   tinta 9,51:1 del relleno. */
+   tinta 9,51:1 del relleno.
+
+   Con el acento pasa lo mismo: en tema claro es #1f7a9e, medido para fondo
+   claro, y los enlaces de la franja oscura de la portada salían a 3,77:1.
+   Sobre estas superficies el acento es el celeste. */
 .bloque.oscuro,
 .caja-codigo,
 .landing .franja-oscura,
@@ -897,6 +901,7 @@ input[type="range"] {
 .aviso-emergencia {
   --btn-fuerte: var(--agua);
   --btn-fuerte-texto: var(--sobre-agua);
+  --acento: var(--agua-clara);
 }
 .btn.mini {
   width: auto;
@@ -904,12 +909,17 @@ input[type="range"] {
   padding: 0 var(--e-4);
   font-size: var(--t-s);
 }
+/* Sin wrap, los tres botones de «Mi casa» se repartían 300 px: cada uno
+   quedaba de 90 px de ancho, el texto en cuatro o cinco renglones y el radio
+   completo de .btn los volvía óvalos. La base de 10rem los apila en el
+   teléfono y los deja lado a lado donde entran. */
 .fila {
   display: flex;
-  gap: var(--e-2);
+  flex-wrap: wrap;
+  gap: 0 var(--e-2);
 }
 .fila > * {
-  flex: 1;
+  flex: 1 1 10rem;
   margin-bottom: var(--e-2);
 }
 
@@ -1911,7 +1921,7 @@ body.landing {
   margin-bottom: var(--e-4);
 }
 .landing
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103) {
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel) {
   color: var(--acento);
 }
 
@@ -2091,14 +2101,14 @@ body.landing {
 
 /* ---------- la píldora de la barra ---------- */
 /* Sólo el color va con la cadena de :not() —que repite la de la regla general
-   de enlaces de .landing, (0,6,1), para poder ganarle; es el mismo truco que
+   de enlaces de .landing, (0,8,1), para poder ganarle; es el mismo truco que
    usa el pie—. El resto se queda en el selector simple a propósito: una regla
    de (0,7,1) acá le ganaría a las de las media queries de abajo y la píldora
    no se podría achicar ni esconder en el teléfono. */
 .landing
   a.pildora-rio:not(.btn):not(.lockup):not(.punto):not(.charla):not(
     .btn-emergencia
-  ) {
+  ):not(.chip-tel) {
   color: var(--texto);
 }
 .pildora-rio {
@@ -2184,7 +2194,7 @@ body.landing {
    blanco y subrayado, que es lo único que lo distingue del texto de al lado. */
 .landing
   .franja-estado
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
 .franja-estado a {
   margin-left: auto;
   color: var(--sobre-solido);
@@ -2195,7 +2205,7 @@ body.landing {
 }
 .landing
   .franja-estado
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):hover,
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel):hover,
 .franja-estado a:hover {
   color: var(--sobre-solido);
 }
@@ -2228,7 +2238,7 @@ p.pie-frescura,
   }
   .landing
     .franja-estado
-    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
+    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
   .franja-estado a {
     margin-left: 0;
   }
@@ -2518,14 +2528,15 @@ p.pie-frescura,
   border-color: var(--linea);
 }
 /* La etiqueta del nivel va dentro del agua: es lo que convierte el bloque
-   azul en un dato. Sobre el relleno --agua, el texto va del color del botón,
-   que es el par que ya está medido para ese fondo. A la derecha, porque el
-   globo flotante entra por la izquierda y se pisaban. */
+   azul en un dato. Sobre el relleno --agua, el texto va en --sobre-agua, el
+   mismo par que .btn.sec: con --btn-texto era blanco en tema claro, 1,92:1.
+   A la derecha, porque el globo flotante entra por la izquierda y se
+   pisaban. */
 .rm-ahora {
   position: absolute;
   right: var(--e-4);
   bottom: 0;
-  color: var(--btn-texto);
+  color: var(--sobre-agua);
   font-family: var(--mono);
   font-size: var(--t-xs);
   font-weight: 700;
@@ -2888,11 +2899,11 @@ p.pie-frescura,
    no se lee ninguna columna. Van en el color del texto y se encienden al pasar
    por encima.
    La cadena de :not() repite la de la regla general de enlaces de .landing
-   —que es (0,6,1)— para poder ganarle. Sin eso, `color: var(--texto)` de acá
+   —que es (0,8,1)— para poder ganarle. Sin eso, `color: var(--texto)` de acá
    no se aplicaba nunca y el pie salía azul. */
 .landing
   .pie-sitio
-  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103),
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
 .pie-sitio a {
   font-weight: 600;
   font-size: var(--t-s);
@@ -2922,7 +2933,12 @@ p.pie-frescura,
   color: var(--tenue);
 }
 
-.chip-tel {
+/* Es un <a href="tel:103">. Va también con .pie-sitio adelante para ganarle
+   a `.pie-sitio a`, que lo pintaba del color del texto sobre el fondo
+   invertido. */
+.chip-tel,
+.pie-sitio a.chip-tel,
+.pie-sitio a.chip-tel:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--e-2);
@@ -2933,6 +2949,7 @@ p.pie-frescura,
   color: var(--texto-invertido);
   font-weight: 700;
   font-size: var(--t-s);
+  text-decoration: none;
 }
 .chip-tel b {
   color: var(--agua-clara);
@@ -3881,6 +3898,24 @@ textarea:focus-visible {
   color: var(--tenue);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+/* En la bienvenida va en un <button> —abre una vista, no navega— y sin esto
+   salía con el gris y el borde en relieve del navegador. Y en sans: el mono
+   es la voz del instrumento, y esto es una frase para quien no sabe nada. */
+button.enlace-crudo {
+  background: none;
+  border: 0;
+  padding: var(--e-2) 0;
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+/* Los enlaces sueltos dentro de la app —sin clase propia— salían en el azul
+   y el violeta del navegador. :where() deja la regla en (0,1,0), así que
+   cualquier regla de un componente le sigue ganando. */
+.app :where(a:not([class])) {
+  color: var(--acento);
+  text-underline-offset: 2px;
 }
 .fuentes-rejilla {
   display: grid;

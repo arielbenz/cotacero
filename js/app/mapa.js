@@ -80,6 +80,13 @@ export function abrirBuscadorDireccion() {
   document.getElementById("in-dir").focus();
 }
 
+/* Nominatim no encuentra «Barrio Centenario» y sí «Centenario»: en
+   OpenStreetMap el barrio se llama sin el prefijo. Pero así lo escribe todo el
+   mundo en Santa Fe —y «B° Candioti» en los papeles—, así que si la búsqueda
+   vuelve vacía se prueba UNA vez más sin él. Sigue siendo una consulta que
+   inició la persona, no un barrido. */
+const PREFIJO_BARRIO = /(^|[\s,])(?:barrio\s+|b\s*[°º]\s*|bo\.\s*)/gi;
+
 export async function buscarDireccion() {
   const q = document.getElementById("in-dir").value.trim();
   const e = document.getElementById("estado-cota");
@@ -92,6 +99,9 @@ export async function buscarDireccion() {
     e.textContent = "Buscando la dirección…";
     aLaVista(e);
     var r = await geocodificar(q + ", Santa Fe, Argentina", false);
+    const sinBarrio = q.replace(PREFIJO_BARRIO, "$1").trim();
+    if (!r && sinBarrio && sinBarrio !== q)
+      r = await geocodificar(sinBarrio + ", Santa Fe, Argentina", false);
     if (!r) {
       e.textContent = "No se encontró esa dirección. Probá con calle y altura.";
       return;

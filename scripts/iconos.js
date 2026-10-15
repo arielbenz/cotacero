@@ -122,8 +122,13 @@ try {
   .m span{font-size:34px;font-weight:800;letter-spacing:-.02em}
 </style>
 <div class="m">${marca({ id: "og", tam: 64, trazo: TINTA_CLARA, agua: AGUA_CLARA })}<span>Cota Cero</span></div>
-<h1>¿Hasta dónde llega<br>el agua en tu casa?</h1>
-<p>El nivel del río Paraná, traducido al número exacto que le toca a tu terreno. Santa Fe.</p>`;
+<h1>El río tiene un número.<br>Tu casa tiene otro.</h1>
+<p>El nivel del Paraná en el Puerto de Santa Fe, traducido a tu nivel de aviso. Un cálculo aproximado, con datos públicos del INA y la Municipalidad.</p>`;
+  /* Decía «¿Hasta dónde llega el agua en tu casa?» y «el número exacto»: las
+     dos cosas que la app tiene prohibido decir, en la imagen que ve todo el
+     que recibe el link antes de entrar. Si se cambia el texto, subir el ?v=
+     de OG_IMAGEN en lib/paginas.js: WhatsApp, LinkedIn y X guardan la vista
+     previa por URL durante días. */
   /* /favicon.ico en la RAÍZ. Google y varios rastreadores lo piden ahí
      directamente, sin leer el HTML — y hasta ahora daba 404. Un .ico puede
      envolver un PNG tal cual: seis bytes de cabecera, dieciséis de entrada de

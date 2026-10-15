@@ -29,8 +29,14 @@ export function ver(id, btn, desdeHistorial) {
   // En modo standalone el botón atrás cerraba la app en vez de volver a la
   // pestaña anterior. Usamos el mismo ?ir= que ya leen los accesos directos
   // del manifest, así una vista se puede compartir por link.
+  // La pestaña Río vuelve a la ruta pelada. Era "./", que desde /app (sin
+  // barra final) resuelve a "/": recargar o compartir caía en la portada.
   if (!desdeHistorial)
-    history.pushState({ vista: id }, "", id === "rio" ? "./" : "?ir=" + id);
+    history.pushState(
+      { vista: id },
+      "",
+      id === "rio" ? location.pathname : "?ir=" + id,
+    );
 }
 
 export function irA(id, desdeHistorial) {

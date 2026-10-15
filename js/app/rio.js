@@ -20,6 +20,7 @@ import { curvas } from "./elevacion.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";
+import { ofrecerConResultado } from "./instalar.js";
 import {
   ALERTA,
   EVACUACION,
@@ -381,6 +382,7 @@ export function pintarRio() {
   pintarPie();
   pintarCtaCota();
   guardarUmbral();
+  ofrecerConResultado();
   pintarAvisos();
 
   // Las dos leen estado.rio, así que se repintan con el mismo dato.
@@ -439,10 +441,13 @@ function pintarVeredictoRio() {
     // dice qué hace la app, y el problema va en segundo plano.
     c.className = "veredicto v-neutro";
     c.innerHTML =
-      '<div class="titu">¿Hasta dónde llega el agua?</div>' +
-      '<p class="chico" style="margin:0 0 10px">Te dice <b>a qué altura del río ' +
-      "el agua llega a tu terreno</b>. En muchas zonas eso pasa antes que la " +
-      "alerta general de 5,30 m.</p>" +
+      '<div class="titu">El río tiene un número. Tu casa tiene otro.</div>' +
+      '<p class="chico" style="margin:0 0 10px">La app calcula <b>tu nivel de ' +
+      "aviso</b>: el nivel del río a partir del cual el agua puede llegar a tu " +
+      "terreno. Es un cálculo aproximado. En muchas zonas queda por debajo de " +
+      "la alerta de la ciudad, " +
+      m(ALERTA) +
+      ".</p>" +
       '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">Ahora mismo ' +
       "no pudimos leer el nivel del INA.</b> Cargalo a mano acá abajo, o probá de " +
       "nuevo en un rato.</p>";
@@ -643,8 +648,8 @@ function pintarContexto() {
   };
   let h =
     '<ul class="lista-contra">' +
-    contra(ALERTA, "de la alerta (" + m(ALERTA) + ")") +
-    contra(EVACUACION, "de la evacuación (" + m(EVACUACION) + ")") +
+    contra(ALERTA, "de la alerta de la ciudad (" + m(ALERTA) + ")") +
+    contra(EVACUACION, "de la evacuación de la ciudad (" + m(EVACUACION) + ")") +
     contra(RECORD, "del récord de " + RECORD_ANIO + " (" + m(RECORD) + ")") +
     "</ul>";
 
@@ -673,6 +678,18 @@ function pintarContexto() {
    simplemente no aparecen — ninguna pantalla queda rota por su ausencia. */
 let historia = null;
 
+/* Los años en que el máximo del río llegó a `nivel`, según la serie del INA.
+   null si la serie todavía no llegó: quien la usa tiene que poder decir algo
+   igual sin ella. */
+export function aniosQueLlegaron(nivel) {
+  if (!historia) return null;
+  return {
+    anios: historia.anios.filter((f) => f[1] >= nivel).map((f) => f[0]),
+    medidos: historia.anios.length,
+    desde: historia.desde.slice(0, 4),
+  };
+}
+
 export async function cargarHistoria() {
   if (historia) return;
   try {
@@ -688,7 +705,10 @@ export async function cargarHistoria() {
       REFERENCIAS[2][0] = etiquetaRecord();
       REFERENCIAS[2][1] = RECORD;
     }
-    pintarRio();
+    // calcular() y no sólo pintarRio(): el veredicto de «Mi casa» nombra los
+    // años en que el río llegó a tu nivel de aviso, y esos salen de acá.
+    // calcular() termina siempre en pintarRio().
+    calcular();
     pintarContexto();
   } catch (e) {
     /* sin historia, la app funciona igual */
