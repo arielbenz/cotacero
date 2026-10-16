@@ -854,6 +854,19 @@ pero pierde contra cualquier regla de autor que fije `display`. El overlay de
 bienvenida tenía `display: flex` y no se ocultaba nunca. Hay una regla
 explícita en `app.css` para eso.
 
+**Otro: `armarMapa()` devuelve la promesa en curso, no un flag.** «Marcar mi
+casa en el mapa» hace `irA("donde")` —que arma el mapa por su cuenta, sin
+esperarlo— y recién después `await armarMapa()`. Con el flag `mapaPedido` esa
+segunda llamada volvía al instante, `mapa` seguía nulo porque un `<script>`
+carga siempre asíncrono, y la app decía «Este teléfono no puede mostrar el
+mapa» con el mapa cargando bien. Falló en el primer uso, para todo el mundo,
+desde que existe la función, sin un error en consola: lo contó una persona
+cuya calle —Avenida de los Ombúes— OpenStreetMap no tiene, y para quien el
+mapa era la única vía. Por eso los tres mensajes donde las otras vías fallan
+(dirección no encontrada, GPS impreciso, GPS que tarda) ofrecen ahora el mapa
+con un botón. Una función que arranca algo y puede llamarse dos veces
+devuelve la misma promesa.
+
 ## La cota del terreno
 
 El cálculo tiene dos mitades. Las dos están medidas contra una fuente externa,

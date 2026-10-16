@@ -460,6 +460,14 @@ visita: llegaron a ser 32 KB en todo el sitio. El razonamiento largo va en
 JavaScript dentro de `scripts/paginas.js`, que no se emite. En el HTML queda
 una marca de dos o tres palabras que dice adónde ir a buscarlo.
 
+### `irA("donde")` arma el mapa por su cuenta
+
+Cualquier flujo que después haga `await armarMapa()` —hoy, «Marcar mi casa
+en el mapa»— recibe **la promesa en curso**. Si alguien vuelve a cortar con un
+flag, el segundo llamador encuentra `mapa` nulo y la función se rompe en el
+primer uso, sin error en consola. Ya pasó, y nadie lo vio hasta que alguien
+sin dirección en OpenStreetMap lo necesitó.
+
 ### Una clase, un componente
 
 `.cita` llegó a nombrar dos cosas distintas —las tarjetas de avisos de la

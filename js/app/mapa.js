@@ -4,7 +4,7 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import { fijarCotaEstimada } from "./cota.js";
+import { BOTON_MARCAR, fijarCotaEstimada } from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
 import { m } from "./formato.js";
@@ -13,11 +13,14 @@ import { aLaVista, irA, ocupar } from "./vista.js";
 
 /* ================= MAPA ================= */
 export let mapa = null,
-  mapaPedido = false,
   promesaPuntos = null,
   pinDe = {},
   coordsPuntos = {},
   miPos = null;
+/* La promesa de armarMapa() mientras el mapa se construye (ver ahí), y el
+   pin de la casa marcada a mano, para reemplazarlo si marca de nuevo. */
+let promesaMapa = null,
+  pinCasa = null;
 
 /* Geocodifica una dirección con Nominatim (OpenStreetMap). Devuelve
    [lon,lat] o null. Sólo la usa la búsqueda de dirección de la persona: los
@@ -103,7 +106,14 @@ export async function buscarDireccion() {
     if (!r && sinBarrio && sinBarrio !== q)
       r = await geocodificar(sinBarrio + ", Santa Fe, Argentina", false);
     if (!r) {
-      e.textContent = "No se encontró esa dirección. Probá con calle y altura.";
+      // Hay calles que OpenStreetMap todavía no tiene —pasó con «Avenida de
+      // los Ombúes»—: ahí ningún intento más la va a encontrar, y lo que
+      // sirve es el mapa.
+      e.innerHTML =
+        "No se encontró esa dirección. Probá con calle y altura; si sigue " +
+        "sin aparecer, " +
+        BOTON_MARCAR +
+        ".";
       return;
     }
     e.textContent = "Buscando entre las curvas de nivel…";
@@ -233,9 +243,19 @@ export function ubicarPuntos() {
   return promesaPuntos;
 }
 
-export async function armarMapa() {
-  if (mapa || mapaPedido) return;
-  mapaPedido = true;
+/* Devuelve SIEMPRE la misma promesa mientras el mapa se arma. Era un flag
+   (`mapaPedido`) y la segunda llamada volvía al instante con `mapa` todavía
+   nulo. «Marcar mi casa en el mapa» hace irA("donde") —que dispara
+   armarMapa() sin esperarlo— y recién después lo espera: como un <script>
+   carga siempre asíncrono, encontraba el mapa a medio armar y decía «Este
+   teléfono no puede mostrar el mapa» con el mapa cargando bien. Fallaba en
+   el primer uso, para todo el mundo, sin un error en consola. */
+export function armarMapa() {
+  if (!promesaMapa) promesaMapa = construirMapa();
+  return promesaMapa;
+}
+
+async function construirMapa() {
   const cont = document.getElementById("mapa");
   try {
     await cargarMapLibre();
@@ -249,7 +269,7 @@ export async function armarMapa() {
       '<div style="padding:18px"><p class="chico">Este teléfono no puede ' +
       "mostrar el mapa. La lista de acá abajo funciona igual, y cada lugar " +
       "abre en la aplicación de mapas del teléfono.</p></div>";
-    mapaPedido = false;
+    promesaMapa = null;
     return;
   }
   mapa = new maplibregl.Map({
@@ -389,6 +409,9 @@ export async function marcarCasaEnMapa() {
         "<b>Acercá el mapa hasta ver tu cuadra y tocá tu casa.</b>";
   };
   pedir();
+  // irA() dejó la página arriba de todo y el mapa puede quedar bajo el
+  // pliegue: el pedido tiene que verse, no sólo existir.
+  if (em) aLaVista(em);
   const alTocar = async (e) => {
     /* Sin zoom suficiente el dedo tapa varias cuadras y la altura sería de
        cualquier lado: se pide acercar y se sigue esperando. */
@@ -408,6 +431,19 @@ export async function marcarCasaEnMapa() {
       mapa.once("click", alTocar);
       return;
     }
+    // Un pin donde tocó, para que al volver a «Dónde ir» vea qué marcó. La
+    // coordenada no se guarda en ningún lado: sólo la altura que sale de ella.
+    if (pinCasa) pinCasa.remove();
+    const el = document.createElement("div");
+    el.className = "pin yo";
+    pinCasa = new maplibregl.Marker({ element: el })
+      .setLngLat(e.lngLat)
+      .setPopup(
+        new maplibregl.Popup({ offset: 14 }).setHTML(
+          "<strong>Tu casa</strong>, marcada a mano",
+        ),
+      )
+      .addTo(mapa);
     fijarCotaEstimada(
       Math.round(r.cota * 100) / 100,
       "mapa",
