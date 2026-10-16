@@ -1055,8 +1055,10 @@ ${CORTE_SVG}
           <li><b>Los kilómetros río arriba de cada zona.</b> Sólo Arroyo Leyes
             (24 km) está publicado; el resto son estimaciones propias. A 4,5 cm
             por km, equivocarse 5 km son 22 cm.</li>
-          <li><b>Si hay defensas, bombeo o desagües entre el río y tu casa.</b>
-            Cambia el resultado más que cualquiera de las constantes.</li>
+          <li><b>En qué estado está la defensa de tu zona.</b> La app dice si
+            la hay y qué pasó otras veces a cada nivel del río, pero no sabe
+            si hoy filtra, está en obra o tiene un tramo sin terminar. Cambia
+            el resultado más que cualquiera de las constantes.</li>
           <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar
             antes por el desagüe que por el río.</li>
         </ul>

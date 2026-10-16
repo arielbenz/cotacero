@@ -10,7 +10,9 @@ estimado**: la lectura del río que sirve de referencia para tu terreno.
     corrección aguas arriba = 0,045 m por km
 
 Contrastado con la crecida de junio 1992: puerto 7,43 m -> 15,62 IGN;
-Arroyo Leyes (24 km arriba) -> 16,70 IGN. El modelo da 15,63 y 16,71.
+Arroyo Leyes (24 km arriba) -> 16,70 IGN. El modelo da 15,63 y 16,71. **Esa
+coincidencia no prueba nada**: el 16,70 se publicó como estimación hecha con
+la misma pendiente (`AUDITORIA.md` §3).
 
 **Las dos constantes están en discusión y no se tocaron.** El INA publica hoy
 `cero_ign = 8,378` para esta escala —relevamiento INA-IGN de diciembre de 2016,
@@ -811,6 +813,23 @@ sobre el color de la tarjeta aunque la ciudad esté en nivel normal.
 **récord de 1992 (7,43)** en tono tenue. Sin ella, 5,70 parece el techo del
 mundo; con ella se ve que todo el rango de decisión son 2,13 m.
 
+**Mi casa: lo que hay entre el río y tu casa.** Debajo del veredicto va una
+tarjeta que dice si la zona tiene defensa —`defensa` en `ZONAS`,
+`js/app/config.js`: el anillo de la ciudad, una propia, o ninguna— y una
+lista de **niveles a los que pasó algo** en esa zona (`observado`): a qué
+altura del hidrómetro se cortó un camino, filtró un terraplén o se evacuó un
+barrio, con fuente y fecha. Salió de un caso real: un vecino de Colastiné
+Norte vio ≈ 5,4 y lo leyó como «a 5,4 me tengo que ir», cuando en 2016 el río
+llegó a 6,61 y no se mojó, porque el Garello aguantó. La cuenta estaba bien
+—es el agua libre contra el terreno— y lo que faltaba era decir qué hay en el
+medio. Tres reglas: **la defensa no cambia la cuenta**, cambia lo que la cuenta
+significa, así que la tarjeta va al lado del número y nunca en su lugar;
+**no se usa la cota de coronamiento como umbral** —son 17 m sobre el mar, más
+de 8,5 en la regla, y daría «margen» a barrios que se encharcan a 6 porque el
+agua entra por abajo, no por arriba—; y **cada renglón tiene fuente** y está
+rastreado en `AUDITORIA.md` §9. No hay tabla oficial por barrio: la fuente es
+el municipio citado en prensa y las crónicas de 2016, y la tarjeta lo dice.
+
 **Bienvenida.** Primera visita: muestra el río antes de pedir nada. Es un
 overlay y no una vista, para no meter una quinta entrada en el sistema de
 pestañas.
@@ -841,12 +860,14 @@ El cálculo tiene dos mitades. Las dos están medidas contra una fuente externa,
 que no es lo mismo que estar validadas por un organismo.
 
 **La hidráulica.** El cero del hidrómetro del Puerto de Santa Fe es 8,20 m
-IGN. La pendiente de la superficie del agua, 0,045 m/km, se contrastó con un
-caso independiente: en 1992, con el puerto en 7,43 m, Arroyo Leyes —24 km río
-arriba— llegó a 16,70 IGN según un ingeniero civil citado en prensa. El modelo
-da 16,71. Un centímetro — en **un** punto de **una** crecida. Es el mejor dato
-independiente que hay, y sigue siendo una sola observación: por eso la interfaz
-dice «umbral estimado» y no «cuándo llega el agua».
+IGN. La pendiente de la superficie del agua, 0,045 m/km, se creía contrastada
+con un caso independiente: en 1992, con el puerto en 7,43 m, Arroyo Leyes —24
+km río arriba— habría llegado a 16,70 IGN según un ingeniero civil citado en
+prensa, y el modelo da 16,71. **No es independiente.** La nota que lo publica
+(El Litoral, julio de 2026) dice que el 16,70 «se estima» sumando 15,62 más 24
+km por 4,5 cm: es la misma cuenta. La pendiente no tiene ninguna observación
+que la respalde, y por eso la interfaz dice «nivel de aviso» con el ≈ y no
+«cuándo llega el agua». `AUDITORIA.md` §3 lo desarrolla.
 
 **La cota del terreno.** Sale de las curvas de nivel de la Municipalidad de
 Santa Fe, capa `sitmax:curvas_nivel` del GeoServer municipal, subida por la
@@ -1192,9 +1213,12 @@ un número de teléfono cambia lo que la app promete por escrito en `/legal` y e
   raspado se rompa se va a ver en el JSON en lugar de descubrirse meses
   después. La ruta documentada (`/pub/datos`) no se pudo usar: ver
   `AUDITORIA.md` §6.
-- **La cota de Arroyo Leyes en 1992 (16,70 IGN) sigue sin fuente primaria.**
-  Es el único dato independiente del modelo y viene de una nota de prensa.
-  Conseguir el registro original es lo de mayor rendimiento pendiente.
+- ~~La cota de Arroyo Leyes en 1992 (16,70 IGN) sigue sin fuente primaria.~~
+  **Resuelto, para mal:** no hay registro que conseguir. La nota de prensa lo
+  presenta como una estimación hecha con la misma pendiente (`AUDITORIA.md`
+  §3). Lo que falta ahora es **una** cota medida de 1992 o 2016 en cualquier
+  punto río arriba del Puerto; con una sola, la pendiente deja de ser un
+  número sin respaldo.
 - **El margen de la cota (±0,5 m) no debería ser una constante.** 21 de las 169
   curvas están fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay
   ninguna. El margen tendría que salir de la separación local entre las dos

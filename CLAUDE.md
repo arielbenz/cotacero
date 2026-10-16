@@ -186,6 +186,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Cómo se escribe un número (la coma, `mU`)     | `lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                       |
 | Cuándo vence un dato (48 h)                   | `lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                 |
 | Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                           |
+| Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9 |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie     |
 | Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `lib/comun.js`; ver el comentario en `sw.js` |
@@ -402,6 +403,14 @@ lo que el proyecto no hace.
 Cuando falta un dato, la app dice que no lo tiene. No se rellena el hueco con
 un número que parezca firme, y no se reconstruye nada desde notas de prensa si
 existe una fuente oficial.
+
+Los `observado` de `ZONAS` son la excepción acotada: niveles del hidrómetro a
+los que **pasó algo** en una zona —se cortó un camino, filtró un terraplén, se
+evacuó—, con fuente y fecha, porque no existe una tabla oficial por barrio y la
+app lo dice en pantalla. Son hechos, no umbrales: van al lado del cálculo y
+nunca en su lugar. Un renglón sin fuente rastreable en `AUDITORIA.md` §9 no
+entra, y **la cota de coronamiento de una defensa no se usa como umbral**: el
+agua entra por abajo mucho antes de pasar por arriba.
 
 ### Falsa precisión
 
