@@ -37,8 +37,11 @@ import { cargarLluvia } from "./lluvia.js";
 import {
   abrirBuscadorDireccion,
   buscarDireccion,
+  cancelarMarca,
+  confirmarMarca,
   mapa,
   marcarCasaEnMapa,
+  marcarDeNuevo,
   ubicarPuntos,
   ubicarmeEnMapa,
 } from "./mapa.js";
@@ -201,6 +204,10 @@ const ACCIONES = {
      sirve sin configurar nada —el 103, el punto más cercano y las tres
      reglas—. No es una vista nueva: es la primera tarjeta de "Dónde ir". */
   "cota-mapa": () => marcarCasaEnMapa(),
+  // Los tres botones del aviso sobre el mapa, en el modo «marcando».
+  "mapa-confirmar": () => confirmarMarca(),
+  "mapa-de-nuevo": () => marcarDeNuevo(),
+  "mapa-cancelar": () => cancelarMarca(),
   ayuda: () => {
     const t = document.getElementById("ayuda-simple");
     if (t) t.hidden = false;

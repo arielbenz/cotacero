@@ -2,7 +2,7 @@
    El foco programático de cada sección es para que un lector de pantalla
    anuncie el cambio; por eso `.vista` puede enfocarse sólo por script. */
 
-import { armarMapa } from "./mapa.js";
+import { armarMapa, cancelarMarca } from "./mapa.js";
 
 /* `desdeHistorial` evita empujar una entrada nueva cuando el cambio de vista
    ya vino del historial (popstate) — si no, atrás y adelante se pelean. */
@@ -26,6 +26,9 @@ export function ver(id, btn, desdeHistorial) {
   panel.focus({ preventScroll: true });
   // El mapa se arma la primera vez que se abre la pestaña, no al inicio.
   if (id === "donde") armarMapa();
+  // Irse de «Dónde ir» con un toque armado dejaría la próxima tocada del
+  // mapa marcando una casa que nadie pidió.
+  else cancelarMarca(false);
   // En modo standalone el botón atrás cerraba la app en vez de volver a la
   // pestaña anterior. Usamos el mismo ?ir= que ya leen los accesos directos
   // del manifest, así una vista se puede compartir por link.

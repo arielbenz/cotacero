@@ -867,6 +867,19 @@ mapa era la única vía. Por eso los tres mensajes donde las otras vías fallan
 con un botón. Una función que arranca algo y puede llamarse dos veces
 devuelve la misma promesa.
 
+**Marcar mi casa en el mapa es un modo, con principio y fin.** El mapa lleva
+la clase `marcando`, el aviso va **sobre** el mapa (`.mapa-aviso`, donde está
+el dedo, y no en el renglón de estado que queda debajo del botón de «más
+cercano») y el toque no decide solo: deja el pin a la vista, dice qué altura
+encontró —«Marcaste un punto a 17,04 m sobre el mar. ¿Es tu casa?»— y espera
+**Sí, usar esta altura**, **Marcar de nuevo** o **Cancelar**. Antes mandaba
+a «Mi casa» en el acto, sin que se viera dónde había quedado la marca, y la
+gente no sabía si había tocado bien. Cambiar de pestaña cancela desde
+`vista.js`: si no, quedaba un toque armado y la próxima tocada del mapa en
+«Dónde ir» marcaba una casa que nadie pidió. Si ya pidió «el más cercano a
+mí», el modo arranca sobre su posición a zoom 16. Un pin sin confirmar no se
+queda; el confirmado sí, para poder volver a verlo.
+
 ## La cota del terreno
 
 El cálculo tiene dos mitades. Las dos están medidas contra una fuente externa,
