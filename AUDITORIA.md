@@ -25,6 +25,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso      | **no**    | **discutido — ver abajo** | no                     |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención cartográfica  | no        | sí                        | no                     |
 | Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
+| Niveles observados por zona    | `js/app/config.js` (`ZONAS`)   | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
 | Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                | sí        | sí                        | no                     |
 | 30 cm / 60 cm de corriente     | HTML de la app                 | seguridad vial estándar  | sí        | no                        | no                     |
@@ -219,6 +220,20 @@ civil citado en prensa. Es el único dato independiente que tiene el modelo y
 además —ver §2— es del que se despejó la pendiente. Conseguir el registro
 original de esa cota es la tarea de mayor rendimiento pendiente.
 
+**Actualización del 16/10/2026: no hay registro que conseguir.** La nota que
+publica el 16,70 (Nicolás Loyarte, El Litoral y Mirador Provincial, 13-14 de
+julio de 2026, con el ingeniero civil Agustín Botterón como fuente técnica)
+dice textual que «se estima» ese valor, y lo deriva así: 7,43 + 8,19 ≈ 15,62
+IGN en el Puerto, más «unos 24 km» por «unos 4,5 cm por km, según hidrólogos»
+≈ 16,70. **Es la misma cuenta que hace la app.** La comprobación de 1992 es
+circular en los dos sentidos: la pendiente se despejó de un número que se
+calculó con esa pendiente. Lo que vale de la nota es otra cosa: que el 4,5
+cm/km lo atribuye a «hidrólogos» —es decir, no lo inventamos nosotros, pero
+nadie firmó— y que la defensa de Arroyo Leyes está a cota 17 IGN. Lo que
+cambia: `/datos` y el README ya no presentan 1992 como validación. Lo que
+falta: **una** cota medida en 1992 o 2016 en cualquier punto río arriba del
+Puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
+
 ---
 
 ## 4. El margen de la cota: ±0,5 m
@@ -338,6 +353,10 @@ poder copiarse y mandarse.
    cota interpolada.
 10. ¿Se publica la traza de defensas, terraplenes, compuertas y estaciones de
     bombeo? Es lo que más cambia el resultado y la app hoy no lo sabe.
+    *16/10/2026: confirmado en negativo.* Ninguna de las 62 capas de
+    `geoservicios.santafeciudad.gov.ar/geoserver/publico` ni las de `sitmax`
+    es de defensas. Sí existe `publico:reservorios` (32 polígonos), que no
+    teníamos anotada.
 
 ### A la FICH-UNL
 
@@ -398,13 +417,24 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
 20. **¿Cuál es la leyenda de `sitmax:zona_seguridad_hidrica`?** La capa publica
     19 polígonos con un único atributo, `id`. Sin saber qué significa cada zona
     no se puede usar ni citar.
+    *16/10/2026: respondida en parte, y no es lo que parecía.* Es el distrito
+    **ZSH («zona de seguridad hídrica») del Reglamento de Ordenamiento Urbano
+    (Ord. 11748/11)**: suelo donde «sólo admite usos agrícolas, recreativos o
+    deportivos con autorización del DEM». Es zonificación de uso del suelo,
+    no un mapa de riesgo ni de defensas. Fuente: nota técnica «Riesgo y
+    vulnerabilidad hídrica en Santa Fe» (Encuentro, 2025, a partir del
+    trabajo de María Andrea Zorzón). El estilo SLD publicado es una sola
+    regla, «Linea azul»: no hay leyenda por polígono. Queda la pregunta de
+    qué distingue a los 19.
 21. ¿Existe un límite oficial —o al menos un punto— para **La Vuelta del
     Paraguayo**? No está en las 86 vecinales de `ac_reclamosxvecinal` ni en
-    BAHRA, y es una de las once zonas de la app.
+    BAHRA, y es una de las doce zonas de la app.
 22. Entre el 7 y el 8 de septiembre de 2026 el GeoServer estuvo devolviendo
     **403 detrás de Cloudflare**, con y sin `User-Agent` de navegador. ¿Hay una
     forma estable de consumir el WFS, o conviene coordinar una descarga
     periódica? Es la fuente de las curvas: si se cae, no hay cómo regenerarlas.
+    *16/10/2026: los dos GeoServer contestaron 200 al `GetCapabilities` y al
+    `GetFeature` con un `User-Agent` de navegador. El 403 fue transitorio.*
 
 **A quien tenga la traza del río (IGN, Prefectura, Hidrovía):**
 
@@ -438,3 +468,110 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
 - **No se reconstruyó la crecida de 1905** ni ningún evento anterior a 1925: el
   INA no los publica en esta serie y la prensa no es fuente para un número que
   la app dibuje en una regla.
+
+---
+
+## 9. Defensas y niveles observados por zona (búsqueda del 16/10/2026)
+
+Disparador: un vecino de Colastiné Norte cargó su casa, la app le dio ≈ 5,4 y
+lo leyó como «a 5,4 me tengo que ir». En enero de 2016 el río llegó a 6,61 y
+no se mojó. Tenía razón en la causa: el terraplén Garello. La cuenta de la app
+estaba bien —agua libre contra terreno, con el margen pesimista— y lo que
+faltaba era decir qué hay entre el río y la casa.
+
+**Lo que se agregó a la app:** `defensa` y `observado` por zona en
+`js/app/config.js`, mostrados en «Mi casa» al lado del cálculo y en el plan
+impreso. **Lo que NO se hizo:** usar la cota de coronamiento como umbral.
+
+### Por qué la coronación no sirve de umbral
+
+| Defensa | Coronación | En la regla del Puerto | Fuente |
+| --- | --- | --- | --- |
+| Anillo oeste de la ciudad (tramos 1 y 2, 1994-98) | 17,50 m IGM | ≈ 9,3 m | IAI, «La crecida extraordinaria del río Salado…» (PDF, p. 12) |
+| Costa este (Colastiné, Rincón, Arroyo Leyes) | 17 IGN | ≈ 8,8 m + pendiente | Botterón en El Litoral, 13/7/2026 |
+| Defensa oeste de Rincón Norte y Arroyo Leyes | 17 IGN + muro 0,50 | — | **no construida**: licitada dos veces, nunca adjudicada; sept. 2026 no es prioridad provincial |
+
+El récord es 7,43. Ninguna defensa de la ciudad fue sobrepasada; en 2003 el
+agua entró por un tramo no construido de la defensa oeste. Lo que sí está
+documentado es que el agua entra **por abajo**: Silvina Serra (Gestión del
+Riesgo Hídrico municipal, El Litoral, nov. 2023) dijo que los umbrales de la
+costa no deberían subir porque «el ascenso de las napas freáticas tras
+crecidas prolongadas iguala los niveles dentro y fuera de la defensa». Un
+umbral «hasta la coronación» le daría margen a un barrio que se encharca a 6.
+
+### La tabla, con fuente por renglón
+
+Fuente principal: AIRE de Santa Fe, 30/12/2023, «Qué zonas de Santa Fe son
+vulnerables cuando el río alcanza los seis metros», con Felipe Franco
+(secretario de Recursos Hídricos municipal) como fuente y un «estudio del INA»
+sin fecha para Colastiné Sur. Lo de 2016: El Litoral (1/1/2016, 6,38 m; nota
+de la filtración en Colastiné Sur, 6,40 m), Pausa (4/1/2016, 6,59 m) y el parte
+provincial del 4/1/2016 (6,53 m). Máximo de 2016: 6,61 m (Prefectura).
+
+| Zona | Nivel | Qué pasó / qué dice el municipio | Fuente |
+| --- | --- | --- | --- |
+| Colastiné Sur, casas junto al club Caza y Pesca (afuera de la defensa) | 4,70 | entra agua | AIRE 2023 |
+| La Vuelta del Paraguayo | 5,30 | empieza la evacuación; escuela e iglesia aguantan hasta 5,70; a 6,00 completa | AIRE 2023 |
+| Alto Verde → La Boca | 5,30 | se corta el camino; en 2023 se defendió hasta 5,60 | AIRE 2023 |
+| Rincón, Los Espinillos | 5,30 | filtraciones bajo el terraplén | AIRE 2023 |
+| Colastiné Sur, todo el barrio | 5,70 | el INA recomendó evacuar | estudio INA vía AIRE 2023 |
+| Colastiné Sur | ≈ 6,00 | «el terraplén y la napa filtran agua y todo el barrio se encharca» | El Litoral, «puntos vulnerables», sin fecha |
+| Colastiné Norte y Rincón, bajo cota 14,50 IGN | 6,00 + lluvia | riesgo por napa alta | AIRE 2023 |
+| Colastiné Sur | 6,38–6,40 | 130 familias evacuadas; filtró en el ex camping | El Litoral, ene. 2016 |
+| La Vuelta del Paraguayo | 6,38 | 38 familias en refugios | El Litoral, 1/1/2016 |
+| Frente del riacho Santa Fe (Alto Verde) | 6,38 | 24 familias en refugios | El Litoral, 1/1/2016 |
+| Arroyo Leyes, barrios del oeste | 6,53 | 125–200 evacuados | Provincia / Pausa, 4/1/2016 |
+| Santa Rosa de Calchines | 6,53 | 350–412 evacuados | Provincia / Pausa, 4/1/2016 |
+| Colastiné Norte, La Guardia | 6,61 | no figuran entre los evacuados; el Garello aguantó | El Litoral, Pausa, ene. 2016 |
+
+**Chequeo contra el modelo.** Una casa a cota 14,50 IGN en Colastiné Norte
+(11 km) recibe de la app ≈ 5,3 (14,50 − 8,20 − 0,495 − 0,5); el municipio dice
+riesgo a 6,00 con lluvia. En Rincón (16 km) la app da ≈ 5,1 para la misma
+cota; las filtraciones empiezan a 5,30 en lo más bajo. Pesimista por 0,2 a
+0,7 m, que es el diseño. No hay ningún caso en que la app dé margen donde el
+municipio dice riesgo.
+
+### Lo que todavía no se sabe
+
+- **Dónde estuvo el agua en 2016, en cota.** Ni una sola cota medida de la
+  superficie del agua río arriba del Puerto, ni de 1992 ni de 2016. Es lo que
+  resolvería la pendiente (§2, §3).
+- **El estado de cada defensa hoy.** El Garello está en su última etapa (85 %
+  en septiembre de 2026); la Provincia dio por terminado el mantenimiento del
+  sistema en agosto de 2025 y dice haber recuperado la cota en 27 km de
+  terraplén; Rincón tiene unos 3 km de margen oeste sin defensa. Nada de eso
+  está en un dato abierto: la app dice que no lo sabe.
+- **Un umbral oficial por sector.** El plan de contingencia municipal
+  (página oficial, PDF de septiembre de 2026) no publica fases numéricas por
+  sector. El INA y el municipio dijeron en noviembre de 2023 que evaluarían
+  rever 5,30 / 5,70 para la ciudad defendida; no hay decisión. Si la hubiera,
+  la app la adopta sola: los umbrales vienen de la estación del INA.
+- **Las 1.300 familias.** El relevamiento municipal (Eduardo Rudi, junio de
+  2026) las ubica en Vuelta del Paraguayo, Bajada Distéfano, Los Alisos,
+  Colastiné Sur bajo, RN 168 y La Boca; no publica la cifra por sector.
+
+### Las dos zonas que se agregaron, y con qué
+
+Regla: ningún número nuevo. Lo que no tenía fuente, no entró.
+
+- **La Boca (Alto Verde)**, zona propia. La capa municipal de vecinales
+  (`datos-crudos/muni-vecinales-2026-09-08.json`) trae «LA BOCA - ALTO VERDE»
+  con centro en −60,683 / −31,688: **4,0 km al sur del hidrómetro** (la
+  estación 30 del INA está en −60,7002 / −31,6515). Está río abajo, y el
+  modelo no corrige hacia abajo: va con **0 km**, que no es una estimación
+  sino la ausencia de corrección, y por eso entra en `KM_PUBLICADO` para que
+  la pantalla no diga «estimación propia». Curva más cercana a 298 m (cota
+  15,9). **Defensa: no confirmada** (`null`): la vecinal de Alto Verde habla
+  de un anillo de los dos lados del barrio y de vecinos «fuera del anillo»
+  sin nombrar el paraje. Lo único con fuente es el camino que se corta a 5,30
+  y se defendió hasta 5,60 (AIRE 2023), y que el municipio lo lista con
+  «riesgo de aislamiento» (El Litoral, 24/6/2026).
+- **El Pozo / Los Alisos**, sumado a la zona Guadalupe. «BARRIO EL POZO» tiene
+  centro en −60,661 / −31,636, 1,7 km al norte del hidrómetro en línea recta,
+  sin distancia medida sobre el agua. En vez de inventarle un km se usa el de
+  Guadalupe (4, estimación que ya existía): es más pesimista que la línea
+  recta, misma costa de la Setúbal, mismo anillo. Curva más cercana a 197 m
+  (cota 16,76). Los Alisos figura «fuera del anillo» en el relevamiento
+  municipal de junio de 2026; AIRE 2023 dice que se inunda, sin nivel, así que
+  va en la nota y no en la tabla. 2016: 4 familias de El Pozo en refugios
+  (El Litoral, 1/1/2016, con el río en 6,38).

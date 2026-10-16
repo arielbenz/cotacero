@@ -111,10 +111,24 @@ function textoPlan() {
       ((origenCota() || {}).corto || "—") +
       (estado.cotaDetalle ? " (" + estado.cotaDetalle + ")" : "") +
       "\n";
-    t +=
-      "Zona: " +
-      ((ZONAS.find((z) => z.id === estado.zona) || {}).n || "sin elegir") +
-      "\n";
+    const zz = ZONAS.find((z) => z.id === estado.zona);
+    t += "Zona: " + ((zz || {}).n || "sin elegir") + "\n";
+    // Lo mismo que la tarjeta de «Mi casa», en corto: el plan se guarda y se
+    // lee sin señal, y ahí es donde «5,4» sin contexto más daño hace.
+    const DEFENSA_CORTA = {
+      anillo: "el anillo de defensas de la ciudad",
+      local: "una defensa propia, fuera del anillo (la app no sabe su estado)",
+      ninguna: "nada: no hay defensa",
+    };
+    if (zz && DEFENSA_CORTA[zz.defensa])
+      t += "Entre el río y tu casa: " + DEFENSA_CORTA[zz.defensa] + "\n";
+    if (zz && zz.observado && zz.observado.length)
+      t +=
+        "En tu zona, otras veces:\n" +
+        zz.observado
+          .map((o) => "  " + m(o.nivel) + " — " + o.que + " (" + o.fuente + ")")
+          .join("\n") +
+        "\n";
     t +=
       "Tu nivel de aviso (en la regla del puerto): " +
       mU(cotaEnHidrometro()) +

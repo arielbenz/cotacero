@@ -217,6 +217,60 @@ export async function estimarCota() {
   );
 }
 
+/* Lo que hay entre el río y la casa. El nivel de aviso es la cuenta con el
+   agua libre, y sin contexto se lee mal: en Colastiné Norte da ≈ 5,4 para un
+   terreno que en 2016 vio el río en 6,61 y no se mojó, porque el Garello
+   aguantó — y la persona leyó «a 5,4 me tengo que ir». La tarjeta dice si hay
+   defensa y qué pasó otras veces en la zona, AL LADO del número, nunca en su
+   lugar: la defensa no cambia la cuenta, cambia lo que la cuenta significa.
+   Los datos viven en ZONAS; cada renglón de `observado` tiene fuente y
+   AUDITORIA.md §9 dice de dónde salió. */
+const DEFENSA_TXT = {
+  anillo:
+    "Tu zona está <b>dentro del anillo de defensas</b> de la ciudad. El agua " +
+    "nunca pasó por arriba de una defensa de Santa Fe: el terraplén llega a " +
+    "unos 17 m sobre el mar, que en la regla del puerto son más de 8,5 m, muy " +
+    "por encima del récord de 7,43. Cuando entró, en 2003, fue por un tramo " +
+    "que no estaba construido. Tu nivel de aviso es lo que pasaría si entre " +
+    "el río y tu casa no hubiera nada: sirve para prepararte, no dice que el " +
+    "agua vaya a entrar.",
+  local:
+    "Tu zona está <b>fuera del anillo de la ciudad, pero tiene defensa " +
+    "propia</b>. Tu nivel de aviso es lo que pasaría si no estuviera. Ninguna " +
+    "defensa de la costa falló por arriba en una crecida registrada: el agua " +
+    "entra por abajo —filtraciones y napa— y por los desagües, y eso empieza " +
+    "bastante antes de que el río llegue a la altura del terraplén. La app no " +
+    "sabe en qué estado está hoy.",
+  ninguna:
+    "En tu zona <b>no hay defensa</b> entre el río y las casas: tu nivel de " +
+    "aviso es la cuenta directa, sin nada en el medio.",
+};
+
+function tarjetaDefensa(z) {
+  if (!z) return "";
+  const txt = DEFENSA_TXT[z.defensa];
+  const obs = z.observado || [];
+  if (!txt && !obs.length) return "";
+  let h =
+    '<div class="tarjeta"><h3 style="margin-top:0">Lo que hay entre el río y tu casa</h3>';
+  if (txt)
+    h += `<p class="chico" style="margin:0 0 ${obs.length ? "10px" : "0"}">${txt}</p>`;
+  if (obs.length)
+    h +=
+      '<span class="eti">En tu zona, otras veces</span><ul class="pasos">' +
+      obs
+        .map(
+          (o) =>
+            `<li><b>${m(o.nivel)}</b> — ${o.que} <span style="font-size:var(--t-xs)">${o.fuente}.</span></li>`,
+        )
+        .join("") +
+      '</ul><p class="chico" style="margin:8px 0 0">No hay una tabla oficial ' +
+      "por barrio: esto es lo que el municipio dijo en prensa y lo que pasó en " +
+      "crecidas anteriores. Cada renglón tiene fuente. Si sabés de otro dato, " +
+      '<a href="/contacto">contanos</a>.</p>';
+  return h + "</div>";
+}
+
 export function calcular() {
   const sel = document.getElementById("sel-zona");
   if (sel) estado.zona = sel.value;
@@ -246,11 +300,13 @@ export function calcular() {
         '" data-input="km-manual"></label>';
     }
   } else {
+    // A 0 km no hay «aguas arriba» que decir: el centro está en el puerto y
+    // La Boca queda río abajo, donde el modelo no corrige. La nota lo explica.
     nz.innerHTML =
       (z ? z.nota : "") +
-      " A " +
-      kmDeZona() +
-      " km del hidrómetro, aguas arriba." +
+      (kmDeZona() > 0
+        ? " A " + kmDeZona() + " km del hidrómetro, aguas arriba."
+        : "") +
       (KM_PUBLICADO.has(estado.zona)
         ? ""
         : ' <span style="color:var(--alerta-texto)">Esa distancia es una estimación ' +
@@ -396,6 +452,8 @@ export function calcular() {
     <p style="margin:0 0 12px;font-size: var(--t-base)">${txt}</p>
     <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
     <div class="dato">${mU(ref)}</div></div>`;
+
+  html += tarjetaDefensa(z);
 
   // desglose
   html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
