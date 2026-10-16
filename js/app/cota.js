@@ -55,6 +55,12 @@ const SALIDA_SIN_DATO =
   ' <button class="enlace-crudo" type="button" data-accion="ayuda">' +
   "No sé la altura de mi casa</button>";
 
+/* La cuarta forma de conseguir la altura, ofrecida justo donde las otras
+   fallan: GPS impreciso o lento, dirección que OpenStreetMap no tiene. */
+export const BOTON_MARCAR =
+  '<button class="enlace-crudo" type="button" data-accion="cota-mapa">' +
+  "marcá tu casa en el mapa</button>";
+
 export function cotaEnHidrometro({ crudo = false } = {}) {
   if (estado.cota == null || kmDeZona() === null) return null;
   const cota =
@@ -178,7 +184,9 @@ export async function estimarCota() {
             '<b style="color:var(--alerta-texto)">La ubicación llegó con ±' +
             Math.round(prec) +
             " m de error.</b> A esa distancia el modelo mide otro terreno. " +
-            "Probá al aire libre, buscá la dirección, o escribí la altura a mano.";
+            "Probá al aire libre, " +
+            BOTON_MARCAR +
+            ", buscá la dirección, o escribí la altura a mano.";
           return;
         }
         e.textContent = "Buscando entre las curvas de nivel…";
@@ -208,7 +216,9 @@ export async function estimarCota() {
       liberar();
       e.innerHTML =
         (err && err.code === 3
-          ? "La ubicación tardó demasiado. Probá al aire libre, buscá la dirección, o escribí la altura a mano."
+          ? "La ubicación tardó demasiado. Probá al aire libre, " +
+            BOTON_MARCAR +
+            ", buscá la dirección, o escribí la altura a mano."
           : "No diste permiso de ubicación. Podés escribir la altura a mano.") +
         SALIDA_SIN_DATO;
       aLaVista(e);
