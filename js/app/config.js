@@ -63,7 +63,7 @@ export const KM_PUBLICADO = new Set(["centro", "leyes"]);
 export const ZONAS = [
   {
     id: "centro",
-    n: "Santa Fe — centro / puerto",
+    n: "Santa Fe — Centro / Candioti / Puerto",
     km: 0,
     nota: "Dentro del anillo de defensas.",
   },
