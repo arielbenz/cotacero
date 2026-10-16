@@ -389,7 +389,109 @@ export function ubicarmeEnMapa() {
    formal pero reconoce su cuadra desde arriba.
    Reutiliza el mapa de "Dónde ir" —no arma un segundo mapa— y elevacionDe(),
    que ya trabaja con lat/lon sueltos contra las curvas precacheadas.
-   No se guarda ninguna coordenada: sólo la altura que sale de ella. */
+   No se guarda ninguna coordenada: sólo la altura que sale de ella.
+
+   Es un MODO, con principio y fin: el mapa lleva la clase `marcando`, el
+   aviso va SOBRE el mapa —donde está el dedo, no debajo del botón de «más
+   cercano»— y el toque no decide solo: deja el pin a la vista, dice qué
+   altura encontró y pide confirmar. Antes mandaba a «Mi casa» en el acto,
+   sin que se viera dónde quedó la marca, y nadie sabía si había tocado bien.
+   Cambiar de pestaña cancela (vista.js): no queda un toque armado esperando
+   en «Dónde ir». */
+let marca = null; // lo que devolvió elevacionDe() para el punto tocado
+
+const CANCELAR =
+  ' <button class="enlace-crudo" type="button" data-accion="mapa-cancelar">Cancelar</button>';
+
+function avisoMapa(html) {
+  const cont = document.getElementById("mapa");
+  if (!cont) return;
+  let el = cont.querySelector(".mapa-aviso");
+  if (!html) {
+    if (el) el.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "mapa-aviso";
+    el.setAttribute("role", "status");
+    cont.appendChild(el);
+  }
+  el.innerHTML = html;
+}
+
+const pedirToque = (texto) =>
+  avisoMapa(
+    "<b>" +
+      (texto || "Acercá el mapa hasta ver tu cuadra y tocá tu casa.") +
+      "</b>" +
+      CANCELAR,
+  );
+
+const estaMarcando = () =>
+  Boolean(document.getElementById("mapa")?.classList.contains("marcando"));
+
+function ponerPin(lngLat) {
+  if (pinCasa) pinCasa.remove();
+  const el = document.createElement("div");
+  el.className = "pin yo";
+  pinCasa = new maplibregl.Marker({ element: el })
+    .setLngLat(lngLat)
+    .setPopup(
+      new maplibregl.Popup({ offset: 14 }).setHTML(
+        "<strong>Tu casa</strong>, marcada a mano",
+      ),
+    )
+    .addTo(mapa);
+}
+
+async function alTocar(e) {
+  if (!estaMarcando()) return;
+  // Tocó un punto de encuentro, no su casa: se abre el popup del punto y se
+  // sigue esperando.
+  const destino = e.originalEvent && e.originalEvent.target;
+  if (destino && destino.closest && destino.closest(".pin")) {
+    mapa.once("click", alTocar);
+    return;
+  }
+  /* Sin zoom suficiente el dedo tapa varias cuadras y la altura sería de
+     cualquier lado: se pide acercar y se sigue esperando. */
+  if (mapa.getZoom() < 15) {
+    pedirToque("Acercá más: desde esta altura el dedo tapa varias cuadras.");
+    mapa.once("click", alTocar);
+    return;
+  }
+  const r = await elevacionDe(e.lngLat.lat, e.lngLat.lng);
+  if (!r) {
+    pedirToque(
+      "Ese punto queda fuera del plano de alturas del municipio, que cubre " +
+        "la ciudad y no toda el área metropolitana. Probá con otro.",
+    );
+    mapa.once("click", alTocar);
+    return;
+  }
+  ponerPin(e.lngLat);
+  marca = r;
+  avisoMapa(
+    "Marcaste un punto a <b>" +
+      m(r.cota) +
+      " sobre el mar</b>. ¿Es tu casa?" +
+      '<div class="mapa-aviso-botones">' +
+      '<button class="btn mini" type="button" data-accion="mapa-confirmar">Sí, usar esta altura</button>' +
+      ' <button class="enlace-crudo" type="button" data-accion="mapa-de-nuevo">Marcar de nuevo</button>' +
+      CANCELAR +
+      "</div>",
+  );
+}
+
+function salirDeMarcar() {
+  const cont = document.getElementById("mapa");
+  if (cont) cont.classList.remove("marcando");
+  avisoMapa(null);
+  if (mapa) mapa.off("click", alTocar);
+  marca = null;
+}
+
 export async function marcarCasaEnMapa() {
   const est = document.getElementById("estado-cota");
   irA("donde");
@@ -402,56 +504,51 @@ export async function marcarCasaEnMapa() {
     irA("cota");
     return;
   }
-  const em = document.getElementById("estado-mapa");
-  const pedir = () => {
-    if (em)
-      em.innerHTML =
-        "<b>Acercá el mapa hasta ver tu cuadra y tocá tu casa.</b>";
-  };
-  pedir();
+  const cont = document.getElementById("mapa");
   // irA() dejó la página arriba de todo y el mapa puede quedar bajo el
   // pliegue: el pedido tiene que verse, no sólo existir.
-  if (em) aLaVista(em);
-  const alTocar = async (e) => {
-    /* Sin zoom suficiente el dedo tapa varias cuadras y la altura sería de
-       cualquier lado: se pide acercar y se sigue esperando. */
-    if (mapa.getZoom() < 15) {
-      if (em)
-        em.innerHTML =
-          "<b>Acercá más.</b> Desde esta altura el dedo tapa varias cuadras.";
-      mapa.once("click", alTocar);
-      return;
-    }
-    const r = await elevacionDe(e.lngLat.lat, e.lngLat.lng);
-    if (!r) {
-      if (em)
-        em.innerHTML =
-          "<b>Ese punto queda fuera del plano de alturas del municipio.</b> " +
-          "Cubre la ciudad, no toda el área metropolitana.";
-      mapa.once("click", alTocar);
-      return;
-    }
-    // Un pin donde tocó, para que al volver a «Dónde ir» vea qué marcó. La
-    // coordenada no se guarda en ningún lado: sólo la altura que sale de ella.
-    if (pinCasa) pinCasa.remove();
-    const el = document.createElement("div");
-    el.className = "pin yo";
-    pinCasa = new maplibregl.Marker({ element: el })
-      .setLngLat(e.lngLat)
-      .setPopup(
-        new maplibregl.Popup({ offset: 14 }).setHTML(
-          "<strong>Tu casa</strong>, marcada a mano",
-        ),
-      )
-      .addTo(mapa);
-    fijarCotaEstimada(
-      Math.round(r.cota * 100) / 100,
-      "mapa",
-      "punto marcado a mano en el mapa",
-      r.distancia,
-    );
-    if (em) em.textContent = "";
-    irA("cota");
-  };
+  aLaVista(cont);
+  if (estaMarcando()) return; // ya está esperando el toque: no armar dos
+  cont.classList.add("marcando");
+  // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
+  // ahorra el viaje a dedo desde la vista de toda la ciudad.
+  if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
+  pedirToque();
   mapa.once("click", alTocar);
+}
+
+export function confirmarMarca() {
+  if (!marca) return;
+  const r = marca;
+  salirDeMarcar();
+  fijarCotaEstimada(
+    Math.round(r.cota * 100) / 100,
+    "mapa",
+    "punto marcado a mano en el mapa",
+    r.distancia,
+  );
+  irA("cota");
+}
+
+export function marcarDeNuevo() {
+  if (!estaMarcando()) return;
+  if (pinCasa) {
+    pinCasa.remove();
+    pinCasa = null;
+  }
+  marca = null;
+  pedirToque();
+  mapa.once("click", alTocar);
+}
+
+/* `volver` = false cuando lo llama el cambio de pestaña: ya se está yendo. */
+export function cancelarMarca(volver = true) {
+  if (!estaMarcando()) return;
+  // Un pin sin confirmar no se queda.
+  if (marca && pinCasa) {
+    pinCasa.remove();
+    pinCasa = null;
+  }
+  salirDeMarcar();
+  if (volver) irA("cota");
 }
