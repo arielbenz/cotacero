@@ -41,18 +41,18 @@ La interfaz los mezclaba y eso era lo que hacía sonar la app como una
 predicción de inundación. Son tres y nunca se intercambian. **En el código y en
 `/datos` se llaman nivel, cota y umbral; en la interfaz se dicen en llano:**
 
-| Concepto | En el código | En pantalla |
-| --- | --- | --- |
-| La lectura del hidrómetro del Puerto (INA / Prefectura) | `nivel` | «el río está en 4,86 m», «la regla del río» |
-| La elevación IGN del terreno, de las curvas municipales, ±0,5 m | `cota` | «la altura de tu terreno», «16,4 m sobre el mar» |
-| La lectura del hidrómetro a partir de la cual el agua equivalente alcanzaría esa cota | `umbral` | **«tu nivel de aviso»**, «≈ 5,1 m» |
+| Concepto                                                                              | En el código | En pantalla                                      |
+| ------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------ |
+| La lectura del hidrómetro del Puerto (INA / Prefectura)                               | `nivel`      | «el río está en 4,86 m», «la regla del río»      |
+| La elevación IGN del terreno, de las curvas municipales, ±0,5 m                       | `cota`       | «la altura de tu terreno», «16,4 m sobre el mar» |
+| La lectura del hidrómetro a partir de la cual el agua equivalente alcanzaría esa cota | `umbral`     | **«tu nivel de aviso»**, «≈ 5,1 m»               |
 
 **Por qué «umbral» salió de la interfaz.** Es la palabra correcta y no tiene
 reemplazo técnico —por eso sigue en `/datos`, en el código
 (`cotaEnHidrometro`, `guardarUmbral`, la clave `umbral` de IndexedDB) y en
 `AUDITORIA.md`—. Pero en pantalla no la entendía nadie que no la supiera de
-antes: las cinco definiciones que había eran circulares (definían *umbral* con
-*hidrómetro*, que la app nunca explicaba) y la única frase llana aparecía sólo
+antes: las cinco definiciones que había eran circulares (definían _umbral_ con
+_hidrómetro_, que la app nunca explicaba) y la única frase llana aparecía sólo
 en el estado de error, o sea casi nunca.
 
 «Tu nivel de aviso» dice qué hacer con el número —estar avisado— y no qué va a
@@ -442,9 +442,34 @@ clave y cuota**: el modo de falla es caerse justo cuando la app se comparte
 durante una crecida, que es cuando importa. No hay ningún token en el repo ni
 hace falta.
 
-La búsqueda de dirección usa Nominatim (OpenStreetMap), una consulta por
-búsqueda que inicia la persona. Cuando resuelve la calle pero no la altura
-exacta, la app lo dice en pantalla en vez de dar un número que parece firme.
+La búsqueda de dirección va en cascada y sin clave: primero **Georef**, la
+API de direcciones del Estado nacional, que normaliza lo que escribe la gente
+(«Bv Galvez al 1500») e interpola la altura sobre el callejero del INDEC; si
+no la encuentra o no contesta, **Nominatim** (OpenStreetMap), que es el que
+conoce barrios y parajes. Una consulta por búsqueda que inicia la persona.
+Cuando sólo resuelve la calle y no la altura, la app lo dice en pantalla en
+vez de dar un número que parece firme.
+
+Se midió el 17/10/2026 con 30 direcciones escritas como las escribe la gente.
+Nominatim solo ubicaba la altura en 15; en 3 la ponía en Santo Tomé o
+Candioti —el `viewbox` es un rectángulo y los vecinos quedan adentro, así
+que ahora se filtra por municipio con `addressdetails`— y en 7 devolvía una
+esquina o la calle entera, hasta 1,4 km de la casa. Georef ubicó 25, y donde
+los dos la tienen coinciden a menos de 50 m. Lo que la gente contaba como «no
+encuentra mi dirección» era, casi siempre, una de esas dos cosas: la cota de
+otra ciudad, que las curvas no cubren, o la esquina con la advertencia.
+
+**Mientras escribe, el campo sugiere calles y dice qué entendió.** La lista
+sale de `datos-abiertos/calles.json` —845 calles de la ciudad con su rango
+de numeración, 8 KB comprimido— que genera `node scripts/calles.js` desde
+Georef. Se filtra en el teléfono: no sale ninguna letra hasta que la persona
+aprieta Buscar. Entiende las formas en que se escribe una calle en Santa Fe
+(«Boulevard», «Bv.», «Avenida Pellegrini» para el que Georef llama bulevar,
+«Gral», sin tildes) y perdona una letra («Pelegrini»). Debajo del campo, un
+renglón dice lo que falta: elegir de la lista, escribir el número, o que el
+número pasa el último de esa calle. Sólo se avisa cuando lo pasa: el rango
+es la unión de los tramos y puede tener huecos, así que por debajo decide la
+búsqueda.
 
 ## Puntos de encuentro
 
@@ -781,16 +806,16 @@ el verbo** de lo que hay que hacer, no con lo que está pasando, y **lleva el
 evacuación» delegaba, o sea que los dos estados más graves de la escala eran
 los que menos instrucción daban.
 
-| # | Cuándo | Título | Con qué empieza |
-| --- | --- | --- | --- |
-| 1 | Sin dato del río | Cambió el nivel del río | Abrí Cota Cero para ver cuánto mide hoy |
-| 2 | El río pasó tu nivel de aviso | El río pasó tu nivel de aviso | **Mové a las personas, los remedios y los documentos** … 103 |
-| 3 | Río ≥ evacuación de la ciudad | Evacuación en la ciudad | **Si Defensa Civil dice que salgas, salí** … 30 cm te arrastra … 103 |
-| 4 | Río ≥ alerta de la ciudad | Alerta en la ciudad | **Armá la mochila y avisale a tu familia** … Dudas: 103 |
-| 5 | Faltan ≤ 20 cm | Faltan unos N cm para tu nivel de aviso | **Terminá la mochila y avisale a tu familia** |
-| 6 | Faltan ≤ 50 cm | Faltan unos N cm para tu nivel de aviso | **Andá armando la mochila** |
-| 7 | Subió, con nivel cargado | El río subió a X m | Faltan unos N para tu nivel de aviso. Por ahora, seguí mirando |
-| 8 | Subió, sin nivel cargado | El río subió a X m | Cargá tu casa en la app y te avisamos cuando el río importe para vos |
+| #   | Cuándo                        | Título                                  | Con qué empieza                                                      |
+| --- | ----------------------------- | --------------------------------------- | -------------------------------------------------------------------- |
+| 1   | Sin dato del río              | Cambió el nivel del río                 | Abrí Cota Cero para ver cuánto mide hoy                              |
+| 2   | El río pasó tu nivel de aviso | El río pasó tu nivel de aviso           | **Mové a las personas, los remedios y los documentos** … 103         |
+| 3   | Río ≥ evacuación de la ciudad | Evacuación en la ciudad                 | **Si Defensa Civil dice que salgas, salí** … 30 cm te arrastra … 103 |
+| 4   | Río ≥ alerta de la ciudad     | Alerta en la ciudad                     | **Armá la mochila y avisale a tu familia** … Dudas: 103              |
+| 5   | Faltan ≤ 20 cm                | Faltan unos N cm para tu nivel de aviso | **Terminá la mochila y avisale a tu familia**                        |
+| 6   | Faltan ≤ 50 cm                | Faltan unos N cm para tu nivel de aviso | **Andá armando la mochila**                                          |
+| 7   | Subió, con nivel cargado      | El río subió a X m                      | Faltan unos N para tu nivel de aviso. Por ahora, seguí mirando       |
+| 8   | Subió, sin nivel cargado      | El río subió a X m                      | Cargá tu casa en la app y te avisamos cuando el río importe para vos |
 
 **Los cuerpos de las notificaciones no pasan de 180 caracteres.** Android corta
 ahí, y el 2 —el más importante— llegó a 203: la línea que se cortaba era
@@ -948,13 +973,13 @@ pie en cosas que ya están a un toque.
 
 Quedaron cinco, y ninguno es decorativo:
 
-| Qué queda | Por qué no se puede ir |
-| --- | --- |
-| El enlace de instalar | Es la red de contención de la barra de instalar: que la hayan cerrado, que Chrome no dispare `beforeinstallprompt`, que el navegador no lo implemente |
-| «Sin vínculo con organismos oficiales» | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla» |
-| «No reemplaza una orden de evacuación» | Idem, y es la frase que separa esta herramienta de una orden |
-| La medición del río | Es dato en vivo, no texto fijo: lo escribe `pintarPie()` en `js/app/rio.js` |
-| «Hecho por Ariel Benz» | Una herramienta que dice «no tiene vínculo con organismos oficiales» gana en que se vea quién responde por ella: es el contrapeso del renglón de arriba |
+| Qué queda                              | Por qué no se puede ir                                                                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| El enlace de instalar                  | Es la red de contención de la barra de instalar: que la hayan cerrado, que Chrome no dispare `beforeinstallprompt`, que el navegador no lo implemente   |
+| «Sin vínculo con organismos oficiales» | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla»                                    |
+| «No reemplaza una orden de evacuación» | Idem, y es la frase que separa esta herramienta de una orden                                                                                            |
+| La medición del río                    | Es dato en vivo, no texto fijo: lo escribe `pintarPie()` en `js/app/rio.js`                                                                             |
+| «Hecho por Ariel Benz»                 | Una herramienta que dice «no tiene vínculo con organismos oficiales» gana en que se vea quién responde por ella: es el contrapeso del renglón de arriba |
 
 Se fueron las pastillas de X e Instagram: eso no es quién responde sino dónde
 seguirlo, y para escribirnos está `/contacto`, en Ajustes.
@@ -1023,10 +1048,10 @@ vieja para siempre.
 
 Lo registraba **sólo `/app`**. El sitio precacheaba sus once páginas para andar
 sin señal, pero ese precache no corría nunca para quien no abría la app — y la
-bajada de `/puntos-de-encuentro` dice, con todas las letras, *«esta página
-funciona sin conexión»*. Alguien que llegaba de un buscador a la página de
+bajada de `/puntos-de-encuentro` dice, con todas las letras, _«esta página
+funciona sin conexión»_. Alguien que llegaba de un buscador a la página de
 evacuación leía una promesa falsa. El arreglo anterior —meter las páginas en
-el precache— resolvió *qué* se cachea, no *si el worker llega a instalarse*.
+el precache— resolvió _qué_ se cachea, no _si el worker llega a instalarse_.
 
 Ahora lo registran las dos mitades: `js/app/instalar.js` para la app y
 `js/rio-barra.js` para las once páginas, que es el archivo que ya iba en todas.
@@ -1036,10 +1061,10 @@ de esperar el evento — el bug que dejó la app sin caché durante semanas.
 Registrar en todas las páginas hacía que quien entra a leer `/legal` se bajara
 los 387 KB del precache entero. Así que va en dos tandas:
 
-| Tanda | Qué | Cuánto | Quién la paga |
-| --- | --- | --- | --- |
+| Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
+| ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
 | `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
-| `DEL_APP` | los 21 módulos, `curvas.json`, las tipografías, los íconos | 284 KB | sólo quien abre `/app` |
+| `DEL_APP`  | los 22 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
 
 La segunda **no se pide en `install`**: la pide la app con un `postMessage`.
 Pedirla en la instalación habría sido partirla para nada.
@@ -1097,12 +1122,12 @@ módulos ES de la app, los scripts clásicos del sitio, el service worker y
 Node—. Cada cosa que hacía falta en dos de esos cuatro terminaba copiada, y
 así se llegó a esto:
 
-| Qué | Copias que había |
-| --- | --- |
-| Los umbrales oficiales 5,30 / 5,70 | 8 archivos |
-| «un número con coma decimal» | 7 veces, con 5 nombres distintos |
-| El filtro de plausibilidad de umbrales | 5 archivos |
-| Cuándo vence un dato (48 h) | 3 archivos, con 2 unidades |
+| Qué                                    | Copias que había                 |
+| -------------------------------------- | -------------------------------- |
+| Los umbrales oficiales 5,30 / 5,70     | 8 archivos                       |
+| «un número con coma decimal»           | 7 veces, con 5 nombres distintos |
+| El filtro de plausibilidad de umbrales | 5 archivos                       |
+| Cuándo vence un dato (48 h)            | 3 archivos, con 2 unidades       |
 
 Hoy todo eso vive en `lib/comun.js` y no hay ninguna copia. Los módulos y Node
 lo importan; los otros dos leen `lib/comun-clasico.js`, que **emite
@@ -1194,17 +1219,17 @@ exige la app instalada.
 Esta tabla es lo que haría falta para cada canal. Los costos son órdenes de
 magnitud, no presupuestos.
 
-| Canal | A quién alcanza | Qué haría falta | Costo | Qué rompe |
-| --- | --- | --- | --- | --- |
-| **Audio en la app** — un botón «Escuchar» que lea el veredicto | quien no lee bien pero tiene teléfono | `speechSynthesis`; en Android las voces en español vienen instaladas y andan sin red | un día, cero pesos | nada |
-| **Lectura fácil / pictogramas** | idem | reescribir los ocho estados con pautas de lectura fácil y **validarlos con una organización que sepa hacerlo**; sin eso no vale | acuerdo, no plata | nada |
-| **Qom, mocoví, guaraní** | comunidades del Gran Santa Fe | traductores **humanos** de esas comunidades para los ocho estados, los teléfonos y las tres reglas. Traducción automática acá sería peor que nada | acuerdo institucional | nada |
-| **RSS del nivel** | radios barriales, otras webs | que `api/cron/avisar.js` escriba un feed estático | horas, cero pesos | nada |
-| **Radio** — que una FM barrial lea el nivel | quien no tiene datos | el feed de arriba y alguien que llame | tiempo de gestión | nada |
-| **Línea de voz** — llamás y escuchás el nivel | quien no tiene datos, y quien no lee | un número con IVR y texto‑a‑voz leyendo `/api/nivel` | dólares por mes + por minuto | nada, si no se guardan los números que llaman |
-| **SMS de alerta** | teléfono sin internet | proveedor de SMS, alta con consentimiento, y **guardar números de teléfono** | centavos de dólar por mensaje × personas × avisos | **la promesa de privacidad.** Hoy el servidor guarda un solo dato opaco; un número de celular es un dato personal. Habría que reescribir `/legal` |
-| **Bot de WhatsApp** | casi todos | cuenta de WhatsApp Business API, plantillas aprobadas por Meta, y guardar números | por conversación | lo mismo que SMS |
-| **USSD** (`*123#`) | teléfonos con teclas | acuerdo con las operadoras | fuera de alcance para un proyecto ciudadano | — |
+| Canal                                                          | A quién alcanza                       | Qué haría falta                                                                                                                                   | Costo                                             | Qué rompe                                                                                                                                         |
+| -------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Audio en la app** — un botón «Escuchar» que lea el veredicto | quien no lee bien pero tiene teléfono | `speechSynthesis`; en Android las voces en español vienen instaladas y andan sin red                                                              | un día, cero pesos                                | nada                                                                                                                                              |
+| **Lectura fácil / pictogramas**                                | idem                                  | reescribir los ocho estados con pautas de lectura fácil y **validarlos con una organización que sepa hacerlo**; sin eso no vale                   | acuerdo, no plata                                 | nada                                                                                                                                              |
+| **Qom, mocoví, guaraní**                                       | comunidades del Gran Santa Fe         | traductores **humanos** de esas comunidades para los ocho estados, los teléfonos y las tres reglas. Traducción automática acá sería peor que nada | acuerdo institucional                             | nada                                                                                                                                              |
+| **RSS del nivel**                                              | radios barriales, otras webs          | que `api/cron/avisar.js` escriba un feed estático                                                                                                 | horas, cero pesos                                 | nada                                                                                                                                              |
+| **Radio** — que una FM barrial lea el nivel                    | quien no tiene datos                  | el feed de arriba y alguien que llame                                                                                                             | tiempo de gestión                                 | nada                                                                                                                                              |
+| **Línea de voz** — llamás y escuchás el nivel                  | quien no tiene datos, y quien no lee  | un número con IVR y texto‑a‑voz leyendo `/api/nivel`                                                                                              | dólares por mes + por minuto                      | nada, si no se guardan los números que llaman                                                                                                     |
+| **SMS de alerta**                                              | teléfono sin internet                 | proveedor de SMS, alta con consentimiento, y **guardar números de teléfono**                                                                      | centavos de dólar por mensaje × personas × avisos | **la promesa de privacidad.** Hoy el servidor guarda un solo dato opaco; un número de celular es un dato personal. Habría que reescribir `/legal` |
+| **Bot de WhatsApp**                                            | casi todos                            | cuenta de WhatsApp Business API, plantillas aprobadas por Meta, y guardar números                                                                 | por conversación                                  | lo mismo que SMS                                                                                                                                  |
+| **USSD** (`*123#`)                                             | teléfonos con teclas                  | acuerdo con las operadoras                                                                                                                        | fuera de alcance para un proyecto ciudadano       | —                                                                                                                                                 |
 
 **Orden sugerido si alguna vez se hace:** afiche → audio → RSS y radio → línea
 de voz. Los tres primeros no tocan la privacidad ni cuestan plata.

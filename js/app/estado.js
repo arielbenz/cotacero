@@ -75,7 +75,7 @@ export function limpiarGuardadoViejo() {
     const muertas = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      // cc_geo_, cc_geo2_ y cc_geo3_ sí; cc_geo4_ es la que se usa hoy.
+      // cc_geo_, cc_geo2_ y cc_geo3_. La búsqueda de dirección ya no cachea.
       if (k && /^cc_geo(|2|3)_/.test(k)) muertas.push(k);
     }
     muertas.forEach((k) => localStorage.removeItem(k));

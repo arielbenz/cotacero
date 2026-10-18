@@ -56,7 +56,7 @@ const SALIDA_SIN_DATO =
   "No sé la altura de mi casa</button>";
 
 /* La cuarta forma de conseguir la altura, ofrecida justo donde las otras
-   fallan: GPS impreciso o lento, dirección que OpenStreetMap no tiene. */
+   fallan: GPS impreciso o lento, dirección que ningún callejero tiene. */
 export const BOTON_MARCAR =
   '<button class="enlace-crudo" type="button" data-accion="cota-mapa">' +
   "marcá tu casa en el mapa</button>";

@@ -4,6 +4,7 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
+import { aTitulo, cargarCalles, cerrarSugerencias } from "./calles.js";
 import { BOTON_MARCAR, fijarCotaEstimada } from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
@@ -22,65 +23,129 @@ export let mapa = null,
 let promesaMapa = null,
   pinCasa = null;
 
-/* Geocodifica una dirección con Nominatim (OpenStreetMap). Devuelve
-   [lon,lat] o null. Sólo la usa la búsqueda de dirección de la persona: los
-   puntos de encuentro tienen coordenadas oficiales y no pasan por acá.
-   `bounded=1` con viewbox es un filtro duro, no un sesgo: sin él el
-   geocodificador se va a la calle homónima de Rosario o Santo Tomé.
-   La política de uso de Nominatim pide no hacer consultas sistemáticas: acá
-   va una por búsqueda que inicia la persona, y se cachea en el dispositivo. */
-const VIEWBOX_SF = "-60.90,-31.35,-60.45,-31.85";
+/* ---------- la búsqueda de dirección: Georef primero, Nominatim detrás ----------
+   Georef es la API de direcciones del Estado nacional (apis.datos.gob.ar).
+   Normaliza lo que escribe la gente —«Bv Galvez al 1500», «Boulevard
+   Pellegrini 3100», con o sin tilde— y ubica la altura interpolando sobre el
+   callejero del INDEC. Sin clave ni cuota. Nominatim (OpenStreetMap) sólo
+   conoce las alturas que alguien cargó a mano, que en Santa Fe son pocas:
+   cuando no la tiene devuelve una esquina o la calle entera, hasta 1,4 km de
+   la casa, y la cota de ese punto no dice nada.
 
-async function geocodificar(texto, cache = true) {
-  // cc_geo4_: cambió el proveedor, la caché anterior no sirve.
-  const clave = "cc_geo4_" + texto.replace(/\s+/g, "_").slice(0, 60);
-  if (cache) {
-    const g = guardado.get(clave);
-    if (g) {
-      try {
-        return JSON.parse(g);
-      } catch (e) {}
-    }
-  }
+   Medido el 17/10/2026 con 30 direcciones escritas como las escribe la
+   gente: Georef ubicó la altura en 25; Nominatim en 15, y en otras 3 la ubicó
+   pero en Santo Tomé o Candioti. Cuando los dos la tienen, coinciden a menos
+   de 50 m.
+
+   Georef no resuelve barrios ni parajes («Alto Verde», «Colastiné Norte»):
+   eso sigue siendo de Nominatim. Y si Georef no contesta —es un servicio del
+   Estado, puede estar caído— Nominatim queda detrás. Dos proveedores sin
+   clave, no uno. Los dos reciben una consulta por búsqueda que inicia la
+   persona, nunca un barrido; la política de uso de Nominatim lo pide así.
+   Cambiar de proveedor toca también connect-src en vercel.json, el párrafo
+   de /legal que los nombra y LICENCIAS en scripts/paginas.js. */
+
+/* Un fetch con tope de tiempo. Sin él, un proveedor colgado deja el botón en
+   «Buscando…» para siempre, y acá hay un segundo esperando turno.
+   AbortController y no AbortSignal.timeout(): el segundo no existe en los
+   Android viejos que este proyecto sostiene. */
+async function traerJson(url, ms) {
+  const ctl =
+    typeof AbortController === "function" ? new AbortController() : null;
+  const t = ctl && setTimeout(() => ctl.abort(), ms);
   try {
-    const u =
-      "https://nominatim.openstreetmap.org/search?" +
-      new URLSearchParams({
-        q: texto,
-        format: "jsonv2",
-        limit: "1",
-        viewbox: VIEWBOX_SF,
-        bounded: "1",
-      });
-    const r = await fetch(u, { headers: { Accept: "application/json" } });
-    const j = await r.json();
-    const f = j && j[0];
-    if (!f) return null;
-    // Un resultado de tipo "city"/"state" es el centroide de la ciudad, no la
-    // dirección: como cota no dice nada. Mejor no devolver nada.
-    if (["city", "state", "country", "municipality"].includes(f.addresstype))
-      return null;
-    const c = [parseFloat(f.lon), parseFloat(f.lat)];
-    if (!isFinite(c[0]) || !isFinite(c[1])) return null;
-    // Devolvemos también qué encontró y con cuánta precisión. "house"/"building"
-    // es la altura exacta; "road" es un punto cualquiera de la calle, que en
-    // una avenida larga puede estar a kilómetros. Eso hay que decirlo, no
-    // esconderlo detrás de un número que parece firme.
-    const res = {
-      c,
-      nombre: f.display_name || "",
-      exacta: ["house", "building", "place"].includes(f.addresstype),
-    };
-    if (cache) guardado.set(clave, JSON.stringify(res));
-    return res;
+    const r = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: ctl ? ctl.signal : undefined,
+    });
+    if (!r.ok) return null;
+    return await r.json();
   } catch (e) {
     return null;
+  } finally {
+    if (t) clearTimeout(t);
   }
+}
+
+/* Devuelve { c: [lon, lat], nombre, exacta } o null. `exacta` es la altura
+   —interpolada dentro de la cuadra, que para curvas cada 50 cm alcanza— y no
+   la calle entera. Se filtra por localidad censal y no por departamento:
+   con «La Capital» Georef también se va a la calle homónima de Santo Tomé.
+   Sin altura no contesta nada útil —la ubicación es un punto cualquiera de la
+   calle—, así que se descarta y sigue Nominatim. */
+async function georef(texto) {
+  const j = await traerJson(
+    "https://apis.datos.gob.ar/georef/api/direcciones?" +
+      new URLSearchParams({
+        direccion: texto,
+        provincia: "Santa Fe",
+        localidad_censal: "Santa Fe",
+        max: "1",
+      }),
+    8000,
+  );
+  const f = j && j.direcciones && j.direcciones[0];
+  if (!f || !f.altura || f.altura.valor == null || !f.ubicacion) return null;
+  const c = [+f.ubicacion.lon, +f.ubicacion.lat];
+  if (!isFinite(c[0]) || !isFinite(c[1])) return null;
+  return {
+    c,
+    nombre: aTitulo(f.calle.nombre + " " + f.altura.valor) + ", Santa Fe",
+    exacta: true,
+  };
+}
+
+/* El viewbox con `bounded=1` es un filtro duro, no un sesgo: sin él Nominatim
+   se va a la calle homónima de Rosario. Pero es un rectángulo, y adentro
+   quedan Santo Tomé —cruzando el Salado—, Rincón y Candioti, que tienen las
+   mismas calles con las mismas alturas. Por eso se piden varios resultados
+   con `addressdetails` y se toma el primero que OpenStreetMap ubica dentro
+   del municipio: la relación «Santa Fe Capital», que llevan todos los puntos
+   de la ciudad —Alto Verde y Colastiné incluidos— y ninguno de los vecinos. */
+const VIEWBOX_SF = "-60.90,-31.35,-60.45,-31.85";
+const enElMunicipio = (a) =>
+  Boolean(a) && (a.municipality === "Santa Fe Capital" || a.city === "Santa Fe");
+
+async function nominatim(texto) {
+  const j = await traerJson(
+    "https://nominatim.openstreetmap.org/search?" +
+      new URLSearchParams({
+        q: texto + ", Santa Fe, Argentina",
+        format: "jsonv2",
+        limit: "5",
+        viewbox: VIEWBOX_SF,
+        bounded: "1",
+        addressdetails: "1",
+      }),
+    10000,
+  );
+  if (!Array.isArray(j)) return null;
+  // Un resultado de tipo "city"/"state" es el centroide de la ciudad, no la
+  // dirección: como cota no dice nada.
+  const f = j.find(
+    (x) =>
+      enElMunicipio(x.address) &&
+      !["city", "state", "country", "municipality"].includes(x.addresstype),
+  );
+  if (!f) return null;
+  const c = [parseFloat(f.lon), parseFloat(f.lat)];
+  if (!isFinite(c[0]) || !isFinite(c[1])) return null;
+  // "house"/"building"/"place" es la altura exacta; "road" es un punto
+  // cualquiera de la calle, que en una avenida larga puede estar a kilómetros.
+  // Eso hay que decirlo, no esconderlo detrás de un número que parece firme.
+  return {
+    c,
+    nombre: f.display_name || "",
+    exacta: ["house", "building", "place"].includes(f.addresstype),
+  };
 }
 
 export function abrirBuscadorDireccion() {
   document.getElementById("caja-dir").style.display = "block";
   document.getElementById("in-dir").focus();
+  // Las sugerencias se filtran contra el callejero (js/app/calles.js): se
+  // baja ahora, mientras empieza a escribir, y no al abrir la app.
+  cargarCalles();
 }
 
 /* Nominatim no encuentra «Barrio Centenario» y sí «Centenario»: en
@@ -91,6 +156,7 @@ export function abrirBuscadorDireccion() {
 const PREFIJO_BARRIO = /(^|[\s,])(?:barrio\s+|b\s*[°º]\s*|bo\.\s*)/gi;
 
 export async function buscarDireccion() {
+  cerrarSugerencias();
   const q = document.getElementById("in-dir").value.trim();
   const e = document.getElementById("estado-cota");
   if (!q) {
@@ -101,16 +167,18 @@ export async function buscarDireccion() {
   try {
     e.textContent = "Buscando la dirección…";
     aLaVista(e);
-    var r = await geocodificar(q + ", Santa Fe, Argentina", false);
+    // Georef sólo con una altura: sin número lo que escribió es un barrio,
+    // una plaza o una calle entera, y eso lo sabe Nominatim.
+    var r = /\d/.test(q) ? await georef(q) : null;
+    if (!r) r = await nominatim(q);
     const sinBarrio = q.replace(PREFIJO_BARRIO, "$1").trim();
-    if (!r && sinBarrio && sinBarrio !== q)
-      r = await geocodificar(sinBarrio + ", Santa Fe, Argentina", false);
+    if (!r && sinBarrio && sinBarrio !== q) r = await nominatim(sinBarrio);
     if (!r) {
-      // Hay calles que OpenStreetMap todavía no tiene —pasó con «Avenida de
-      // los Ombúes»—: ahí ningún intento más la va a encontrar, y lo que
-      // sirve es el mapa.
+      // Hay calles nuevas que ningún callejero tiene todavía —pasó con
+      // «Avenida de los Ombúes»—: ahí ningún intento más la va a encontrar,
+      // y lo que sirve es el mapa.
       e.innerHTML =
-        "No se encontró esa dirección. Probá con calle y altura; si sigue " +
+        "No se encontró esa dirección. Probá con calle y número; si sigue " +
         "sin aparecer, " +
         BOTON_MARCAR +
         ".";
@@ -139,7 +207,7 @@ export async function buscarDireccion() {
   );
   if (!r.exacta)
     e.innerHTML +=
-      ' <b style="color:var(--alerta-texto)">Ubicó la calle, no la altura exacta</b>, ' +
+      ' <b style="color:var(--alerta-texto)">Ubicó la calle, no el número exacto</b>, ' +
       "así que puede estar a varias cuadras. Si no es tu casa, escribí la altura a mano.";
 }
 

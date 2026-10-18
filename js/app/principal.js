@@ -21,6 +21,7 @@ document.documentElement.classList.add("con-modulos");
 
 import { activarAvisos, desactivarAvisos } from "./avisos.js";
 import { cerrarBienvenida, mostrarBienvenida } from "./bienvenida.js";
+import { elegirCalle, sugerirCalle, teclaEnDireccion } from "./calles.js";
 import { compartirImagen } from "./compartir.js";
 import { REFRESCO_MS, ZONAS } from "./config.js";
 import {
@@ -190,6 +191,8 @@ const ACCIONES = {
   "cota-gps": () => estimarCota(),
   "abrir-dir": () => abrirBuscadorDireccion(),
   "buscar-dir": () => buscarDireccion(),
+  // Una sugerencia del buscador de dirección (js/app/calles.js).
+  "elegir-calle": (el) => elegirCalle(el.dataset.calle || ""),
   exportar: () => exportarPlan(),
   compartir: () => compartirPlan(),
   ubicarme: () => ubicarmeEnMapa(),
@@ -241,6 +244,7 @@ const ENTRADAS = {
   "cota-manual": () => marcarCotaManual(),
   "filtrar-puntos": () => filtrarPuntos(),
   "km-manual": (el) => fijarKmManual(el.value),
+  "sugerir-calle": () => sugerirCalle(),
 };
 
 function conectarEventos() {
@@ -265,6 +269,8 @@ function conectarEventos() {
   window.addEventListener("beforeprint", prepararImpresion);
   pintarConexion();
   document.getElementById("in-dir").addEventListener("keydown", (ev) => {
+    // Con la lista abierta, las flechas, Enter y Escape son de la lista.
+    if (teclaEnDireccion(ev)) return;
     if (ev.key === "Enter") {
       ev.preventDefault();
       buscarDireccion();

@@ -179,8 +179,11 @@
         </div>
         <p class="chico" style="margin-top:20px">
           No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos. La búsqueda de direcciones consulta a Nominatim
-          (OpenStreetMap) sólo cuando vos la iniciás.</p>
+          venta de datos. La búsqueda de direcciones consulta a Georef (la
+          API de direcciones del Estado nacional) y, si no la encuentra, a
+          Nominatim (OpenStreetMap), sólo cuando vos la iniciás. Las calles
+          que te sugiere mientras escribís salen de una lista guardada en la
+          app: escribir no manda nada.</p>
         <p class="chico">
           <b>Las estadísticas del sitio.</b> Las miden dos servicios: Vercel
           Analytics, que es agregado y sin cookies, y Google Analytics, que
@@ -201,8 +204,12 @@
             <p>Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app.</p>
           </div>
           <div>
+            <b>Georef</b>
+            <p>Búsqueda de direcciones con altura y la lista de calles que sugiere el buscador: la API de direcciones del Estado nacional, sobre el callejero del INDEC. Datos abiertos de <a href="https://datos.gob.ar/" target="_blank" rel="noopener">datos.gob.ar</a>; la API está documentada en <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">georef-ar-api</a>.</p>
+          </div>
+          <div>
             <b>OpenStreetMap / Nominatim</b>
-            <p>Búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
+            <p>Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
           </div>
           <div>
             <b>Instituto Geográfico Nacional</b>
@@ -281,7 +288,7 @@
         </div>
       </footer>
       <p class="pie-cierre">
-        Última actualización del sitio: 16/10/2026 · Hecho en Santa Fe
+        Última actualización del sitio: 18/10/2026 · Hecho en Santa Fe
       </p>
 
     </div>

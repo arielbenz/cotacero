@@ -1194,7 +1194,6 @@ const htmlPreguntas = pagina({
    sin duración a propósito: no la pude confirmar en la fuente y no se inventa
    un número para llenar un casillero. */
 
-
 /* Escrito con palabras y no con un número: "Seis charlas" en un lead y luego
    siete en la lista es el clásico literal que se desincroniza de los datos. */
 const NUMERO_CHARLAS =
@@ -1367,13 +1366,15 @@ ${CHARLAS.map(
   (
     c,
   ) => `        <a class="charla t-${c.tono}" href="${c.url}" target="_blank" rel="noopener">
-          ${/* La miniatura es el fotograma que TED publica como og:image,
+          ${
+            /* La miniatura es el fotograma que TED publica como og:image,
                alojado acá y no enlazado a pi.tedcdn.com: la CSP es
                img-src 'self', /charlas está precacheada, y enlazarla le
                mandaría a TED la IP de cada lector. Las baja
                scripts/charlas.js. `alt` vacío y aria-hidden porque el título
                que sigue dice lo mismo: para un lector de pantalla la imagen
-               es ruido, no información. */ ""}
+               es ruido, no información. */ ""
+          }
           <span class="mini">
             <img src="/img/charlas/${c.url.replace(/.*\/talks\//, "")}.jpg"
                  width="320" height="180" loading="lazy" decoding="async"
@@ -2061,8 +2062,12 @@ const LICENCIAS = [
     "Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app.",
   ],
   [
+    "Georef",
+    'Búsqueda de direcciones con altura y la lista de calles que sugiere el buscador: la API de direcciones del Estado nacional, sobre el callejero del INDEC. Datos abiertos de <a href="https://datos.gob.ar/" target="_blank" rel="noopener">datos.gob.ar</a>; la API está documentada en <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">georef-ar-api</a>.',
+  ],
+  [
     "OpenStreetMap / Nominatim",
-    'Búsqueda de direcciones. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.',
+    'Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.',
   ],
   [
     "Instituto Geográfico Nacional",
@@ -2172,8 +2177,11 @@ ${PRIVACIDAD.map(
         </div>
         <p class="chico" style="margin-top:20px">
           No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos. La búsqueda de direcciones consulta a Nominatim
-          (OpenStreetMap) sólo cuando vos la iniciás.</p>
+          venta de datos. La búsqueda de direcciones consulta a Georef (la
+          API de direcciones del Estado nacional) y, si no la encuentra, a
+          Nominatim (OpenStreetMap), sólo cuando vos la iniciás. Las calles
+          que te sugiere mientras escribís salen de una lista guardada en la
+          app: escribir no manda nada.</p>
         <p class="chico">
           <b>Las estadísticas del sitio.</b> Las miden dos servicios: Vercel
           Analytics, que es agregado y sin cookies, y Google Analytics, que

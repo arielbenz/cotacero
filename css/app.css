@@ -826,6 +826,47 @@ input[type="range"] {
   width: 100%;
   accent-color: var(--agua);
 }
+/* El buscador de dirección: la lista de calles va pegada al campo, en el
+   flujo y no flotando, para que nunca tape el botón ni quede cortada por el
+   teclado del teléfono. Las sugerencias las arma js/app/calles.js. */
+label.campo-dir {
+  margin-bottom: 0;
+}
+.sug-dir {
+  list-style: none;
+  margin: var(--e-1) 0 0;
+  padding: var(--e-1) 0;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra);
+}
+.sug-dir li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-3);
+  min-height: 44px;
+  padding: var(--e-2) var(--e-4);
+  cursor: pointer;
+  font-weight: 600;
+}
+.sug-dir li small {
+  font-weight: 400;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.sug-dir li:hover,
+.sug-dir li[aria-selected="true"] {
+  background: var(--agua-tinte);
+}
+.pista-dir {
+  margin: var(--e-2) 0 var(--e-3);
+}
+.pista-dir.aviso-dir {
+  color: var(--alerta-texto);
+}
 /* ==========================================================================
    BOTONES: DOS ESTILOS Y NADA MÁS
    `.btn`      el sólido. La acción principal, una por pantalla. Negro sobre
