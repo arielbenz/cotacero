@@ -505,13 +505,28 @@
         </div>
 
         <div id="caja-dir" style="display: none">
-          <label class="campo"
+          <label class="campo campo-dir"
             ><span>Dirección</span>
             <input
               type="text"
               id="in-dir"
-              placeholder="Ej: Risso 1745, Santa Fe"
+              placeholder="Ej: Risso 1745"
+              data-input="sugerir-calle"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="sug-dir"
+              aria-describedby="pista-dir"
+              autocomplete="off"
+              autocapitalize="words"
+              spellcheck="false"
+              enterkeyhint="search"
           /></label>
+          <!-- Sugerencias: js/app/calles.js -->
+          <ul id="sug-dir" class="sug-dir" role="listbox" aria-label="Calles de Santa Fe" hidden></ul>
+          <p class="chico pista-dir" id="pista-dir">
+            Escribí la calle y el número de tu casa.
+          </p>
           <button class="btn sec" data-accion="buscar-dir">Buscar</button>
         </div>
 

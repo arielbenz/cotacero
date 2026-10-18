@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v90";
+const VERSION = "cota-cero-v91";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -111,6 +111,7 @@ const DEL_APP = [
   "/js/app/principal.js",
   "/js/app/avisos.js",
   "/js/app/bienvenida.js",
+  "/js/app/calles.js",
   "/js/app/compartir.js",
   "/js/app/config.js",
   "/js/app/cota.js",
@@ -157,14 +158,15 @@ const DEL_APP = [
   "/img/apple-touch-icon.png",
 ];
 
-/* La unión. `scripts/paginas.js` verifica contra esto que estén los 21 módulos
+/* La unión. `scripts/paginas.js` verifica contra esto que estén los 22 módulos
    y las 10 páginas generadas, y que no sobre ninguna ruta muerta. */
 const ESENCIALES = CRITICOS.concat(DEL_APP);
 
 // `cache: "reload"` salta el caché HTTP del navegador. Sin esto, subir
 // VERSION puede volver a guardar los mismos archivos viejos y el bump no
 // sirve de nada — pasó con el manifest.
-const frescas = (rutas) => rutas.map((u) => new Request(u, { cache: "reload" }));
+const frescas = (rutas) =>
+  rutas.map((u) => new Request(u, { cache: "reload" }));
 
 self.addEventListener("install", (e) => {
   e.waitUntil(

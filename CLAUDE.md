@@ -16,6 +16,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/paginas.js           # regenera las páginas de contenido
     node scripts/historia.js          # baja la serie del INA -> datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> datos-abiertos/curvas.json
+    node scripts/calles.js            # baja el callejero de Georef -> datos-abiertos/calles.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
     node scripts/guia-pdf.js          # imprime /guia a guia.pdf (Chrome headless)
     node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
@@ -174,21 +175,21 @@ importado junto al service worker, así que sigue andando sin señal.
 Estas cosas viven en **un solo lugar** y se leen desde los demás. Duplicarlas
 es el error que este proyecto ya cometió y corrigió más de una vez:
 
-| Qué                                           | Dónde vive                                         | Quién lo lee                                                                              |
-| --------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                 |
-| Organismos, URLs, la estación del INA         | `lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                        |
-| El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                           |
-| Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                             |
-| Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app |
-| Umbrales de respaldo (5,30 / 5,70)            | `lib/comun.js`                                     | `lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron |
-| El filtro de plausibilidad de umbrales        | `lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                              |
-| Cómo se escribe un número (la coma, `mU`)     | `lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                       |
-| Cuándo vence un dato (48 h)                   | `lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                 |
-| Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                           |
-| Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9 |
-| Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                   |
-| El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie     |
+| Qué                                           | Dónde vive                                         | Quién lo lee                                                                                                                                                                           |
+| --------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                                              |
+| Organismos, URLs, la estación del INA         | `lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
+| El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
+| Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                                          |
+| Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                                              |
+| Umbrales de respaldo (5,30 / 5,70)            | `lib/comun.js`                                     | `lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
+| El filtro de plausibilidad de umbrales        | `lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                                                                                                                         |
+| Cómo se escribe un número (la coma, `mU`)     | `lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                                  |
+| Cuándo vence un dato (48 h)                   | `lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                                            |
+| Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                                                                                                                       |
+| Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
+| Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
+| El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
 | Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `lib/comun.js`; ver el comentario en `sw.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
@@ -353,6 +354,30 @@ una entrada en `ACCIONES` (clics, vía `data-accion`) o en `ENTRADAS`
 
 `style-src` sí lleva `'unsafe-inline'`, a propósito.
 
+### La búsqueda de dirección son dos proveedores, y tocar uno toca cuatro archivos
+
+`js/app/mapa.js` consulta primero a Georef (`apis.datos.gob.ar`) y detrás a
+Nominatim (`nominatim.openstreetmap.org`), los dos sin clave. Cada host está
+en el `connect-src` de `vercel.json` —si falta, el navegador bloquea el pedido
+y la app dice «no se encontró» como si fuera culpa de la dirección—, en el
+párrafo de `/legal` que dice adónde va lo que escribís y en `LICENCIAS` de
+`scripts/paginas.js`. Nominatim se filtra por municipio con `addressdetails`
+porque el `viewbox` deja adentro Santo Tomé, Rincón y Candioti, que tienen
+las mismas calles con las mismas alturas; sacar ese filtro vuelve a mandar
+«Rivadavia 2800» a Santo Tomé.
+
+**Las sugerencias del buscador no consultan a nadie.** `js/app/calles.js`
+filtra en el teléfono contra `datos-abiertos/calles.json`, el callejero de
+Georef que baja `node scripts/calles.js`. Pedirle sugerencias a una API por
+cada tecla mandaría la dirección de la persona antes de que apriete Buscar,
+y eso vuelve falsa la frase de `/legal`; además la política de Nominatim
+prohíbe autocompletar contra su API. El archivo no se precachea: buscar una
+dirección necesita señal de todos modos. Se regenera a mano, como las curvas,
+cuando Georef suma calles.
+
+En la interfaz, el de la casa es **«número»**, nunca «altura»: «altura» es la
+del terreno sobre el mar, y las dos aparecen en la misma tarjeta.
+
 ## Reglas que no se rompen
 
 ### Tres conceptos, tres nombres
@@ -377,7 +402,7 @@ cada una tiene UNA sola forma de decirse:
 reemplazo técnico: por eso vive en `/datos`, en el código (`cotaEnHidrometro`,
 `guardarUmbral`, la clave `umbral` de IndexedDB) y en `AUDITORIA.md`. Pero en
 pantalla no la entendía nadie que no la supiera de antes: las cinco
-definiciones que había eran circulares —definían *umbral* con *hidrómetro*, que
+definiciones que había eran circulares —definían _umbral_ con _hidrómetro_, que
 la app nunca explicaba— y la única frase llana aparecía sólo en el estado de
 error.
 
@@ -524,7 +549,6 @@ El arranque vive en `js/analitica.js` y no en línea, porque `script-src` es
 `'self'`. El cargador de googletagmanager está habilitado en la CSP general de
 `vercel.json`; las dos CSP del widget **no se tocaron**.
 
-
 Lo **único** que sale del dispositivo son las sugerencias, y el formulario lo
 dice. El push va **sin contenido**: el servidor no sabe la cota ni el umbral de
 nadie, sólo despierta al teléfono y el service worker arma la notificación
@@ -540,15 +564,15 @@ sólo la app, y eso dejaba una promesa escrita sin cumplir: la bajada de
 `/puntos-de-encuentro` dice «esta página funciona sin conexión», pero quien
 llegaba ahí desde un buscador y nunca abría la app no tenía service worker.
 Era la página de evacuación afirmando algo que no hacía. Agregar las páginas al
-precache no alcanzaba: eso arregla *qué* se cachea, no *si el worker llega a
-instalarse*.
+precache no alcanzaba: eso arregla _qué_ se cachea, no _si el worker llega a
+instalarse_.
 
 **Por eso el precache va en dos tandas** (`CRITICOS` y `DEL_APP` en `sw.js`):
 
-| Tanda | Qué | Cuánto | Quién la paga |
-| --- | --- | --- | --- |
+| Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
+| ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
 | `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
-| `DEL_APP` | los 21 módulos, `curvas.json`, las tipografías, los íconos | 284 KB | sólo quien abre `/app` |
+| `DEL_APP`  | los 22 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
 
 La segunda **no se pide en `install`**. La pide la app con un
 `postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la
@@ -577,7 +601,6 @@ bajarlas dos veces. La rama de caché primero las guarda en la segunda página
 que alguien mira, y sin señal el sitio sale con Plus Jakarta Sans — verificado.
 Lo único que queda afuera: quien mira UNA sola página y se queda sin señal ve
 la tipografía del sistema. Es legible, y no vale 164 KB duplicados.
-
 
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
