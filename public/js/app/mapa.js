@@ -291,6 +291,64 @@ const ESTILO_IGN = {
   ],
 };
 
+/* Si el IGN no contesta, el mapa quedaba con el fondo liso y los puntos
+   encima, sin decir nada: «se ve sólo gris», contó alguien. Pasa sin señal y
+   pasa cuando el servidor del IGN anda lento. Se cuentan los tiles que llegan
+   y los que fallan, y cuando el mapa se queda quieto se decide: si falló
+   alguno y no llegó ninguno, se avisa. Un servidor colgado no dispara ningún
+   error, así que 15 s sin un solo tile también cuentan como falla. */
+let llegaron = 0;
+let fallaron = 0;
+let relojFondo = null;
+
+function vigilarFondo() {
+  mapa.on("data", (e) => {
+    if (e.sourceId === "ign" && e.tile) llegaron++;
+  });
+  mapa.on("error", (e) => {
+    if (e.sourceId === "ign") fallaron++;
+    // Con un oyente propio MapLibre deja de escribir sus errores en la
+    // consola: los que no son del fondo se siguen mostrando.
+    else console.error(e.error || e);
+  });
+  mapa.on("dataloading", (e) => {
+    if (e.sourceId !== "ign" || relojFondo) return;
+    relojFondo = setTimeout(() => {
+      relojFondo = null;
+      if (!llegaron) avisoFondo(true);
+    }, 15000);
+  });
+  mapa.on("idle", () => {
+    clearTimeout(relojFondo);
+    relojFondo = null;
+    if (llegaron) avisoFondo(false);
+    else if (fallaron) avisoFondo(true);
+    llegaron = fallaron = 0;
+  });
+}
+
+function avisoFondo(mostrar) {
+  const cont = document.getElementById("mapa");
+  if (!cont) return;
+  let el = cont.querySelector(".mapa-fondo");
+  if (!mostrar) {
+    if (el) el.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "mapa-fondo";
+    el.setAttribute("role", "status");
+    cont.appendChild(el);
+  }
+  el.innerHTML = navigator.onLine
+    ? "<b>El mapa de fondo no está cargando:</b> el servidor del Instituto " +
+      "Geográfico Nacional no responde. Probá en un rato. Los puntos de " +
+      "encuentro y la lista de abajo funcionan igual."
+    : "<b>Sin conexión, el mapa de fondo no carga.</b> Los puntos de " +
+      "encuentro y la lista de abajo funcionan igual.";
+}
+
 /* Ubica los 29 puntos EN PARALELO. Antes era un await dentro de un for:
    29 viajes de ida y vuelta en serie en la primera carga de cada dispositivo,
    en 3G decenas de segundos. Va separado de armarMapa() porque la lista, las
@@ -345,8 +403,12 @@ async function construirMapa() {
     style: ESTILO_IGN,
     center: [-60.7, -31.63],
     zoom: 11,
+    /* El IGN publica hasta el 18. Más cerca MapLibre estira el tile y sólo
+       se ve una manzana lisa y borrosa: parecía que el mapa no cargaba. */
+    maxZoom: 18,
     attributionControl: { compact: true },
   });
+  vigilarFondo();
   mapa.addControl(
     new maplibregl.NavigationControl({ showCompass: false }),
     "top-right",

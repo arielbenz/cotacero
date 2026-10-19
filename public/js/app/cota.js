@@ -309,11 +309,43 @@ function tarjetaDefensa(z) {
   return h + "</div>";
 }
 
+/* En una zona que las curvas no cubren, las tres formas automáticas de
+   cargar la altura fallan siempre. Antes la dirección mandaba al mapa y el
+   mapa contestaba «fuera del plano»: un círculo sin salida para todo
+   Rincón. Ahora se esconden y se dice de entrada cuál es la única salida. */
+function pintarSinPlano(z) {
+  const aviso = document.getElementById("sin-plano");
+  const metodos = document.querySelector(".metodos");
+  if (!aviso || !metodos) return;
+  const sin = Boolean(z && z.sinPlano);
+  aviso.hidden = !sin;
+  metodos.hidden = sin;
+  // Sin los tres botones, el «O» del campo no tiene a qué oponerse, y la
+  // pista de las curvas habla de un plano que ahí no hay.
+  const o = document.getElementById("o-escribila");
+  if (o) o.textContent = sin ? "Escribila" : "O escribila";
+  const pista = document.getElementById("pista-curvas");
+  if (pista) pista.hidden = sin;
+  if (!sin) return;
+  cerrarBuscadorDir();
+  aviso.innerHTML =
+    "<b>Para " +
+    z.n +
+    " no tenemos el plano de alturas.</b> Las curvas de nivel que publica " +
+    "la Municipalidad de Santa Fe no llegan hasta ahí, así que ni tu " +
+    "ubicación, ni la dirección, ni el mapa pueden darnos la altura de tu " +
+    "terreno. Si la sabés, escribila acá abajo: en la escritura o en un " +
+    "plano figura como «cota IGN», y también te la puede dar tu municipio " +
+    "o comuna." +
+    SALIDA_SIN_DATO;
+}
+
 export function calcular() {
   const sel = document.getElementById("sel-zona");
   if (sel) estado.zona = sel.value;
 
   const z = ZONAS.find((z) => z.id === estado.zona);
+  pintarSinPlano(z);
   const nz = document.getElementById("nota-zona");
   if (!estado.zona) {
     nz.innerHTML =

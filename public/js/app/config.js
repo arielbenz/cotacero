@@ -73,7 +73,14 @@ export const KM_PUBLICADO = new Set(["centro", "leyes", "laboca"]);
    nadie lea «≈ 5,4» como «a 5,4 me tengo que ir» en un barrio que en 2016 vio
    el río en 6,61 detrás de un terraplén que aguantó. Cada renglón tiene que
    poder rastrearse: AUDITORIA.md §9 lista de dónde salió cada uno. Un renglón
-   sin fuente no entra. */
+   sin fuente no entra.
+
+   `sinPlano: true` marca las zonas que las curvas del municipio no cubren:
+   ahí ni el GPS, ni la dirección, ni el mapa pueden dar una altura, y la app
+   lo dice de entrada en vez de mandar de un camino al otro. Medido el
+   19/10/2026 con elevacionDe() sobre una grilla de 7×7 puntos por zona:
+   Arroyo Leyes y Calchines, ninguno con dato; Rincón, sólo la franja oeste
+   que ya es Colastiné. */
 const AIRE_2023 =
   "Secretaría de Recursos Hídricos municipal, en AIRE, 30/12/2023";
 const ENERO_2016 = "crónicas de enero de 2016 (El Litoral, Pausa)";
@@ -226,6 +233,7 @@ export const ZONAS = [
     km: 16,
     nota: "Defensa propia al este; unos 3 km de la margen oeste no la tienen, y la obra proyectada no se adjudicó.",
     defensa: "local",
+    sinPlano: true,
     observado: [
       {
         nivel: 5.3,
@@ -245,6 +253,7 @@ export const ZONAS = [
     km: 24,
     nota: "Defensa a 17 m sobre el mar (cota IGN) al este; los barrios del oeste no tienen, y la obra licitada no se adjudicó.",
     defensa: "local",
+    sinPlano: true,
     observado: [
       {
         nivel: 6.53,
@@ -259,6 +268,7 @@ export const ZONAS = [
     km: 40,
     nota: "Estimación gruesa: verificá con la comuna.",
     defensa: null,
+    sinPlano: true,
     observado: [
       {
         nivel: 6.53,

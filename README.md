@@ -196,7 +196,10 @@ de la cabecera, para que la barra de emergencia se quede en cuatro.
   de hoy. La regla marca alerta, evacuación y el récord de 1992: sin él, 5,70
   parece el techo del mundo.
 - **Mi casa.** Tres formas de cargar la altura del terreno: dirección, GPS o
-  tocando el mapa (con confirmación). Para quien ya la cargó, el resultado va
+  tocando el mapa (con confirmación). En Rincón, Arroyo Leyes y Calchines las
+  curvas no llegan (`sinPlano` en `ZONAS`): ahí las tres se esconden y la app
+  pide la altura a mano de entrada, en vez de mandar de un camino al otro.
+  Para quien ya la cargó, el resultado va
   primero y los pasos se pliegan. Debajo, si la zona tiene defensa y a qué
   niveles **pasó algo** ahí, con fuente (`ZONAS` en `js/app/config.js`,
   rastreados en `AUDITORIA.md` §9). La defensa no cambia la cuenta: cambia lo
@@ -206,7 +209,10 @@ de la cabecera, para que la barra de emergencia se quede en cuatro.
   de Contingencia; lo demás lo agregamos nosotros.
 - **Dónde ir.** Los 30 puntos, el más cercano y el mapa. MapLibre no se
   precachea —son 275 KB por una pestaña que mucha gente no abre— y se pregunta
-  por WebGL antes de bajarlo. `/app?ir=ayuda` abre la tarjeta «Si no sabés
+  por WebGL antes de bajarlo. El zoom se detiene en 18, el último nivel que
+  publica el IGN, y si el fondo no carga el mapa lo dice: con tema oscuro y
+  sin tiles quedaba gris liso, con los puntos encima y sin una palabra.
+  `/app?ir=ayuda` abre la tarjeta «Si no sabés
   nada de esto»: el 103 y tres instrucciones, para afiches y mensajes.
 
 **El pie de la app es corto a propósito.** Quedan tres cosas: «Sin vínculo
