@@ -60,6 +60,7 @@
   <body class="landing">
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
+    <div class="nav-envoltura">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -104,143 +105,116 @@
         </details>
       </nav>
     </div>
+    </div>
 
     <div class="ancho">
       <header class="pg-cabecera">
-        <h1>Legal</h1>
-        <p class="pg-lead">Última actualización: agosto de 2026. Escrito para leerse, no para esconderse: si algo no se entiende, es un defecto — avisanos por el formulario de sugerencias.</p>
-        <nav class="chips-ancla" aria-label="En esta página">
-          <a href="#descargo">Descargo de responsabilidad</a>
-          <a href="#privacidad">Privacidad</a>
-          <a href="#licencias">Licencias y atribuciones</a>
-        </nav>
+        <h1>Legal y privacidad</h1>
+        <p class="pg-lead">Escrito para leerse, no para esconderse. Si algo no se entiende, es un defecto: <a href="/contacto">avisanos</a>.</p>
+        <p class="chico">Última actualización: agosto de 2026.</p>
+        <div class="tarjetas-tres">
+          <div><b>No es oficial</b><p>Interpreta datos públicos. La orden de evacuación la da Defensa Civil, al 103.</p></div>
+          <div><b>Tus datos, en tu teléfono</b><p>Tu casa, tu nivel de aviso y tu plan no salen de ahí. Sin registro, sin publicidad.</p></div>
+          <div><b>Sin garantías</b><p>Gratis y tal cual. Depende de que el INA publique y de servicios que pueden fallar.</p></div>
+        </div>
       </header>
 
       <main>
       <section class="bloque" id="descargo">
-        <p class="kicker kicker-alerta">Descargo de responsabilidad</p>
-        <h2>Qué es esta herramienta — y qué no</h2>
-        <p>
-          <b>Cota Cero es una herramienta ciudadana que ayuda a interpretar
-          información pública, no un sistema oficial de alerta.</b> No tiene
-          vínculo con la Municipalidad
-          de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro
-          organismo. Usa datos públicos de esas fuentes y las cita.
-        </p>
-        <p>
-          <b>Los niveles de aviso son cálculos aproximados.</b> Se calculan con un
-          modelo simplificado y con datos que traen margen de error (±0,5 m en
-          la cota del terreno). El modelo no conoce defensas, terraplenes,
-          bombeo ni desagües: el agua puede llegar antes o después de lo
-          estimado. Además, fue contrastado con <b>un solo caso histórico</b>
-          —la crecida de 1992— y todavía no fue validado por especialistas ni
-          organismos competentes.
-        </p>
-        <p>
-          <b>Las decisiones de evacuación corresponden a Defensa Civil (103).</b>
-          Nada de lo que muestra esta app constituye una orden, recomendación
-          oficial ni sustituto de las comunicaciones de las autoridades. Ante
-          cualquier contradicción, vale la indicación oficial.
-        </p>
-        <p>
-          <b>Sin garantías de disponibilidad ni exactitud.</b> La app depende de
-          que el INA publique su reporte diario y de servicios de terceros que
-          pueden fallar, cambiar o discontinuarse. Se ofrece tal cual, de forma
-          gratuita y sin garantía de ningún tipo.
-        </p>
-        <p>
-          <b>Los datos pueden quedar desactualizados.</b> El nivel se publica
-          una vez por día; los puntos de encuentro reflejan la capa municipal al
-          momento de la última actualización de la app, y su activación en una
-          emergencia la confirma sólo Defensa Civil.
-        </p>
+        <h2>Qué es esta herramienta, y qué no</h2>
+        <dl class="filas-descargo">
+          <div>
+            <dt>Ayuda a interpretar información pública</dt>
+            <dd>No es un sistema oficial de alerta ni tiene vínculo con la Municipalidad de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro organismo. Usa sus datos públicos y los cita.</dd>
+          </div>
+          <div>
+            <dt>Los niveles de aviso son aproximados</dt>
+            <dd>Salen de un modelo simple, con ±0,5 m de error en la altura del terreno. No conoce defensas, bombeo, desagües ni lluvia: el agua puede llegar antes o después de lo estimado. Se contrastó con un solo caso, la crecida de 1992, y no lo validaron especialistas ni organismos competentes.</dd>
+          </div>
+          <div>
+            <dt>Nada de esto es una orden</dt>
+            <dd>Las decisiones de evacuación corresponden a Defensa Civil (103). Nada de lo que muestra la app es una orden, una recomendación oficial ni un sustituto de las comunicaciones de las autoridades. Ante cualquier contradicción, vale la indicación oficial.</dd>
+          </div>
+          <div>
+            <dt>Los datos pueden quedar viejos</dt>
+            <dd>El nivel se publica una vez por día. Los puntos de encuentro reflejan la capa municipal de la última actualización de la app; su activación la confirma sólo Defensa Civil.</dd>
+          </div>
+          <div>
+            <dt>Sin garantías</dt>
+            <dd>La app depende de que el INA publique y de servicios de terceros que pueden fallar, cambiar o discontinuarse. Se ofrece tal cual, gratis y sin garantía de ningún tipo.</dd>
+          </div>
+        </dl>
       </section>
 
       <section class="bloque" id="privacidad">
-        <p class="kicker">Privacidad</p>
-        <h2>Tus datos quedan en tu teléfono</h2>
-        <div class="rejilla-2">
-          <div class="mini-tarjeta">
-            <b>Tu nivel de aviso, tu zona y tu plan familiar</b>
-            <p>Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <b>Avisos</b>
-            <p>El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la altura de tu terreno ni tu nivel de aviso — el aviso se arma en tu teléfono. Al desuscribirte, se borra.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <b>Sugerencias</b>
-            <p>Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <b>Cuántas personas la usan</b>
-            <p>El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno.</p>
-          </div>
-        </div>
-        <p class="chico" style="margin-top:20px">
-          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos. La búsqueda de direcciones consulta a Georef (la
-          API de direcciones del Estado nacional) y, si no la encuentra, a
-          Nominatim (OpenStreetMap), sólo cuando vos la iniciás. Las calles
-          que te sugiere mientras escribís salen de una lista guardada en la
-          app: escribir no manda nada.</p>
+        <h2>Qué sale de tu teléfono</h2>
+        <table class="tabla-privacidad" role="table">
+          <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Qué</th><th scope="col" role="columnheader">Sale</th><th scope="col" role="columnheader">Detalle</th></tr></thead>
+          <tbody role="rowgroup">
+            <tr role="row"><th scope="row" role="rowheader">Tu casa, tu nivel de aviso, tu plan</th><td role="cell" class="tp-sale tp-nunca">Nunca</td><td role="cell">Se guardan sólo en el dispositivo. Si borrás la app, se borran.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Avisos</th><td role="cell" class="tp-sale">Un dato opaco</td><td role="cell">La dirección técnica que asigna tu navegador. El servidor no sabe la altura de tu terreno ni tu nivel de aviso: el aviso se arma en tu teléfono. Al desuscribirte, se borra.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Sugerencias</th><td role="cell" class="tp-sale">Tu texto</td><td role="cell">Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Cuánta gente la usa</th><td role="cell" class="tp-sale">Un número al azar</td><td role="cell">Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Buscar una dirección</th><td role="cell" class="tp-sale">Al tocar Buscar</td><td role="cell">Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Estadísticas del sitio</th><td role="cell" class="tp-sale">Sólo en el sitio</td><td role="cell">Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie.</td></tr>
+          </tbody>
+        </table>
         <p class="chico">
-          <b>Las estadísticas del sitio.</b> Las miden dos servicios: Vercel
-          Analytics, que es agregado y sin cookies, y Google Analytics, que
-          <b>sí deja cookies en tu navegador</b> y manda los datos de tu visita
-          a Google. Los dos corren en las páginas del sitio y
-          <b>ninguno corre dentro de la app ni dentro del widget</b>: tu cota,
-          tu nivel de aviso y tu plan no salen de tu teléfono, y a los lectores de un
-          <a href="/para-medios">medio que embebe el widget</a> no los mide nadie.
+          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
+          venta de datos. Lo que dice esta tabla sobre el widget es la promesa
+          que le hacemos a cada <a href="/para-medios">medio que lo embebe</a>.
         </p>
       </section>
 
       <section class="bloque" id="licencias">
-        <p class="kicker">Licencias y atribuciones</p>
         <h2>Sobre hombros de otros</h2>
-        <div class="filas-licencia">
-          <div>
-            <b>MapLibre GL JS</b>
-            <p>Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app.</p>
+        <p>MapLibre GL JS · Georef · OpenStreetMap / Nominatim · Instituto Geográfico Nacional · Municipalidad de Santa Fe · INA · Plus Jakarta Sans y JetBrains Mono.</p>
+        <details class="h-detalle">
+          <summary>Licencias y atribuciones completas</summary>
+          <div class="filas-licencia">
+            <div>
+              <b>MapLibre GL JS</b>
+              <p>Motor del mapa. Licencia BSD de 3 cláusulas — © contribuidores de MapLibre. El texto completo acompaña a la copia distribuida con la app.</p>
+            </div>
+            <div>
+              <b>Georef</b>
+              <p>Búsqueda de direcciones con altura y la lista de calles que sugiere el buscador: la API de direcciones del Estado nacional, sobre el callejero del INDEC. Datos abiertos de <a href="https://datos.gob.ar/" target="_blank" rel="noopener">datos.gob.ar</a>; la API está documentada en <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">georef-ar-api</a>.</p>
+            </div>
+            <div>
+              <b>OpenStreetMap / Nominatim</b>
+              <p>Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
+            </div>
+            <div>
+              <b>Instituto Geográfico Nacional</b>
+              <p>Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.</p>
+            </div>
+            <div>
+              <b>Municipalidad de Santa Fe</b>
+              <p>Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.</p>
+            </div>
+            <div>
+              <b>INA</b>
+              <p>Alturas hidrométricas diarias del Paraná, del <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">reporte público del Instituto Nacional del Agua</a>.</p>
+            </div>
+            <div>
+              <b>Plus Jakarta Sans y JetBrains Mono</b>
+              <p>Tipografías, bajo SIL Open Font License. Van self-hosteadas: no se consulta ningún servicio de fuentes.</p>
+            </div>
           </div>
-          <div>
-            <b>Georef</b>
-            <p>Búsqueda de direcciones con altura y la lista de calles que sugiere el buscador: la API de direcciones del Estado nacional, sobre el callejero del INDEC. Datos abiertos de <a href="https://datos.gob.ar/" target="_blank" rel="noopener">datos.gob.ar</a>; la API está documentada en <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">georef-ar-api</a>.</p>
-          </div>
-          <div>
-            <b>OpenStreetMap / Nominatim</b>
-            <p>Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
-          </div>
-          <div>
-            <b>Instituto Geográfico Nacional</b>
-            <p>Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.</p>
-          </div>
-          <div>
-            <b>Municipalidad de Santa Fe</b>
-            <p>Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.</p>
-          </div>
-          <div>
-            <b>INA</b>
-            <p>Alturas hidrométricas diarias del Paraná, del <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">reporte público del Instituto Nacional del Agua</a>.</p>
-          </div>
-          <div>
-            <b>Plus Jakarta Sans y JetBrains Mono</b>
-            <p>Tipografías, bajo SIL Open Font License. Van self-hosteadas: no se consulta ningún servicio de fuentes.</p>
-          </div>
-        </div>
+        </details>
       </section>
 
       <section class="bloque borde">
         <p class="chico" style="margin:0">
           Este texto lo redactó quien hizo la app, con la intención de ser claro
-          y honesto. No constituye asesoramiento legal ni fue revisado por un
-          profesional del derecho. Si encontrás un error, o algo que debería
-          decir y no dice, escribinos.
+          y honesto. No es asesoramiento legal ni lo revisó un profesional del
+          derecho. Si encontrás un error, o algo que debería decir y no dice,
+          <a href="/contacto">escribinos</a>.
         </p>
       </section>
       </main>
 
-      <p class="pg-cta"><a class="btn" href="/app">Abrir Cota Cero</a></p>
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
     </div>
 
     <div class="pie-envoltura">

@@ -52,40 +52,52 @@ export function pintarListas() {
   }
 }
 
-/* 26 casillas sin ninguna señal de avance: nadie sabía si iba por la mitad. */
+/* 26 casillas sin ninguna señal de avance: nadie sabía si iba por la mitad.
+   El resumen va arriba de la pestaña, en una tarjeta con la barra y el
+   detalle por lista: los contadores de cada lista quedaban abajo, donde no
+   se ven al entrar. */
 function pintarProgreso() {
-  // El resumen va arriba de la pestaña: los contadores por lista quedaban
-  // abajo, donde no se ven al entrar.
+  const mo = MOCHILA.length - faltanMochila();
+  const pv = PREVIA.filter((_, i) => guardado.get("cc_pv" + i) === "1").length;
+  const total = MOCHILA.length + PREVIA.length;
+  const hechos = mo + pv;
   const res = document.getElementById("resumen-plan");
-  if (res) {
-    const hechos =
-      MOCHILA.length -
-      faltanMochila() +
-      PREVIA.filter((_, i) => guardado.get("cc_pv" + i) === "1").length;
-    const total = MOCHILA.length + PREVIA.length;
+  if (res)
     res.innerHTML =
-      hechos === total
-        ? '<b style="color:var(--ok-texto)">Tu plan está completo.</b> Revisalo cada tanto.'
-        : "Llevás <b>" +
-          hechos +
-          " de " +
-          total +
-          "</b> cosas listas. Te faltan <b>" +
-          (total - hechos) +
-          "</b>.";
-  }
+      '<div class="pp-cabeza"><span class="pp-num"><b>' +
+      hechos +
+      "</b> de " +
+      total +
+      " cosas listas</span>" +
+      (hechos === total
+        ? '<span class="pp-falta">Completo</span>'
+        : '<span class="pp-falta">Te faltan <b>' + (total - hechos) + "</b></span>") +
+      "</div>" +
+      /* La barra repite el número de arriba: para un lector de pantalla
+         alcanza con el texto. */
+      '<div class="pp-pista" aria-hidden="true"><i style="width:' +
+      Math.round((hechos / total) * 100) +
+      '%"></i></div>' +
+      '<div class="pp-detalle"><span>Mochila <b>' +
+      mo +
+      "/" +
+      MOCHILA.length +
+      "</b></span><span>Antes de que suba <b>" +
+      pv +
+      "/" +
+      PREVIA.length +
+      "</b></span></div>" +
+      (hechos === total
+        ? '<p class="chico" style="margin:0">Tu plan está completo. Revisalo cada tanto.</p>'
+        : "");
   const poner = (id, hechos, total) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = hechos + " de " + total;
     el.classList.toggle("completa", hechos === total);
   };
-  poner("prog-mochila", MOCHILA.length - faltanMochila(), MOCHILA.length);
-  poner(
-    "prog-previa",
-    PREVIA.filter((_, i) => guardado.get("cc_pv" + i) === "1").length,
-    PREVIA.length,
-  );
+  poner("prog-mochila", mo, MOCHILA.length);
+  poner("prog-previa", pv, PREVIA.length);
 }
 
 let tGuardado;

@@ -128,6 +128,13 @@
      debajo del 4,5 de AA; #cf440d es el mismo naranja un escalón más hondo. */
   --alerta-solido: #cf440d;
   --evac-solido: #a5271a;
+  /* Las líneas de alerta y evacuación de las reglas —la de la app, la de
+     Mi casa, la de la portada, la franja de /historia—. En claro son los
+     rellenos sólidos, que se distinguen bien entre sí; en oscuro, los
+     sólidos sobre #17232a quedan apagados (el rojo hondo, 2,3:1) y van los
+     tonos de texto del tema. */
+  --linea-alerta: #e8a33d;
+  --linea-evac: #e57563;
 
   --agua-tinte: rgba(46, 155, 196, 0.16);
   --alerta-tinte: rgba(232, 163, 61, 0.14);
@@ -145,6 +152,11 @@
   --btn-fuerte-texto: var(--fondo);
   --texto-invertido: #e9eef0;
   --tenue-invertido: #93a6ad;
+  /* Las tarjetas sólidas oscuras de la app (el progreso del plan, «Si no
+     sabés nada de esto»). En tema oscuro, oscuro sobre oscuro se pierde: van
+     como panel con borde. En claro son el negro de siempre. */
+  --sup-fuerte: var(--panel);
+  --sup-fuerte-borde: var(--linea);
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
   --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
   --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
@@ -238,6 +250,10 @@
   --c-btn-fuerte-texto: #e9eef0;
   --c-texto-invertido: #e9eef0;
   --c-tenue-invertido: #93a6ad;
+  --c-sup-fuerte: #0e1619;
+  --c-sup-fuerte-borde: transparent;
+  --c-linea-alerta: #cf440d;
+  --c-linea-evac: #a5271a;
   --c-sombra:
     0 1px 2px rgba(23, 36, 42, 0.05), 0 10px 28px rgba(23, 36, 42, 0.07);
   --c-sombra-nav: 0 -6px 24px rgba(23, 36, 42, 0.06);
@@ -283,6 +299,10 @@
     --btn-fuerte-texto: var(--c-btn-fuerte-texto);
     --texto-invertido: var(--c-texto-invertido);
     --tenue-invertido: var(--c-tenue-invertido);
+    --sup-fuerte: var(--c-sup-fuerte);
+    --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+    --linea-alerta: var(--c-linea-alerta);
+    --linea-evac: var(--c-linea-evac);
     --sombra: var(--c-sombra);
     --sombra-nav: var(--c-sombra-nav);
     --filtro-mapa: var(--c-filtro-mapa);
@@ -318,6 +338,10 @@ html[data-theme="light"] {
   --btn-fuerte-texto: var(--c-btn-fuerte-texto);
   --texto-invertido: var(--c-texto-invertido);
   --tenue-invertido: var(--c-tenue-invertido);
+  --sup-fuerte: var(--c-sup-fuerte);
+  --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+  --linea-alerta: var(--c-linea-alerta);
+  --linea-evac: var(--c-linea-evac);
   --sombra: var(--c-sombra);
   --sombra-nav: var(--c-sombra-nav);
   --filtro-mapa: var(--c-filtro-mapa);
@@ -412,7 +436,7 @@ textarea {
   /* viewport-fit=cover hace que el contenido vaya por debajo de la muesca y
      la barra de estado. El safe-area estaba contemplado abajo (la nav) pero
      no arriba, así que el logo quedaba pisado. */
-  padding: calc(18px + env(safe-area-inset-top)) 18px 12px;
+  padding: calc(14px + env(safe-area-inset-top)) var(--e-4) 12px;
   /* El botón de tema va en el flujo, no absoluto: estaba posicionado y el
      subtítulo le pasaba por debajo. Con flex no se solapan nunca, cualquiera
      sea el largo del texto. */
@@ -422,28 +446,17 @@ textarea {
   gap: var(--e-4);
   border-bottom: 1px solid var(--linea);
   position: relative;
-  overflow: hidden;
-}
-.top::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--agua), transparent);
-  opacity: 0.5;
 }
 /* El botón de tema va en el encabezado, arriba a la derecha, donde no
    compite con nada. */
 .tema {
   flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-m);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
   border: 1px solid var(--linea);
   background: var(--panel);
-  color: var(--tenue);
+  color: var(--texto);
   font-size: var(--t-m);
   line-height: 1;
   cursor: pointer;
@@ -462,13 +475,15 @@ textarea {
   letter-spacing: -0.025em;
   line-height: 1.05;
 }
+/* El nombre va en el color del texto, igual que en la barra del sitio:
+   iba en el acento y la marca se veía distinta en la app y en el sitio. */
 .marca span {
-  color: var(--acento);
+  color: var(--texto);
 }
 .sub {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: var(--t-s);
+  font-size: var(--t-xs);
   color: var(--tenue);
   letter-spacing: 0;
   text-transform: none;
@@ -479,33 +494,42 @@ textarea {
 /* ---------- estructura ---------- */
 .vista {
   display: none;
-  padding: var(--e-5);
+  /* 16 px de margen al costado: el del diseño, y el mínimo para que el texto
+     no se pegue al borde del teléfono. */
+  padding: var(--e-4);
   max-width: 640px;
   margin: 0 auto;
 }
 .vista.on {
   display: block;
 }
+/* El título de sección de la app. Las páginas del sitio lo agrandan con
+   `.landing h2`; en un teléfono, 24 px por sección competían con el número
+   del veredicto. */
 h2 {
   font-family: var(--sans);
   font-weight: 800;
-  font-size: var(--t-xl);
+  font-size: var(--t-l);
   letter-spacing: -0.015em;
-  line-height: 1.15;
+  line-height: 1.2;
   margin: var(--e-6) 0 var(--e-2);
 }
 h2:first-child {
   margin-top: var(--e-1);
 }
-.cuenta {
+/* El contador de cada lista del plan. Se llamaba `.cuenta`, como la tabla
+   del cálculo de /datos: la tabla le ponía width:100% y en la cabecera
+   flex de la lista lo estiraba a todo el ancho. */
+.cuenta-lista {
   font-family: var(--mono);
   font-size: var(--t-s);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--tenue);
+  color: var(--acento);
   text-transform: none;
+  white-space: nowrap;
 }
-.cuenta.completa {
+.cuenta-lista.completa {
   color: var(--ok-texto);
 }
 h3 {
@@ -533,8 +557,8 @@ p {
 }
 .eti {
   font-family: var(--mono);
-  font-size: var(--t-xs);
-  letter-spacing: 0.12em;
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--tenue);
   display: block;
@@ -558,36 +582,33 @@ p {
 }
 
 /* ---------- regla / hidrómetro (elemento firma) ---------- */
-.regla-caja {
-  display: flex;
-  gap: var(--e-4);
-  align-items: stretch;
-  margin: var(--e-2) 0 var(--e-1);
-}
-/* Escala y pista comparten alto: los porcentajes de una caen en la misma
-   altura que los de la otra sin coordinar nada. */
-.instrumento {
-  display: flex;
-  gap: var(--e-2);
-  align-items: stretch;
-  flex: none;
+/* La escala a la izquierda, el tanque y, a lo ancho, una línea por cada
+   nivel con su etiqueta pegada. Antes las etiquetas iban en una lista aparte
+   a la derecha que repetía los mismos números. El alto va en rem: rio.js
+   calcula en % cuánto separar las etiquetas para que no se encimen, y esa
+   cuenta sólo vale si la regla crece junto con el texto. */
+.hidrometro {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 6px;
+  height: 20rem;
+  margin: var(--e-4) 0 var(--e-3);
 }
 .escala {
   position: relative;
-  width: 30px;
-  flex: none;
 }
 .regla {
   position: relative;
-  /* 74px eran pocos: entre marcas y números ya se iban 31, y las etiquetas de
-     umbral se montaban encima de la numeración. */
-  width: 88px;
-  flex: none;
+}
+.tanque {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
   background: var(--panel-2);
-  border: none;
-  border-radius: var(--r-l);
+  border-radius: 12px;
   overflow: hidden;
-  min-height: 340px;
 }
 .agua {
   position: absolute;
@@ -597,53 +618,111 @@ p {
   background: var(--agua);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* La superficie del agua es la línea que más se mira: va nítida y de un solo
-   grosor, sin el resplandor de antes (que en tema claro quedaba raro). */
-.agua::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--agua-clara);
-}
 .marca-linea {
   position: absolute;
   left: 0;
-  right: 0;
+  width: 50px;
   height: 0;
-  border-top: 1px dashed currentColor;
+  border-top: 2px solid currentColor;
   transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.marca-linea b {
+/* Del borde de la línea a la etiqueta. Va en % del alto, como las
+   posiciones: el SVG se estira y el trazo no, por non-scaling-stroke. */
+.conectores {
   position: absolute;
-  right: var(--e-1);
-  top: -15px;
-  font-family: var(--mono);
-  font-size: var(--t-tick);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  /* El chip va sobre --panel, no sobre el fondo de la regla: apoyado en
-     --panel-2 el rojo quedaba en 4,47 y el acento claro en 4,36. Además así
-     lee como una pastilla flotando sobre el instrumento, que es la idea. */
-  background: var(--panel);
-  border: 1px solid currentColor;
-  padding: 2px 7px;
-  border-radius: var(--r-full);
-  line-height: 1.35;
+  left: 50px;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  overflow: visible;
 }
-/* 5,30 y 5,70 están siempre a 40 cm: sobre esta escala son 15px, y las
-   etiquetas miden 14. Se montaban una sobre otra. Bajamos la de alerta al
-   otro lado de su línea y el problema desaparece para siempre. */
-.marca-linea.debajo b {
-  top: 3px;
+.conectores line {
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.conectores .l-record {
+  stroke-dasharray: 4 3;
+}
+.conectores .l-vos {
+  stroke-dasharray: 2 2;
+}
+.conectores .l-alerta {
+  color: var(--linea-alerta);
+}
+.conectores .l-evac {
+  color: var(--linea-evac);
+}
+.conectores .l-hoy {
+  color: var(--acento);
+}
+.marca-txt {
+  position: absolute;
+  left: 64px;
+  transform: translateY(50%);
+  padding: 0 var(--e-1);
+  font-size: var(--t-xs);
+  line-height: 1.3rem;
+  white-space: nowrap;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.marca-txt b {
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.l-alerta {
+  color: var(--alerta-texto);
+}
+.marca-linea.l-alerta {
+  color: var(--linea-alerta);
+}
+.l-evac {
+  color: var(--peligro-texto);
+}
+.marca-linea.l-evac {
+  color: var(--linea-evac);
+}
+.l-record {
+  color: var(--tenue);
+}
+.marca-linea.l-record {
+  border-top-style: dashed;
+}
+.l-hoy {
+  color: var(--texto);
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.marca-linea.l-hoy {
+  color: var(--acento);
+}
+.marca-txt.l-hoy b {
+  color: var(--acento);
+}
+.l-vos {
+  color: var(--tierra);
+}
+.marca-linea.l-vos {
+  border-top-style: dotted;
+}
+/* Afuera de la regla no hay altura que marcar: queda sólo la etiqueta. */
+.marca-linea.fuera {
+  display: none;
 }
 /* "vos" va con chip lleno: es tuyo, no un umbral oficial. */
-.marca-linea.propia b {
+.chip-vos {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 7px;
+  border-radius: var(--r-full);
   background: var(--tierra);
-  color: var(--fondo) !important;
-  border-color: var(--tierra);
+  color: var(--fondo);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  vertical-align: 1px;
 }
 .tic {
   position: absolute;
@@ -665,28 +744,9 @@ p {
   color: var(--tenue);
   transform: translateY(50%);
 }
-.leyenda {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--e-3);
-}
-.leyenda-item {
-  border-left: 3px solid;
-  padding-left: var(--e-3);
-}
-.leyenda-item .v {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: var(--t-m);
-  line-height: 1.15;
-}
-.leyenda-item .k {
-  font-size: var(--t-s);
-  color: var(--tenue);
-  line-height: 1.35;
-  margin-top: 2px;
+.origen-dato {
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
 }
 
 /* ---------- veredicto ---------- */
@@ -732,12 +792,17 @@ p {
 }
 .celdas-umbral .v {
   display: block;
-  margin-top: 3px;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: var(--t-m);
+  margin-top: var(--e-1);
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
   color: var(--texto);
+}
+.celdas-umbral .t-vos .v {
+  color: var(--tierra);
 }
 .celdas-umbral .t-ok .v {
   color: var(--ok-texto);
@@ -786,6 +851,264 @@ p {
   box-shadow: var(--sombra);
 }
 
+/* El número del río, con la unidad y el lugar en la misma línea. */
+.dato-rio {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--e-2);
+  margin-bottom: var(--e-2);
+}
+.dato-rio .u {
+  font-size: var(--t-xl);
+  font-weight: 700;
+  color: var(--tenue);
+  letter-spacing: 0;
+}
+.dato-rio .eti {
+  margin: 0 0 0 var(--e-1);
+  letter-spacing: 0.09em;
+}
+.mov-rio {
+  margin: 0 0 var(--e-1);
+}
+.mov-rio .sube {
+  color: var(--alerta-texto);
+}
+.mov-rio .baja {
+  color: var(--ok-texto);
+}
+.veredicto .glosa {
+  margin: 0;
+}
+.veredicto .dato + .glosa {
+  margin-top: var(--e-3);
+}
+/* La línea de abajo del veredicto: el texto del estado, separado del número
+   y de la regla por un filete. */
+.veredicto-pie {
+  margin: var(--e-3) 0 0;
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-base);
+}
+
+/* La regla de Mi casa: hoy, la alerta de la ciudad, el récord y vos, en la
+   misma escala que el hidrómetro de la pestaña Río. */
+.barra-casa {
+  position: relative;
+  height: 2.5rem;
+  margin-top: var(--e-3);
+}
+.barra-casa i {
+  position: absolute;
+}
+.bc-pista,
+.bc-agua {
+  left: 0;
+  top: 50%;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: var(--r-full);
+}
+.bc-pista {
+  right: 0;
+  background: var(--linea);
+}
+.bc-agua {
+  background: var(--agua);
+}
+.bc-marca {
+  top: 20%;
+  bottom: 20%;
+  width: 2px;
+  margin-left: -1px;
+}
+.bc-alerta {
+  background: var(--linea-alerta);
+}
+.bc-record {
+  background: var(--tenue);
+}
+.bc-vos {
+  top: 10%;
+  bottom: 10%;
+  width: 14px;
+  margin-left: -7px;
+  border-radius: 6px;
+  background: var(--tierra);
+}
+.barra-casa-ley {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px var(--e-3);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.barra-casa-ley b,
+.lista-niveles b {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--texto);
+}
+/* Un color por cosa, el mismo en la regla, en Mi casa y en los avisos. */
+b.c-hoy {
+  color: var(--acento);
+}
+b.c-alerta {
+  color: var(--alerta-texto);
+}
+b.c-evac {
+  color: var(--peligro-texto);
+}
+b.c-vos {
+  color: var(--tierra);
+}
+
+/* El renglón de la casa cargada, con «Cambiar». */
+.casa-renglon {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+}
+.casa-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--agua-tinte);
+}
+.casa-icono svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--acento);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.casa-txt {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.casa-txt b {
+  font-size: var(--t-base);
+  color: var(--texto);
+}
+.casa-txt .ojo {
+  margin-top: var(--e-1);
+  color: var(--alerta-texto);
+}
+.casa-renglon button {
+  flex: none;
+  min-height: 2.75rem;
+  padding: 0 var(--e-2);
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--acento);
+  cursor: pointer;
+}
+
+/* Un <details> con forma de tarjeta: el título es el resumen y el chevrón
+   dice que se abre. */
+.plegable > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 2.75rem;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+  cursor: pointer;
+  list-style: none;
+}
+.plegable > summary::-webkit-details-marker {
+  display: none;
+}
+.plegable > summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid var(--tenue);
+  border-bottom: 2px solid var(--tenue);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--mov);
+}
+.plegable[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+.plegable[open] > summary {
+  margin-bottom: var(--e-3);
+}
+
+/* El desglose del cálculo: la única pantalla con la aritmética exacta. */
+.desglose {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: var(--t-s);
+}
+.desglose td {
+  padding: 6px 0;
+  color: var(--tenue);
+  vertical-align: top;
+}
+.desglose td.n {
+  text-align: right;
+  color: var(--texto);
+}
+.desglose .nota {
+  font-size: var(--t-xs);
+}
+.desglose .ojo,
+.desglose .ojo td {
+  color: var(--alerta-texto);
+}
+.desglose tr.total {
+  border-top: 1px solid var(--linea);
+}
+.desglose tr.total td {
+  padding-top: 9px;
+  font-weight: 700;
+  color: var(--texto);
+}
+.desglose tr.total td.n {
+  color: var(--acento);
+}
+
+/* Los tres niveles a los que avisa el teléfono. */
+.lista-niveles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--t-s);
+}
+.lista-niveles li {
+  display: flex;
+  gap: var(--e-2);
+  align-items: baseline;
+}
+.lista-niveles b {
+  min-width: 3rem;
+}
+
 /* ---------- controles ---------- */
 label.campo {
   display: block;
@@ -802,6 +1125,7 @@ label.campo > span {
   margin-bottom: var(--e-1);
 }
 input[type="text"],
+input[type="search"],
 input[type="number"],
 select,
 textarea {
@@ -885,17 +1209,18 @@ label.campo-dir {
   border: none;
   border-radius: var(--r-full);
   /* La altura mínima se declara, no se deduce del padding: así el objetivo
-     táctil no depende de que nadie toque la escala de espaciados. */
-  min-height: 3.25rem; /* 52px */
+     táctil no depende de que nadie toque la escala de espaciados. 48 px es
+     la del diseño y queda arriba de los 44 del mínimo táctil. */
+  min-height: 3rem; /* 48px */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
      objetivo táctil son 44. Con 12px quedaba en 43. */
-  padding: var(--e-3) var(--e-4);
+  padding: var(--e-3) var(--e-5);
   font-family: var(--sans);
   font-weight: 700;
-  font-size: var(--t-m);
+  font-size: var(--t-base);
   letter-spacing: -0.01em;
   text-transform: none;
   cursor: pointer;
@@ -939,7 +1264,8 @@ label.campo-dir {
 .landing .franja-oscura,
 .landing .cta,
 .telefonos-emergencia,
-.aviso-emergencia {
+.aviso-emergencia,
+.tarjeta.oscura {
   --btn-fuerte: var(--agua);
   --btn-fuerte-texto: var(--sobre-agua);
   --acento: var(--agua-clara);
@@ -1342,6 +1668,9 @@ label.campo-dir {
 .barra-app button.on {
   color: var(--acento);
 }
+.barra-app button.on span {
+  font-weight: 700;
+}
 .barra-app button svg {
   transition: background var(--mov);
 }
@@ -1452,15 +1781,6 @@ label.campo-dir {
   margin: var(--e-4) auto;
 }
 
-/* ---------- instalar, enlace del pie ---------- */
-.instalar-pie {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--e-2);
-  margin: 0 0 var(--e-5);
-}
-
 /* ==========================================================================
    PORTADA Y PÁGINAS DE CONTENIDO
    La app esconde 3 de sus 4 secciones detrás de pestañas y eso a un buscador
@@ -1493,19 +1813,20 @@ label.campo-dir {
 
 /* ---------- cabecera de página ---------- */
 .pg-cabecera {
-  padding: var(--e-7) 0 var(--e-5);
+  padding: calc(var(--e-7) * 1.5) 0 var(--e-6);
 }
 .pg-cabecera h1 {
-  font-size: var(--t-display);
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.08;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  text-wrap: balance;
   margin: var(--e-4) 0 0;
 }
 .pg-lead {
   max-width: 40em;
   margin: var(--e-4) 0 0;
-  font-size: var(--t-m);
+  font-size: 1.125rem; /* 18px */
   line-height: 1.6;
   color: var(--tenue);
 }
@@ -1536,7 +1857,8 @@ label.campo-dir {
   margin-bottom: 0;
 }
 .bloque h2 {
-  font-size: var(--t-xl);
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  letter-spacing: -0.025em;
   margin: var(--e-2) 0 var(--e-4);
 }
 .bloque .kicker {
@@ -1618,31 +1940,67 @@ label.campo-dir {
   font-size: var(--t-s);
 }
 /* Las condiciones de uso, numeradas: son tres y se citan por número cuando
-   alguien pregunta. */
-.condiciones {
+   alguien pregunta. Tres tarjetas lado a lado, como las demás de a tres. */
+.condiciones-tres {
   counter-reset: cond;
   list-style: none;
-  margin: var(--e-4) 0 0;
+  margin: var(--e-4) 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--e-3);
 }
-.condiciones li {
+.condiciones-tres li {
   counter-increment: cond;
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  gap: var(--e-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
   padding: var(--e-4) var(--e-5);
   border-radius: var(--r-m);
   background: var(--panel-2);
-  line-height: 1.6;
+  font-size: var(--t-s);
+  color: var(--tenue);
 }
-.condiciones li::before {
+.condiciones-tres li::before {
   content: counter(cond);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-s);
+  background: var(--agua);
+  color: var(--sobre-agua);
   font-family: var(--mono);
   font-weight: 700;
-  color: var(--acento);
+}
+.condiciones-tres b {
+  font-size: var(--t-base);
+  color: var(--texto);
+}
+.muestras-widget figure {
+  margin: 0;
+}
+.medios-tildes {
+  margin-top: var(--e-4);
+}
+.medida-widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-5);
+  margin: var(--e-4) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.medida-widget b {
+  color: var(--texto);
+}
+@media (max-width: 700px) {
+  .condiciones-tres,
+  .muestras-widget {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- charlas ----------
@@ -1651,16 +2009,20 @@ label.campo-dir {
    charlas por tema —responsabilidad, adaptación, agua, datos— en la misma
    paleta funcional que usa el resto de la app, así que dos fichas del mismo
    color se leen juntas. */
+/* Grilla de tarjetas con la miniatura arriba. Era una lista con la miniatura
+   al costado y un párrafo de cuatro frases por charla; con una sola línea
+   por charla, la grilla entra y se recorre de un vistazo. */
 .charlas {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
   gap: var(--e-4);
 }
 .charla {
   display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: var(--e-5);
+  grid-template-columns: 1fr;
+  gap: var(--e-3);
   align-items: start;
+  align-content: start;
   padding: var(--e-5);
   border-radius: var(--r-l);
   background: var(--panel);
@@ -1765,62 +2127,73 @@ label.campo-dir {
   width: auto;
   padding: 0 var(--e-6);
 }
-/* ---------- los 30 puntos, en tarjetas ---------- */
+/* ---------- los 30 puntos, por zona ---------- */
 /* Son treinta y hay que encontrar UNO, rápido y probablemente nervioso. Por
-   eso van en tarjetas y no en renglones, agrupadas por zona: lo que se busca
-   acá no es leer la lista, es descartar cuatro quintos de golpe y mirar sólo
-   la zona propia.
-
-   Todo el aire de esta sección está puesto a mano y no heredado: con los
-   espaciados de una lista común las treinta tarjetas se leían como una sola
-   pared y el nombre de la zona se perdía entre dos filas. */
-/* Cuarta vez que muerde el mismo bug de cascada, así que queda anotado con
-   los tres de arriba: `.landing h2` mide 0-1-1 y le gana a `.grupo-puntos` a
-   secas, que mide 0-1-0. Escrito así, el margen de arriba de cada zona se
-   quedaba en los 8 px del h2 general y los cinco grupos se leían como una
-   lista sola — el síntoma era mudo, porque el margen de abajo coincidía por
-   casualidad con el que queríamos. El selector de acá tiene que ser tan
-   específico como el que pisa.
-
-   Un salto grande arriba y uno chico abajo: así el título se lee pegado a SU
-   grupo y separado del anterior, que es lo que hace que la lista se recorra
-   por zonas en vez de de arriba a abajo. El tamaño lo sigue poniendo
-   `.landing h2` a propósito: son los encabezados de la página. */
-.landing .grupo-puntos {
-  margin-top: var(--e-7);
-  margin-bottom: var(--e-5);
-  color: var(--acento);
+   eso van agrupados por zona, con atajos arriba: lo que se busca acá no es
+   leer la lista, es descartar cuatro quintos de golpe y mirar sólo la zona
+   propia. Eran treinta tarjetas sueltas —cinco pantallas de scroll en el
+   teléfono—; ahora cada zona es un solo panel con filas. */
+.atajos-zona {
+  margin: var(--e-6) 0 var(--e-2);
 }
-.landing .grupo-puntos:first-child {
-  margin-top: var(--e-4);
+.atajos-zona .cuenta-zona {
+  margin-left: var(--e-2);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--tenue);
 }
-.rejilla-puntos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--e-4);
+.zonas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-6);
+  margin-top: var(--e-5);
+}
+.zona-puntos {
+  scroll-margin-top: var(--e-5);
+}
+/* `.landing h2` mide 0-1-1: el selector de acá tiene que medir lo mismo o
+   más, o el margen se queda en el del h2 general. Ya mordió cuatro veces. */
+.zp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin-bottom: var(--e-3);
+}
+.landing .zp-cabeza h2 {
+  margin: 0;
+  font-size: var(--t-xl);
+}
+.zp-cabeza .eti {
+  margin: 0;
+  white-space: nowrap;
+}
+.lista-zona {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-.rejilla-puntos a.punto {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: var(--e-4);
-  align-items: center;
-  height: 100%;
-  /* El margen negativo que llevan los renglones de lista —para que el
-     resaltado del hover se pase del texto— acá no corre: son tarjetas y el
-     borde izquierdo tiene que caer en la misma vertical que el título de la
-     zona. Sin esto se salían 8 px y la columna quedaba corrida. */
-  margin: 0;
-  padding: var(--e-5);
-  border-radius: var(--r-m);
+  border-radius: var(--r-l);
   background: var(--panel);
   box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.lista-zona li + li {
+  border-top: 1px solid var(--linea);
+}
+/* Lleva también `.punto` para quedar afuera de la regla general de enlaces
+   de las páginas, que mide (0,8,1) y le pintaría el acento a toda la fila. */
+.landing a.fila-punto {
+  border-bottom: none;
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  gap: var(--e-4);
+  align-items: center;
+  padding: var(--e-4) var(--e-5);
   color: var(--texto);
   text-decoration: none;
 }
-.rejilla-puntos .np {
+.fila-punto .np {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1840,22 +2213,73 @@ label.campo-dir {
   font-family: var(--sans);
   font-weight: 800;
   font-size: var(--t-base);
-  flex: none;
 }
-.rejilla-puntos .txt {
+.fila-punto .txt {
   display: flex;
   flex-direction: column;
-  gap: var(--e-1);
+  gap: 2px;
   min-width: 0;
 }
-.rejilla-puntos .n {
+.fila-punto .n {
   font-weight: 700;
   line-height: 1.3;
 }
-.rejilla-puntos .d {
+.fila-punto .d {
   font-size: var(--t-s);
   color: var(--tenue);
   line-height: 1.35;
+}
+.fila-punto .ir {
+  margin: 0;
+  font-family: var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--t-s);
+  font-weight: 700;
+  color: var(--acento);
+  white-space: nowrap;
+}
+.puntos-pie {
+  margin-top: var(--e-6);
+}
+/* Cuándo ir y qué llevar, lado a lado. */
+.cuando-que {
+  gap: var(--e-4);
+  margin-top: var(--e-6);
+  align-items: start;
+}
+.cuando-que .bloque {
+  margin: 0;
+}
+.landing .cuando-que h2 {
+  font-size: var(--t-l);
+  margin-top: 0;
+}
+/* Una lista de cosas que se juntan: tilde dibujado en CSS, porque la CSP
+   (img-src 'self') bloquearía un SVG en data:. */
+.tildes {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.tildes li {
+  position: relative;
+  padding-left: 1.6rem;
+  font-size: var(--t-base);
+}
+.tildes li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.3em;
+  width: 5px;
+  height: 10px;
+  border-right: 2.5px solid var(--acento);
+  border-bottom: 2.5px solid var(--acento);
+  transform: rotate(45deg);
 }
 /* Los tres teléfonos, al final de la lista: es lo que hace falta cuando ya se
    eligió a dónde ir. */
@@ -1868,6 +2292,10 @@ label.campo-dir {
   border-radius: var(--r-l);
   background: var(--fondo-invertido);
   color: var(--texto-invertido);
+}
+.telefonos-emergencia a {
+  color: inherit;
+  text-decoration: none;
 }
 .telefonos-emergencia b {
   display: block;
@@ -1883,52 +2311,221 @@ label.campo-dir {
   color: var(--tenue-invertido);
 }
 
-/* ---------- el cálculo, paso a paso ----------
-   La página del cálculo se lee como una cuenta hecha a mano: cada paso es su
-   propia tarjeta, con el número al costado y el valor del ejemplo en una
-   pastilla al pie. Antes era prosa corrida con kickers, y la cuenta —que es lo
-   único que la persona vino a buscar— quedaba escondida adentro del texto. */
-.paso {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: var(--e-5);
-  align-items: start;
-}
-/* Escrito con las dos clases a propósito: `.bloque h3` mide lo mismo y gana
-   por orden, no por especificidad, que es de dónde salieron los últimos cuatro
-   bugs de cascada de esta hoja. El título del paso es <h3> desde que /mi-cota
-   se fusionó con /datos: ahí los pasos cuelgan de una sección, ya no son el
-   primer nivel de su propia página. */
-.bloque.paso h3 {
-  font-size: var(--t-l);
-  margin: 0 0 var(--e-3);
-}
-.paso > div > *:last-child {
-  margin-bottom: 0;
-}
-/* La pastilla del ejemplo: etiqueta chica en mono y el número en grande, que
-   es lo que se busca cuando se recorre la página con el pulgar. */
-.dato-ejemplo {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--e-3);
-  margin: var(--e-4) 0 0;
-  padding: var(--e-3) var(--e-4);
-  border-radius: var(--r-m);
-  background: var(--panel-2);
-}
-.dato-ejemplo .k {
+/* ---------- /datos: la cuenta ----------
+   La cuenta entera arriba, en la caja oscura: para quien vino a buscar sólo
+   eso. Cada renglón resta algo y el último es el resultado. */
+.formula {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  margin: var(--e-4) 0;
   font-family: var(--mono);
+  font-size: var(--t-base);
+}
+.formula b {
+  color: var(--agua);
+}
+.formula .f-total {
+  margin-top: var(--e-1);
+  padding-top: var(--e-2);
+  border-top: 1px solid var(--linea-invertida, rgba(233, 238, 240, 0.16));
+  font-weight: 700;
+}
+/* Los atajos a las cinco secciones, con su número: es la misma secuencia
+   que numera los kickers de abajo. */
+.atajos-num {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-top: var(--e-4);
+}
+.landing .atajos-num a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: 2.75rem;
+  padding: 0 var(--e-4) 0 var(--e-2);
+  border-radius: var(--r-full);
+  background: rgba(233, 238, 240, 0.1);
+  color: var(--texto-invertido);
+  font-weight: 600;
+  font-size: var(--t-s);
+  text-decoration: none;
+}
+.atajos-num b {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-full);
+  background: var(--agua);
+  color: var(--sobre-agua);
   font-size: var(--t-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+}
+
+/* El desvío del satélite contra la escala de la decisión, a la misma
+   escala: la barra larga es el error, la corta todo lo que hay entre la
+   alerta y el récord. */
+.barras-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin: var(--e-4) 0;
+}
+.be-fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--e-1) var(--e-3);
+  align-items: center;
+}
+.be-k {
+  grid-column: 1 / -1;
+  font-size: var(--t-s);
   color: var(--tenue);
 }
-.dato-ejemplo .v {
-  font-weight: 800;
-  font-size: var(--t-l);
+.be-pista {
+  height: 14px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.be-pista i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--agua);
+}
+.be-pista i.be-mal {
+  background: var(--peligro);
+}
+.be-v {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-s);
   font-variant-numeric: tabular-nums;
+}
+
+/* El ejemplo de Colastiné Norte, en tres filas: qué se hace y cuánto queda.
+   El valor a la derecha es lo que se busca recorriendo con el pulgar. */
+.ej-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+.ej-cabeza .eti {
+  margin: 0;
+}
+.ej-filas {
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ej-fila {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: var(--e-4);
+  align-items: start;
+  padding: var(--e-4) 0;
+  border-top: 1px solid var(--linea);
+}
+.landing .ej-fila h3 {
+  margin: 0 0 var(--e-1);
+  font-size: var(--t-m);
+}
+.landing .ej-fila p {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.ej-valor {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-base);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Qué tan firme es: tres tarjetas del mismo peso. */
+.firme-tres,
+.dos-maneras {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-4) 0;
+}
+.firme-caja,
+.dm-caja {
+  border-radius: var(--r-m);
+  padding: var(--e-4) var(--e-5);
+  background: var(--panel-2);
+}
+.firme-caja .eti,
+.dm-caja .eti {
+  margin-bottom: var(--e-2);
+}
+.landing .firme-caja h3,
+.landing .dm-caja h3 {
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-m);
+}
+.landing .firme-caja p,
+.landing .dm-caja p {
+  font-size: var(--t-s);
+  margin: 0 0 var(--e-2);
+}
+.firme-caja .cuenta {
+  margin-bottom: var(--e-3);
+}
+.f-ok .eti {
+  color: var(--ok-texto);
+}
+.f-discusion .eti {
+  color: var(--alerta-texto);
+}
+.f-falta {
+  background: none;
+  border: 1.5px dashed var(--linea);
+}
+.f-falta .eti {
+  color: var(--tenue);
+}
+#abiertas {
+  scroll-margin-top: var(--e-5);
+}
+/* Las dos maneras de inundarse: la que mira la app, la que no y la que
+   resulta de juntarlas. Ámbar sólo la tercera: es el color de «cuando se
+   juntan río y lluvia». */
+.dm-fluvial {
+  background: var(--agua-tinte);
+}
+.dm-fluvial .eti {
+  color: var(--acento);
+}
+.dm-pluvial {
+  background: none;
+  border: 1.5px dashed var(--linea);
+}
+.dm-juntan {
+  background: var(--alerta-tinte);
+}
+.dm-juntan .eti {
+  color: var(--alerta-texto);
+}
+/* Lo que todavía no sabe: el título de cada renglón en su propia línea. */
+.no-sabe {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.no-sabe b {
+  display: block;
+  color: var(--texto-invertido);
 }
 /* El resultado, en la tarjeta oscura: el número que la página vino a dar.
    Su kicker no va en naranja como el resto de los bloques oscuros: acá no hay
@@ -1966,9 +2563,12 @@ label.campo-dir {
 body.landing {
   /* Sin barra de navegación fija abajo, el hueco reservado para ella sobra. */
   padding-bottom: 0;
+  /* Las páginas se leen sentado y en párrafos largos: un punto más que la
+     app, como en el diseño. */
+  font-size: 1rem;
 }
 .landing section {
-  padding: calc(var(--e-7) * 1.25) 0;
+  padding: calc(var(--e-7) * 1.75) 0;
 }
 /* El relleno de la tarjeta, con la especificidad justa para ganarle a
    `.landing section` — que es la regla que le vaciaba el padding—. El aire
@@ -1981,8 +2581,12 @@ body.landing {
 .landing section.tarjeta-seccion.con-mapa {
   padding: 0;
 }
+/* Crece con la pantalla entre 28 y 36 px. En el teléfono manda la regla de
+   abajo de 560 px. */
 .landing h2 {
-  font-size: var(--t-xxl);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   margin: var(--e-2) 0 var(--e-5);
 }
 .landing p {
@@ -2012,11 +2616,16 @@ body.landing {
 }
 
 /* ---------- navegación del sitio ---------- */
+/* El filete de abajo va de borde a borde de la ventana, no del contenedor:
+   por eso vive en la envoltura, igual que el del pie. */
+.nav-envoltura {
+  border-bottom: 1px solid var(--linea);
+}
 .nav-sitio {
   display: flex;
   align-items: center;
-  gap: var(--e-5);
-  padding: var(--e-6) 0;
+  gap: var(--e-4);
+  padding: var(--e-4) 0;
   flex-wrap: wrap;
 }
 .nav-enlaces {
@@ -2029,12 +2638,26 @@ body.landing {
 .nav-menu[open] > .nav-enlaces {
   display: flex;
 }
+/* Con el prefijo y la cadena entera de :not(): la regla general de enlaces de
+   las páginas mide (0,8,1) y, escrita más corta, los pintaba del acento. */
 .nav-enlaces a:not(.btn) {
   font-weight: 600;
-  font-size: var(--t-s);
+  font-size: 0.875rem; /* 14px */
   color: var(--texto);
   text-decoration: none;
   white-space: nowrap;
+}
+/* Sólo el color: esta regla le gana a todo, también al menú del teléfono,
+   que pone su propio tamaño. */
+.landing
+  .nav-enlaces
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel) {
+  color: var(--texto);
+}
+.landing
+  .nav-enlaces
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel):hover {
+  color: var(--acento);
 }
 
 /* ---------- menú de teléfono ----------
@@ -2110,12 +2733,12 @@ body.landing {
   }
 }
 .chip-borde {
-  padding: 5px 10px;
-  border: 1.5px solid var(--linea);
-  border-radius: var(--r-full);
+  padding: 3px 7px;
+  border: 1px solid var(--linea);
+  border-radius: 6px;
   font-family: var(--mono);
-  font-size: var(--t-xs);
-  letter-spacing: 0.05em;
+  font-size: 0.6875rem; /* 11px, como el resto de los rótulos */
+  letter-spacing: 0.09em;
   color: var(--tenue);
 }
 
@@ -2331,29 +2954,59 @@ p.pie-frescura,
 /* ---------- hero ---------- */
 .hero {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 420px;
   gap: calc(var(--e-7) * 2);
   align-items: center;
   padding: calc(var(--e-7) * 1.75) 0 calc(var(--e-7) * 2);
 }
 .titulo-hero {
-  font-size: var(--t-display);
+  font-size: clamp(2.4rem, 4.6vw, 3.6rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.06;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: balance;
   /* Sin margen arriba: los 16 px que había eran el hueco que le dejaba a la
      píldora del hero, que ya no está. El aire de arriba lo pone el padding de
      la sección, en un solo lugar. */
   margin: 0;
 }
 .bajada {
-  font-size: var(--t-l);
-  line-height: 1.5;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
   color: var(--tenue);
   max-width: 30em;
   /* Un titular de 44 px necesita más de 16 px abajo: con menos, el bloque
      entero se lee como un párrafo con la primera línea en negrita. */
   margin: var(--e-6) 0 0;
+}
+.acento-hero {
+  color: var(--acento);
+}
+/* Las tres promesas de la app, con un tilde dibujado en CSS: un SVG en
+   data: lo bloquearía la CSP (img-src 'self'). */
+.hero-tildes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.hero-tildes li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.hero-tildes li::before {
+  content: "";
+  width: 5px;
+  height: 10px;
+  margin: -3px 2px 0;
+  border-right: 2.5px solid var(--ok);
+  border-bottom: 2.5px solid var(--ok);
+  transform: rotate(45deg);
 }
 .hero-botones {
   display: flex;
@@ -2377,15 +3030,8 @@ p.pie-frescura,
 }
 
 /* ---------- el mockup con el dato en vivo ---------- */
-/* La pastilla se sale del mockup a la izquierda, como en el diseño: rompe el
-   rectángulo y le da profundidad. Va como hermana y no como hija, porque el
-   mockup recorta con overflow:hidden para que la regla respete las esquinas. */
 .mockup-envoltura {
   position: relative;
-  /* El alto de la tira del control vive acá y no repetido en dos reglas: el
-     globo se apoya JUSTO encima de ella, y si una de las dos medidas se mueve
-     sin la otra, la pastilla queda pisando el slider. */
-  --alto-control: 132px;
   /* Es el destino de la píldora de la barra (#abrir). Sin esto el salto deja
      la tarjeta pegada al borde de arriba y no se ve de dónde vino. */
   scroll-margin-top: var(--e-5);
@@ -2398,6 +3044,24 @@ p.pie-frescura,
 }
 .mockup-cabecera {
   padding: var(--e-5) var(--e-5) var(--e-4);
+}
+.mc-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.mc-fila .eti {
+  margin: 0;
+}
+#nivel-pie .t-ok {
+  color: var(--ok-texto);
+}
+#nivel-pie .t-alerta {
+  color: var(--alerta-texto);
+}
+#nivel-pie .t-peligro {
+  color: var(--peligro-texto);
 }
 .mockup-numero {
   display: flex;
@@ -2414,9 +3078,17 @@ p.pie-frescura,
   color: var(--tenue);
   padding-bottom: 6px;
 }
+.chip-delta[hidden] {
+  display: none;
+}
+.chip-delta.baja {
+  background: var(--ok-tinte);
+  color: var(--ok-texto);
+}
 .chip-delta {
-  margin-left: auto;
-  padding: 5px 10px;
+  flex: none;
+  white-space: nowrap;
+  padding: 4px 9px;
   border-radius: var(--r-full);
   background: var(--alerta-tinte);
   color: var(--alerta-texto);
@@ -2427,55 +3099,44 @@ p.pie-frescura,
 .mockup .chico {
   margin: var(--e-3) 0 0;
 }
-.globo[hidden] {
-  display: none;
-}
-.globo {
-  position: absolute;
-  left: calc(var(--e-7) * -1);
-  bottom: calc(var(--alto-control) + var(--e-4));
-  z-index: 2;
-  margin: 0;
-  padding: var(--e-3) var(--e-4);
-  border-radius: var(--r-m);
-  background: var(--panel);
-  box-shadow: var(--sombra);
-  font-weight: 700;
-  font-size: var(--t-s);
-  line-height: 1.35;
-}
-.globo b {
-  color: var(--alerta-texto);
-}
-@media (max-width: 900px) {
-  /* Fuera del escritorio no hay lugar a la izquierda: se mete adentro. */
-  .globo {
-    left: var(--e-4);
-    bottom: calc(var(--alto-control) + var(--e-4));
-  }
-}
-/* La regla del mockup representa de 0 a 8 m —el récord de 1992 son 7,43—; las
-   alturas las fija landing.js sobre esa escala.
+/* La regla del mockup representa de 0 a 8 m —el récord de 1992 son 7,43—,
+   la misma escala que el hidrómetro de la app; las alturas las fija
+   landing.js sobre esa escala. La numeración va a la izquierda, afuera del
+   tanque.
 
-   Dos lados, dos significados, y no se mezclan: a la IZQUIERDA los umbrales
-   oficiales, que no se mueven nunca; a la DERECHA dónde está el agua —la
-   etiqueta que viaja con la simulación y la de "hoy", clavada en el dato
-   real—. Con todo del mismo lado los chips se montaban apenas el río simulado
-   pasaba la alerta, que es justo cuando hay que leerlos.
-
-   El reparto no es simétrico y tiene motivo: la pastilla flotante entra por
-   abajo a la izquierda, así que ese rincón está tomado, y los umbrales viven
-   de 5,30 para arriba —dos tercios de la regla— donde no la tocan. La
-   etiqueta del agua, en cambio, baja hasta donde esté el río. */
+   Dos lados, dos significados, y no se mezclan: a la DERECHA los umbrales
+   oficiales, que no se mueven nunca, con la etiqueta sobre su línea; a la
+   IZQUIERDA, adentro del agua, dónde está el río —la etiqueta que viaja con
+   la simulación y la de "hoy", clavada en el dato real—. Con todo del mismo
+   lado los chips se montaban apenas el río simulado pasaba la alerta, que es
+   justo cuando hay que leerlos. */
 .regla-mini {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  margin: 0 var(--e-5) var(--e-4) 0;
+}
+.rm-escala {
+  position: relative;
+}
+.rm-escala span {
+  position: absolute;
+  right: var(--e-2);
+  transform: translateY(50%);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.rm-tanque {
   position: relative;
   /* 280 y no 230: alerta y evacuación están siempre a 40 cm una de otra, que
      en esta escala son 14 px, y los dos rótulos necesitan ese aire para no
      pisarse. */
   height: 280px;
+  border-left: 1px solid var(--linea);
+  border-radius: 0 var(--r-s) 0 0;
   background: var(--panel-2);
-  background-image: linear-gradient(var(--linea) 1px, transparent 1px);
-  background-size: 100% 28px;
+  overflow: hidden;
 }
 .rm-agua {
   position: absolute;
@@ -2520,95 +3181,110 @@ p.pie-frescura,
 }
 .rm-umbral b {
   position: absolute;
-  left: var(--e-3);
+  right: var(--e-2);
   bottom: 5px;
-  padding: 2px 8px;
-  border-radius: var(--r-full);
+  padding: 2px 6px;
+  border-radius: 4px;
   font-family: var(--mono);
-  font-size: var(--t-xs);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   line-height: 1.35;
   white-space: nowrap;
-  /* Chip opaco con borde del color propio, igual que la regla grande de la
-     app: con el tinte translúcido de antes el rótulo se desvanecía apenas el
-     agua simulada le pasaba por encima. */
+  /* Chip opaco, igual que la regla grande de la app: con el tinte
+     translúcido de antes el rótulo se desvanecía apenas el agua simulada le
+     pasaba por encima. */
   background: var(--panel);
-  border: 1px solid currentColor;
 }
-/* Alerta y evacuación están a 14 px una de otra y los rótulos miden 20: el de
+/* Alerta y evacuación están a 14 px una de otra y los rótulos miden 18: el de
    alerta va DEBAJO de su línea y el de evacuación encima, y dejan de pisarse.
    El del récord también debajo, porque a 93 % de alto no le queda aire
-   arriba. Es la misma solución que ya usan la regla de la app y /historia. */
+   arriba. */
 .rm-alerta b,
 .rm-record b {
   bottom: auto;
-  top: 3px;
+  top: 5px;
 }
 .rm-alerta {
   bottom: 66.25%; /* 5,30 de 8 m */
-  color: var(--alerta);
+  color: var(--linea-alerta);
+}
+.rm-alerta b {
+  color: var(--alerta-texto);
 }
 .rm-evac {
   bottom: 71.25%; /* 5,70 de 8 m */
-  color: var(--peligro);
+  color: var(--linea-evac);
+}
+.rm-evac b {
+  color: var(--peligro-texto);
 }
 /* Cuando el río simulado pasa un umbral, el chip se llena. El color va escrito
    en cada regla y no como `currentColor`: en el mismo <b> conviven el color
    del texto y el del relleno, y con currentColor el segundo se quedaba con el
    valor que acababa de fijar el primero. */
 .rm-alerta.activo b {
-  background: var(--alerta);
-  border-color: var(--alerta);
-  color: var(--panel);
+  background: var(--alerta-solido);
+  color: var(--sobre-solido);
 }
 .rm-evac.activo b {
-  background: var(--peligro);
-  border-color: var(--peligro);
-  color: var(--panel);
+  background: var(--evac-solido);
+  color: var(--sobre-solido);
 }
 .rm-record.activo b {
-  background: var(--tierra);
-  border-color: var(--tierra);
+  background: var(--texto);
   color: var(--panel);
 }
 /* El récord no es un umbral operativo, es una marca histórica: línea de
-   puntos y el ocre que el sitio ya usa para "lo tuyo / lo que pasó", no el
-   rojo de evacuación. */
+   trazos en tono tenue, como en la regla de la app. */
 .rm-record {
   height: 0;
   background: none;
   border-top: 2px dashed currentColor;
-  color: var(--tierra);
+  color: var(--tenue);
+}
+.rm-record b {
+  color: var(--texto);
 }
 /* "Hoy" aparece sólo cuando la simulación ya se despegó del dato real: pegada
-   al agua serían dos rótulos uno encima del otro. Va a la izquierda, del lado
-   del agua, para no cruzarse con los umbrales. */
+   al agua serían dos rótulos uno encima del otro. Va a la izquierda, adentro
+   del agua, debajo de su línea. */
 .rm-hoy {
   height: 0;
   background: none;
-  border-top: 2px dashed var(--tenue);
-  color: var(--tenue);
+  border-top: 2px dashed var(--sobre-agua);
+  opacity: 0.7;
 }
 .rm-hoy b {
-  left: auto;
-  right: var(--e-3);
+  left: var(--e-3);
+  right: auto;
   top: 3px;
   bottom: auto;
-  border-color: var(--linea);
+  background: none;
+  padding: 0;
+  color: var(--sobre-agua);
 }
-/* La etiqueta del nivel va dentro del agua: es lo que convierte el bloque
-   azul en un dato. Sobre el relleno --agua, el texto va en --sobre-agua, el
-   mismo par que .btn.sec: con --btn-texto era blanco en tema claro, 1,92:1.
-   A la derecha, porque el globo flotante entra por la izquierda y se
-   pisaban. */
+/* La etiqueta del nivel va dentro del agua, arriba a la izquierda: es lo que
+   convierte el bloque azul en un dato. Sobre el relleno --agua, el texto va en
+   --sobre-agua, el mismo par que .btn.sec: con --btn-texto era blanco en tema
+   claro, 1,92:1. Con el río muy bajo no entra adentro y sube arriba de la
+   línea. */
 .rm-ahora {
   position: absolute;
-  right: var(--e-4);
+  left: var(--e-3);
   bottom: 0;
   color: var(--sobre-agua);
   font-family: var(--mono);
-  font-size: var(--t-xs);
+  font-size: 0.6875rem;
   font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rm-ahora.afuera {
+  transform: translateY(-30px);
+  color: var(--texto);
 }
 
 /* ---------- mové el río ---------- */
@@ -2618,19 +3294,28 @@ p.pie-frescura,
    landing.js cuando llega el dato de hoy: sin nivel real la simulación no
    tiene desde dónde arrancar. */
 .mockup-sim {
-  min-height: var(--alto-control);
-  padding: var(--e-3) var(--e-5) var(--e-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding: var(--e-4) var(--e-5) var(--e-5);
   border-top: 1px solid var(--linea);
+}
+/* La distancia a la alerta o a la evacuación de la ciudad. Reserva su
+   renglón: el texto cambia con cada milímetro del dedo. */
+.ms-falta {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+.mockup-sim .eti {
+  margin: 0;
 }
 .ms-fila {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--e-3);
-  min-height: 20px;
-}
-.ms-fila .eti {
-  margin: 0;
 }
 .mockup-sim input[type="range"] {
   width: 100%;
@@ -2642,9 +3327,12 @@ p.pie-frescura,
   opacity: 0.45;
 }
 .ms-volver {
-  background: none;
+  flex: none;
+  min-height: 2rem;
   border: none;
-  padding: 2px 0;
+  border-radius: var(--r-full);
+  padding: 0 var(--e-3);
+  background: var(--agua-tinte);
   color: var(--acento);
   font-family: var(--sans);
   font-size: var(--t-s);
@@ -2656,7 +3344,7 @@ p.pie-frescura,
 }
 /* Dos renglones reservados: el texto cambia en cada milímetro que se mueve el
    dedo y sin esto la tarjeta se estiraba y se encogía debajo del gesto. */
-#rm-lectura {
+.mockup #rm-lectura {
   min-height: 2.7em;
   margin: 0;
 }
@@ -2670,8 +3358,17 @@ p.pie-frescura,
 .franja-oscura {
   --linea-invertida: rgba(233, 238, 240, 0.16);
 }
+/* La nota del Niño y el cierre, lado a lado debajo de los años. */
+.franja-pie {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: var(--e-7);
+  margin-top: var(--e-7);
+  padding-top: var(--e-6);
+  border-top: 1px solid var(--linea-invertida);
+}
 .franja-nota {
-  margin: var(--e-6) 0 0;
+  margin: 0;
   font-size: var(--t-s);
   color: var(--tenue-invertido);
 }
@@ -2688,26 +3385,23 @@ p.pie-frescura,
 .franja-oscura .eti {
   color: var(--tenue-invertido);
 }
-/* El título de la franja se ve como un rótulo aunque sea un <h2>: el esquema
-   de encabezados de la portada tenía un agujero acá —la sección no tenía
-   ninguno— y eso se arregla con la etiqueta, no con el tamaño. */
+/* Era un <h2> vestido de rótulo mono: el tipo de renglón decorativo que
+   CLAUDE.md prohíbe. Ahora es el título de la sección. */
 .franja-oscura h2 {
-  font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tenue-invertido);
   margin: 0;
+  color: var(--texto-invertido);
 }
 .hitos {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--e-7);
-  margin-top: var(--e-5);
+  margin: var(--e-6) 0 0;
+  padding: 0;
+  list-style: none;
 }
 /* La línea sobre cada año los convierte en columnas de una tabla de tiempo:
    sin ella son cuatro párrafos que casualmente empiezan con un número. */
-.hitos > div {
+.hitos > li {
   border-top: 1px solid var(--linea-invertida);
   padding-top: var(--e-4);
 }
@@ -2723,16 +3417,54 @@ p.pie-frescura,
   color: var(--tenue-invertido);
 }
 .franja-cierre {
-  margin: var(--e-6) 0 0;
+  margin: 0;
   font-weight: 600;
   font-size: var(--t-m);
 }
 
 /* ---------- tres pasos y métricas ---------- */
+.como-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-6);
+}
+.landing .como-cabeza h2 {
+  margin: 0;
+}
+.como-cabeza a {
+  font-weight: 600;
+  font-size: var(--t-s);
+}
 .tres {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--e-5);
+  margin: var(--e-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* El tercer paso es el resultado: va en la tarjeta sólida, con el número. */
+.tres .tarjeta.oscura p {
+  color: var(--tenue-invertido);
+}
+.tres .tres-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--e-1) var(--e-3);
+  margin: 0 0 var(--e-2);
+}
+.tres-dato b {
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--agua);
+}
+.tres-dato .eti {
+  margin: 0;
+  color: var(--tenue-invertido);
 }
 .tres .tarjeta {
   margin: 0;
@@ -2792,27 +3524,50 @@ p.pie-frescura,
 .tarjeta-seccion h2 {
   margin-top: 0;
 }
-/* El rótulo numerado de la sección. Sans y no mono: el mono es la voz del
-   instrumento —la cara del hidrómetro— y esto es índice del documento, otra
-   cosa. Ver la regla en CLAUDE.md. */
-.rotulo {
-  font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--acento);
-  margin: 0 0 var(--e-3);
+/* ---------- la lluvia ----------
+   Dos tarjetas que separan lo que la app mide de lo que no, y una ámbar para
+   cuando se juntan. Es el único ámbar de la portada que no es un aviso: ése
+   color queda para el río y la lluvia juntos. */
+.rl-tarjetas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
 }
-.rotulo-alerta {
-  color: var(--alerta-texto);
+.rl-par {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-3);
 }
-.aviso-app .rotulo {
+.rl-caja {
+  border-radius: var(--r-m);
+  padding: var(--e-4) var(--e-5);
+}
+.rl-caja .eti {
   margin-bottom: var(--e-2);
 }
-/* La aclaración del proyecto no es un aviso de la app: su rótulo va en gris y
-   no en el azul de los otros dos, que es lo que los agrupa. */
-.aviso-app.neutro .rotulo {
-  color: var(--tenue);
+.landing .rl-caja p {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--t-base);
+  line-height: 1.45;
+}
+.rl-mide {
+  background: var(--agua-tinte);
+}
+.rl-mide .eti {
+  color: var(--acento);
+}
+.rl-no-mide {
+  border: 1.5px dashed var(--linea);
+}
+.rl-juntan {
+  background: var(--alerta-tinte);
+}
+.rl-juntan .eti {
+  color: var(--alerta-texto);
+}
+.landing .rl-juntan p {
+  font-weight: 500;
 }
 
 /* ---------- secciones a dos columnas ---------- */
@@ -2874,9 +3629,7 @@ p.pie-frescura,
   margin: 0;
   font-weight: 600;
 }
-.aviso-app .eti + p {
-  margin-top: var(--e-2);
-}
+
 
 /* ---------- llamada final ---------- */
 /* La tarjeta para medios, debajo de la caja de cierre. Sin botón y sin número
@@ -2893,14 +3646,88 @@ p.pie-frescura,
 .tarjeta-medios h2 {
   font-size: var(--t-xl);
 }
-.medios-marca {
-  color: var(--texto);
-  opacity: 0.14;
+/* Una vista previa del widget, pintada desde el mismo store que el hero: un
+   <iframe> pediría su propio /api/nivel. Reemplaza a la marca gigante
+   desvaída, que era decoración en el lugar donde se podía mostrar el
+   producto. */
+.widget-previa {
+  justify-self: end;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--fondo);
 }
-.medios-marca svg {
-  width: 116px;
-  height: 116px;
-  display: block;
+.wp-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.wp-fila .eti {
+  margin: 0;
+}
+.wp-fila .eti:last-child {
+  white-space: nowrap;
+}
+.wp-numero {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+#wp-nivel {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.wp-m {
+  font-weight: 700;
+  color: var(--tenue);
+}
+/* La píldora de estado, igual que en el widget. */
+.wp-estado {
+  margin-left: auto;
+  align-self: center;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--ok-tinte);
+  color: var(--ok-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  text-align: center;
+}
+.wp-estado.alerta {
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+}
+.wp-estado.evac {
+  background: var(--peligro-tinte);
+  color: var(--peligro-texto);
+}
+.wp-estado.viejo {
+  background: var(--panel-2);
+  color: var(--tenue);
+}
+.wp-estado[hidden] {
+  display: none;
+}
+.wp-fuente b {
+  font-family: var(--mono);
+}
+.wp-alerta {
+  color: var(--alerta-texto);
+}
+.wp-evac {
+  color: var(--peligro-texto);
+}
+.wp-fuente {
+  font-size: 0.6875rem;
+  color: var(--tenue);
 }
 
 .landing .cta {
@@ -3117,52 +3944,6 @@ body.con-bienvenida {
   margin-top: var(--e-6);
 }
 
-/* ---------- barras de contexto ---------- */
-.barra-fila {
-  display: flex;
-  align-items: center;
-  gap: var(--e-3);
-  margin-bottom: var(--e-2);
-}
-.barra-nom {
-  flex: none;
-  width: 92px;
-  font-size: var(--t-s);
-  color: var(--tenue);
-}
-.barra-pista {
-  flex: 1;
-  background: var(--panel-2);
-  border-radius: var(--r-full);
-  overflow: hidden;
-}
-.barra-pista i {
-  display: block;
-  height: 14px;
-  border-radius: var(--r-full);
-  min-width: 3px;
-}
-.b-hoy {
-  background: var(--agua);
-}
-.b-alerta {
-  background: var(--alerta);
-}
-.b-peligro {
-  background: var(--peligro);
-}
-.b-record {
-  background: var(--linea);
-}
-.barra-val {
-  flex: none;
-  width: 48px;
-  text-align: right;
-  font-family: var(--mono);
-  font-size: var(--t-s);
-  font-variant-numeric: tabular-nums;
-}
-
 /* ---------- ajustes ---------- */
 .acciones-top {
   display: flex;
@@ -3210,10 +3991,44 @@ body.con-bienvenida {
   color: var(--tenue);
   cursor: pointer;
 }
-.segmentado button.on {
+.segmentado button.on,
+.segmentado button[aria-pressed="true"] {
   background: var(--panel);
   color: var(--texto);
   box-shadow: var(--sombra);
+}
+/* Las tres formas de cargar la altura, en Mi casa. Es el mismo selector de
+   Ajustes y no un tercer botón: marca un estado —de dónde salió la altura—,
+   no dispara una acción principal. Va en grilla para que las tres entren a
+   lo ancho del teléfono, con el ícono arriba del nombre. */
+.segmentado.metodos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--r-m);
+  margin-bottom: var(--e-3);
+}
+.segmentado.metodos button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-1);
+  min-height: 4.5rem;
+  padding: var(--e-2) var(--e-1);
+  border-radius: 13px;
+  line-height: 1.25;
+}
+.segmentado.metodos svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.segmentado.metodos button[aria-pressed="true"] {
+  color: var(--acento);
 }
 
 /* Tamaño de texto: una clase en <html> escala todo junto, incluidos los
@@ -3357,6 +4172,58 @@ html.texto-grande {
   margin: 0 0 var(--e-4);
   color: var(--tenue);
 }
+/* La respuesta corta, la que contesta, en su propio renglón y con el color
+   del texto: el resto es la explicación. */
+.faq .corta {
+  display: block;
+  margin-bottom: var(--e-1);
+  color: var(--texto);
+}
+/* Las preguntas y, al costado, las cuatro ideas que hay que llevarse. */
+.faq-y-corto {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--e-4);
+  align-items: start;
+}
+.faq-y-corto .bloque {
+  margin: 0;
+}
+.en-corto {
+  position: sticky;
+  top: var(--e-5);
+}
+.landing .en-corto h2 {
+  margin-top: 0;
+  font-size: var(--t-l);
+}
+.flechas {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.flechas li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-weight: 600;
+}
+.flechas li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--acento);
+}
+@media (max-width: 900px) {
+  .faq-y-corto {
+    grid-template-columns: 1fr;
+  }
+  .en-corto {
+    position: static;
+  }
+}
 
 /* ---------- tabla de una cuenta ---------- */
 .cuenta {
@@ -3436,10 +4303,10 @@ html.texto-grande {
      le gana a `.tarjeta-seccion` de arriba aunque esté dentro de la consulta.
      Sin nombrarla acá, en el teléfono la tarjeta quedaba en dos columnas con el
      texto en 162 px al lado de la marca.
-     Y la marca se va: son 116 px de decoración en la pantalla donde el espacio
-     vertical es justo lo que falta. */
-  .medios-marca {
-    display: none;
+     La vista previa del widget va debajo, a lo ancho. */
+  .widget-previa {
+    justify-self: stretch;
+    max-width: none;
   }
   /* En una columna el mapa va debajo del texto y necesita un alto propio: el
      `height: 100%` del escritorio le sirve para llenar la fila al lado del
@@ -3462,6 +4329,10 @@ html.texto-grande {
   .tres {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--e-5);
+  }
+  .franja-pie {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
   }
   .pie-sitio {
     grid-template-columns: 1fr;
@@ -3528,8 +4399,22 @@ html.texto-grande {
      texto reflota y no se gana nada, así que van apilados. Las métricas son un
      número y un renglón corto — ahí dos columnas ahorran media pantalla. */
   .hitos,
-  .tres {
+  .tres,
+  .rl-par {
     grid-template-columns: 1fr;
+  }
+  /* Cada año en un renglón: el número a la izquierda y la frase al lado. */
+  .hitos > li {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: var(--e-3);
+    align-items: baseline;
+  }
+  .hitos b {
+    font-size: var(--t-xl);
+  }
+  .hitos p {
+    margin: 0;
   }
   .nav-sitio {
     padding: var(--e-4) 0;
@@ -3588,23 +4473,10 @@ html.texto-grande {
     display: block;
     margin-bottom: var(--e-4);
   }
-  .charla {
-    grid-template-columns: 1fr;
-    gap: var(--e-4);
-  }
-  /* La miniatura pasa arriba del texto y NO a lo ancho. Al costado, 160 px en
-     una columna de 350 le comen la mitad al texto; a lo ancho, un 16:9 son
-     175 px de alto por tarjeta y son ocho tarjetas: la página pasaba de 3.200
-     a 5.800 px. Con 180 px queda en 1,5 veces la de escritorio. */
-  .charla .mini {
-    width: 180px;
-    max-width: 100%;
-    justify-self: start;
-  }
   .charla .tit {
     font-size: var(--t-m);
   }
-  .rejilla-puntos {
+  .cuando-que {
     grid-template-columns: 1fr;
   }
   .telefonos-emergencia {
@@ -3612,16 +4484,21 @@ html.texto-grande {
     gap: var(--e-4);
     padding: var(--e-5);
   }
-  .paso {
-    grid-template-columns: 32px 1fr;
-    gap: var(--e-4);
+  .firme-tres,
+  .dos-maneras {
+    grid-template-columns: 1fr;
   }
-  .paso .numerito {
+  /* En el teléfono el valor del ejemplo baja debajo del texto. */
+  .ej-fila {
+    grid-template-columns: 32px 1fr;
+    gap: var(--e-2) var(--e-3);
+  }
+  .ej-fila .numerito {
     width: 32px;
     height: 32px;
   }
-  .bloque.paso h3 {
-    font-size: var(--t-m);
+  .ej-valor {
+    grid-column: 2;
   }
   .resultado .dato-grande {
     font-size: var(--t-xxl);
@@ -3700,14 +4577,13 @@ html.texto-grande {
     display: none !important;
   }
   /* Una sola columna: dos columnas de papel se leen peor y parten las fichas. */
-  .rejilla-puntos,
   .rejilla-2,
   .tres,
   .hitos {
     display: block;
   }
-  .rejilla-puntos li,
-  .telefonos-emergencia > div,
+  .lista-zona li,
+  .telefonos-emergencia > a,
   .bloque,
   .tarjeta {
     break-inside: avoid;
@@ -3839,7 +4715,7 @@ textarea {
   .chips-ancla a:hover,
   .enlace-crudo:hover,
   .charla:hover,
-  .rejilla-puntos a.punto:hover,
+  .fila-punto:hover,
   .sugerir > summary:hover,
   .pie-sitio a:hover,
   .franja-estado a:hover {
@@ -3872,7 +4748,6 @@ textarea:focus-visible {
   letter-spacing: 0;
   margin-left: 2px;
 }
-.leyenda-item .v,
 .tel .n {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -4205,6 +5080,12 @@ button.enlace-crudo {
   margin-bottom: 0;
   transform: translateY(100%);
 }
+.h-umbral.h-alerta {
+  color: var(--alerta-texto);
+}
+.h-umbral.h-peligro {
+  color: var(--peligro-texto);
+}
 .h-y {
   left: 0;
   width: 16px;
@@ -4232,158 +5113,151 @@ button.enlace-crudo {
 .h-eje span:last-child {
   transform: translateX(-100%);
 }
+/* Las barras: el color dice lo más alto que llegó el río ese año. El celeste
+   de los años normales va bajado: son la mayoría y no tienen que competir con
+   los que llegaron a la alerta. */
 .h-barra {
   cursor: pointer;
+}
+.h-barra.h-b-normal,
+.h-leyenda .h-b-normal {
+  fill: var(--agua);
+  background: var(--agua);
+  opacity: 0.55;
+}
+.h-barra.h-b-alerta,
+.h-leyenda .h-b-alerta {
+  fill: var(--alerta);
+  background: var(--alerta);
+}
+/* --linea-evac y no --peligro: en tema claro --alerta y --peligro están a
+   dos tonos uno del otro y las barras de los dos grupos no se distinguían. */
+.h-barra.h-b-evac,
+.h-leyenda .h-b-evac {
+  fill: var(--linea-evac);
+  background: var(--linea-evac);
 }
 .h-barra:hover {
   opacity: 1;
 }
-.h-modos {
+.h-franja {
+  cursor: pointer;
+}
+.h-franja:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+.h-leyenda {
   display: flex;
-  gap: var(--e-2);
-  margin: var(--e-4) 0;
-}
-.h-modos .btn {
-  margin: 0;
-  width: auto;
-  flex: 1;
-}
-/* El modo elegido es el sólido y el otro el azul: la misma jerarquía de
-   siempre, aplicada a un par de pestañas. Antes movía `border-color` sobre un
-   botón que no tiene borde, así que lo único que cambiaba era el texto. */
-.h-modos .btn[aria-pressed="true"] {
-  background: var(--btn-fuerte);
-  color: var(--btn-fuerte-texto);
-}
-/* En el teléfono el tanque va a lo ancho y la lectura debajo: con el tanque
-   en una columna angosta las etiquetas de los umbrales —"Evacuación · 5,7 m"—
-   no entraban y se salían de la caja. En pantalla ancha sí se pone al costado. */
-.h-panel {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--e-4);
-  align-items: stretch;
-}
-/* El tanque. La línea del agua es la altura de un div, así que animarla es
-   una transición de `height` y nada más: sin canvas, sin librería y sin
-   repintar el SVG en cada paso del recorrido. */
-.h-tanque {
-  position: relative;
-  min-height: 240px;
-  border-radius: var(--r-m);
-  border: 1px solid var(--linea);
-  background: var(--panel-2);
-  overflow: hidden;
-}
-.h-agua {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, var(--agua) 0, var(--agua-tinte) 100%);
-  border-top: 2px solid var(--agua-clara);
-  transition: height 0.32s ease-out;
-}
-.h-agua.h-sin-transicion {
-  transition: none;
-}
-.h-marcas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.h-marca {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed currentColor;
-}
-.h-marca span {
-  position: absolute;
-  right: var(--e-2);
-  bottom: 2px;
-  font-family: var(--sans);
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-5);
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
   font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-/* Alerta y evacuación están a 40 cm una de otra: en un tanque de 240 px eso
-   son 11 px y los dos rótulos se montaban. El de alerta va DEBAJO de su línea
-   y el de evacuación encima, y quedan separados. El del récord también va
-   debajo, porque a 93 % de altura no le queda lugar arriba. */
-.h-alerta span,
-.h-record span {
-  bottom: auto;
-  top: 3px;
-}
-.h-alerta {
-  color: var(--alerta);
-}
-.h-peligro {
-  color: var(--peligro);
-}
-.h-record {
-  color: var(--tierra);
-}
-.h-tenue {
   color: var(--tenue);
 }
-.h-lectura {
-  align-self: center;
+.h-leyenda li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.h-leyenda i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+/* El año elegido: flechas a los costados del año y tres datos. */
+.h-detalle-anio {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4) var(--e-5);
+}
+.h-sel {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+.h-flecha {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel);
+  color: var(--texto);
+  font-size: var(--t-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+.h-flecha:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 .h-anio {
   font-family: var(--sans);
-  font-size: var(--t-xl);
+  font-size: var(--t-xxl);
   font-weight: 800;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-.h-num {
-  font-family: var(--mono);
-  font-size: var(--t-xxl);
-  font-weight: 700;
-  color: var(--acento);
-  line-height: 1.1;
-  margin-top: var(--e-1);
-}
-.h-lista {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.h-lista li {
-  font-size: var(--t-s);
-  color: var(--tenue);
-  padding: var(--e-2) 0;
-  border-top: 1px solid var(--linea);
-}
-.h-lista li b {
-  color: var(--texto);
-}
-.h-ojo {
-  color: var(--alerta-texto) !important;
-}
-.h-control {
-  margin-top: var(--e-5);
-}
-/* El control es un range nativo a propósito: teclado, lector de pantalla y
-   el gesto de arrastre del sistema vienen gratis y funcionan mejor que
-   cualquier cosa que pudiéramos escribir. */
-.h-control input[type="range"] {
-  width: 100%;
-  accent-color: var(--acento);
-  height: 34px;
-}
-.h-control-pie {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.h-detalle-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--e-3);
-  margin-top: var(--e-2);
+  margin: var(--e-4) 0 var(--e-3);
 }
-.h-control-pie .btn {
+.h-detalle-datos > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.h-detalle-datos .eti {
   margin: 0;
-  width: auto;
+}
+.h-detalle-datos b {
+  font-size: var(--t-l);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.h-detalle-datos b.h-t-alerta {
+  color: var(--alerta-texto);
+}
+.h-detalle-datos b.h-t-evac {
+  color: var(--peligro-texto);
+}
+.h-detalle-datos .chico {
+  margin: 0;
+  font-size: var(--t-xs);
+}
+.landing .h-detalle-texto {
+  margin: 0;
+  font-weight: 600;
+}
+/* Las cuatro fichas de arriba: el récord, la bajante, la mediana y los años.
+   Datos en el HTML, no en el JS. */
+.fichas-hist {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-5) 0;
+}
+.fichas-hist > div {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4);
+}
+.fichas-hist dt {
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.fichas-hist dd {
+  margin: var(--e-1) 0 0;
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 .h-detalle summary {
   cursor: pointer;
@@ -4427,22 +5301,13 @@ button.enlace-crudo {
 }
 
 @media (min-width: 700px) {
-  .h-panel {
-    grid-template-columns: 220px 1fr;
-    gap: var(--e-5);
-  }
-  .h-tanque {
-    min-height: 320px;
-  }
   .h-svg-franja {
     height: 230px;
   }
 }
-/* Quien pidió menos movimiento igual puede recorrer los años: lo que se quita
-   es la transición, no la función. */
-@media (prefers-reduced-motion: reduce) {
-  .h-agua {
-    transition: none;
+@media (max-width: 700px) {
+  .fichas-hist {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -4450,16 +5315,60 @@ button.enlace-crudo {
    Tres renglones cortos: el número primero, porque es lo que se busca. */
 .lista-contra {
   margin: 0;
-  padding: 0;
-  list-style: none;
 }
-.lista-contra li {
-  font-size: var(--t-base);
-  padding: var(--e-2) 0;
+.contra-fila {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--e-3);
+  align-items: baseline;
+  padding: var(--e-3) 0;
   border-bottom: 1px solid var(--linea);
 }
-.lista-contra li:last-child {
-  border-bottom: none;
+.contra-fila dt {
+  font-weight: 800;
+  font-size: var(--t-l);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.contra-fila dt.encima {
+  color: var(--peligro-texto);
+}
+.contra-fila dd {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* Dónde cae hoy entre todos los días medidos. La barra es el mismo dato que
+   la frase de abajo, dibujado: por eso va aria-hidden. */
+.percentil {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding-top: var(--e-4);
+}
+.percentil-pista {
+  position: relative;
+  height: 12px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+}
+.percentil-pista i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--r-full);
+  background: var(--agua);
+  opacity: 0.45;
+}
+.percentil-pista u {
+  position: absolute;
+  top: -5px;
+  width: 4px;
+  height: 22px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--acento);
 }
 
 /* El sello "plan municipal" en las listas del plan familiar. Marca lo que sale
@@ -4502,16 +5411,21 @@ button.enlace-crudo {
 #veredicto-rio {
   min-height: 225px;
 }
+/* Con la casa cargada el veredicto suma las dos fichas y la glosa: 336 px
+   medidos. La clase la pone rio.js antes de pedir el dato. */
+#v-rio.con-casa #veredicto-rio {
+  min-height: 336px;
+}
 /* El renglón que dice de dónde salió el dato arranca vacío y termina en dos
-   líneas con sus dos enlaces: son 60 px que empujan toda la pantalla. */
+   líneas con sus dos enlaces, más el filete de arriba. */
 #origen-dato {
-  min-height: 60px;
+  min-height: 73px;
 }
 #tendencia {
   min-height: 250px;
 }
 #contexto-caja {
-  min-height: 380px;
+  min-height: 390px;
 }
 #lluvia-caja {
   min-height: 270px;
@@ -4521,6 +5435,7 @@ button.enlace-crudo {
      dejaría un hueco visible y no hay nada que ganar — el salto se nota
      mucho menos cuando la tarjeta no ocupa media pantalla. */
   #veredicto-rio,
+  #v-rio.con-casa #veredicto-rio,
   #tendencia,
   #contexto-caja,
   #lluvia-caja {
@@ -4572,17 +5487,29 @@ button.enlace-crudo {
    incrustados en medio de la oración partían la frase ("salí. [103] "). Y el
    color se re-declara porque `.pasos a` es (0,1,1) y le gana a
    `.btn-emergencia` (0,1,0): sin esto el 103 salía azul sobre rojo. */
-#ayuda-simple .btn-emergencia,
 #ayuda-simple .btn {
   display: flex;
   width: fit-content;
-  margin: var(--e-3) 0 var(--e-2);
+  margin: var(--e-3) 0 0;
 }
 #ayuda-simple a.btn-emergencia {
   color: #fff;
 }
-#ayuda-simple .pasos li {
-  margin-bottom: var(--e-4);
+/* El 103 de la ayuda va como un renglón entero: «Defensa Civil» a la
+   izquierda y el número grande a la derecha, que es lo que se busca. */
+.btn-emergencia.fila-103 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3.25rem;
+  margin: var(--e-3) 0 0;
+  border-radius: var(--r-m);
+  padding: 0 var(--e-4);
+  font-size: var(--t-base);
+}
+.btn-emergencia.fila-103 b {
+  font-size: var(--t-xl);
+  font-weight: 800;
 }
 
 .btn-emergencia b {
@@ -4746,4 +5673,349 @@ button.enlace-crudo {
     --tenue: var(--texto);
     --tenue-invertido: var(--texto-invertido);
   }
+}
+
+/* ==========================================================================
+   MI PLAN Y DÓNDE IR
+   ========================================================================== */
+
+/* La tarjeta sólida: en claro el negro de siempre, en oscuro un panel con
+   borde (ver --sup-fuerte). */
+.tarjeta.oscura {
+  background: var(--sup-fuerte);
+  color: var(--texto-invertido);
+  border: 1px solid var(--sup-fuerte-borde);
+  box-shadow: none;
+}
+.tarjeta.oscura .chico {
+  color: var(--tenue-invertido);
+}
+/* Los títulos tienen su color fijado en otra regla: sin esto, en la portada
+   el h3 salía negro sobre negro. */
+.tarjeta.oscura h2,
+.tarjeta.oscura h3 {
+  color: var(--texto-invertido);
+}
+
+/* El progreso del plan: cuántas cosas listas, la barra y el detalle por
+   lista. */
+.progreso-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.pp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  flex-wrap: wrap;
+}
+.pp-num {
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--tenue-invertido);
+}
+.pp-num b {
+  margin-right: var(--e-1);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto-invertido);
+}
+.pp-falta {
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.pp-falta b,
+.pp-detalle b {
+  color: var(--texto-invertido);
+}
+.pp-pista {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: rgba(233, 238, 240, 0.14);
+  overflow: hidden;
+}
+.pp-pista i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--agua);
+}
+.pp-detalle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-4);
+  font-size: var(--t-xs);
+  color: var(--tenue-invertido);
+}
+
+/* Cada lista en su tarjeta, con el título y la cuenta adentro. */
+.lp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.lista-plan h2 {
+  margin: 0;
+  font-size: var(--t-m);
+}
+.lp-cabeza + .chico {
+  margin: var(--e-1) 0 var(--e-2);
+}
+
+/* Descargar e Imprimir, lado a lado y debajo del principal. */
+.par-botones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-2);
+}
+.par-botones .btn {
+  margin: 0;
+}
+
+/* Los cuatro pasos de «Si no sabés nada de esto». Son una secuencia de
+   verdad, por eso van numerados. */
+.pasos-num {
+  margin: var(--e-4) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+}
+.pasos-num li {
+  position: relative;
+  padding-left: 2.5rem;
+  counter-increment: paso;
+  color: var(--tenue-invertido);
+}
+.pasos-num li::before {
+  content: counter(paso);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-s);
+  background: rgba(233, 238, 240, 0.12);
+  color: var(--texto-invertido);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.pasos-num li:first-child::before {
+  background: var(--agua);
+  color: var(--sobre-agua);
+}
+.pasos-num b {
+  color: var(--texto-invertido);
+}
+.pn-txt {
+  display: block;
+  padding-top: 2px;
+}
+
+.nota-puntos {
+  margin: var(--e-2) 0 var(--e-4);
+}
+.lista-puntos-caja .campo {
+  margin-bottom: var(--e-2);
+}
+
+/* ==========================================================================
+   /legal
+   ========================================================================== */
+/* El resumen arriba: las tres cosas que hay que saber aunque no se lea más. */
+.tarjetas-tres {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin-top: var(--e-5);
+}
+.tarjetas-tres > * {
+  border-radius: var(--r-m);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  padding: var(--e-4) var(--e-5);
+}
+.tarjetas-tres b {
+  display: block;
+  font-size: var(--t-m);
+}
+/* En /sobre las tarjetas llevan rótulo y título propios. */
+.landing .sobre-tres h2 {
+  margin: var(--e-2) 0 var(--e-3);
+  font-size: var(--t-l);
+}
+.sobre-tres .eti {
+  margin: 0;
+}
+.sobre-tres b {
+  display: inline;
+  font-size: inherit;
+}
+.landing .sobre-tres p {
+  font-size: var(--t-s);
+}
+.fuentes-cortas {
+  margin: 0 0 var(--e-3);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.fuentes-cortas b {
+  color: var(--texto);
+}
+/* La pregunta de /sobre, como frase grande en la caja oscura. */
+.landing .pregunta-grande {
+  margin: 0 0 var(--e-4);
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--texto-invertido);
+}
+.landing .tarjetas-tres p {
+  margin: var(--e-1) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* El descargo en filas: el título a la izquierda, el texto a la derecha. */
+.filas-descargo {
+  margin: 0;
+}
+.filas-descargo > div {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  gap: var(--e-2) var(--e-5);
+  padding: var(--e-4) 0;
+  border-top: 1px solid var(--linea);
+}
+.filas-descargo dt {
+  font-weight: 700;
+}
+.filas-descargo dd {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* La tabla de privacidad. En el teléfono, cada renglón es una ficha. */
+.tabla-privacidad {
+  width: 100%;
+  margin: var(--e-3) 0 var(--e-4);
+  border-collapse: collapse;
+  font-size: var(--t-s);
+}
+.tabla-privacidad th,
+.tabla-privacidad td {
+  padding: var(--e-3) var(--e-3) var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+  vertical-align: top;
+}
+.tabla-privacidad tbody tr:last-child > * {
+  border-bottom: none;
+}
+.tabla-privacidad thead th {
+  color: var(--tenue);
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.tabla-privacidad tbody th {
+  font-weight: 700;
+  width: 26%;
+}
+.tabla-privacidad td {
+  color: var(--tenue);
+}
+.tabla-privacidad .tp-sale {
+  font-weight: 700;
+  color: var(--texto);
+  white-space: nowrap;
+}
+.tabla-privacidad .tp-nunca {
+  color: var(--ok-texto);
+}
+@media (max-width: 700px) {
+  .tabla-privacidad thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .tabla-privacidad tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--e-1) var(--e-3);
+    padding: var(--e-3) 0;
+    border-bottom: 1px solid var(--linea);
+  }
+  .tabla-privacidad tbody tr:last-child {
+    border-bottom: none;
+  }
+  .tabla-privacidad th,
+  .tabla-privacidad td {
+    padding: 0;
+    border: none;
+    width: auto;
+  }
+  .tabla-privacidad td:last-child {
+    grid-column: 1 / -1;
+  }
+  /* Tan específico como el de escritorio, que si no le gana. */
+  .tabla-privacidad tbody th {
+    width: auto;
+  }
+}
+@media (max-width: 700px) {
+  .tarjetas-tres,
+  .filas-descargo > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* /contacto: la ayuda del tema elegido, pegada a las opciones. */
+.landing .sug-ayuda {
+  margin: calc(var(--e-2) * -1) 0 var(--e-4);
+  color: var(--texto);
+  font-weight: 600;
+}
+.landing .tarjetas-contacto h2 {
+  margin: 0 0 var(--e-2);
+  font-size: var(--t-m);
+}
+
+/* La 404: cinco accesos como renglones con flecha, que se tocan enteros. */
+.accesos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.accesos li + li {
+  border-top: 1px solid var(--linea);
+}
+.landing .accesos a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.accesos a::after {
+  content: "→";
 }

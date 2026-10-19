@@ -62,7 +62,7 @@ export function pintarPuntos(filtro = "", destacar = null) {
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
 <div class="n">${n}${destacar === n ? ' <span style="color:var(--ok-texto);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
 <div class="d">${d}${km}</div>
-<span class="ir">Abrir en mapas →</span></a>`;
+<span class="ir">Mapas →</span></a>`;
     })
     .join("");
   if (recorta || (!f && verTodosLosPuntos))

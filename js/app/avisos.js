@@ -8,8 +8,8 @@
 import { CONFIG } from "./config.js";
 import { cotaEnHidrometro } from "./cota.js";
 import { guardado } from "./estado.js";
-import { mU } from "./formato.js";
-import { ALERTA } from "./oficiales.js";
+import { m, mU } from "./formato.js";
+import { ALERTA, EVACUACION } from "./oficiales.js";
 import { aLaVista, ocupar } from "./vista.js";
 
 /* ================= AVISOS =================
@@ -152,10 +152,23 @@ export async function desactivarAvisos() {
 }
 
 const LETRA_CHICA =
-  '<p class="chico" style="margin:9px 0 0">Para avisarte, el servidor guarda ' +
-  "sólo una dirección anónima de tu navegador. <b>No guarda tu nivel de aviso, " +
-  "la altura de tu terreno, tu dirección ni tu plan</b>: el aviso lo arma tu " +
-  "teléfono.</p>";
+  '<p class="chico" style="margin:9px 0 0">El aviso lo arma tu teléfono: el ' +
+  "servidor guarda sólo una dirección anónima de tu navegador, <b>no tu casa " +
+  'ni tu nivel de aviso</b>. <a href="/legal">Qué se guarda</a></p>';
+
+/* Los tres niveles a los que avisa, uno por renglón y con su número: es más
+   fácil decidir activarlo viendo exactamente qué va a sonar. */
+const listaNiveles = (umbral) =>
+  '<ul class="lista-niveles">' +
+  '<li><b class="c-vos">' +
+  mU(umbral).replace(" m", "") +
+  "</b>cuando el río llegue a tu nivel de aviso</li>" +
+  '<li><b class="c-alerta">' +
+  m(ALERTA).replace(" m", "") +
+  "</b>si pasa la alerta de la ciudad</li>" +
+  '<li><b class="c-evac">' +
+  m(EVACUACION).replace(" m", "") +
+  "</b>si pasa la evacuación de la ciudad</li></ul>";
 
 /* Aviso anticipado: además del cruce del umbral, avisar cuando falten 50 y
    20 cm. Lo decide el service worker con lo que se espeja a IndexedDB. */
@@ -193,7 +206,7 @@ export async function pintarAvisos() {
   if (!CONFIG.VAPID_PUBLIC_KEY) return (caja.innerHTML = "");
 
   const envoltura = (dentro) =>
-    '<div class="tarjeta"><h3 style="margin-top:0">Avisos</h3>' +
+    '<div class="tarjeta"><h3 style="margin-top:0">Que te avise el teléfono</h3>' +
     dentro +
     "</div>";
 
@@ -232,28 +245,17 @@ export async function pintarAvisos() {
     return;
   }
 
-  // Ojo con dar por sentado que tu umbral es más bajo que la alerta oficial:
-  // en terreno alto es al revés, y la frase quedaba diciendo un disparate.
-  /* Los dos números conviven y así se dicen. La alerta de la ciudad es un
-     umbral operativo, uno solo para toda Santa Fe, con el que se activa el plan
-     de contingencia; el nivel de aviso depende de la altura del terreno y de la
-     distancia al Puerto. Nunca se los pone a competir: acá decía que el propio
-     "llega ANTES que la alerta de la ciudad", que se lee como que el aviso
-     oficial llega tarde. No es eso, y además nos deja enfrentados con el
-     organismo que algún día tiene que revisarnos. */
-  const glosaUmbral =
-    umbral < ALERTA
-      ? " — tu nivel de aviso, <b>más bajo</b> que la alerta de la ciudad porque tu terreno está a otra altura"
-      : " — tu nivel de aviso, <b>más alto</b> que la alerta de la ciudad porque tu terreno está a otra altura";
+  /* Antes era una frase que comparaba tu nivel de aviso con la alerta de la
+     ciudad («más bajo que…», «más alto que…»). Los dos números conviven y no
+     se los pone a competir: la alerta de la ciudad es un umbral operativo,
+     uno solo para toda Santa Fe, y el nivel de aviso depende de la altura del
+     terreno y de la distancia al Puerto. La lista los pone uno debajo del
+     otro y no dice cuál llega antes. */
   caja.innerHTML = envoltura(
-    '<p class="chico" style="margin:0">La app sólo sirve si la abrís. Podemos ' +
-      "avisarte cuando el río llegue a <b>" +
-      mU(umbral) +
-      "</b>" +
-      glosaUmbral +
-      ". También te avisamos si el río pasa la alerta o la evacuación de la " +
-      "ciudad.</p>" +
-      '<button class="btn mini" style="margin-top:11px;display:block" ' +
+    '<p class="chico" style="margin:0 0 8px">La app sólo sirve si la abrís. ' +
+      "Podemos avisarte:</p>" +
+      listaNiveles(umbral) +
+      '<button class="btn" style="margin-top:12px" ' +
       'data-accion="avisos-on">Avisarme</button>' +
       LETRA_CHICA,
   );

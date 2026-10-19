@@ -46,15 +46,19 @@
 }
 /* El 103 en un recuadro rojo y grande: si de esta hoja se lee una sola cosa,
    que sea el teléfono al que hay que llamar. */
+/* Borde grueso y no fondo lleno: esta hoja se fotocopia por cientos en los
+   centros vecinales, y un bloque rojo sólido es lo que más tóner gasta —y en
+   una fotocopiadora en blanco y negro sale gris oscuro, con el número peor
+   leído que con tinta sobre papel—. */
 .g-103 {
   display: block;
-  padding: 3mm 5mm;
+  padding: 2mm 5mm;
+  border: 0.8mm solid var(--g-tinta, #1b262c);
   border-radius: 3mm;
-  background: #c0392b;
-  color: #fff;
+  color: var(--g-tinta, #1b262c);
   text-align: center;
   text-decoration: none;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 .g-103 span {
   display: block;
@@ -63,7 +67,9 @@
   text-transform: uppercase;
 }
 .g-103 b {
-  font-size: 20pt;
+  font-size: 26pt;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 /* ---------- el renglón para llenar a mano ----------
@@ -222,13 +228,11 @@
     color: #000;
   }
   .guia-hoja * { color: #000; }
-  .g-103 {
-    background: #c0392b !important;
-    color: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .g-103,
+  .g-103 * {
+    color: #000 !important;
+    border-color: #000 !important;
   }
-  .g-103 * { color: #fff !important; }
   .g-chico, .g-familia, .g-pie { color: #333; }
 
   /* Apretado para UNA carilla. Lo que se recorta es aire, nunca el tamaño de

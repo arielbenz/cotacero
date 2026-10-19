@@ -122,6 +122,8 @@
     <!-- Franja de alerta: vacía mide cero. Ver README -->
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
+    <!-- El filete de la barra va de borde a borde: ver app.css -->
+    <div class="nav-envoltura">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -188,28 +190,32 @@
           </div>
         </details>
       </nav>
+    </div>
+    </div>
 
+    <div class="ancho">
       <header class="hero">
         <div>
           <!-- Sin píldora acá: ver CLAUDE.md, «el mono en mayúsculas» -->
           <h1 class="titulo-hero">
-            El río Paraná tiene un número.<br />Tu casa tiene otro.
+            El río Paraná tiene un número.<br /><span class="acento-hero"
+              >Tu casa tiene otro.</span
+            >
           </h1>
           <p class="bajada">
-            El hidrómetro del Puerto de Santa Fe publica el nivel todos los
-            días. Cota Cero lo traduce a <b>tu nivel de aviso</b>: el nivel del
-            río a partir del cual el agua puede llegar a tu terreno. En muchos
-            barrios queda debajo de los 5,30 m de la alerta de la ciudad: cada
-            terreno está a otra altura.
+            Cota Cero traduce el nivel del Paraná a <b>tu nivel de aviso</b>: el
+            nivel del río a partir del cual el agua puede llegar a tu terreno.
+            En muchos barrios queda por debajo de la alerta de la ciudad.
           </p>
           <div class="hero-botones">
             <a class="btn" href="/app">Cargar mi casa</a>
             <a class="btn sec" href="#como">Ver cómo funciona</a>
           </div>
-          <p class="chico">
-            Gratis · Funciona sin señal una vez cargada · Tu nivel de aviso y tu plan
-            quedan en tu teléfono
-          </p>
+          <ul class="hero-tildes">
+            <li>Gratis</li>
+            <li>Funciona sin señal una vez cargada</li>
+            <li>Tus datos quedan en tu teléfono</li>
+          </ul>
           <p class="chico marco-legal">
             Santa Fe está en emergencia hídrica por la
             <a href="/datos#fuentes">Ley provincial 14.477</a>. Es el marco del
@@ -217,42 +223,49 @@
           </p>
         </div>
 
-        <!-- Mockup: `real` no se mueve, `sim` sí. Ver README -->
+        <!-- `real` no se mueve, `sim` sí. Ver README -->
         <div class="mockup-envoltura" id="abrir">
           <div class="mockup">
             <div class="mockup-cabecera">
-              <span class="eti">Hidrómetro · Puerto Santa Fe</span>
+              <div class="mc-fila">
+                <span class="eti">Hidrómetro · Puerto Santa Fe</span>
+                <span class="chip-delta" id="nivel-delta" hidden></span>
+              </div>
               <div class="mockup-numero">
                 <span class="dato" id="nivel">—</span>
                 <span class="mockup-m">m</span>
-                <span class="chip-delta" id="nivel-delta" hidden></span>
               </div>
               <p class="chico" id="nivel-pie">Buscando el último dato…</p>
             </div>
             <!-- Umbrales de respaldo en el marcado, por si no corre el JS -->
             <div class="regla-mini" id="regla-mini">
-              <div class="rm-agua" id="rm-agua"></div>
-              <div class="rm-linea" id="rm-superficie"></div>
-              <div class="rm-umbral rm-record" id="rm-record" hidden>
-                <b></b>
+              <div class="rm-escala" aria-hidden="true">
+                <span style="bottom: 100%">8 m</span>
+                <span style="bottom: 75%">6 m</span>
+                <span style="bottom: 50%">4 m</span>
+                <span style="bottom: 25%">2 m</span>
+                <span style="bottom: 0">0</span>
               </div>
-              <div class="rm-umbral rm-evac" id="rm-evac">
-                <b>Evacuación 5,70</b>
+              <div class="rm-tanque">
+                <div class="rm-agua" id="rm-agua"></div>
+                <div class="rm-linea" id="rm-superficie"></div>
+                <div class="rm-umbral rm-record" id="rm-record" hidden>
+                  <b></b>
+                </div>
+                <div class="rm-umbral rm-evac" id="rm-evac">
+                  <b>Evacuación de la ciudad · 5,70</b>
+                </div>
+                <div class="rm-umbral rm-alerta" id="rm-alerta">
+                  <b>Alerta de la ciudad · 5,30</b>
+                </div>
+                <div class="rm-umbral rm-hoy" id="rm-hoy" hidden><b></b></div>
+                <span class="rm-ahora" id="rm-ahora"></span>
               </div>
-              <div class="rm-umbral rm-alerta" id="rm-alerta">
-                <b>Alerta 5,30</b>
-              </div>
-              <div class="rm-umbral rm-hoy" id="rm-hoy" hidden><b></b></div>
-              <span class="rm-ahora" id="rm-ahora"></span>
             </div>
             <!-- Siempre en el marcado, para no saltar al llegar el dato -->
             <div class="mockup-sim">
-              <div class="ms-fila">
-                <label class="eti" for="rm-rango">Mové el río</label>
-                <button type="button" class="ms-volver" id="rm-volver" hidden>
-                  Volver a hoy
-                </button>
-              </div>
+              <p class="ms-falta" id="rm-falta">&nbsp;</p>
+              <label class="eti" for="rm-rango">Mové el río</label>
               <input
                 type="range"
                 id="rm-rango"
@@ -262,110 +275,143 @@
                 value="0"
                 disabled
                 aria-label="Nivel del río a simular, en metros" />
-              <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
+              <div class="ms-fila">
+                <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
+                <button type="button" class="ms-volver" id="rm-volver" hidden>
+                  Volver a hoy
+                </button>
+              </div>
             </div>
           </div>
-          <p class="globo" id="globo" hidden></p>
         </div>
       </header>
 
       <section class="franja-oscura">
-        <!-- h2 de verdad, no un rótulo -->
-        <h2>Santa Fe ya sabe lo que es</h2>
-        <div class="hitos">
-          <div>
+        <h2>Santa Fe ya sabe lo que es.</h2>
+        <ol class="hitos">
+          <li>
             <b>1983</b>
-            <p>
-              La gran crecida del Paraná: el 28 de septiembre la Laguna
-              Setúbal se llevó el Puente Colgante, el símbolo de la ciudad.
-            </p>
-          </div>
-          <div>
+            <p>La Setúbal se llevó el Puente Colgante, el símbolo de la ciudad.</p>
+          </li>
+          <li>
             <b>1992</b>
-            <p>
-              El Paraná llevó el hidrómetro a 7,43 m, el récord que sigue
-              vigente. Es el caso histórico con el que se contrastó el modelo
-              de esta app.
-            </p>
-          </div>
-          <div>
+            <p>Récord: 7,43 m en el hidrómetro. Sigue vigente.</p>
+          </li>
+          <li>
             <b>2003</b>
             <p>
-              El Salado entró a la ciudad y obligó a evacuar a decenas de miles
-              de personas. Muchos barrios se inundaron antes de recibir aviso.
+              Entró el Salado. Muchos barrios se inundaron antes de recibir
+              aviso.
             </p>
-          </div>
-          <div>
+          </li>
+          <li>
             <b>2007</b>
-            <p>
-              Las lluvias volvieron a anegar los mismos barrios del oeste. La
-              lección se repitió: el aviso a tiempo vale más que el pronóstico.
-            </p>
-          </div>
+            <p>La lluvia volvió a anegar los barrios del oeste.</p>
+          </li>
+        </ol>
+        <div class="franja-pie">
+          <p class="franja-nota">
+            Las grandes crecidas del Paraná —1983, 1992, 2016— llegaron con años
+            de <b>El Niño</b>.
+            <a href="/historia">Cien años del río, año por año →</a>
+          </p>
+          <p class="franja-cierre">
+            Para que la próxima crecida encuentre a cada familia sabiendo su
+            número, su plan y su punto de encuentro.
+            <a href="/sobre">Quién la hace y con qué límites</a>.
+          </p>
         </div>
-        <p class="franja-nota">
-          No es casualidad: las grandes crecidas del Paraná — 1983, 1992,
-          2016 — llegaron con años de <b>El Niño</b>, cuando llueve por encima
-          de lo normal en toda la cuenca. Un Niño declarado no garantiza
-          crecida, pero es el momento de revisar tu nivel de aviso y tu plan.
-          <a href="/historia">La serie del INA desde 1925</a> tiene todas las
-          crecidas y todas las bajantes, año por año.
-        </p>
-        <p class="franja-cierre">
-          Esta herramienta existe para que la próxima crecida encuentre a cada
-          familia sabiendo su número, su plan y su punto de encuentro. Empezó con
-          un Niño declarado y con <a href="/charlas">seis charlas</a> que dicen
-          lo mismo: prepararse antes cuesta mucho menos que reconstruir después.
-          <a href="/sobre">Quién la hace y con qué límites</a>.
-        </p>
       </section>
 
       <section id="como">
-        <h2>Tres datos, un nivel de aviso</h2>
-        <div class="tres">
-          <div class="tarjeta">
+        <div class="como-cabeza">
+          <h2>Tres datos, un nivel de aviso</h2>
+          <a href="/datos">Cómo se calcula, paso por paso →</a>
+        </div>
+        <ol class="tres">
+          <li class="tarjeta">
             <span class="numerito">1</span>
             <h3>Elegís tu zona</h3>
             <p>
               Once zonas de Santa Fe, cada una con su distancia al Puerto. Río
               arriba el agua llega antes.
             </p>
-          </div>
-          <div class="tarjeta">
+          </li>
+          <li class="tarjeta">
             <span class="numerito">2</span>
             <h3>Cargás tu terreno</h3>
             <p>
-              La cota de tu terreno: por GPS, buscando tu dirección, o a mano si
-              la conocés. Sale de las curvas de nivel del municipio.
+              La altura de tu terreno: por GPS, buscando tu dirección, o a mano
+              si la conocés. Sale de las curvas de nivel del municipio.
             </p>
-          </div>
-          <div class="tarjeta">
+          </li>
+          <li class="tarjeta oscura">
             <span class="numerito">3</span>
             <h3>Mirás un solo número</h3>
+            <p class="tres-dato">
+              <b>≈ 5,1 m</b> <span class="eti">en la regla del Puerto</span>
+            </p>
             <p>
-              «Tu nivel de aviso: ≈ 5,1 m en la regla del Puerto». Con el
-              cálculo desglosado, no una caja negra — y sin fingir una precisión
-              que los datos no tienen.
+              Con el cálculo desglosado, no una caja negra, y sin fingir una
+              precisión que los datos no tienen.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- La lluvia, dicha donde se explica qué mide la app -->
+      <section class="tarjeta-seccion rio-lluvia">
+        <div class="ts-texto">
+          <h2>Mira el río. La lluvia es otra cuenta.</h2>
+          <p>
+            Tu nivel de aviso sirve para las crecidas del Paraná. Pero si llueve
+            mucho en poco tiempo, o varios días seguidos, una calle puede
+            anegarse y entrar agua a las casas
+            <b>aunque el río esté lejos de la alerta de la ciudad</b>.
+          </p>
+          <a href="/datos#no-dice">Qué no dice tu nivel de aviso →</a>
+        </div>
+        <div class="rl-tarjetas">
+          <div class="rl-par">
+            <div class="rl-caja rl-mide">
+              <span class="eti">Lo que mide</span>
+              <p>
+                El nivel del Paraná en el hidrómetro del Puerto, y cuánto le
+                falta para llegar a tu terreno.
+              </p>
+            </div>
+            <div class="rl-caja rl-no-mide">
+              <span class="eti">Lo que no mide</span>
+              <p>
+                La lluvia sobre tu barrio, los desagües ni las bombas. Muestra
+                la lluvia prevista, pero no la vuelve un número para tu casa.
+              </p>
+            </div>
+          </div>
+          <div class="rl-caja rl-juntan">
+            <span class="eti">Cuando se juntan</span>
+            <p>
+              El municipio planifica para <b>río en 6 m + lluvia de 200 a 300
+              mm</b>: con el río alto, las bombas no alcanzan a sacar el agua
+              de la ciudad. Y desde los <b>40 mm en un día</b> ya empieza a
+              costar.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- 02 y 03 ordenan el recorrido: no son decoración -->
       <section class="tarjeta-seccion con-mapa">
         <div class="ts-texto">
-          <p class="rotulo">02 — Dónde ir</p>
           <h2>30 puntos de encuentro oficiales</h2>
           <p>
-            Los del municipio, con coordenadas verificadas contra su GeoServer.
-            En la app los ves ordenados por cercanía y funcionan sin conexión:
-            el listado se guarda en tu teléfono.
+            Los del municipio, verificados contra su GeoServer. En la app,
+            ordenados por cercanía y sin conexión.
           </p>
           <div class="aviso">
-            Su activación la confirma Defensa Civil: llamá al <b>103</b> antes
-            de salir.
+            Su activación la confirma Defensa Civil: llamá al
+            <a href="tel:103"><b>103</b></a> antes de salir.
           </div>
-          <a class="btn" href="/puntos-de-encuentro">Ver la lista completa</a>
+          <a class="btn sec" href="/puntos-de-encuentro">Ver la lista completa</a>
         </div>
         <!-- A sangre: recorta la tarjeta con overflow -->
         <div
@@ -376,36 +422,31 @@
 
       <section class="tarjeta-seccion">
         <div class="ts-texto">
-          <p class="rotulo rotulo-alerta">03 — Honesta por diseño</p>
           <h2>Te dice lo que sabe.<br />Y lo que no.</h2>
           <p>
-            Cota Cero no esconde la incertidumbre en la letra chica. Te dice de
-            dónde salió la cota de tu terreno y cuánto margen tiene, y muestra
-            el número redondeado en vez de fingir centímetros que el dato no
-            tiene. Te avisa que un punto de encuentro puede no estar activo. Y
-            cuando una fuente no alcanza, lo dice en vez de inventar un número.
+            Te dice de dónde sale cada número y cuánto margen tiene. Redondea en
+            vez de fingir centímetros. Y cuando un dato no alcanza, lo dice en
+            vez de inventarlo.
           </p>
           <a href="/datos">De dónde salen los datos →</a>
         </div>
-        <!-- Texto exacto de la app, con la cara de `.aviso` -->
+        <!-- Texto exacto de la app: si cambia allá, cambia acá -->
         <div class="avisos-app">
+          <span class="eti">Avisos de la app</span>
           <blockquote class="aviso-app">
-            <p class="rotulo rotulo-alerta">Aviso en la app</p>
             <p>
-              «Ni la mejor cota reemplaza un relevamiento de tu terreno: la
-              curva pasa cerca de tu casa, pero no por tu puerta.»
+              «Sale de las curvas de nivel del municipio: pasan cerca de tu
+              casa, no por tu puerta.»
             </p>
           </blockquote>
           <blockquote class="aviso-app">
-            <p class="rotulo rotulo-alerta">Aviso en la app</p>
             <p>
-              «Esto es una estimación, no una orden de evacuación. La orden la
-              da Defensa Civil.»
+              «Si Defensa Civil dice que salgas, salí. Aunque acá diga que
+              tenés margen.»
             </p>
           </blockquote>
           <!-- Aclaración del proyecto, no un aviso de la app -->
           <div class="aviso-app neutro">
-            <p class="rotulo">Sin vínculo oficial</p>
             <p>
               Hecha por un vecino. No es una comunicación del municipio, y lo
               dice en cada pantalla.
@@ -465,15 +506,21 @@
           </p>
           <a href="/para-medios">Cómo se pone →</a>
         </div>
-        <div class="medios-marca" aria-hidden="true">
-          <svg viewBox="0 0 60 60">
-            <defs>
-              <clipPath id="mmed"><rect x="0" y="33" width="60" height="27" /></clipPath>
-            </defs>
-            <circle cx="30" cy="30" r="21" fill="var(--agua-clara)" clip-path="url(#mmed)" />
-            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7" />
-            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" />
-          </svg>
+        <!-- Lo pinta landing.js desde el store: no es un iframe -->
+        <div class="widget-previa" id="widget-previa">
+          <div class="wp-fila">
+            <span class="eti">Río Paraná · Santa Fe</span>
+            <span class="eti">Vista previa</span>
+          </div>
+          <div class="wp-numero">
+            <span id="wp-nivel">—</span><span class="wp-m">m</span>
+            <span class="wp-estado" id="wp-estado"></span>
+          </div>
+          <span class="wp-fuente"
+            >Alerta <b class="wp-alerta" id="wp-alerta">5,30</b> · Evacuación
+            <b class="wp-evac" id="wp-evac">5,70</b> ·
+            <span id="wp-fuente">INA · cotacerosf.com</span></span
+          >
         </div>
       </section>
     </div>

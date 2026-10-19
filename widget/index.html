@@ -44,10 +44,12 @@
         --pista: rgba(27, 38, 44, 0.07);
         --agua: #1f7a9e;
         --acento: #1f7a9e;
-        --alerta: #cb430e;
-        --peligro: #ca442f;
+        --alerta: #c4410e;
+        --peligro: #a5271a;
         --alerta-tinte: #ffefe3;
-        --ok: #2f7d62;
+        --peligro-tinte: #fbe9e5;
+        --ok: #35785e;
+        --ok-tinte: #e6f2ec;
       }
       html[data-theme="dark"] {
         --fondo: #17232a;
@@ -58,9 +60,11 @@
         --agua: #2e9bc4;
         --acento: #5fc8e8;
         --alerta: #e8a33d;
-        --peligro: #e15f49;
+        --peligro: #e57563;
         --alerta-tinte: rgba(232, 163, 61, 0.16);
-        --ok: #4fa88b;
+        --peligro-tinte: rgba(224, 90, 68, 0.18);
+        --ok: #51ab8e;
+        --ok-tinte: rgba(79, 168, 139, 0.15);
       }
       * {
         box-sizing: border-box;
@@ -77,10 +81,15 @@
           sans-serif;
         -webkit-text-size-adjust: 100%;
       }
+      /* Centrado en el alto que le dé el iframe: el código recomienda 220 px
+         y el contenido mide menos, así que el aire se reparte arriba y abajo
+         en vez de quedar todo al pie. */
       .w {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        justify-content: center;
+        gap: 12px;
+        min-height: 100vh;
         padding: 16px 18px;
       }
       .cab {
@@ -96,21 +105,22 @@
       .cab svg {
         flex: none;
       }
-      .cab .fecha {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+      /* La tendencia va en la cabecera, a la derecha. «▲ +3 cm» y no «cm/día»:
+         el INA puede saltearse una lectura y ahí el delta abarca dos días. */
+      .delta {
         margin-left: auto;
+        color: var(--alerta);
+        font-size: 12px;
+        letter-spacing: 0;
+        text-transform: none;
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
       }
-      .pulso {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--ok);
+      .delta.baja {
+        color: var(--ok);
       }
-      .pulso.viejo {
-        background: var(--alerta);
+      .delta[hidden] {
+        display: none;
       }
       .fila {
         display: flex;
@@ -129,20 +139,35 @@
         font-weight: 700;
         color: var(--tenue);
       }
-      .delta {
+      /* El estado, al lado del número: la alerta y la evacuación siempre con
+         «de la ciudad», y con el dato vencido no dice ninguna de las dos —una
+         alerta de hace tres días con la cara de una de hoy es peor que nada—. */
+      .estado {
         margin-left: auto;
         align-self: center;
         padding: 4px 10px;
         border-radius: 99px;
-        background: var(--alerta-tinte);
-        color: var(--alerta);
+        background: var(--ok-tinte);
+        color: var(--ok);
         font-size: 12px;
         font-weight: 700;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
+        line-height: 1.25;
+        text-align: center;
+        /* En una columna angosta parte el texto en dos renglones adentro de
+           la píldora, al lado del número: debajo no entraría en los 220 px. */
+        min-width: 0;
       }
-      .delta[hidden] {
-        display: none;
+      .estado.alerta {
+        background: var(--alerta-tinte);
+        color: var(--alerta);
+      }
+      .estado.evac {
+        background: var(--peligro-tinte);
+        color: var(--peligro);
+      }
+      .estado.viejo {
+        background: var(--pista);
+        color: var(--tenue);
       }
       /* La regla: 0 a 8 m, con el agua y las dos marcas oficiales. Es la misma
          escala que usa la app, así el número del widget y el de la app se leen
@@ -169,25 +194,6 @@
         bottom: 0;
         width: 2px;
       }
-      .escala {
-        display: flex;
-        gap: 14px;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--tenue);
-        font-variant-numeric: tabular-nums;
-      }
-      .escala .der {
-        margin-left: auto;
-        display: flex;
-        gap: 14px;
-      }
-      .escala .a {
-        color: var(--alerta);
-      }
-      .escala .e {
-        color: var(--peligro);
-      }
       .pie {
         display: flex;
         align-items: baseline;
@@ -203,9 +209,23 @@
         color: var(--texto);
         font-weight: 700;
       }
-      .pie .falta {
+      .pie .umbrales {
         flex: 1;
-        min-width: 180px;
+        min-width: 200px;
+      }
+      .pie .umbrales b {
+        font-variant-numeric: tabular-nums;
+      }
+      .pie .u-alerta {
+        color: var(--alerta);
+      }
+      .pie .u-evac {
+        color: var(--peligro);
+      }
+      /* Con el dato vencido, la fecha es lo primero que hay que leer. */
+      .pie .fecha.viejo {
+        color: var(--alerta);
+        font-weight: 700;
       }
       /* El crédito va entero y en una línea: es la condición 1 de /para-medios
          y la trazabilidad del número que el medio está publicando. */
@@ -260,16 +280,14 @@
             stroke-width="4.5"
             stroke-linecap="round" />
         </svg>
-        Río en el Puerto de Santa Fe
-        <span class="fecha"
-          ><span class="pulso" id="pulso"></span><span id="fecha">—</span></span
-        >
+        Río Paraná · Puerto de Santa Fe
+        <span class="delta" id="delta" hidden></span>
       </div>
 
       <div class="fila">
         <span class="nivel" id="nivel">—</span>
         <span class="unidad">m</span>
-        <span class="delta" id="delta" hidden></span>
+        <span class="estado viejo" id="estado">Buscando el dato</span>
       </div>
 
       <div class="regla" role="img" aria-hidden="true">
@@ -283,16 +301,13 @@
           id="m-evac"
           style="background: var(--peligro)"></span>
       </div>
-      <div class="escala">
-        <span>0</span>
-        <span class="der"
-          ><span class="a" id="rot-alerta">Alerta 5,30</span
-          ><span class="e" id="rot-evac">Evac. 5,70</span></span
-        >
-      </div>
 
       <div class="pie">
-        <span class="falta" id="falta">Buscando el nivel del día…</span>
+        <span class="umbrales"
+          >Alerta <b class="u-alerta" id="u-alerta">5,30</b> · Evacuación
+          <b class="u-evac" id="u-evac">5,70</b> ·
+          <span class="fecha" id="fecha">—</span></span
+        >
         <span class="credito"
           >Datos: <b>INA</b> ·
           <a href="/" target="_blank" rel="noopener">vía Cota Cero →</a></span

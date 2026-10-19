@@ -25,10 +25,13 @@ import { elegirCalle, sugerirCalle, teclaEnDireccion } from "./calles.js";
 import { compartirImagen } from "./compartir.js";
 import { REFRESCO_MS, ZONAS } from "./config.js";
 import {
+  alternarCasa,
   calcular,
+  cerrarBuscadorDir,
   estimarCota,
   fijarKmManual,
   marcarCotaManual,
+  pintarMetodos,
   pintarOrigenCota,
 } from "./cota.js";
 import { estado, guardado, limpiarGuardadoViejo } from "./estado.js";
@@ -65,7 +68,6 @@ import {
   cargarRio,
   cargarTendencia,
   fijarRioManual,
-  pintarPie,
   pintarRio,
   ultimoRefresco,
 } from "./rio.js";
@@ -162,8 +164,6 @@ function iniciar() {
     document.getElementById("estado-mapa").textContent =
       "No se pudieron ubicar los puntos. La lista de acá abajo funciona igual.";
   });
-
-  pintarPie();
 }
 
 /* ---- refresco ----
@@ -188,8 +188,16 @@ window.addEventListener("focus", refrescarSiHaceFalta);
 const ACCIONES = {
   "rio-manual": () => fijarRioManual(),
   "rio-auto": () => cargarRio(),
-  "cota-gps": () => estimarCota(),
-  "abrir-dir": () => abrirBuscadorDireccion(),
+  "cota-gps": () => {
+    cerrarBuscadorDir();
+    estimarCota();
+  },
+  "abrir-dir": () => {
+    abrirBuscadorDireccion();
+    pintarMetodos();
+  },
+  // «Cambiar» / «Listo» del renglón de la casa, en Mi casa.
+  "cambiar-casa": () => alternarCasa(),
   "buscar-dir": () => buscarDireccion(),
   // Una sugerencia del buscador de dirección (js/app/calles.js).
   "elegir-calle": (el) => elegirCalle(el.dataset.calle || ""),
@@ -206,7 +214,10 @@ const ACCIONES = {
   /* El camino para quien no sabe la altura de su terreno: lo lleva a lo que
      sirve sin configurar nada —el 103, el punto más cercano y las tres
      reglas—. No es una vista nueva: es la primera tarjeta de "Dónde ir". */
-  "cota-mapa": () => marcarCasaEnMapa(),
+  "cota-mapa": () => {
+    cerrarBuscadorDir();
+    marcarCasaEnMapa();
+  },
   // Los tres botones del aviso sobre el mapa, en el modo «marcando».
   "mapa-confirmar": () => confirmarMarca(),
   "mapa-de-nuevo": () => marcarDeNuevo(),

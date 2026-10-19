@@ -4,27 +4,29 @@
    `node scripts/historia.js` desde la serie del INA. Ni un número está escrito
    acá adentro: si el archivo dice otra cosa, la página dice otra cosa.
 
-   TRES DECISIONES QUE VALE ANOTAR
+   DOS DECISIONES QUE VALE ANOTAR
 
-   1. Sin autoplay. La animación existe, pero arranca sólo si alguien toca
-      "Reproducir". Una página que se mueve sola mientras se lee es molesta
-      siempre, y en una app que se abre durante una crecida, peor.
-   2. `prefers-reduced-motion` no desactiva el botón: quita las transiciones.
-      Quien pidió menos movimiento igual puede recorrer los años, sólo que la
-      línea del agua salta en vez de deslizarse.
-   3. El control es un <input type=range>. Nativo: llega con teclado, con
-      lector de pantalla y con el gesto de arrastre del sistema. Un slider
-      propio hubiera necesitado las tres cosas a mano y peor.
+   1. Nada se mueve solo. Había un «Reproducir» que recorría los años y un
+      tanque con dos modos; se fueron en el rediseño de 2026. Queda la franja:
+      cada año es una barra del mínimo al máximo, y se elige con clic o con
+      las flechas del teclado. El panel de al lado dice el detalle.
+   2. La franja es un slider de verdad para el teclado y el lector de
+      pantalla (role="slider", con aria-valuetext): se enfoca, y las flechas,
+      Inicio y Fin mueven el año. El dibujo en sí va aria-hidden, y la tabla
+      completa con los mismos números ya viene en el HTML.
 
-   La franja del siglo va aria-hidden y al lado hay una tabla de verdad con
-   los mismos números: un dibujo de 102 barras no se puede leer en voz alta. */
+   La tabla de los 102 años, las fichas de arriba y el bloque de la fuente
+   YA VIENEN EN EL HTML: los emite scripts/paginas.js desde el mismo
+   datos-abiertos/historia.json que lee este archivo. Antes los dibujaba acá,
+   y la página no tenía un solo número para quien no ejecuta JavaScript. Este
+   archivo es sólo para lo que de verdad necesita JS. No volver a mover
+   contenido para acá. */
 
 const $ = (s) => document.querySelector(s);
 
 /* La coma decimal, de lib/comun-clasico.js: es la misma de toda la app. */
 const { nm } = self.CC_COMUN;
-const m1 = (v) => nm(Math.round(v * 10) / 10, 1);
-const m2 = (v) => nm(v, 2);
+const m2 = (v) => (v < 0 ? "−" : "") + nm(Math.abs(v), 2);
 const MES = "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(" ");
 /* Las fechas del archivo son AAAA-MM-DD. `new Date("1992-06-22")` las lee en
    UTC y en Argentina eso da el día anterior: el récord aparecía como 21 de
@@ -32,6 +34,15 @@ const MES = "enero febrero marzo abril mayo junio julio agosto septiembre octubr
 const enPalabras = (f) => {
   const p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f || "");
   return p ? `${+p[3]} de ${MES[+p[2] - 1]} de ${p[1]}` : "";
+};
+const dist = (d) =>
+  Math.abs(d) < 1 ? Math.round(Math.abs(d) * 100) + " cm" : nm(Math.abs(d), 2) + " m";
+
+/* Lo que la serie no puede decir sola. 2003 es el año de la inundación más
+   grande de la ciudad y el Paraná no llegó a la alerta (5,29 m): sin esta
+   nota, la barra de ese año contaría que no pasó nada. */
+const NOTAS = {
+  2003: "El Paraná no llegó a la alerta. La inundación de ese año la trajo el Salado.",
 };
 
 /* La escala del dibujo. El piso baja de cero porque las grandes bajantes son
@@ -42,15 +53,8 @@ let TECHO = 8;
 
 let H = null; // el JSON
 let anios = []; // [{a, max, fmax, min, fmin, n, da, de}]
-let modo = "anios";
 let idx = 0; // año seleccionado
-/* Arranca en la alerta de la ciudad, que es el número que la gente conoce.
-   Sale de lib/comun.js para no ser un 5,3 más escrito a mano. */
-let nivelLibre = self.CC_COMUN.UMBRALES_RESPALDO.alerta;
-let reproduciendo = null;
-
-const menosMovimiento = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let record = null;
 
 async function arrancar() {
   try {
@@ -59,7 +63,7 @@ async function arrancar() {
     H = await r.json();
   } catch (e) {
     $("#h-cargando").textContent =
-      "No se pudo cargar la serie histórica. Probá recargar la página.";
+      "No se pudo cargar la serie histórica. La tabla de abajo tiene los mismos números.";
     return;
   }
 
@@ -69,26 +73,27 @@ async function arrancar() {
   // El techo del dibujo sale del propio dato, no de una constante: si alguna
   // vez hay una crecida mayor a la de 1992, la barra tiene que entrar.
   TECHO = Math.max(8, Math.ceil(Math.max(...anios.map((x) => x.max)) * 2) / 2 + 0.4);
+  record = anios.reduce((p, c) => (c.max > p.max ? c : p));
 
-  idx = anios.length - 1;
+  // Arranca en el récord: es el año que la gente viene a buscar.
+  idx = anios.indexOf(record);
   $("#h-cargando").remove();
   $("#h-contenido").hidden = false;
 
   pintarFranja();
   armarControles();
-  sincronizar();
+  elegir(idx);
 }
 
 /* ---------- La franja del siglo ----------
-   Una barra por año, del mínimo al máximo. Es la vista que contesta "¿qué tan
-   extraordinario fue cada evento?" sin que haya que tocar nada.
+   Una barra por año, del mínimo al máximo, con el color de lo más alto que
+   llegó: no llegó a la alerta, llegó a la alerta, llegó a la evacuación.
 
    Los rótulos NO van dentro del SVG. El dibujo se estira con
    preserveAspectRatio="none" para que ocupe el ancho que haya —102 barras en
-   un teléfono— y eso aplasta el texto horizontalmente: los años quedaban
-   ilegibles. Las barras aguantan la deformación, las letras no. Así que el
-   SVG dibuja sólo barras y líneas, y los números son HTML de verdad puesto
-   encima por porcentaje. Es lo mismo que hace la regla de la app. */
+   un teléfono— y eso aplasta el texto horizontalmente. Así que el SVG dibuja
+   sólo barras y líneas, y los números son HTML puesto encima por porcentaje.
+   Es lo mismo que hace la regla de la app. */
 function pintarFranja() {
   const W = 1000, HH = 260;
   const x = (i) => (i / (anios.length - 1)) * W;
@@ -110,31 +115,20 @@ function pintarFranja() {
 
   for (let i = 0; i < anios.length; i++) {
     const e = anios[i];
-    const yTop = y(e.max), yBot = y(Math.min(e.min, 0));
-    const color =
-      e.max >= H.evacuacion ? "var(--peligro)"
-      : e.max >= H.alerta ? "var(--alerta)"
-      : "var(--agua)";
-    g += `<rect class="h-barra" data-i="${i}" x="${(x(i) - ancho / 2).toFixed(1)}"
+    const yTop = y(e.max), yBot = y(e.min);
+    const clase =
+      e.max >= H.evacuacion ? "h-b-evac" : e.max >= H.alerta ? "h-b-alerta" : "h-b-normal";
+    g += `<rect class="h-barra ${clase}" data-i="${i}" x="${(x(i) - ancho / 2).toFixed(1)}"
       y="${yTop.toFixed(1)}" width="${ancho.toFixed(1)}"
-      height="${Math.max(1.5, yBot - yTop).toFixed(1)}" fill="${color}" opacity=".85"/>`;
+      height="${Math.max(2, yBot - yTop).toFixed(1)}" rx="1"/>`;
   }
   g += `<rect id="h-marca" x="0" y="0" width="${(ancho + 4).toFixed(1)}" height="${HH}"
-    fill="none" stroke="var(--texto)" stroke-width="1.5" rx="2"
+    fill="none" stroke="var(--texto)" stroke-width="2" rx="2"
     vector-effect="non-scaling-stroke"/>`;
 
-  // Décadas rotuladas, no los 102 años: en un teléfono no entran. La primera
-  // y la última se anclan a los bordes para que no se salgan de la caja.
+  // Décadas rotuladas, no los 102 años: en un teléfono no entran.
   const hitos = [];
-  for (let i = 0; i < anios.length; i++)
-    if (anios[i].a % 25 === 0) hitos.push(i);
-  if (hitos[0] > 2) hitos.unshift(0);
-  else hitos[0] = 0;
-  // El último año se ancla al borde derecho, pero sólo si no queda encima del
-  // hito anterior: con 2025 y 2026 pegados los dos rótulos se leían "202625".
-  const ult = anios.length - 1;
-  if (ult - hitos[hitos.length - 1] > 4) hitos.push(ult);
-  else hitos[hitos.length - 1] = ult;
+  for (let i = 0; i < anios.length; i++) if (anios[i].a % 20 === 10) hitos.push(i);
 
   $("#h-franja").innerHTML =
     `<div class="h-franja-caja">
@@ -144,10 +138,10 @@ ${[H.alerta, H.evacuacion]
   .map(
     (v, k) =>
       `      <span class="h-umbral ${k ? "h-peligro" : "h-alerta"}" style="bottom:${pc(v).toFixed(2)}%"
-        aria-hidden="true">${k ? "evacuación" : "alerta"} ${m1(v)}</span>`,
+        aria-hidden="true">${k ? "Evacuación" : "Alerta"} ${nm(v, 2)}</span>`,
   )
   .join("\n")}
-${[0, 2, 4, 6]
+${[0, 2, 4, 6, 8]
   .map(
     (v) =>
       `      <span class="h-y" style="bottom:${pc(v).toFixed(2)}%" aria-hidden="true">${v}</span>`,
@@ -162,199 +156,77 @@ ${hitos
   )
   .join("\n")}
     </div>`;
-
-  $("#h-franja").addEventListener("click", (ev) => {
-    const b = ev.target.closest(".h-barra");
-    if (!b) return;
-    modo = "anios";
-    idx = +b.dataset.i;
-    sincronizar();
-  });
-  moverMarca();
 }
 
-function moverMarca() {
-  const marca = $("#h-marca");
-  if (!marca) return;
-  const W = 1000;
-  const ancho = Math.max(2, W / anios.length - 1.2);
-  const x = (idx / (anios.length - 1)) * W;
-  marca.setAttribute("x", Math.max(0, Math.min(W - ancho - 4, x - ancho / 2 - 2)).toFixed(1));
-  marca.setAttribute("opacity", modo === "anios" ? "1" : "0");
-}
-
-/* ---------- El tanque ----------
-   La misma pieza sirve para los dos modos: en "años" la línea del agua se
-   pone en el máximo de ese año, en "mover el río" en lo que diga el control.
-   Un solo dibujo, dos preguntas. */
-function pintarTanque() {
-  const v = modo === "anios" ? anios[idx].max : nivelLibre;
-  const alto = ((v - PISO) / (TECHO - PISO)) * 100;
-  const agua = $("#h-agua");
-  agua.style.height = Math.max(0, Math.min(100, alto)) + "%";
-  agua.classList.toggle("h-sin-transicion", menosMovimiento());
-
-  const marcas = [
-    [H.alerta, "Alerta", "alerta"],
-    [H.evacuacion, "Evacuación", "peligro"],
-  ];
-  const rec = anios.reduce((p, c) => (c.max > p.max ? c : p));
-  marcas.push([rec.max, "Récord " + rec.a, "record"]);
-  if (H.cuantiles) marcas.push([H.cuantiles[50], "Mediana del siglo", "tenue"]);
-
-  $("#h-marcas").innerHTML = marcas
-    .map(([mv, txt, cls]) => {
-      const b = ((mv - PISO) / (TECHO - PISO)) * 100;
-      return `<div class="h-marca h-${cls}" style="bottom:${b.toFixed(2)}%">
-        <span>${txt} · ${m1(mv)} m</span></div>`;
-    })
-    .join("");
-
-  pintarLectura();
-}
-
-function pintarLectura() {
-  const caja = $("#h-lectura");
-  if (modo === "libre") {
-    const v = nivelLibre;
-    const arribaDe = porcentajeDebajo(v);
-    const anosAsi = anios.filter((e) => e.max >= v).length;
-    caja.innerHTML = `
-      <span class="eti">Si el hidrómetro marcara</span>
-      <div class="h-num">${m2(v)} m</div>
-      <ul class="h-lista">
-        <li>${relativo(v, H.alerta, "la alerta")}</li>
-        <li>${relativo(v, H.evacuacion, "la evacuación")}</li>
-        <li>El río estuvo por debajo de este nivel el <b>${arribaDe}&nbsp;%</b> de los
-          ${H.dias.toLocaleString("es-AR")} días medidos desde ${H.desde.slice(0, 4)}.</li>
-        <li><b>${anosAsi}</b> de los ${anios.length} años registrados llegaron al menos hasta acá.</li>
-      </ul>`;
-    return;
-  }
-  const e = anios[idx];
-  const incompleto = (H.incompletos || []).includes(e.a);
-  caja.innerHTML = `
-    <span class="eti">Máximo del año</span>
-    <div class="h-anio">${e.a}</div>
-    <div class="h-num">${m2(e.max)} m</div>
-    <p class="chico" style="margin:2px 0 12px">El ${enPalabras(e.fmax)}.</p>
-    <ul class="h-lista">
-      <li>${
-        e.da === 0
-          ? "No llegó a la alerta de " + m1(H.alerta) + " m en todo el año."
-          : `<b>${e.da}</b> ${e.da === 1 ? "día" : "días"} en alerta (≥ ${m1(H.alerta)} m)` +
-            (e.de ? `, de los cuales <b>${e.de}</b> en nivel de evacuación (≥ ${m1(H.evacuacion)} m).` : ".")
-      }</li>
-      <li>Mínimo del año: <b>${m2(e.min)} m</b>, el ${enPalabras(e.fmin)}.</li>
-      ${
-        incompleto
-          ? `<li class="h-ojo">Año incompleto: ${e.n} días medidos. No se puede comparar de igual a igual con un año entero.</li>`
-          : ""
-      }
-    </ul>`;
-}
-
-const relativo = (v, ref, nombre) => {
-  const d = v - ref;
-  if (Math.abs(d) < 0.005) return `Justo en ${nombre} (${m1(ref)} m).`;
-  const cm = Math.abs(d) < 1 ? Math.round(Math.abs(d) * 100) + " cm" : m1(Math.abs(d)) + " m";
-  return d > 0
-    ? `<b>${cm}</b> por encima de ${nombre} (${m1(ref)} m).`
-    : `${cm} por debajo de ${nombre} (${m1(ref)} m).`;
-};
-
-/* Qué porción de los días medidos quedó por debajo de este nivel. Sale de los
-   101 escalones que dejó el script, o sea de la serie del INA y no de una
-   categoría inventada por nosotros. */
-function porcentajeDebajo(v) {
-  const q = H.cuantiles;
-  if (!q) return "—";
-  let p = 0;
-  while (p < 100 && q[p + 1] <= v) p++;
-  return p;
-}
-
-/* ---------- Controles ---------- */
+/* ---------- Elegir un año ---------- */
 function armarControles() {
-  const rango = $("#h-rango");
-  rango.max = String(anios.length - 1);
-  rango.value = String(idx);
+  const franja = $("#h-franja");
+  franja.setAttribute("aria-valuemin", String(anios[0].a));
+  franja.setAttribute("aria-valuemax", String(anios[anios.length - 1].a));
 
-  rango.addEventListener("input", () => {
-    if (modo === "anios") idx = +rango.value;
-    else nivelLibre = PISO + (+rango.value / 1000) * (TECHO - PISO);
-    sincronizar(true);
+  franja.addEventListener("click", (ev) => {
+    const b = ev.target.closest(".h-barra");
+    if (b) elegir(+b.dataset.i);
   });
+  franja.addEventListener("keydown", (ev) => {
+    const salto = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10 }[ev.key];
+    if (salto) elegir(idx + salto);
+    else if (ev.key === "Home") elegir(0);
+    else if (ev.key === "End") elegir(anios.length - 1);
+    else return;
+    ev.preventDefault();
+  });
+  $("#h-anterior").addEventListener("click", () => elegir(idx - 1));
+  $("#h-siguiente").addEventListener("click", () => elegir(idx + 1));
+}
 
-  for (const btn of document.querySelectorAll("[data-modo]")) {
-    btn.addEventListener("click", () => {
-      modo = btn.dataset.modo;
-      parar();
-      sincronizar();
-    });
+function elegir(i) {
+  idx = Math.max(0, Math.min(anios.length - 1, i));
+  const e = anios[idx];
+
+  const marca = $("#h-marca");
+  if (marca) {
+    const W = 1000;
+    const ancho = Math.max(2, W / anios.length - 1.2);
+    const x = (idx / (anios.length - 1)) * W;
+    marca.setAttribute("x", Math.max(0, Math.min(W - ancho - 4, x - ancho / 2 - 2)).toFixed(1));
   }
 
-  $("#h-play").addEventListener("click", () => (reproduciendo ? parar() : tocar()));
+  const franja = $("#h-franja");
+  franja.setAttribute("aria-valuenow", String(e.a));
+  franja.setAttribute("aria-valuetext", `${e.a}: máximo ${m2(e.max)} metros`);
+  $("#h-anterior").disabled = idx === 0;
+  $("#h-siguiente").disabled = idx === anios.length - 1;
+
+  pintarDetalle(e);
 }
 
-function sincronizar(desdeElControl) {
-  const rango = $("#h-rango");
-  for (const b of document.querySelectorAll("[data-modo]"))
-    b.setAttribute("aria-pressed", String(b.dataset.modo === modo));
-
-  if (modo === "anios") {
-    rango.max = String(anios.length - 1);
-    rango.step = "1";
-    rango.setAttribute("aria-label", "Año");
-    if (!desdeElControl) rango.value = String(idx);
-    rango.setAttribute("aria-valuetext", `${anios[idx].a}: máximo ${m2(anios[idx].max)} metros`);
-    $("#h-play").hidden = false;
-    $("#h-pie-control").textContent = `${anios[0].a} — ${anios[anios.length - 1].a}`;
-  } else {
-    rango.max = "1000";
-    rango.step = "1";
-    rango.setAttribute("aria-label", "Altura del hidrómetro, en metros");
-    if (!desdeElControl)
-      rango.value = String(Math.round(((nivelLibre - PISO) / (TECHO - PISO)) * 1000));
-    rango.setAttribute("aria-valuetext", `${m2(nivelLibre)} metros`);
-    $("#h-play").hidden = true;
-    parar();
-    $("#h-pie-control").textContent = `${m1(PISO)} m — ${m1(TECHO)} m`;
-  }
-  moverMarca();
-  pintarTanque();
+/* El texto del año: qué tan alto llegó contra la alerta y la evacuación de
+   la ciudad, que es lo que hace que el número signifique algo. */
+function textoDelAnio(e) {
+  let t;
+  if (NOTAS[e.a]) t = NOTAS[e.a];
+  else if (e === record)
+    t = `El récord: ${dist(e.max - H.evacuacion)} por encima de la evacuación de la ciudad.`;
+  else if (e.max >= H.evacuacion)
+    t = `Pasó la evacuación de la ciudad por ${dist(e.max - H.evacuacion)}.`;
+  else if (e.max >= H.alerta) t = "Llegó a la alerta de la ciudad, sin pasar la evacuación.";
+  else t = `No llegó a la alerta de la ciudad: le faltaron ${dist(H.alerta - e.max)}.`;
+  if ((H.incompletos || []).includes(e.a))
+    t += ` Año incompleto: ${e.n} días medidos, no se compara de igual a igual con un año entero.`;
+  return t;
 }
 
-function tocar() {
-  if (idx >= anios.length - 1) idx = 0;
-  $("#h-play").textContent = "Pausar";
-  $("#h-play").setAttribute("aria-label", "Pausar el recorrido");
-  const paso = menosMovimiento() ? 420 : 190;
-  reproduciendo = setInterval(() => {
-    if (idx >= anios.length - 1) return parar();
-    idx++;
-    $("#h-rango").value = String(idx);
-    sincronizar();
-  }, paso);
+function pintarDetalle(e) {
+  const tono = e.max >= H.evacuacion ? "h-t-evac" : e.max >= H.alerta ? "h-t-alerta" : "";
+  $("#h-anio").textContent = e.a;
+  $("#h-detalle-datos").innerHTML = `
+    <div><span class="eti">Máximo</span><b class="${tono}">${m2(e.max)} m</b><span class="chico">${enPalabras(e.fmax)}</span></div>
+    <div><span class="eti">Mínimo</span><b>${m2(e.min)} m</b><span class="chico">${enPalabras(e.fmin)}</span></div>
+    <div><span class="eti">Días en alerta</span><b>${e.da}</b><span class="chico">${
+      e.de ? `${e.de} en evacuación` : e.da ? "ninguno en evacuación" : "&nbsp;"
+    }</span></div>`;
+  $("#h-detalle-texto").textContent = textoDelAnio(e);
 }
-
-function parar() {
-  if (reproduciendo) clearInterval(reproduciendo);
-  reproduciendo = null;
-  const b = $("#h-play");
-  if (b) {
-    b.textContent = "Reproducir";
-    b.setAttribute("aria-label", "Recorrer los años uno por uno");
-  }
-}
-
-/* Las listas de crecidas y bajantes, la tabla de los 102 años y el bloque de
-   la fuente YA VIENEN EN EL HTML: los emite scripts/paginas.js desde el mismo
-   datos-abiertos/historia.json que lee este archivo. Antes los dibujaba acá, y
-   el resultado era que la página no tenía un solo número para quien no
-   ejecuta JavaScript — un buscador, un lector de pantalla, alguien con mala
-   conexión. Este archivo quedó para lo único que de verdad necesita JS: la
-   franja del siglo y el tanque que se recorre. No volver a mover contenido
-   para acá. */
 
 arrancar();

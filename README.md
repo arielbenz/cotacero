@@ -267,16 +267,22 @@ alguna crecida rompe el récord, se actualiza volviendo a correr el script.
 esta serie y no se reconstruye desde recortes de diario.
 
 **La visualización.** Una franja con una barra por año —del mínimo al máximo, y
-teñida según si llegó a alerta o a evacuación—, más un tanque con la línea del
-agua que se recorre con un `<input type=range>`. Dos modos con el mismo dibujo:
-"recorrer años" y "mover el río". Tres cosas que no son negociables:
+teñida según si llegó a alerta o a evacuación de la ciudad— y, al lado, el
+detalle del año elegido: máximo, mínimo, días en alerta y una frase que lo
+pone contra la alerta y la evacuación. Hasta el rediseño de 2026 había además
+un tanque con dos modos y un «Reproducir»; se fueron. Dos cosas que no son
+negociables:
 
-- **Sin autoplay.** La animación arranca sólo si alguien toca Reproducir.
-- **`prefers-reduced-motion` no apaga el botón**, quita la transición: quien
-  pidió menos movimiento igual puede recorrer los años.
-- **El control es un `range` nativo.** Teclado, lector de pantalla y el gesto
-  de arrastre del sistema vienen gratis y funcionan mejor que cualquier cosa
-  que pudiéramos escribir.
+- **Nada se mueve solo.** El año cambia cuando alguien toca una barra o las
+  flechas.
+- **La franja es un slider de verdad para el teclado** (`role="slider"`, con
+  `aria-valuetext`): se enfoca y se recorre con las flechas, Inicio y Fin. El
+  dibujo va `aria-hidden` y la tabla completa con los mismos números ya viene
+  en el HTML.
+
+**2003 lleva una nota escrita a mano**, y es la única: el Paraná llegó a 5,29 m,
+un centímetro debajo de la alerta, y la inundación de ese año la trajo el
+Salado. Sin la nota, la barra contaría que no pasó nada.
 
 **Los rótulos de la franja son HTML, no `<text>` del SVG.** El dibujo se estira
 con `preserveAspectRatio="none"` para que 102 barras entren en un teléfono, y
@@ -327,7 +333,7 @@ plegados.
 **`/historia` sirve sus datos en HTML.** Las crecidas, las bajantes, los
 umbrales y la tabla de los 102 años los emite `scripts/paginas.js` desde
 `datos-abiertos/historia.json`. `js/historia.js` quedó para lo único que
-necesita JavaScript: la franja del siglo y el tanque que se recorre. Antes esa
+necesita JavaScript: la franja del siglo que se recorre. Antes esa
 página tenía 328 palabras y ni un número; ahora tiene 1.372 y la serie
 completa. **No volver a mover contenido al JavaScript**: es la página que
 existe para contar la historia del río.
@@ -570,9 +576,11 @@ Chrome/Edge en iPhone, Firefox, Chromium— y en iPhone fuera de Safari avisa
 que puede no estar la opción.
 
 Tres puertas de entrada: la barra flotante cuando llega el evento, la misma
-barra a los 2,5 s si no llegó y estamos en un móvil, y un enlace permanente en
-el pie que sobrevive a que la cierren. Todo se oculta si `display-mode:
-standalone` dice que ya está instalada.
+barra a los 2,5 s si no llegó y estamos en un móvil, y una tarjeta permanente
+en Ajustes que sobrevive a que la cierren. Esa tarjeta vivía en el pie de las
+cuatro pestañas, y con la barra eran dos avisos de instalar en la misma
+pantalla. Todo se oculta si `display-mode: standalone` dice que ya está
+instalada.
 
 La hoja va en `<dialog>` por lo que trae gratis: foco atrapado, Escape y el
 resto de la página inerte para un lector de pantalla.
@@ -636,13 +644,19 @@ del INA, manda en el número grande, en la línea punteada «hoy» y en el pie d
 la cabecera; `sim` es lo único que dibuja la regla. Por eso el número del
 hidrómetro no se mueve aunque el agua suba: un hero que cambia la altura
 mientras alguien scrollea durante una crecida le estaría mintiendo en el peor
-momento. Apenas `sim` se despega de `real`, la etiqueta del agua pasa a decir
-«Simulado», aparece la marca de «hoy» y el pie encabeza con «Simulación».
+momento. El rediseño de 2026 pedía que el número grande siguiera al
+deslizador, y por esto no se hizo. Apenas `sim` se despega de `real`, la
+etiqueta del agua pasa a decir «Simulado», aparece la marca de «hoy» y el
+renglón de abajo cambia de tiempo verbal: «Hoy faltan 1,6 m» pasa a
+«Faltarían…» o «El río estaría…».
 
-La pastilla flotante cuenta la otra mitad: con el nivel de hoy dice cuánto
-falta para la alerta; con la simulación en marcha, cuántos de los 102 años
+Debajo va la otra mitad: con la simulación en marcha, cuántos de los 102 años
 medidos llegaron a ese nivel. Es el contrapeso honesto de poder subir el río
 con el dedo —«pasó 4 veces en un siglo» es lo contrario de un pronóstico—.
+Vivía en una pastilla flotante que se superponía con la regla; ahora es un
+renglón del propio instrumento. La regla es de 0 a 8 m, como la de la app, y
+no de 2 a 8 como en el diseño: con el piso en 2 m una bajante como la de 2021
+dejaba el tanque vacío.
 
 No hay autoplay ni scroll-jacking: la página baja como cualquier otra y lo
 único que sigue al scroll es el agua. Con `prefers-reduced-motion: reduce` no
@@ -693,7 +707,10 @@ otro. Los únicos dos valores nuevos son `--alerta-solido` y `--evac-solido`,
 los rellenos de la franja, que no existían porque `--alerta` y `--peligro`
 están calibrados para TEXTO sobre el fondo y no para ser fondo.
 
-**Los avisos de «Honesta por diseño» son los de la app, no una ilustración.**
+**Los avisos de «Te dice lo que sabe» son los de la app, no una ilustración.**
+Se citan textuales: si la app cambia la frase, la portada la cambia también
+—en el rediseño de 2026 las dos citas habían quedado viejas, y una nunca había
+existido en la app—.
 Toman prestado el componente `.aviso` —mismo tinte, mismo radio, mismo padding,
 sin borde— porque la sección afirma que la app avisa lo que no sabe: dibujar
 esos avisos con otra piel sería ilustrar la afirmación en vez de mostrarla. La
@@ -824,11 +841,14 @@ navegador.
 
 ## Las pantallas de la app
 
-Cuatro pestañas —Río, Mi umbral, Mi plan, Dónde ir— más:
+Cuatro pestañas —Río, Mi casa, Mi plan, Dónde ir— más:
 
 **La tarjeta de Río.** Arriba la lectura oficial en grande, y debajo una fila
 de dos celdas —`.celdas-umbral` en `app.css`— con **tu umbral estimado** y el
-**margen de hoy**, más una oración en prosa. Es lo que convierte «cómo está el
+**margen de hoy**, y la glosa. La oración en prosa queda sólo cuando agrega
+algo que las celdas no dicen: la instrucción del estado de la ciudad (que en
+los graves empieza con el verbo y lleva el 103, y **no** la reemplaza el margen
+propio) o el ritmo al que viene subiendo. Es lo que convierte «cómo está el
 río» en «qué significa para mí» sin un gráfico nuevo. El color del estado va en
 el valor del margen, no en el fondo de la celda: la tarjeta ya está tintada y
 tinte sobre tinte no se distingue. Si el río pasó tu umbral, el margen manda
@@ -836,7 +856,24 @@ sobre el color de la tarjeta aunque la ciudad esté en nivel normal.
 
 **La regla.** Además de alerta (5,30) y evacuación (5,70) lleva la marca del
 **récord de 1992 (7,43)** en tono tenue. Sin ella, 5,70 parece el techo del
-mundo; con ella se ve que todo el rango de decisión son 2,13 m.
+mundo; con ella se ve que todo el rango de decisión son 2,13 m. Cada etiqueta
+va al lado de su altura, unida por un conector; no hay una lista aparte que
+repita los números. Como 5,30 y 5,70 están a 15 px y el río o el nivel de
+aviso pueden caer en el medio, `separar()` corre las etiquetas lo mínimo
+para que no se encimen, y el conector sigue diciendo de qué altura es cada
+una. Para un lector de pantalla la regla es una imagen con los mismos números
+en el `aria-label`.
+
+**Mi casa: el resultado primero.** La primera vez los pasos van arriba y el
+resultado aparece debajo. Para quien ya cargó su casa, al abrir la pestaña
+los pasos se pliegan detrás de un renglón —zona, altura, de dónde salió— con
+«Cambiar». Se decide al arrancar y con ese botón, nunca en medio de una
+carga: plegarlos al escribir el primer dígito movería la pantalla bajo el
+dedo, y mover el nodo con el foco adentro cierra el teclado. Hay **una sola
+advertencia fuerte**, roja, pegada a donde se decide; eran tres cajas con el
+mismo descargo y la gente dejaba de leerlas. Las tres formas de cargar la
+altura son un `.segmentado`, el mismo selector de Ajustes, con
+`aria-pressed` en la que dio la altura que se está usando.
 
 **Mi casa: lo que hay entre el río y tu casa.** Debajo del veredicto va una
 tarjeta que dice si la zona tiene defensa —`defensa` en `ZONAS`,
@@ -971,15 +1008,17 @@ portada, casi todo eso vive en el sitio —y Ajustes → «Sobre esto» tiene la
 lista entera—, así que repetirlo abajo de las cuatro pantallas era gastar el
 pie en cosas que ya están a un toque.
 
-Quedaron cinco, y ninguno es decorativo:
+Quedaron tres, y ninguno es decorativo:
 
 | Qué queda                              | Por qué no se puede ir                                                                                                                                  |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| El enlace de instalar                  | Es la red de contención de la barra de instalar: que la hayan cerrado, que Chrome no dispare `beforeinstallprompt`, que el navegador no lo implemente   |
-| «Sin vínculo con organismos oficiales» | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla»                                    |
-| «No reemplaza una orden de evacuación» | Idem, y es la frase que separa esta herramienta de una orden                                                                                            |
-| La medición del río                    | Es dato en vivo, no texto fijo: lo escribe `pintarPie()` en `js/app/rio.js`                                                                             |
+| «Sin vínculo oficial»                  | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla»                                    |
+| «Si Defensa Civil dice que salgas, salí» | Idem, y es la frase que separa esta herramienta de una orden                                                                                          |
 | «Hecho por Ariel Benz»                 | Una herramienta que dice «no tiene vínculo con organismos oficiales» gana en que se vea quién responde por ella: es el contrapeso del renglón de arriba |
+
+Los dos primeros van en una sola línea. Se fueron también el enlace de
+instalar —ahora en Ajustes— y la fecha de la medición, que ya está en el
+renglón de la fuente, debajo del hidrómetro.
 
 Se fueron las pastillas de X e Instagram: eso no es quién responde sino dónde
 seguirlo, y para escribirnos está `/contacto`, en Ajustes.

@@ -30,6 +30,7 @@ import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
 import { MOCHILA, PREVIA } from "../lib/listas.js";
 import { CHARLAS } from "../lib/charlas.js";
 import {
+  AYUDAS,
   CATEGORIAS,
   CATEGORIA_POR_DEFECTO,
   MAX_TEXTO,
@@ -237,27 +238,6 @@ ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${e
       </section>`;
 }
 
-/* Un paso del cálculo: número al costado, y el valor del ejemplo en una
-   pastilla al pie. El valor va aparte del texto a propósito — quien recorre la
-   página buscando la cuenta tiene que poder saltar de pastilla en pastilla.
-
-   El título va en <h3> y no en <h2>: los pasos cuelgan de «3 · Cómo se
-   relacionan», no son secciones de la página. Eran <h2> cuando vivían en
-   /mi-cota y ahí sí eran el primer nivel; al fusionarse en /datos dejaban la
-   página con diez <h2> y tres de ellos compitiendo con sus propias secciones. */
-function paso({ n, titulo, html, eti, valor }) {
-  return `      <section class="bloque paso">
-        <span class="numerito" aria-hidden="true">${n}</span>
-        <div>
-          <h3>${esc(titulo)}</h3>
-${html}
-          <p class="dato-ejemplo">${
-            eti ? `<span class="k">${esc(eti)}</span>` : ""
-          }<span class="v">${esc(valor)}</span></p>
-        </div>
-      </section>`;
-}
-
 /* `clave` es la entrada de lib/paginas.js: de ahí salen la ruta, el título,
    la descripción y si la página se indexa. Antes cada llamada repetía esos
    cuatro datos y el sitemap se editaba aparte — tres lugares para el mismo
@@ -364,6 +344,7 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
          según de qué página vinieras. */ ""
     }<div class="franja-estado" id="franja-estado" role="status"></div>
 
+    <div class="nav-envoltura">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -408,6 +389,7 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
         </details>
       </nav>
     </div>
+    </div>
 
     <div class="ancho">
 ${antes ? antes + "\n" : ""}      <header class="pg-cabecera">
@@ -430,7 +412,10 @@ ${[
 ].join("\n\n")}
       </main>
 
-      <p class="pg-cta"><a class="btn" href="/app">Abrir Cota Cero</a></p>
+      ${
+        /* Secundario: cada página ya tiene su acción principal arriba, y hay
+           un solo sólido por pantalla. */ ""
+      }<p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
     </div>
 
     <div class="pie-envoltura">
@@ -475,27 +460,53 @@ const ORDEN = [
 let numero = 0;
 const agrupados = ORDEN.map((nombre) => ({
   nombre,
+  // El ancla sale del nombre: «La Costa — Colastiné…» → «la-costa».
+  id: nombre
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ —.*/, "")
+    .replace(/[^a-z]+/g, "-")
+    .replace(/^-|-$/g, ""),
   items: puntos.filter((p) => grupoDe(p) === nombre),
 })).filter((g) => g.items.length);
 
-const lista = agrupados
+/* Atajos por zona arriba, y cada zona en UN panel con filas. Eran treinta
+   tarjetas sueltas: cinco pantallas de scroll en el teléfono para llegar a
+   La Costa, y el nombre de la zona perdido entre dos filas de tarjetas. */
+const atajos = `      <nav class="chips-ancla atajos-zona" aria-label="Zonas">
+${agrupados
   .map(
-    (g) => `        <h2 class="grupo-puntos">${esc(g.nombre)}</h2>
-        <ul class="rejilla-puntos">
-${g.items
-  .map(
-    (p) => `          <li>
-            <a class="punto" href="geo:${p.lat},${p.lon}?q=${p.lat},${p.lon}(${encodeURIComponent(p.nombre)})">
-              <span class="np">${++numero}</span>
-              <span class="txt">
-                <span class="n">${esc(p.nombre)}</span>
-                <span class="d">${esc(p.direccion)}</span>
-              </span>
-            </a>
-          </li>`,
+    (g) =>
+      `        <a href="#${g.id}">${esc(g.nombre)} <span class="cuenta-zona">${g.items.length}</span></a>`,
   )
   .join("\n")}
-        </ul>`,
+      </nav>`;
+
+const lista = agrupados
+  .map(
+    (g) => `        <section class="zona-puntos" id="${g.id}">
+          <div class="zp-cabeza">
+            <h2>${esc(g.nombre)}</h2>
+            <span class="eti">${g.items.length} ${g.items.length === 1 ? "punto" : "puntos"}</span>
+          </div>
+          <ul class="lista-zona">
+${g.items
+  .map(
+    (p) => `            <li>
+              <a class="punto fila-punto" href="geo:${p.lat},${p.lon}?q=${p.lat},${p.lon}(${encodeURIComponent(p.nombre)})">
+                <span class="np">${++numero}</span>
+                <span class="txt">
+                  <span class="n">${esc(p.nombre)}</span>
+                  <span class="d">${esc(p.direccion)}</span>
+                </span>
+                <span class="ir">Mapa →</span>
+              </a>
+            </li>`,
+  )
+  .join("\n")}
+          </ul>
+        </section>`,
   )
   .join("\n\n");
 
@@ -513,7 +524,8 @@ const TEXTO_COMPARTIR = encodeURIComponent(
 const htmlPuntos = pagina({
   clave: "puntos",
   migaja: "Puntos de encuentro",
-  chip: "Santa Fe · oficiales del municipio",
+  // Sin chip: «Santa Fe · oficiales del municipio» era un rótulo decorativo
+  // encima de un h1 que ya dice las dos cosas.
   h1:
     "Los " +
     puntos.length +
@@ -551,12 +563,15 @@ const htmlPuntos = pagina({
   sueltos: [
     `      <div class="aviso grave">
         Los puntos abren cuando el municipio los activa, y esta página no lo
-        sabe en tiempo real. <b>Antes de mover a alguien, llamá al 103
-        (Defensa Civil).</b>
+        sabe en tiempo real. <b>Antes de mover a alguien, llamá al
+        <a href="tel:103">103</a> (Defensa Civil).</b>
       </div>`,
-    `      <section>
+    atajos,
+    `      <div class="zonas">
 ${lista}
-        <p class="chico" style="margin-top:20px">
+      </div>`,
+    `      <section class="puntos-pie">
+        <p class="chico">
           Fuente: capa <code>puntos_de_encuentro</code> del GeoServer público de
           la Municipalidad de Santa Fe, la misma que dibuja el GeoPortal. Los
           grupos son nuestros, deducidos de las coordenadas para que puedas
@@ -568,56 +583,56 @@ ${lista}
           un renglón para escribir tu punto de encuentro y el de repuesto. Se
           imprime, se pega en la heladera y no necesita batería.
         </p>
-        <div class="telefonos-emergencia">
-          <div><b>103</b><span>Defensa Civil — activación de puntos y evacuación</span></div>
-          <div><b>107</b><span>Emergencias médicas</span></div>
-          <div><b>911</b><span>Policía</span></div>
+        ${
+          /* Enlaces tel: y no texto: en el teléfono, que es donde se mira
+             esta página, el número se toca. */ ""
+        }<div class="telefonos-emergencia">
+          <a href="tel:103"><b>103</b><span>Defensa Civil — activación de puntos y evacuación</span></a>
+          <a href="tel:107"><b>107</b><span>Emergencias médicas</span></a>
+          <a href="tel:911"><b>911</b><span>Policía</span></a>
         </div>
       </section>`,
-  ],
-  bloquesFinales: [
-    {
-      kicker: "Cuándo ir",
-      titulo: "Cuando lo indiquen para tu zona",
-      html: `        <p>
-          No hace falta esperar a tener agua en la puerta: si Defensa Civil o el
-          municipio avisan, salí. El punto de encuentro es donde te van a estar
-          esperando y desde donde se organiza el traslado a un centro de
-          evacuados si hiciera falta.
-        </p>
-        <p>
-          Si tenés que moverte, <b>no cruces agua en movimiento</b>, ni a pie ni
-          en auto. Treinta centímetros de corriente arrastran a una persona y
-          sesenta arrastran un vehículo. Abajo no se ve el pozo, la cloaca
-          abierta ni el cable caído.
-        </p>`,
-    },
-    {
-      kicker: "Qué llevar",
-      titulo: "Lo mínimo, en una bolsa",
-      html: `        <p class="chico">
-          La <b>Mochila de Emergencia</b> del Plan de Contingencia municipal,
-          textual:
-        </p>
-        <ul class="pasos">
-          <li>Documentos importantes en bolsa de plástico (DNI y todo otro documento familiar de importancia).</li>
-          <li>Botiquín de primeros auxilios y medicinas habituales.</li>
-          <li>Manta ligera y ropa de abrigo.</li>
-          <li>Linterna y baterías extra.</li>
-          <li>Radio y pilas para mantenerse informados si se corta la luz.</li>
-        </ul>
-        <p class="chico">
-          En la app la lista es más larga —agua, comida, cargador, cosas de los
-          animales— y ahí está marcado cuáles son del plan municipal y cuáles
-          agregamos nosotros.
-        </p>
-        <p class="chico">
-          El plan también pide cortar la energía eléctrica y cerrar las llaves
-          de gas antes de salir, y llamar al <b>103 (COBEM)</b> si en la
-          familia hay alguien con discapacidad.
-        </p>
-${selloFuente("emergencias")}`,
-    },
+    /* «Cuándo ir» y «Qué llevar» eran un rótulo mono encima de un h2 que
+       decía otra cosa. Ahora el título es uno solo y dice las dos. */
+    `      <div class="rejilla-2 cuando-que">
+        <section class="bloque">
+          <h2>Cuándo ir: cuando lo indiquen para tu zona</h2>
+          <p>
+            No hace falta esperar a tener agua en la puerta: si Defensa Civil o
+            el municipio avisan, salí. El punto de encuentro es donde te van a
+            estar esperando y desde donde se organiza el traslado a un centro de
+            evacuados si hiciera falta.
+          </p>
+          <div class="aviso">
+            Si tenés que moverte, <b>no cruces agua en movimiento</b>, ni a pie
+            ni en auto. Treinta centímetros de corriente arrastran a una persona
+            y sesenta arrastran un vehículo. Abajo no se ve el pozo, la cloaca
+            abierta ni el cable caído.
+          </div>
+        </section>
+        <section class="bloque">
+          <h2>Qué llevar: lo mínimo, en una bolsa</h2>
+          <p class="chico">
+            La <b>Mochila de Emergencia</b> del Plan de Contingencia municipal,
+            textual:
+          </p>
+          <ul class="tildes">
+            <li>Documentos importantes en bolsa de plástico (DNI y todo otro documento familiar de importancia).</li>
+            <li>Botiquín de primeros auxilios y medicinas habituales.</li>
+            <li>Manta ligera y ropa de abrigo.</li>
+            <li>Linterna y baterías extra.</li>
+            <li>Radio y pilas para mantenerse informados si se corta la luz.</li>
+          </ul>
+          <p class="chico">
+            En la app la lista es más larga —agua, comida, cargador, cosas de los
+            animales— y ahí está marcado cuáles son del plan municipal y cuáles
+            agregamos nosotros. El plan también pide cortar la energía eléctrica
+            y cerrar las llaves de gas antes de salir, y llamar al
+            <b>103 (COBEM)</b> si en la familia hay alguien con discapacidad.
+          </p>
+${selloFuente("emergencias")}
+        </section>
+      </div>`,
   ],
 });
 
@@ -699,16 +714,38 @@ const recordHist = historia
 const RECORD_M = recordHist ? nm(recordHist[1], 2) : "7,43";
 const RECORD_ANIO = recordHist ? recordHist[0] : 1992;
 
+/* Lo que va entre la alerta de la ciudad y el récord: el ancho entero de la
+   escala con la que se decide. Sale de las constantes, no escrito a mano. */
+const ESCALA_DECISION = nm(
+  (recordHist ? recordHist[1] : 7.43) - ESTACION.alerta,
+  2,
+);
+
+/* Una fila del ejemplo: número, qué se hace y el valor que queda. Reemplaza
+   a los tres `paso()` sueltos, que eran tres tarjetas con su pastilla: la
+   cuenta se leía repartida en media pantalla de cajas. */
+const filaEjemplo = ({ n, titulo, html, valor }) => `          <li class="ej-fila">
+            <span class="numerito" aria-hidden="true">${n}</span>
+            <div>
+              <h3>${esc(titulo)}</h3>
+${html}
+            </div>
+            <span class="ej-valor">${esc(valor)}</span>
+          </li>`;
+
 const htmlDatos = pagina({
   clave: "datos",
   migaja: "La cota de tu terreno y los datos",
-  chip: "El cálculo y sus fuentes",
+  /* El h1 se queda en la pregunta de la cota: es lo que se busca y lo que
+     declara lib/paginas.js. El diseño de 2026 proponía «Cómo se calcula tu
+     nivel de aviso», que es la pregunta de la app, no la del buscador. Sin
+     chip encima: era un segundo título en chiquito. */
   h1: "¿Cuál es la cota de tu terreno en Santa Fe, y de dónde sale?",
   lead:
-    "Cuando informan que el río está a 5,30 m en el puerto, ese número no dice " +
-    "nada sobre tu casa. Acá está lo que hace falta para que diga algo: la " +
-    "cota de tu terreno, la cuenta completa con un ejemplo que podés rehacer a " +
-    "mano, y <b>de dónde sale cada dato</b> — incluido lo que todavía no sabemos.",
+    "Tres datos —<b>la altura de tu terreno</b>, <b>el cero de la regla del " +
+    "puerto</b> y <b>tu distancia al puerto</b>— dan tu umbral estimado: la " +
+    "lectura del hidrómetro a la que el agua alcanzaría la cota de tu terreno. " +
+    "En la app se llama «tu nivel de aviso».",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -718,35 +755,37 @@ const htmlDatos = pagina({
     author: { "@type": "Person", name: "Ariel Benz" },
     mainEntityOfPage: SITIO + "/datos",
   },
-  anclas: [
-    { id: "rio", n: "El río" },
-    { id: "terreno", n: "Tu terreno" },
-    { id: "cuenta", n: "La cuenta" },
-    { id: "firme", n: "Qué tan firme es" },
-    { id: "fuentes", n: "Las fuentes" },
-  ],
   bloques: [
     {
-      html: `        <p>
-          Hacen falta tres datos: <b>la altura de tu terreno</b>, <b>dónde está
-          el cero de la regla del puerto</b> y <b>a qué distancia del puerto
-          estás</b>. De los tres sale <b>tu umbral estimado</b> —en la app,
-          «tu nivel de aviso»—: la lectura del
-          hidrómetro a partir de la cual el nivel de agua equivalente alcanzaría
-          la cota de tu terreno. Es una referencia para prepararte, no el minuto
-          en que entra el agua. Cota Cero <b>no genera información hidrológica
-          propia</b>: toma datos públicos, los combina y los cita.
-        </p>`,
+      /* La cuenta entera arriba, para quien vino a buscar sólo eso, y los
+         atajos a las cinco secciones. Los números son los del cálculo: si
+         cambian en js/app/config.js, cambian acá (ver AUDITORIA.md). */
+      oscuro: true,
+      id: "cuenta-entera",
+      titulo: "La cuenta, entera",
+      html: `        <p class="formula" aria-label="Tu nivel de aviso es la cota del terreno, menos 0,50, menos el cero del hidrómetro (8,20), menos los kilómetros río arriba por 0,045.">
+          <span>cota del terreno <b>− 0,50</b></span>
+          <span><b>−</b> cero del hidrómetro <b>(8,20)</b></span>
+          <span><b>−</b> km río arriba <b>× 0,045</b></span>
+          <span class="f-total"><b>=</b> tu nivel de aviso</span>
+        </p>
+        <p class="chico">Una referencia para prepararte, no el minuto en que entra el agua. Cota Cero <b>no genera información hidrológica propia</b>: toma datos públicos, los combina y los cita.</p>
+        <nav class="atajos-num" aria-label="En esta página">
+          <a href="#rio"><b>1</b> El nivel del río</a>
+          <a href="#terreno"><b>2</b> La altura de tu terreno</a>
+          <a href="#cuenta"><b>3</b> Cómo se relacionan</a>
+          <a href="#firme"><b>4</b> Qué tan firme es esto</a>
+          <a href="#fuentes"><b>5</b> Las fuentes</a>
+        </nav>`,
     },
     {
       id: "rio",
       kicker: "1 · El nivel del río",
       titulo: "Lo mide el Estado, no nosotros",
       html: `        <p>
-          El número grande de la app es la <b>lectura del hidrómetro del Puerto
-          de Santa Fe</b>. La escala la lee la Prefectura Naval y la publica el
-          Instituto Nacional del Agua. Cota Cero la muestra; no la mide, no la
-          corrige y no la promedia.
+          El número grande de la app es la lectura del <b>hidrómetro del
+          Puerto</b>: la lee Prefectura y la publica el INA. Cota Cero la
+          muestra; no la mide, no la corrige y no la promedia.
         </p>
         <div class="ficha-estacion">
           <div><span class="k">Estación</span><span class="v">${esc(ESTACION.nombre)} · ${esc(ESTACION.abreviatura)}</span></div>
@@ -757,16 +796,11 @@ const htmlDatos = pagina({
           <div><span class="k">Evacuación</span><span class="v">${nm(ESTACION.evacuacion, 2)} m</span></div>
         </div>
         <p class="chico">
-          La app lee la <b>API oficial del sistema de alerta del INA</b>: el
-          dato llega con su hora y los umbrales los publica la propia estación,
-          no son constantes nuestras. Si la API falla, cae sola al reporte
-          diario.
+          Los umbrales los publica la propia estación en la API del sistema de
+          alerta del INA; si la API falla, la app cae sola al reporte diario.
+          Si tampoco contesta, muestra la última lectura con su fecha, y a las
+          48 horas deja de darla por vigente. <b>Nunca inventa un valor.</b>
         </p>
-        <div class="aviso">
-          Si ninguna de las dos responde, la app muestra <b>la última lectura
-          guardada con su fecha</b> y lo dice en pantalla. Pasadas 48 horas deja
-          de presentarla como vigente. Nunca inventa un valor.
-        </div>
         ${selloFuente("nivelRio", "serie 30, altura hidrométrica")}`,
     },
     {
@@ -774,47 +808,55 @@ const htmlDatos = pagina({
       kicker: "2 · La altura de tu terreno",
       titulo: "La cota sale de las curvas de nivel del municipio",
       html: `        <p>
-          Todo terreno tiene una altura sobre el nivel del mar, medida en el
-          sistema oficial argentino (IGN): esa es su <b>cota</b>. La
-          Municipalidad publica las <b>169 curvas de nivel</b> de la ciudad,
-          líneas que unen los puntos que están a la misma altura, trazadas cada
-          50 cm. Dicho fácil: si caminás sobre una curva, no subís ni bajás.
+          La <b>cota</b> es la altura de un terreno sobre el mar, en el sistema
+          oficial argentino (IGN). La Municipalidad publica <b>169 curvas de
+          nivel</b>, cada 50 cm: si caminás sobre una, no subís ni bajás.
         </p>
         <div class="curvas-dibujo" aria-hidden="true">
           <div class="cd-linea"><span>16,0 m</span><i></i></div>
           <div class="cd-casa">🏠 tu casa</div>
           <div class="cd-linea"><span>15,5 m</span><i></i></div>
         </div>
-        <p class="chico">
-          Si tu casa cae entre dos curvas, Cota Cero estima su altura a partir
-          de las dos. Es una estimación, no una medición de tu terreno: la
-          curva pasa cerca, no por tu puerta.
-        </p>
         <p>
-          Por eso el cálculo <b>descuenta medio metro</b> y trabaja siempre con
-          el escenario pesimista. Y donde las curvas no llegan —cubren la
-          ciudad, no toda el área metropolitana— la app te dice que no tiene el
-          dato y te pide la cota a mano, en vez de caer a una fuente peor.
+          Si tu casa cae entre dos, la app estima su altura y <b>descuenta
+          medio metro</b>, por las dudas. Donde no hay curvas —cubren la ciudad,
+          no toda el área metropolitana— te pide la cota a mano, en vez de caer
+          a una fuente peor.
+        </p>
+        <p class="chico">
+          Es una estimación, no una medición de tu terreno: la curva pasa cerca,
+          no por tu puerta.
         </p>
 
         <h3>Por qué no un satélite</h3>
         <p>
-          Los modelos de elevación globales miden <b>superficie</b>: techos y
-          copas de árboles, no el piso. La app usaba uno y se lo midió contra
-          <b>36 puntos de nivelación del IGN</b>, medidos en campo al milímetro:
-          el sesgo era chico —0,89 m— pero el <b>desvío estándar era de
-          7,46 m</b>, con casos de hasta 23 m, y dentro de la ciudad
-          sobreestimaba 2,15 m de media. Entre la alerta
-          (${nm(ESTACION.alerta, 2)} m) y el récord de ${RECORD_ANIO}
-          (${RECORD_M} m) hay <b>2,13 metros</b>: el error de la fuente era más
-          grande que toda la escala de la decisión.
+          Los modelos satelitales miden <b>techos y copas de árboles</b>, no el
+          piso. Contra <b>36 puntos medidos en campo por el IGN</b>, el que usaba
+          la app tenía un <b>desvío estándar de 7,46 m</b>, con casos de hasta
+          23 m.
         </p>
+        ${
+          /* Desvío estándar, NO error promedio: el sesgo medio era chico
+             (0,89 m). Lo que descalifica a la fuente es la dispersión. Las
+             barras van a la misma escala y el ancho sale de los números. */ ""
+        }<div class="barras-error" role="img" aria-label="Desvío estándar del satélite, 7,46 metros, contra ${ESCALA_DECISION} metros entre la alerta de la ciudad y el récord.">
+          <div class="be-fila">
+            <span class="be-k">Error del satélite (desvío estándar)</span>
+            <span class="be-pista"><i class="be-mal" style="width:100%"></i></span>
+            <span class="be-v">7,46 m</span>
+          </div>
+          <div class="be-fila">
+            <span class="be-k">De la alerta (${nm(ESTACION.alerta, 2)}) al récord (${RECORD_M})</span>
+            <span class="be-pista"><i style="width:${((parseFloat(ESCALA_DECISION.replace(",", ".")) / 7.46) * 100).toFixed(1)}%"></i></span>
+            <span class="be-v">${ESCALA_DECISION} m</span>
+          </div>
+        </div>
+        <p><b>El error de la fuente era más grande que toda la escala de la decisión.</b></p>
         <p class="chico">
           Ni la mejor curva reemplaza un relevamiento de tu terreno: no sabe si
-          está elevado sobre la vereda ni si la casa tiene escalones. El número
-          que vale es el de un relevamiento topográfico, el de la escritura o el
-          plano de mensura, o el que te dé el municipio. Si lo conseguís,
-          cargalo a mano en la app.
+          está elevado sobre la vereda ni si la casa tiene escalones. <b>El
+          número que vale es el de un relevamiento, la escritura o el plano de
+          mensura.</b> Si lo conseguís, cargalo a mano en la app.
         </p>
         ${selloFuente("topografia", "curvas de nivel de la ciudad")}`,
     },
@@ -823,15 +865,10 @@ const htmlDatos = pagina({
       kicker: "3 · Cómo se relacionan",
       titulo: "Dos alturas, una resta",
       html: `        <p>
-          El río tiene un número y tu terreno tiene otro. Lo único que hace Cota
-          Cero es ponerlos en la misma escala para poder restarlos.
-        </p>
-        <p>
-          La lectura del hidrómetro no es una altura sobre el nivel del mar: es
-          cuánto sube el agua por encima del <b>cero de esa escala</b>, que está
-          clavado a una altura conocida. Sumando las dos cosas —y la corrección
-          por estar río arriba— se obtiene a qué altura está la superficie del
-          agua, en el mismo sistema en el que están las curvas de nivel.
+          El hidrómetro no mide altura sobre el mar: mide cuánto sube el agua
+          sobre el <b>cero de su escala</b>, que está a una altura conocida.
+          Sumando las dos se obtiene la superficie del agua en la misma escala
+          que tu terreno.
         </p>
 ${cuentaVertical([
   ["Lectura del hidrómetro", "5,00 m"],
@@ -844,223 +881,164 @@ ${cuentaVertical([
 ])}
 ${CORTE_SVG}
         <p>
-          Lo que a una persona le sirve, sin embargo, no es «cuánta agua hay
-          hoy» sino <b>«¿qué tendría que marcar el hidrómetro para que el agua
-          llegue a la altura de mi terreno?»</b>. Es la misma cuenta despejada,
-          y son los tres pasos de acá abajo.
+          Lo que a una persona le sirve no es «cuánta agua hay hoy» sino
+          <b>«¿qué tendría que marcar el hidrómetro para que el agua llegue a
+          la altura de mi terreno?»</b>. Es la misma cuenta despejada.
         </p>`,
     },
   ],
   sueltos: [
-    paso({
-      n: 1,
-      titulo: "La altura de tu terreno, en metros IGN",
-      html: `          <p>
-            La app la saca de las curvas de nivel del municipio, o la escribís
-            vos si la conocés. Cuando sale interpolada entre dos curvas, el
-            cálculo usa el <b>escenario pesimista</b>: medio metro por debajo.
-            Es el número con el que hay que decidir.
-          </p>`,
-      eti: "Ejemplo · Colastiné Norte",
-      valor: "15,80 m → 15,30 m",
-    }),
-    paso({
-      n: 2,
-      titulo: "Restar el cero del hidrómetro: 8,20 m",
-      html: `          <p>
-            Restarlo pasa tu terreno a «metros de hidrómetro» — la misma escala
-            del número que publica el INA todos los días.
-          </p>
-          <p class="chico">
-            Cada escala tiene su propio cero, así que <b>las alturas de
-            distintas ciudades no se comparan entre sí</b>. Y para Santa Fe el
-            INA publica hoy 8,378, no 8,20: esa diferencia de 18 cm está sin
-            resolver y no la escondemos. <a href="#abiertas">Por qué usamos
-            8,20</a>.
-          </p>`,
-      valor: "15,30 − 8,20 = 7,10 m",
-    }),
-    paso({
-      n: 3,
-      titulo: "Restar el desnivel río arriba: 0,045 m por km",
-      html: `          <p>
-            El río no es una pileta: la superficie del agua tiene pendiente y
-            río arriba está más alta que en el Puerto. Si tu zona está aguas
-            arriba, tu umbral corresponde a una lectura <b>menor</b> en el
-            hidrómetro. Colastiné Norte está a 11 km: 11 × 0,045 = 0,495, que
-            redondeamos a 0,50.
-          </p>`,
-      eti: "Pendiente · 11 km",
-      valor: "− 0,50 m",
-    }),
+    `      <section class="bloque ejemplo">
+        <div class="ej-cabeza">
+          <span class="eti">Ejemplo · Colastiné Norte</span>
+          <span class="eti">11 km río arriba</span>
+        </div>
+        <ol class="ej-filas">
+${[
+  filaEjemplo({
+    n: 1,
+    titulo: "La altura de tu terreno, en metros IGN",
+    html: `              <p>Entre dos curvas, medio metro por debajo, por las dudas: es el <b>escenario pesimista</b>, el número con el que hay que decidir.</p>`,
+    valor: "15,80 → 15,30",
+  }),
+  filaEjemplo({
+    n: 2,
+    titulo: "Restar el cero del hidrómetro: 8,20 m",
+    html: `              <p>Pasa tu terreno a la escala del hidrómetro. El INA publica 8,378: esos 18 cm están sin resolver. <a href="#abiertas">Por qué usamos 8,20</a>.</p>`,
+    valor: "− 8,20 = 7,10",
+  }),
+  filaEjemplo({
+    n: 3,
+    titulo: "Restar el desnivel río arriba: 0,045 m por km",
+    html: `              <p>El río no es una pileta: río arriba el agua está más alta. 11 × 0,045 = 0,495, que redondeamos a 0,50.</p>`,
+    valor: "− 0,50 = 6,60",
+  }),
+].join("\n")}
+        </ol>
+      </section>`,
+    /* El resultado en la banda oscura. El número grande va con la convención
+       de la app (≈ y un decimal) y la cuenta exacta debajo: es la excepción
+       de CLAUDE.md, «el desglose conserva la aritmética exacta». */
     `      <section class="bloque oscuro resultado">
         <p class="kicker">Resultado del ejemplo</p>
-        <p class="dato-grande">6,60 m</p>
-        <p class="cuenta-chica">15,30 − 8,20 − 0,50</p>
+        <p class="dato-grande">≈ 6,6 m</p>
+        <p class="cuenta-chica">15,30 − 8,20 − 0,50 = 6,60</p>
         <p>
           Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
           de agua equivalente alcanza la cota de ese terreno según el modelo.
           <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
-          es la referencia para prepararse.
+          lo que pase depende de las defensas, del bombeo, del viento y de la
+          lluvia, y nada de eso está en la cuenta.
         </p>
-        <p>
-          La app lo muestra redondeado, <b>≈ 6,6 m</b>, porque la cota viene de
-          curvas cada 0,5 m y más decimales serían una precisión que el dato no
-          tiene. Con el récord histórico en ${RECORD_M} m, en ${RECORD_ANIO} el
-          río pasó ese umbral <b>83 centímetros antes</b> del pico.
-        </p>
-      </section>`,
-    `      <section class="bloque">
-        <div class="aviso">
-          <b>Eso es una referencia hidráulica, no una predicción de
-          inundación.</b> Dice a qué lectura del hidrómetro la superficie de
-          agua equivalente alcanzaría la cota de tu terreno según este modelo.
-          Lo que pase de verdad depende de las defensas, del bombeo, del viento
-          y de la lluvia — nada de eso está en la cuenta.
-        </div>
       </section>`,
     bloque({
       id: "firme",
       kicker: "4 · Qué tan firme es esto",
       titulo: "Lo que se comprobó, lo que está en discusión y lo que falta",
-      /* El orden es deliberado y se cambió a propósito: antes los cuatro
-         subtítulos abrían en negativo —"no están cerrados", "no es estar
-         inundado", "no es estar validado"— y quien leía en diagonal se llevaba
-         sólo eso. Ahora va primero lo que se comprobó y después lo que falta,
-         con el MISMO peso: cada uno tiene su h3, ninguno queda en letra chica
-         ni plegado. No se sacó ni se suavizó una sola admisión; se movieron de
-         lugar. */
+      /* El orden es deliberado: antes los subtítulos abrían en negativo y
+         quien leía en diagonal se llevaba sólo eso. Primero lo comprobado,
+         después lo que falta, con el MISMO peso: tres tarjetas iguales. No se
+         sacó ni se suavizó una sola admisión. El razonamiento largo del 8,20
+         va plegado y no borrado: la app enlaza acá («por qué usamos 8,20») y
+         tiene que encontrar la respuesta entera. */
+      html: `        <p>Preferimos publicar nuestros supuestos antes de que los encuentre otro.</p>
+        <div class="firme-tres">
+          <div class="firme-caja f-ok">
+            <span class="eti">Se comprobó</span>
+            <h3>La crecida de ${RECORD_ANIO}</h3>
+            <table class="cuenta">
+              <tr><td>Puerto, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
+              <tr><td>Arroyo Leyes, registrado</td><td>16,70 IGN</td></tr>
+              <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
+            </table>
+            <p class="chico">Un centímetro. Pero es <b>un punto, de una crecida, de un año</b>: no demuestra que el modelo valga en todos lados.</p>
+          </div>
+          <div class="firme-caja f-discusion" id="abiertas">
+            <span class="eti">En discusión</span>
+            <h3>Dos números sin cerrar</h3>
+            <p><b>El cero: 8,20 o 8,378.</b> 8,20 es el de la normativa de Rincón; el INA publica 8,378 desde 2016. Pueden ser el mismo punto en dos sistemas de alturas.</p>
+            <p><b>La pendiente: 0,045 m/km.</b> Da bien en ${RECORD_ANIO}, pero es una sola observación y usamos un solo valor para todas las zonas.</p>
+            <details class="h-detalle">
+              <summary>Por qué no cambiamos ninguno</summary>
+              <p class="chico">
+                <b>El cero.</b> El Reglamento de Edificaciones de San José del
+                Rincón fija la cota de edificación en
+                <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>
+                —la diferencia es exactamente 8,20— y coincide con el que da un
+                ingeniero hidrólogo de la FICH-UNL. El INA publica 8,378 de una
+                campaña INA-IGN de diciembre de 2016. Los 18 cm no son de
+                redondeo: en enero de 2017 el país cambió de sistema de alturas
+                —del SRVN71 al SRVN16— y antes convivían referencias del ex
+                Ministerio de Obras Públicas, de Obras Sanitarias y de sistemas
+                municipales. Lo que importa no es cuál número es más nuevo,
+                sino que el cero y las curvas estén en el <b>mismo</b> sistema,
+                y las curvas no declaran el suyo. Mover el cero a 8,378 metería
+                un sesgo de 18 cm en todos los umbrales sin que nadie se entere.
+              </p>
+              <p class="chico">
+                <b>La pendiente.</b> El reglamento de Rincón, 16 km río arriba,
+                convierte cota a hidrómetro sin ninguna corrección por
+                distancia; con la pendiente de la app serían 72 cm más. O el
+                reglamento simplifica, o la pendiente real en ese tramo es otra:
+                depende del tramo, del caudal y de la condición hidráulica del
+                momento.
+              </p>
+            </details>
+          </div>
+          <div class="firme-caja f-falta">
+            <span class="eti">Falta</span>
+            <h3>Que lo revisen especialistas</h3>
+            <p>Ningún organismo ni universidad revisó este modelo. Nadie lo aprobó.</p>
+            <p class="chico">Hasta que lo revisen —Gestión de Riesgos, INA, FICH-UNL, Recursos Hídricos— lo que la app publica son <b>niveles de referencia estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no tiene vínculo con esos organismos ni cuenta con su aval.</p>
+          </div>
+        </div>
+        ${selloFuente("altimetria", "ceros de escala y sistema de alturas")}`,
+    }),
+    /* La app enlaza acá desde Mi casa («Qué no dice este número»): el ancla
+       #no-dice no se puede mover. */
+    bloque({
+      id: "no-dice",
+      titulo: "Hay dos maneras de inundarse. Cota Cero mira una sola.",
       html: `        <p>
-          Todo modelo se apoya en supuestos discutibles. Preferimos publicar los
-          nuestros antes de que los encuentre otro: un límite que escribe quien
-          hizo la herramienta se puede revisar y corregir a tiempo. Acá está lo
-          que comprobamos, lo que seguimos discutiendo y lo que falta.
+          Un barrio puede tener margen amplio contra el Paraná y entrar en
+          emergencia igual, por lluvia. El modelo tampoco sabe si entre el río y
+          tu casa hay un terraplén, ni en qué estado está.
         </p>
-
-        <h3>Lo que se comprobó: la crecida de ${RECORD_ANIO}</h3>
-        <p>
-          <b>Comprobación histórica.</b> El modelo se contrastó contra un
-          caso independiente y coincidió muy bien.
-        </p>
-        <table class="cuenta">
-          <tr><td>Puerto de Santa Fe, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
-          <tr><td>Arroyo Leyes, 24 km río arriba — registrado</td><td>16,70 IGN</td></tr>
-          <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
-        </table>
-        <p style="margin-top:20px">
-          Un centímetro. Es el mejor dato independiente que tenemos, y es
-          <b>un punto, de una crecida, de un año</b>. Una coincidencia histórica
-          no demuestra que el modelo valga para todos los lugares y todas las
-          condiciones.
-        </p>
-        <p>
-          También se comprobó de dónde <b>no</b> sacar la altura del terreno: la
-          app usaba un modelo satelital y se lo midió contra 36 puntos de
-          nivelación del IGN, con un resultado tan malo que se descartó la
-          fuente entera — <a href="#terreno">la medición está más arriba</a>.
-        </p>
-
-        <h3 id="abiertas">Lo que está en discusión: dos números que todavía no están cerrados</h3>
-        <p>
-          Están acá, y no escondidos en un archivo interno, porque son
-          exactamente las dos cosas que un especialista debería revisarnos.
-        </p>
-        <p>
-          <b>El cero del hidrómetro: 8,20 o 8,38.</b> Usamos <b>8,20 m</b>,
-          que es el de la normativa: el Reglamento de Edificaciones de San José
-          del Rincón fija la cota de edificación en
-          <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>
-          —la diferencia es exactamente 8,20— y coincide con el que da un
-          ingeniero hidrólogo de la FICH-UNL. Pero el propio INA publica
-          <b>8,378 m</b> para esta estación, de una campaña INA-IGN de diciembre
-          de 2016.
-        </p>
-        <p>
-          Los <b>18 cm</b> no son de redondeo: en enero de 2017 el país cambió de
-          sistema de alturas —del SRVN71 al SRVN16— y antes convivían
-          referencias del ex Ministerio de Obras Públicas, de Obras Sanitarias y
-          de sistemas municipales. Pueden ser el mismo punto medido en dos
-          sistemas distintos. <b>Por eso no la cambiamos:</b> lo que importa no
-          es cuál número es más nuevo, sino que el cero y las curvas de nivel
-          estén en el <b>mismo</b> sistema — y las curvas no declaran el suyo.
-          Mover el cero a 8,378 metería un sesgo de 18 cm en todos los umbrales
-          sin que nadie se entere.
-        </p>
-        <p>
-          <b>La pendiente: 0,045 m por kilómetro.</b> Se contrastó con la crecida
-          de ${RECORD_ANIO} y da bien ahí, pero es <b>una sola observación</b>.
-          El reglamento de Rincón, 16 km río arriba, convierte cota a hidrómetro
-          <b>sin ninguna corrección por distancia</b>; con la pendiente de la app
-          serían 72 cm más. O el reglamento simplifica, o la pendiente real en
-          ese tramo es otra. Depende del tramo, del caudal y de la condición
-          hidráulica del momento, y nosotros usamos <b>un solo valor para todas
-          las zonas</b>.
-        </p>
-        ${selloFuente("altimetria", "ceros de escala y sistema de alturas")}
-
-        <h3>Lo que falta: que lo revisen especialistas</h3>
-        <p>
-          <b>Validación científica.</b> Ningún organismo ni universidad
-          revisó este modelo. Nadie lo aprobó.
-        </p>
-        <p class="chico" style="margin-top:18px">
-          Hasta que lo revisen especialistas —Gestión de Riesgos, INA, FICH-UNL,
-          Recursos Hídricos— lo que la app publica son <b>niveles de referencia
-          estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no
-          tiene vínculo con esos organismos ni cuenta con su aval: usa sus datos
-          públicos y los cita.
-        </p>
-
-        <h3 id="no-dice">Lo que no sabe: estar por debajo del agua no es estar inundado</h3>
-        <p>
-          «Si mi terreno está por debajo del nivel equivalente del río, ¿por qué
-          no estoy con agua adentro?» Porque buena parte de la ciudad está
-          protegida por obras: <b>defensas y terraplenes</b>, <b>compuertas</b>
-          que impiden que el río entre por los desagües, <b>bombeo</b> y
-          <b>reservorios</b>. El modelo asume terreno parejo y agua libre: no
-          sabe si entre el río y tu casa hay un terraplén o no hay nada.
-          Ésta y otras del mismo tipo están contestadas cortas en
+        <div class="dos-maneras">
+          <div class="dm-caja dm-fluvial">
+            <span class="eti">Fluvial · lo que mira</span>
+            <h3>Crece el río</h3>
+            <p>El Paraná sube durante semanas y se ve venir en el hidrómetro. Es lo que traduce tu nivel de aviso.</p>
+          </div>
+          <div class="dm-caja dm-pluvial">
+            <span class="eti">Pluvial · lo que no</span>
+            <h3>Llueve sobre la ciudad</h3>
+            <p>Mucha lluvia en pocas horas, o varios días seguidos, anegan calles y casas por los desagües, sola o combinada con el Salado. Puede pasar con el río bajo.</p>
+          </div>
+          <div class="dm-caja dm-juntan">
+            <span class="eti">Cuando se juntan</span>
+            <h3>Río alto + lluvia</h3>
+            <p>Con el río alto las bombas no pueden desagotar contra el agua de afuera. El municipio planifica para <b>río en 6 m más lluvia de 200 a 300 mm</b>.</p>
+          </div>
+        </div>
+        <p class="chico">
+          Y una defensa protege mientras funciona: en 2003 el agua entró por un
+          tramo abierto de una defensa existente. Que haya obra no es garantía.
+          Más dudas de este tipo, contestadas cortas, en
           <a href="/preguntas">preguntas frecuentes</a>.
         </p>
-        <p>
-          Y mira <b>una sola</b> de las dos maneras de inundarse, la
-          <b>fluvial</b>. Santa Fe también se inunda por lluvia —el riesgo
-          <b>pluvial</b>—, sola o combinada con el Salado, y un barrio puede
-          tener margen amplio contra el Paraná y entrar en emergencia igual. Los
-          dos se cruzan: con el río alto las bombas no pueden desagotar contra el
-          agua de afuera. El municipio planifica para río en 6 m <b>más</b>
-          lluvia de 200 a 300 mm.
-        </p>
-        <div class="aviso">
-          Al revés también vale: una defensa protege mientras funciona. En 2003
-          el agua entró por un tramo abierto de una defensa existente. Que haya
-          obra no es garantía, y la app no sabe en qué estado está.
-        </div>
         ${selloFuente("emergencias", "Plan de Contingencia")}`,
     }),
     bloque({
       oscuro: true,
-      kicker: "Lo que todavía no sabe",
-      titulo: "Honestidad también acá",
-      html: `        <ul class="pasos">
-          <li><b>En qué sistema de alturas están las curvas municipales.</b> Los
-            metadatos no lo declaran, y de eso depende si el cero correcto es
-            8,20 o 8,378.</li>
-          <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada
-            en un punto de una crecida.</li>
-          <li><b>Cuánto error tiene de verdad la cota interpolada.</b> El ±0,5 m
-            que informa la app es la convención cartográfica, no una medición.
-            Habría que contrastarla contra la red de puntos fijos del municipio,
-            que no está publicada.</li>
-          <li><b>Los kilómetros río arriba de cada zona.</b> Sólo Arroyo Leyes
-            (24 km) está publicado; el resto son estimaciones propias. A 4,5 cm
-            por km, equivocarse 5 km son 22 cm.</li>
-          <li><b>En qué estado está la defensa de tu zona.</b> La app dice si
-            la hay y qué pasó otras veces a cada nivel del río, pero no sabe
-            si hoy filtra, está en obra o tiene un tramo sin terminar. Cambia
-            el resultado más que cualquiera de las constantes.</li>
-          <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar
-            antes por el desagüe que por el río.</li>
+      titulo: "Lo que todavía no sabe",
+      html: `        <ul class="no-sabe">
+          <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero correcto es 8,20 o 8,378.</li>
+          <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
+          <li><b>Cuánto error tiene la cota interpolada.</b> El ±0,5 m es la convención cartográfica, no una medición.</li>
+          <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>
+          <li><b>En qué estado está la defensa de tu zona.</b> Cambia el resultado más que cualquiera de las constantes.</li>
+          <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar antes por el desagüe que por el río.</li>
         </ul>
         <p class="chico">
           Cuando no sabemos algo con precisión suficiente, preferimos decirlo
@@ -1072,8 +1050,8 @@ ${CORTE_SVG}
       kicker: "5 · Las fuentes",
       titulo: "Cada dato, con su enlace",
       html: `        <p>
-          Todo lo que muestra la app sale de acá. Cada ficha lleva dos enlaces:
-          la página del organismo y el dato crudo, tal como lo pide la app.
+          Todo lo que muestra la app sale de acá. Cada ficha lleva la página del
+          organismo y el dato crudo, tal como lo pide la app.
         </p>
         <div class="fuentes-rejilla">
 ${[
@@ -1111,42 +1089,63 @@ ${NORMATIVA.map(
   ],
 });
 
-/* ---------- /preguntas ---------- */
+/* ---------- /preguntas ----------
+   Cada respuesta arranca con una línea corta en negrita: la que contesta.
+   Después va la explicación. Quien abre la pregunta en la vereda lee la
+   primera línea y ya sabe; el resto es para quien quiere el porqué.
+   [pregunta, respuesta corta, explicación] */
 const PREGUNTAS = [
   [
     "¿Por qué mi nivel de aviso no es el 5,30 de la alerta?",
-    "La alerta de la ciudad es un solo número para toda Santa Fe, y tiene que serlo: es el umbral con el que se activa el plan de contingencia. Tu terreno además tiene el suyo, porque está a otra altura y a otra distancia del Puerto. Si es bajo o está río arriba, tu número va a ser más chico que los 5,30 m; si es alto, más grande. Los dos conviven: el tuyo sirve para prepararte antes, no para decidir en lugar de Defensa Civil.",
+    "Porque tu terreno está a otra altura que el resto de la ciudad.",
+    "La alerta de la ciudad es un solo número para toda Santa Fe: con ella se activa el plan de contingencia. Si tu terreno es bajo o está río arriba, tu número es más chico que los 5,30 m; si es alto, más grande. Los dos conviven: el tuyo sirve para prepararte antes, no para decidir en lugar de Defensa Civil.",
+  ],
+  /* Segunda a propósito: es la duda que más se cruza con la primera, y la
+     app no la contestaba en ningún lado (feedback de un vecino). Usa sólo
+     números que ya publica el municipio. */
+  [
+    "¿Y si llueve mucho?",
+    "Tu nivel de aviso no lo mira: sólo mide el río.",
+    "Mucha lluvia en poco tiempo, o varios días seguidos, puede anegar calles y casas aunque el Paraná esté bajo. Y con el río alto es peor: las bombas no alcanzan a sacar el agua de la ciudad. El municipio planifica para río en 6 m más lluvia de 200 a 300 mm.",
   ],
   [
     "¿El agua entra justo cuando el río llega a mi nivel de aviso?",
-    "No. Es un cálculo aproximado. No sabe del terraplén (el anillo de defensas), de las bombas ni de la lluvia. El agua puede llegar antes por los desagües, o no llegar. Sirve para saber cuándo prepararte, no para adivinar el minuto. Por eso el número va redondeado: la altura del terreno sale de un plano con líneas cada medio metro.",
+    "No: es un cálculo aproximado.",
+    "No sabe del terraplén (el anillo de defensas), de las bombas ni de la lluvia. El agua puede llegar antes por los desagües, o no llegar. Sirve para saber cuándo prepararte, no para adivinar el minuto. Por eso el número va redondeado: la altura del terreno sale de un plano con líneas cada medio metro.",
   ],
   [
     "¿La app avisa sola cuando el río sube?",
-    "Sí, si activás los avisos. Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.",
+    "Sí, si activás los avisos.",
+    "Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.",
   ],
   [
     "¿De dónde sale la altura de mi terreno?",
-    "De las curvas de nivel de la Municipalidad de Santa Fe, trazadas cada 50 cm en metros IGN: por eso el margen de ±0,5 m. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
+    "De las curvas de nivel de la Municipalidad de Santa Fe.",
+    "Están trazadas cada 50 cm, en metros IGN: por eso el margen de ±0,5 m. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
   ],
   [
     "¿Qué hago si mi dirección queda fuera de la zona con curvas?",
-    "La app te lo dice y te pide la cota a mano, en vez de usar una fuente peor. Las curvas municipales cubren la ciudad, no toda el área metropolitana.",
+    "Escribí la altura a mano.",
+    "La app te lo dice y te la pide, en vez de usar una fuente peor. Las curvas municipales cubren la ciudad, no toda el área metropolitana.",
   ],
   [
     "¿Funciona sin conexión?",
-    "Sí. Una vez cargada, la app guarda lo esencial: tu nivel de aviso, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
+    "Sí, una vez cargada.",
+    "La app guarda lo esencial: tu nivel de aviso, tu plan familiar, los 30 puntos de encuentro y la última lectura del río con su fecha. Sin conexión ves esa última lectura, nunca un número inventado.",
   ],
   [
     "¿Quién ve mi plan familiar y mis datos?",
-    "Nadie. El plan, tu nivel de aviso y tu zona se guardan sólo en tu teléfono. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
+    "Nadie: se guardan sólo en tu teléfono.",
+    "El plan, tu nivel de aviso y tu zona no salen de ahí. Lo único que viaja a un servidor es el texto que mandes por el formulario de sugerencias, y el formulario lo dice. Aparte, la app cuenta cuánta gente la usa con un número al azar que no identifica a nadie.",
   ],
   [
     "¿Esto reemplaza a la alerta de Defensa Civil?",
-    "No. Es un cálculo aproximado para prepararte antes, hecho por un vecino y sin vínculo con el municipio. La orden de evacuación la da Defensa Civil, al 103. Si el río llega a tu nivel de aviso, armá el plan y llamá al 103 si tenés dudas.",
+    "No. La orden de evacuación la da Defensa Civil.",
+    "Es un cálculo aproximado para prepararte antes, hecho por un vecino y sin vínculo con el municipio. Si el río llega a tu nivel de aviso, armá el plan y llamá al 103 si tenés dudas.",
   ],
   [
     "¿Cada cuánto se actualiza el nivel?",
+    "Una vez por día.",
     "El INA publica una lectura por día del hidrómetro del Puerto. La app la toma de ese reporte y muestra siempre la fecha del dato, así sabés qué tan fresco es.",
   ],
 ];
@@ -1154,36 +1153,52 @@ const PREGUNTAS = [
 const htmlPreguntas = pagina({
   clave: "preguntas",
   migaja: "Preguntas frecuentes",
-  h1: "Preguntas sobre el río, tu cota y las inundaciones",
-  lead: "Las dudas que más aparecen, contestadas sin vueltas.",
+  h1: "Preguntas sobre el río, tu terreno y las inundaciones",
+  lead: "Las dudas que más aparecen, contestadas sin vueltas. Primero la respuesta corta.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: PREGUNTAS.map(([q, a]) => ({
+    mainEntity: PREGUNTAS.map(([q, corta, a]) => ({
       "@type": "Question",
       name: q,
-      acceptedAnswer: { "@type": "Answer", text: a },
+      acceptedAnswer: { "@type": "Answer", text: corta + " " + a },
     })),
   },
-  bloques: [
-    {
-      html: PREGUNTAS.map(
-        ([q, a]) => `        <details class="faq">
-          <summary>${esc(q)}</summary>
-          <p>${esc(a)}</p>
-        </details>`,
-      ).join("\n"),
-    },
-    {
+  bloques: [],
+  sueltos: [
+    `      <div class="faq-y-corto">
+        <section class="bloque faq-lista">
+${PREGUNTAS.map(
+  ([q, corta, a]) => `          <details class="faq">
+            <summary>${esc(q)}</summary>
+            <p><b class="corta">${esc(corta)}</b> ${esc(a)}</p>
+          </details>`,
+).join("\n")}
+        </section>
+        ${
+          /* Las cuatro ideas que hay que llevarse aunque no se abra ninguna
+             pregunta. Al costado en pantalla ancha, debajo en el teléfono. */ ""
+        }<aside class="bloque en-corto" aria-labelledby="en-corto-t">
+          <h2 id="en-corto-t">En corto</h2>
+          <ul class="flechas">
+            <li>Mide el río, no la lluvia.</li>
+            <li>Es aproximado: sirve para prepararte, no para adivinar el minuto.</li>
+            <li>Tus datos no salen de tu teléfono.</li>
+            <li>La orden de salir la da Defensa Civil.</li>
+          </ul>
+          <a class="btn-emergencia fila-103" href="tel:103"><span>Defensa Civil</span><b>103</b></a>
+        </aside>
+      </div>`,
+    bloque({
       oscuro: true,
       titulo: "¿Tu pregunta no está?",
       html: `        <p>
-          Dentro de la app hay un formulario de sugerencias al pie. Ojo: no es
-          una vía de auxilio — ante una emergencia llamá al <b>103</b>.
-        </p>`,
-    },
+          Mandala por el formulario. No es una vía de auxilio: ante una
+          emergencia, llamá al <b>103</b>.
+        </p>
+        <p><a href="/contacto">Escribinos →</a></p>`,
+    }),
   ],
-  sueltos: [],
 });
 
 /* ---------- /charlas ----------
@@ -1256,7 +1271,7 @@ const htmlGuia = pagina({
               <span class="g-familia">Familia <span class="g-linea g-larga"></span></span>
             </div>
           </div>
-          <a class="g-103" href="tel:103"><span>Defensa civil</span><b>103</b></a>
+          <a class="g-103" href="tel:103"><span>Defensa Civil</span><b>103</b></a>
         </header>
 
         <section class="g-umbral">
@@ -1268,8 +1283,8 @@ const htmlGuia = pagina({
           </p>
           <p class="g-chico">
             Alerta de la ciudad ${nm(ESTACION.alerta, 2)} m · evacuación
-            ${nm(ESTACION.evacuacion, 2)} m. El nivel de aviso es un cálculo
-            aproximado, no el momento en que entra el agua.
+            ${nm(ESTACION.evacuacion, 2)} m. Es un cálculo aproximado y mide
+            sólo el río: con mucha lluvia, la calle puede anegarse antes.
           </p>
         </section>
 
@@ -1340,13 +1355,12 @@ ${TELEFONOS_GUIA.map(([q, n]) => `              <tr><td>${esc(q)}</td><td>${esc(
 const htmlCharlas = pagina({
   clave: "charlas",
   migaja: "Charlas",
-  chip: "Para seguir pensando",
   h1: "Charlas que explican por qué existe esta app",
   lead:
     NUMERO_CHARLAS +
-    " charlas TED y TEDx, cortas y gratuitas, sobre las ideas detrás de " +
-    "Cota Cero: prepararse antes, organizarse entre vecinos, convivir con el " +
-    "agua y abrir los datos.",
+    " charlas TED y TEDx, cortas y gratuitas: prepararse antes, organizarse entre " +
+    "vecinos, convivir con el agua y abrir los datos.",
+  acciones: `        <p class="chico">En inglés, con subtítulos en ted.com · Ninguna habla de Santa Fe.</p>`,
   jsonld: {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -1384,7 +1398,7 @@ ${CHARLAS.map(
           <span class="cuerpo">
             <span class="tit">${esc(c.titulo)}</span>
             <span class="ficha">${esc(c.ficha)} · «${esc(c.original)}»</span>
-            <span class="txt">${esc(c.texto)}</span>
+            <span class="txt">${esc(c.porque)}</span>
           </span>
         </a>`,
 ).join("\n")}
@@ -1394,12 +1408,8 @@ ${CHARLAS.map(
     {
       borde: true,
       html: `        <p class="chico" style="margin:0">
-          Están todas en inglés y son gratuitas: en ted.com el botón de
-          subtítulos muestra los idiomas disponibles de cada una. Ninguna habla
-          de Santa Fe — están acá porque explican mejor que nosotros por qué una
-          herramienta como ésta tiene sentido. ¿Conocés una charla que debería
-          estar en esta lista? Mandala por el formulario de sugerencias de la
-          app.
+          ¿Conocés una charla que debería estar acá?
+          <a href="/contacto">Mandala →</a>
         </p>`,
     },
   ],
@@ -1454,10 +1464,11 @@ const tablaHist = HIST.map(
 ).join("\n");
 
 /* ---------- /historia ----------
-   Cien años del Paraná. La página es un esqueleto: todos los números los pone
-   historia.js leyendo datos/historia.json, que genera `node scripts/historia.js`
-   desde la serie del INA. Si acá hubiera un número escrito a mano, el día que
-   la serie se actualice quedaría mintiendo.
+   Cien años del Paraná. Los números salen de datos-abiertos/historia.json,
+   que genera `node scripts/historia.js` desde la serie del INA, y van en el
+   HTML: las fichas y la tabla los emite este script. historia.js sólo agrega
+   la franja que se recorre. Si acá hubiera un número escrito a mano, el día
+   que la serie se actualice quedaría mintiendo.
 
    Por qué existe: el hidrómetro es un número abstracto. "3,10 m" no le dice
    nada a nadie hasta que se lo ve al lado de los 7,43 de 1992 y de los −0,23
@@ -1466,7 +1477,8 @@ const htmlHistoria = pagina({
   clave: "historia",
   migaja: "Cien años del Paraná",
   script: "/js/historia.js",
-  chip: "La escala real",
+  // Sin chip ni kickers encima de los títulos: ver CLAUDE.md, «el mono en
+  // mayúsculas etiqueta una cosa».
   h1: "Más de un siglo del río Paraná en Santa Fe",
   lead:
     "El hidrómetro marca un número y el número solo no dice nada. Esta página " +
@@ -1494,49 +1506,27 @@ const htmlHistoria = pagina({
   bloques: [],
   sueltos: [
     `      <section class="bloque">
-        <p class="kicker">1925 — hoy</p>
         <h2>El Paraná en más de cien años de registros</h2>
         <p>
           El Instituto Nacional del Agua publica la lectura diaria del
-          hidrómetro del Puerto de Santa Fe desde el 2 de enero de 1925. Son
+          hidrómetro del Puerto de Santa Fe desde el ${enPalabras(historia.desde)}. Son
           <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> del
           mismo instrumento, y es la misma serie de la que sale el número que
           la app muestra hoy.
         </p>
-        <table class="cuenta">
-          <tr><td>Mayor altura registrada — ${enPalabras(RECORD.fmax)}</td><td>${nm(RECORD.max, 2)} m</td></tr>
-          <tr><td>Bajante más honda — ${enPalabras(BAJANTES[0].fmin)}</td><td>${nm(BAJANTES[0].min, 2)} m</td></tr>
-          <tr><td>Mediana de la serie diaria</td><td>${nm(historia.cuantiles[50], 2)} m</td></tr>
-          <tr class="total"><td>Años con registro</td><td>${HIST.length}</td></tr>
-        </table>
-        <p style="margin-top:20px" class="chico">
+        ${
+          /* Las cuatro fichas son los datos en el HTML, no en el JS: ver
+             CLAUDE.md, «No volver a mover contenido al JavaScript». */ ""
+        }<dl class="fichas-hist">
+          <div><dt>Mayor altura · ${enPalabras(RECORD.fmax)}</dt><dd>${nm(RECORD.max, 2)} m</dd></div>
+          <div><dt>Bajante más honda · ${enPalabras(BAJANTES[0].fmin)}</dt><dd>${BAJANTES[0].min < 0 ? "−" : ""}${nm(Math.abs(BAJANTES[0].min), 2)} m</dd></div>
+          <div><dt>Mediana de la serie diaria</dt><dd>${nm(historia.cuantiles[50], 2)} m</dd></div>
+          <div><dt>Años con registro</dt><dd>${HIST.length}</dd></div>
+        </dl>
+        <p class="chico">
           Antes de 1925 el INA no publica esta serie. La crecida de 1905 que se
           cita seguido queda afuera: no la reconstruimos desde recortes de
           diario.
-        </p>
-      </section>
-
-      <section class="bloque" id="umbrales">
-        <h2>¿Qué significan estos números?</h2>
-        <p>
-          El <b>nivel de alerta</b> del hidrómetro del Puerto de Santa Fe es de
-          <b>${nm(ESTACION.alerta, 2)} m</b> y el <b>nivel de evacuación</b> es
-          de <b>${nm(ESTACION.evacuacion, 2)} m</b>. Los dos los publica la
-          estación del INA, y son los mismos con los que se dibujan las líneas
-          punteadas de esta página.
-        </p>
-        <p>
-          Con eso, el récord de ${RECORD.anio} —${nm(RECORD.max, 2)} m— quedó
-          <b>${nm(RECORD.max - ESTACION.evacuacion, 2)} m por encima</b> del
-          nivel de evacuación. Y todo el rango en el que se decide algo, del
-          alerta al récord, son
-          <b>${nm(RECORD.max - ESTACION.alerta, 2)} m</b>: por eso un cambio de
-          diez centímetros en el modelo no es un detalle.
-        </p>
-        <p class="chico">
-          Alcanzar una altura no significa que el agua entre a una casa: buena
-          parte de la ciudad está protegida por defensas, compuertas y bombeo.
-          <a href="/datos#no-dice">Por qué el nivel del río no es una predicción de inundación</a>.
         </p>
       </section>
 
@@ -1544,53 +1534,36 @@ const htmlHistoria = pagina({
 
       ${
         /* Lo interactivo, y SÓLO lo interactivo, espera al JavaScript: los
-           datos de arriba ya están en el HTML. */ ""
+           datos de arriba y la tabla de abajo ya están en el HTML. */ ""
       }<div id="h-contenido" hidden>
         <section class="bloque">
           <h2>Recorré la serie año por año</h2>
           <p>
             Cada barra es un año: va del nivel más bajo al más alto que marcó el
-            hidrómetro. Las dos líneas punteadas son la alerta y la evacuación
-            de la ciudad. Tocá una barra para ver ese año en detalle.
+            hidrómetro. Tocá una barra, o usá las flechas, para ver ese año.
           </p>
-          <div id="h-franja" class="h-franja"></div>
-          <p class="chico">
-            Las barras naranjas son años que llegaron a la alerta; las rojas,
-            los que llegaron a nivel de evacuación.
-          </p>
-
-          <div class="h-modos" role="group" aria-label="Qué recorrer">
-            <button type="button" class="btn sec" data-modo="anios" aria-pressed="true">Recorrer años</button>
-            <button type="button" class="btn sec" data-modo="libre" aria-pressed="false">Mover el río</button>
-          </div>
-
-          <div class="h-panel">
-            <div class="h-tanque">
-              <div class="h-agua" id="h-agua"></div>
-              <div class="h-marcas" id="h-marcas" aria-hidden="true"></div>
+          <ul class="h-leyenda" aria-hidden="true">
+            <li><i class="h-b-normal"></i>No llegó a la alerta</li>
+            <li><i class="h-b-alerta"></i>Llegó a la alerta</li>
+            <li><i class="h-b-evac"></i>Llegó a la evacuación</li>
+          </ul>
+          <div id="h-franja" class="h-franja" role="slider" tabindex="0"
+            aria-label="Año de la serie"></div>
+          <div class="h-detalle-anio">
+            <div class="h-sel">
+              <button type="button" class="h-flecha" id="h-anterior" aria-label="Año anterior">‹</button>
+              <b id="h-anio" class="h-anio"></b>
+              <button type="button" class="h-flecha" id="h-siguiente" aria-label="Año siguiente">›</button>
             </div>
-            <div class="h-lectura" id="h-lectura" role="status"></div>
+            <div id="h-detalle-datos" class="h-detalle-datos"></div>
+            <p id="h-detalle-texto" class="h-detalle-texto" role="status"></p>
           </div>
-
-          <div class="h-control">
-            <input type="range" id="h-rango" min="0" max="1" step="1" value="0" />
-            <div class="h-control-pie">
-              <span id="h-pie-control" class="chico"></span>
-              <button type="button" class="btn sec" id="h-play">Reproducir</button>
-            </div>
-          </div>
-          <p class="chico">
-            Nada se mueve solo: el recorrido arranca cuando lo pedís. Si tu
-            sistema está configurado para reducir el movimiento, la línea del
-            agua salta en vez de deslizarse.
-          </p>
         </section>
       </div>
 
       <section class="bloque">
-        <h2>La tabla completa</h2>
         <details class="h-detalle">
-          <summary>Ver los ${HIST.length} años, uno por uno</summary>
+          <summary>La tabla completa: los ${HIST.length} años, uno por uno</summary>
           <div class="h-tabla-caja">
             <table class="h-tabla">
               <thead><tr><th scope="col">Año</th><th scope="col">Máximo</th><th scope="col">Mínimo</th><th scope="col">Días en alerta</th></tr></thead>
@@ -1602,6 +1575,50 @@ ${tablaHist}
         </details>
       </section>
 
+      <section class="bloque" id="umbrales">
+        <h2>¿Qué significan estos números?</h2>
+        <p>
+          La <b>alerta de la ciudad</b> es de <b>${nm(ESTACION.alerta, 2)} m</b>
+          en el hidrómetro del Puerto y la <b>evacuación</b>, de
+          <b>${nm(ESTACION.evacuacion, 2)} m</b>. Las dos las publica la
+          estación del INA. El récord de ${RECORD.anio} quedó
+          <b>${nm(RECORD.max - ESTACION.evacuacion, 2)} m por encima</b> de la
+          evacuación. Y todo el rango en el que se decide algo, de la alerta al
+          récord, son <b>${nm(RECORD.max - ESTACION.alerta, 2)} m</b>: por eso
+          diez centímetros en el modelo no son un detalle.
+        </p>
+        <p class="chico">
+          Alcanzar una altura no significa que el agua entre a una casa: buena
+          parte de la ciudad está protegida por defensas, compuertas y bombeo.
+          <a href="/datos#no-dice">Por qué el nivel del río no es una predicción de inundación</a>.
+        </p>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>Esto es historia, no pronóstico</h2>
+        <p>
+          Que una altura se haya alcanzado pocas veces en cien años no dice
+          nada sobre lo que va a pasar este año. En cien años cambiaron las
+          presas aguas arriba, el uso del suelo de la cuenca y el propio
+          régimen del río.
+        </p>
+        <p>
+          Y la ciudad de 1925 no es la de hoy: un mismo número del hidrómetro
+          no significaba lo mismo antes que ahora, porque cambió lo que hay
+          entre el río y las casas. Y la serie mide sólo el Paraná: en 2003 no
+          llegó a la alerta, y la ciudad se inundó igual por el Salado.
+        </p>
+        ${
+          /* Era un bloque aparte, «Comparar con el río de hoy», con tres
+             enlaces al pie: el patrón «Seguí por acá» que CLAUDE.md prohíbe.
+             El enlace va donde el texto lo pide. */ ""
+        }<p>
+          Lo que marca el hidrómetro hoy está en la <a href="/">portada</a>, y
+          qué significa para un terreno en particular, en la
+          <a href="/app?ir=cota">app</a>.
+        </p>
+      </section>
+
       <section class="bloque borde">
         <p class="kicker">La fuente</p>
         <p class="chico">
@@ -1611,44 +1628,11 @@ ${tablaHist}
           Fuente: ${esc(ORGANISMOS.ina.nombre)}, serie ${ESTACION.serieId}
           (altura hidrométrica, medición directa). Descargado el
           ${enPalabras(historia.generado)}.
+          ${historia.incompletos.length ? "Con la libreta incompleta: " + historia.incompletos.join(", ") + "." : ""}
         </p>
         <p class="fuente-enlaces">
           <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
           <a class="enlace-crudo" href="${esc(FUENTES.historia.verificar)}" target="_blank" rel="noopener">Ver la serie cruda</a>
-        </p>
-        <p class="chico">
-          Los años con la libreta incompleta están marcados en la tabla por su
-          cantidad de días medidos${historia.incompletos.length ? ": " + historia.incompletos.join(", ") : ""}.
-        </p>
-      </section>
-
-      <section class="bloque">
-        <h2>Comparar con el río de hoy</h2>
-        <p>
-          Esta página cuenta lo que pasó. Para ver cuánto marca el hidrómetro
-          ahora —y qué significa para un terreno en particular— está el resto
-          de Cota Cero.
-        </p>
-        <ul class="pasos">
-          <li><a href="/">Ver el nivel del río Paraná hoy</a></li>
-          <li><a href="/datos">Saber la cota de tu terreno en Santa Fe</a></li>
-          <li><a href="/datos">Conocer de dónde salen estos datos</a></li>
-        </ul>
-      </section>
-
-      <section class="bloque oscuro">
-        <p class="kicker">Ojo con leer de más</p>
-        <h2>Esto es historia, no pronóstico</h2>
-        <p>
-          Que una altura se haya alcanzado pocas veces en cien años no dice
-          nada sobre lo que va a pasar este año. La serie tampoco es homogénea:
-          en cien años cambiaron las presas aguas arriba, el uso del suelo de
-          la cuenca y el propio régimen del río.
-        </p>
-        <p>
-          Y una advertencia sobre las defensas: la ciudad de 1925 no es la de
-          hoy. Un mismo número del hidrómetro no significaba lo mismo antes que
-          ahora, porque cambió lo que hay entre el río y las casas.
         </p>
       </section>`,
   ],
@@ -1675,11 +1659,11 @@ ${tablaHist}
    endpoint: no se pueden desincronizar. */
 const AVISO_EMERGENCIA = `      <div class="aviso-emergencia">
         <p>
-          <b>Esto no es una vía de auxilio.</b> Nadie lee esto en el momento.
-          Ante una emergencia, llamá ya a Defensa Civil.
+          <b>¿Es una emergencia?</b> Esto no es una vía de auxilio: nadie lo
+          lee en el momento.
         </p>
         <a class="btn-emergencia" href="tel:103">
-          <span>Emergencias</span><b>103</b>
+          <span>Llamá al</span><b>103</b>
         </a>
       </div>`;
 
@@ -1689,7 +1673,8 @@ const opcionesCategoria = Object.entries(CATEGORIAS)
       clave,
       etiqueta,
     ]) => `            <input type="radio" name="categoria" id="cat-${clave}"
-              value="${clave}" class="cat-radio"${clave === CATEGORIA_POR_DEFECTO ? " checked" : ""} />
+              value="${clave}" class="cat-radio"${clave === CATEGORIA_POR_DEFECTO ? " checked" : ""}
+              data-ayuda="${esc(AYUDAS[clave][0] || "")}" data-ejemplo="${esc(AYUDAS[clave][1])}" />
             <label class="cat-chip" for="cat-${clave}">${esc(etiqueta)}</label>`,
   )
   .join("\n");
@@ -1699,10 +1684,10 @@ const htmlContacto = pagina({
   migaja: "Contacto",
   script: "/js/contacto.js",
   antes: AVISO_EMERGENCIA,
-  h1: "Contacto",
+  h1: "Escribinos",
   lead:
-    "Cota Cero la hacemos vecinos: cada corrección de un dato, cada zona que " +
-    "falta y cada texto que no se entiende mejora la app para toda la ciudad.",
+    "Cada dato corregido, cada zona que falta y cada texto que no se entiende " +
+    "mejora la app para toda la ciudad.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "ContactPage",
@@ -1712,9 +1697,6 @@ const htmlContacto = pagina({
   bloques: [],
   sueltos: [
     `      <section class="bloque">
-        <p class="kicker">Sugerencias</p>
-        <h2>Escribinos</h2>
-
         <form id="form-contacto" novalidate>
           <fieldset class="campo-cat">
             <legend>¿Sobre qué es?</legend>
@@ -1722,10 +1704,15 @@ const htmlContacto = pagina({
 ${opcionesCategoria}
             </div>
           </fieldset>
+          ${
+            /* La ayuda del tema elegido. Sale con la del tema por defecto en
+               el HTML; js/contacto.js la cambia al elegir otro, y sin JS se
+               queda en ésa, que sigue siendo cierta. */ ""
+          }<p class="chico sug-ayuda" id="sug-ayuda">${esc(AYUDAS[CATEGORIA_POR_DEFECTO][0] || "")}</p>
 
           <label class="campo" for="sug-texto"><span>Tu mensaje</span></label>
           <textarea id="sug-texto" name="texto" required maxlength="${MAX_TEXTO}"
-            rows="6" placeholder="Contanos con el mayor detalle posible…"></textarea>
+            rows="6" aria-describedby="sug-ayuda" placeholder="${esc(AYUDAS[CATEGORIA_POR_DEFECTO][1])}"></textarea>
           <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
 
           <label class="campo" for="sug-contacto">
@@ -1739,33 +1726,29 @@ ${opcionesCategoria}
         </form>
 
         <p class="chico letra-chica">
-          Es lo único de Cota Cero que envía texto tuyo a un servidor. <b>Tu IP
-          no se guarda</b>: se usa sólo para limitar envíos, y transformada de
-          modo irreversible. Si dejás un contacto, se usa únicamente para
+          Es lo único que manda texto tuyo a un servidor. <b>No se guarda tu
+          IP</b>: se usa sólo para limitar envíos, transformada de modo
+          irreversible. Si dejás un contacto, se usa únicamente para
           responderte. <b>No pongas tu dirección.</b>
-          <a href="/legal">Ver qué se guarda y qué no</a>.
+          <a href="/legal#privacidad">Qué se guarda</a>.
         </p>
       </section>
 
       <div class="rejilla-2 tarjetas-contacto">
-        <div class="mini-tarjeta">
-          <p class="kicker kicker-alerta">¿Encontraste un dato mal?</p>
+        <section class="mini-tarjeta">
+          <h2>¿Encontraste un dato mal?</h2>
           <p>
-            Una cota que no cierra, un punto de encuentro que ya no existe, los
-            kilómetros de una zona que no dan: eso es lo más valioso que nos
-            podés mandar. Decinos la dirección o el lugar exacto — con eso se
-            puede comprobar contra la fuente y corregirlo.
+            Es lo más valioso que nos podés mandar. Decinos la dirección o el
+            lugar exacto: con eso se comprueba contra la fuente.
           </p>
-        </div>
-        <div class="mini-tarjeta">
-          <p class="kicker">¿Sos de un organismo o de prensa?</p>
+        </section>
+        <section class="mini-tarjeta">
+          <h2>¿Sos de un organismo o de prensa?</h2>
           <p>
-            El modelo busca revisión técnica: Gestión de Riesgos, INA, FICH-UNL,
-            Recursos Hídricos. Si podés ayudar a validarlo, o querés el detalle
-            del método, escribinos y te lo pasamos.
-            <a href="/datos">Ver la metodología y sus límites</a>.
+            El modelo busca revisión técnica. Si podés ayudar a validarlo,
+            escribinos. <a href="/datos">La metodología</a>.
           </p>
-        </div>
+        </section>
       </div>`,
   ],
 });
@@ -1781,12 +1764,10 @@ ${opcionesCategoria}
 const htmlSobre = pagina({
   clave: "sobre",
   migaja: "Sobre Cota Cero",
-  chip: "Quiénes somos",
   h1: "Sobre Cota Cero",
   lead:
-    "Cota Cero es un <b>proyecto ciudadano independiente</b>. No pertenece a " +
-    "la Municipalidad de Santa Fe, ni al INA, ni a la Provincia, ni a ningún " +
-    "organismo — y ninguno lo revisó.",
+    "Un <b>proyecto ciudadano independiente</b>. No pertenece a la " +
+    "Municipalidad, ni al INA, ni a la Provincia, y ninguno lo revisó.",
   jsonld: {
     "@context": "https://schema.org",
     "@type": "AboutPage",
@@ -1803,124 +1784,61 @@ const htmlSobre = pagina({
   },
   bloques: [
     {
-      kicker: "Qué es",
-      titulo: "Una herramienta para leer un número que ya es público",
-      html: `        <p>
-          El Instituto Nacional del Agua publica todos los días la altura del
-          río Paraná en el hidrómetro del Puerto de Santa Fe. La Municipalidad
-          publica las curvas de nivel de la ciudad. Los dos datos son públicos
-          y los dos son difíciles de usar por separado.
-        </p>
-        <p>
-          Cota Cero hace una sola cosa: <b>los pone en la misma escala</b> para
-          que se puedan comparar, y explica qué significa esa comparación —
-          incluido todo lo que no significa.
-        </p>
-        <p>
-          Es gratis, no pide registro, no tiene publicidad y funciona sin
-          señal una vez cargada.
-          <a href="/datos">Ver de dónde sale cada dato</a>.
-        </p>`,
-    },
-    {
-      kicker: "Por qué",
-      titulo: "Un Niño declarado, y seis charlas",
-      /* Ojo con el tiempo verbal. En presente —"está declarado otra vez"— esto
-         es una afirmación sobre el hoy que nada refresca, y un dato que
-         envejece en silencio es justo lo que este proyecto no hace. En pasado
-         cuenta el origen y sigue siendo cierto dentro de diez años. Si alguna
-         vez se quiere mostrar el estado actual de El Niño, va con su fuente y
-         su fecha, como todo lo demás. */
-      html: `        <p>
-          <b>El Niño</b> es el patrón con el que llegaron las crecidas de 1983,
-          1992 y 2016: cuando se declara, llueve por encima de lo normal en toda
-          la cuenca. Cota Cero empezó con uno declarado.
-        </p>
-        <p>
-          Al mismo tiempo estaban estas charlas, que dicen cosas incómodas y
-          correctas. Que dos hermanas de veinte años pudieron organizar la
-          recuperación de su pueblo después de un tornado. Que lo que falta para
-          evitar muertes en un desastre <b>no es saber cómo</b>, sino decidir
-          invertir en evitarlas.
-        </p>
-        <p>
-          Las dos cosas juntas dejan una pregunta obvia. El nivel del río se
-          publica todos los días. La altura de un terreno también.
-          <b>¿Por qué nadie los pone en la misma escala?</b>
-        </p>
-        <p>
-          Cota Cero es esa pregunta, contestada.
-          <a href="/charlas">Las seis charlas, con lo que aporta cada una</a>.
-        </p>`,
-    },
-    {
-      kicker: "Quién",
-      titulo: "Lo hace una persona, no una institución",
-      html: `        <p>
-          Lo desarrolla <b>Ariel Benz</b>, por cuenta propia. No hay detrás una
-          empresa, una ONG ni un organismo, y no recibe financiamiento de
-          ninguno.
-        </p>
-        <div class="aviso grave">
-          <b>Cota Cero no es oficial y no lo pretende.</b> No está avalado ni
-          revisado por la Municipalidad de Santa Fe, el INA, la Provincia ni la
-          FICH-UNL. Usa los datos públicos que esos organismos producen y los
-          cita para que cualquiera pueda ir a comprobarlos.
-          <b>La orden de evacuación la da Defensa Civil, al 103.</b>
-        </div>`,
-    },
-    {
-      kicker: "Con qué",
-      titulo: "Todo lo que muestra tiene fuente y enlace",
-      html: `        <ul class="pasos">
-          <li><b>El nivel del río</b> — Instituto Nacional del Agua, serie del
-            hidrómetro del Puerto de Santa Fe.</li>
-          <li><b>La altura del terreno</b> — curvas de nivel de la
-            Municipalidad de Santa Fe, Secretaría de Recursos Hídricos.</li>
-          <li><b>Los puntos de encuentro</b> — Plan de Contingencia de la
-            Dirección de Gestión de Riesgos.</li>
-          <li><b>La serie histórica</b> — INA, lecturas diarias desde 1925,
-            con <a href="/historia">las crecidas y las bajantes año por año</a>.</li>
-        </ul>
-        <p>
-          Cada una está enlazada, con el dato crudo al lado, en
-          <a href="/datos">la página de datos y fuentes</a>.
-        </p>`,
-    },
-    {
+      /* La pregunta de la que salió todo, como frase grande. Ojo con el tiempo
+         verbal de lo del Niño: en pasado cuenta el origen y sigue siendo
+         cierto dentro de diez años; en presente sería una afirmación sobre
+         hoy que nada refresca. Y «unas charlas», no un número: decía «seis»
+         y la lista ya tenía ocho. */
       oscuro: true,
-      kicker: "Qué no es",
-      titulo: "No predice inundaciones",
-      html: `        <p>
-          Cota Cero relaciona dos alturas. No es un modelo de inundación: no
-          sabe si entre el río y tu casa hay un terraplén, una compuerta o una
-          estación de bombeo, y no ve la lluvia que cae adentro de la ciudad.
+      html: `        <p class="pregunta-grande">
+          El nivel del río se publica todos los días. La altura de un terreno
+          también. ¿Por qué nadie los pone en la misma escala?
         </p>
         <p>
-          Las constantes del cálculo están en discusión técnica abierta y así
-          se dice en pantalla, con los números de las dos posturas.
-          <a href="/datos#abiertas">Ver las discusiones abiertas</a>.
+          Cota Cero es esa pregunta, contestada. Hace una sola cosa: pone los
+          dos datos públicos en la misma escala y explica qué significa
+          compararlos, incluido todo lo que no significa.
         </p>
         <p class="chico">
-          Cuando falta un dato, la app dice que no lo tiene. No se rellena el
-          hueco con un número que parezca firme.
+          Empezó con un Niño declarado, el patrón de las crecidas de 1983, 1992
+          y 2016, y con <a href="/charlas">unas charlas</a> que dicen lo mismo:
+          prepararse antes cuesta mucho menos que reconstruir después.
         </p>`,
     },
-    {
+  ],
+  sueltos: [
+    `      <div class="tarjetas-tres sobre-tres">
+        <section>
+          <span class="eti">Quién</span>
+          <h2>Una persona, no una institución</h2>
+          <p>La hace <b>Ariel Benz</b>, por cuenta propia. Sin empresa, ONG ni organismo detrás, y sin financiamiento.</p>
+        </section>
+        <section>
+          <span class="eti">Qué no es</span>
+          <h2>No predice inundaciones</h2>
+          <p>Relaciona dos alturas. No sabe si entre el río y tu casa hay un terraplén o una bomba, y no ve la lluvia que cae sobre la ciudad. <a href="/datos#abiertas">Lo que está en discusión</a>.</p>
+        </section>
+        <section>
+          <span class="eti">Con qué</span>
+          <h2>Todo tiene fuente y enlace</h2>
+          <ul class="fuentes-cortas">
+            <li><b>El río</b> · INA</li>
+            <li><b>El terreno</b> · Municipalidad, curvas de nivel</li>
+            <li><b>Los puntos</b> · Gestión de Riesgos</li>
+            <li><b>La historia</b> · INA, <a href="/historia">desde 1925</a></li>
+          </ul>
+          <p><a href="/datos">Cada una, con el dato crudo</a>.</p>
+        </section>
+      </div>`,
+    bloque({
       borde: true,
-      kicker: "Contacto",
       titulo: "Si algo está mal, avisá",
       html: `        <p>
-          Un error en una herramienta sobre riesgo hídrico no es un detalle.
-          Si encontrás un dato equivocado, una fuente rota o algo que no se
-          entiende, escribí por el
-          <a href="/contacto">formulario de sugerencias</a> de la app.
+          En una herramienta sobre riesgo hídrico, un error no es un detalle.
+          Un dato equivocado, una fuente rota, algo que no se entiende.
         </p>
-        <p class="chico">
-          Es lo único de Cota Cero que manda texto a un servidor, y el
-          formulario lo aclara. No se guarda tu IP.
-        </p>`,
-    },
+        <p><a class="btn" href="/contacto">Escribinos</a></p>`,
+    }),
   ],
 });
 
@@ -1942,20 +1860,20 @@ const htmlNoEncontrada = pagina({
   bloques: [
     {
       html: `        <iframe src="/widget" title="Nivel del río Paraná en el Puerto de Santa Fe"
-          loading="lazy" style="width:100%;height:200px;border:0;border-radius:16px"></iframe>`,
+          loading="lazy" style="width:100%;height:225px;border:0;border-radius:16px"></iframe>
+        <p class="aviso grave" style="margin:var(--e-4) 0 0">
+          Si es una emergencia, Defensa Civil: <a href="tel:103"><b>103</b></a>.
+        </p>`,
     },
     {
       titulo: "Lo que sí existe",
-      html: `        <ul class="pasos">
-          <li><a href="/">Ver el nivel del río Paraná en Santa Fe hoy</a></li>
-          <li><a href="/datos">Saber la cota de tu terreno</a></li>
-          <li><a href="/puntos-de-encuentro">Los 30 puntos de encuentro ante una inundación</a></li>
-          <li><a href="/historia">Las crecidas históricas del Paraná</a></li>
-          <li><a href="/datos">De dónde salen los datos</a></li>
-        </ul>
-        <div class="aviso grave">
-          Si es una emergencia, <b>Defensa Civil: 103</b>.
-        </div>`,
+      html: `        <ul class="accesos">
+          <li><a href="/">El nivel del Paraná hoy</a></li>
+          <li><a href="/datos">La altura de tu terreno</a></li>
+          <li><a href="/puntos-de-encuentro">Los 30 puntos de encuentro</a></li>
+          <li><a href="/historia">Las crecidas históricas</a></li>
+          <li><a href="/datos#fuentes">De dónde salen los datos</a></li>
+        </ul>`,
     },
   ],
 });
@@ -1969,74 +1887,71 @@ const CODIGO_WIDGET = `<iframe src="${SITIO}/widget"
   style="border:0;border-radius:16px"
   title="Nivel del río en el Puerto de Santa Fe — Cota Cero"></iframe>`;
 
+/* [título, texto]. Tres y numeradas: son las reglas del préstamo, en orden
+   de lo que más se rompe. */
 const CONDICIONES = [
-  "No recortes el crédito: «Datos: INA · vía Cota Cero» es la trazabilidad del número que estás publicando. Sin eso, tu lector no puede ir a la fuente.",
-  "El widget muestra el nivel oficial y la alerta y la evacuación de la ciudad — no niveles de aviso personales ni pronósticos. No lo presentes como una predicción de inundación, porque no lo es.",
-  "En emergencia mandan las autoridades: si Defensa Civil comunica algo distinto de lo que dice el widget, vale lo de Defensa Civil.",
+  [
+    "No recortes el crédito",
+    "«Datos: INA · vía Cota Cero» es lo que le permite a tu lector ir a la fuente del número que estás publicando.",
+  ],
+  [
+    "No es un pronóstico",
+    "Muestra el nivel oficial y la alerta y la evacuación de la ciudad, no niveles de aviso personales. No lo presentes como predicción de inundación.",
+  ],
+  [
+    "Mandan las autoridades",
+    "Si Defensa Civil dice algo distinto que el widget, vale Defensa Civil.",
+  ],
 ];
 
 const htmlMedios = pagina({
   clave: "paraMedios",
   migaja: "Widget para medios",
   script: "/js/medios.js",
-  chip: "Para medios y sitios",
   h1: "El río, embebido en tu nota",
   lead:
-    "Un widget gratuito con el nivel del hidrómetro del Puerto, la tendencia y " +
-    "los niveles de alerta y evacuación de la ciudad, siempre actualizado. " +
-    "Pegás dos líneas de HTML y tu " +
-    "nota sobre el río queda viva. Sin claves de API, sin cookies, sin rastreo " +
-    "de tus lectores.",
+    "El nivel del Paraná en el Puerto, con la alerta y la evacuación de la " +
+    "ciudad, siempre actualizado. Pegás dos líneas de HTML y listo.",
+  acciones: `        <ul class="hero-tildes medios-tildes">
+          <li>Gratis</li>
+          <li>Sin claves de API</li>
+          <li>Sin cookies ni rastreo de tus lectores</li>
+        </ul>
+        <p class="pg-acciones"><a class="btn" href="#codigo">Copiar el código</a></p>`,
   jsonld: null,
   bloques: [
     {
-      kicker: "Así se ve",
-      titulo: "Claro y oscuro",
-      html: `        <p>
-          No son capturas: los dos son el widget de verdad, leyendo el reporte
-          del INA ahora mismo.
-        </p>
-        <div class="muestras-widget">
-          <div>
+      /* No son capturas: los dos son el widget de verdad, leyendo el reporte
+         del INA ahora mismo. */
+      html: `        <div class="muestras-widget">
+          <figure>
             <iframe src="/widget" title="Widget de Cota Cero, tema claro" loading="lazy"></iframe>
-            <p class="chico">Tema claro — así viene por defecto</p>
-          </div>
-          <div>
+            <figcaption class="chico">Tema claro, por defecto</figcaption>
+          </figure>
+          <figure>
             <iframe src="/widget?theme=dark" title="Widget de Cota Cero, tema oscuro" loading="lazy"></iframe>
-            <p class="chico">Tema oscuro — agregale <code>?theme=dark</code></p>
-          </div>
+            <figcaption class="chico">Tema oscuro: agregale <code>?theme=dark</code></figcaption>
+          </figure>
         </div>`,
     },
     {
-      kicker: "El código",
+      id: "codigo",
       titulo: "Copiá, pegá, listo",
       html: `        <div class="caja-codigo">
           <button type="button" class="btn sec" id="copiar-widget" hidden>Copiar</button>
           <pre id="codigo-widget">${esc(CODIGO_WIDGET)}</pre>
         </div>
-        <div class="rejilla-2" style="margin-top:16px">
-          <div class="mini-tarjeta">
-            <b>Alto recomendado: 220 px</b>
-            <p>El ancho es fluido: ocupa el de tu columna. Abajo de 380 px el pie se reacomoda solo.</p>
-          </div>
-          <div class="mini-tarjeta">
-            <b>Se actualiza solo</b>
-            <p>Con la lectura diaria del INA. Si el dato envejece, el widget muestra su fecha y lo dice — nunca inventa un número.</p>
-          </div>
-        </div>`,
+        <ul class="medida-widget">
+          <li><b>Alto:</b> 220 px</li>
+          <li><b>Ancho:</b> el de tu columna; abajo de 380 px el pie se reacomoda solo</li>
+          <li><b>Se actualiza solo</b> con la lectura del INA. Si el dato envejece, muestra su fecha y lo dice: nunca inventa un número.</li>
+        </ul>`,
     },
     {
-      oscuro: true,
-      kicker: "Tres condiciones",
-      titulo: "Gratis, con reglas simples",
-      html: `        <ol class="condiciones">
-${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
+      titulo: "Tres condiciones",
+      html: `        <ol class="condiciones-tres">
+${CONDICIONES.map(([t, c]) => `          <li><b>${esc(t)}</b><span>${esc(c)}</span></li>`).join("\n")}
         </ol>
-        <p class="chico" style="margin-top:20px">
-          ¿Necesitás otro formato, la metodología, o hablar con quien lo hizo?
-          Escribinos por el <a href="/contacto">formulario de sugerencias</a>
-          de la app: a prensa contestamos rápido.
-        </p>
         ${
           /* Preguntar es la única manera que tenemos, y el motivo es el mismo
              que la promesa de arriba: el widget no carga analytics ni deja
@@ -2045,11 +1960,11 @@ ${CONDICIONES.map((c) => `          <li>${c}</li>`).join("\n")}
              —document.referrer adentro del iframe—, pero eso volvería falsa la
              frase de /legal que dice que lo único que sale del dispositivo son
              las sugerencias. Se eligió preguntar. */ ""
-        }
-        <p class="chico">
-          Y si lo publicás, <b>contanos</b>. El widget no lleva cookies ni
-          analytics: no sabemos quién lo tiene puesto, y no queremos saberlo
-          midiendo a tus lectores. Preguntar es la única forma que nos queda.
+        }<p class="chico">
+          ¿Lo publicaste? <a href="/contacto">Contanos</a>: como no medimos a
+          tus lectores, preguntar es la única forma de saberlo. Y si necesitás
+          otro formato o la metodología, por el mismo lado: a prensa
+          contestamos rápido.
         </p>`,
     },
   ],
@@ -2089,129 +2004,142 @@ const LICENCIAS = [
   ],
 ];
 
+/* Qué sale del teléfono, como tabla: qué, si sale, y el detalle. Era una
+   grilla de tarjetas y había que leerlas todas para contestar «¿qué se
+   manda?». Las dos promesas que más importan van acá y en ningún otro lado:
+   adónde va lo que escribís en el buscador (CLAUDE.md, «tocar un proveedor
+   toca cuatro archivos») y que la analítica no corre ni en la app ni en el
+   widget (CLAUDE.md, «Privacidad»). */
 const PRIVACIDAD = [
   [
-    "Tu nivel de aviso, tu zona y tu plan familiar",
-    "Se guardan únicamente en tu dispositivo. Nunca se envían a ningún servidor. Si borrás la app, se borran.",
+    "Tu casa, tu nivel de aviso, tu plan",
+    "Nunca",
+    "Se guardan sólo en el dispositivo. Si borrás la app, se borran.",
   ],
   [
     "Avisos",
-    "El servidor guarda un solo dato: la dirección técnica opaca que asigna tu navegador. No sabe la altura de tu terreno ni tu nivel de aviso — el aviso se arma en tu teléfono. Al desuscribirte, se borra.",
+    "Un dato opaco",
+    "La dirección técnica que asigna tu navegador. El servidor no sabe la altura de tu terreno ni tu nivel de aviso: el aviso se arma en tu teléfono. Al desuscribirte, se borra.",
   ],
   [
     "Sugerencias",
-    "Es lo único que envía texto tuyo a un servidor, y el formulario lo dice. Tu IP no se almacena: se usa sólo para limitar envíos, transformada de modo irreversible.",
+    "Tu texto",
+    "Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos.",
   ],
   [
-    "Cuántas personas la usan",
-    "El teléfono genera un número al azar y lo guarda; se manda para contar cuánta gente distinta usa la app por día. Del lado del servidor entra a una estructura que sabe cuántos distintos vio pero no guarda ninguno.",
+    "Cuánta gente la usa",
+    "Un número al azar",
+    "Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno.",
+  ],
+  [
+    "Buscar una dirección",
+    "Al tocar Buscar",
+    "Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada.",
+  ],
+  [
+    "Estadísticas del sitio",
+    "Sólo en el sitio",
+    "Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie.",
+  ],
+];
+
+const DESCARGO = [
+  [
+    "Ayuda a interpretar información pública",
+    "No es un sistema oficial de alerta ni tiene vínculo con la Municipalidad de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro organismo. Usa sus datos públicos y los cita.",
+  ],
+  [
+    "Los niveles de aviso son aproximados",
+    "Salen de un modelo simple, con ±0,5 m de error en la altura del terreno. No conoce defensas, bombeo, desagües ni lluvia: el agua puede llegar antes o después de lo estimado. Se contrastó con un solo caso, la crecida de 1992, y no lo validaron especialistas ni organismos competentes.",
+  ],
+  [
+    "Nada de esto es una orden",
+    "Las decisiones de evacuación corresponden a Defensa Civil (103). Nada de lo que muestra la app es una orden, una recomendación oficial ni un sustituto de las comunicaciones de las autoridades. Ante cualquier contradicción, vale la indicación oficial.",
+  ],
+  [
+    "Los datos pueden quedar viejos",
+    "El nivel se publica una vez por día. Los puntos de encuentro reflejan la capa municipal de la última actualización de la app; su activación la confirma sólo Defensa Civil.",
+  ],
+  [
+    "Sin garantías",
+    "La app depende de que el INA publique y de servicios de terceros que pueden fallar, cambiar o discontinuarse. Se ofrece tal cual, gratis y sin garantía de ningún tipo.",
   ],
 ];
 
 const htmlLegal = pagina({
   clave: "legal",
   migaja: "Legal y privacidad",
-  h1: "Legal",
+  h1: "Legal y privacidad",
   lead:
-    "Última actualización: agosto de 2026. Escrito para leerse, no para " +
-    "esconderse: si algo no se entiende, es un defecto — avisanos por el " +
-    "formulario de sugerencias.",
-  anclas: [
-    { id: "descargo", n: "Descargo de responsabilidad" },
-    { id: "privacidad", n: "Privacidad" },
-    { id: "licencias", n: "Licencias y atribuciones" },
-  ],
+    "Escrito para leerse, no para esconderse. Si algo no se entiende, es un " +
+    'defecto: <a href="/contacto">avisanos</a>.',
+  acciones: `        <p class="chico">Última actualización: agosto de 2026.</p>
+        <div class="tarjetas-tres">
+          <div><b>No es oficial</b><p>Interpreta datos públicos. La orden de evacuación la da Defensa Civil, al 103.</p></div>
+          <div><b>Tus datos, en tu teléfono</b><p>Tu casa, tu nivel de aviso y tu plan no salen de ahí. Sin registro, sin publicidad.</p></div>
+          <div><b>Sin garantías</b><p>Gratis y tal cual. Depende de que el INA publique y de servicios que pueden fallar.</p></div>
+        </div>`,
   jsonld: null,
   bloques: [
     {
       id: "descargo",
-      kicker: "Descargo de responsabilidad",
-      kickerAlerta: true,
-      titulo: "Qué es esta herramienta — y qué no",
-      html: `        <p>
-          <b>Cota Cero es una herramienta ciudadana que ayuda a interpretar
-          información pública, no un sistema oficial de alerta.</b> No tiene
-          vínculo con la Municipalidad
-          de Santa Fe, la Provincia, Defensa Civil, el INA ni ningún otro
-          organismo. Usa datos públicos de esas fuentes y las cita.
-        </p>
-        <p>
-          <b>Los niveles de aviso son cálculos aproximados.</b> Se calculan con un
-          modelo simplificado y con datos que traen margen de error (±0,5 m en
-          la cota del terreno). El modelo no conoce defensas, terraplenes,
-          bombeo ni desagües: el agua puede llegar antes o después de lo
-          estimado. Además, fue contrastado con <b>un solo caso histórico</b>
-          —la crecida de 1992— y todavía no fue validado por especialistas ni
-          organismos competentes.
-        </p>
-        <p>
-          <b>Las decisiones de evacuación corresponden a Defensa Civil (103).</b>
-          Nada de lo que muestra esta app constituye una orden, recomendación
-          oficial ni sustituto de las comunicaciones de las autoridades. Ante
-          cualquier contradicción, vale la indicación oficial.
-        </p>
-        <p>
-          <b>Sin garantías de disponibilidad ni exactitud.</b> La app depende de
-          que el INA publique su reporte diario y de servicios de terceros que
-          pueden fallar, cambiar o discontinuarse. Se ofrece tal cual, de forma
-          gratuita y sin garantía de ningún tipo.
-        </p>
-        <p>
-          <b>Los datos pueden quedar desactualizados.</b> El nivel se publica
-          una vez por día; los puntos de encuentro reflejan la capa municipal al
-          momento de la última actualización de la app, y su activación en una
-          emergencia la confirma sólo Defensa Civil.
-        </p>`,
+      titulo: "Qué es esta herramienta, y qué no",
+      html: `        <dl class="filas-descargo">
+${DESCARGO.map(
+  ([t, d]) => `          <div>
+            <dt>${esc(t)}</dt>
+            <dd>${esc(d)}</dd>
+          </div>`,
+).join("\n")}
+        </dl>`,
     },
     {
       id: "privacidad",
-      kicker: "Privacidad",
-      titulo: "Tus datos quedan en tu teléfono",
-      html: `        <div class="rejilla-2">
+      titulo: "Qué sale de tu teléfono",
+      html: `        ${
+        /* En el teléfono cada renglón se vuelve una ficha —qué y si sale
+           arriba, el detalle abajo— en vez de scrollear de costado: con
+           scroll, la columna que importa quedaba afuera de la pantalla. Los
+           roles van explícitos porque al cambiarle el display a una tabla
+           algunos navegadores le sacan la semántica. */ ""
+      }<table class="tabla-privacidad" role="table">
+          <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Qué</th><th scope="col" role="columnheader">Sale</th><th scope="col" role="columnheader">Detalle</th></tr></thead>
+          <tbody role="rowgroup">
 ${PRIVACIDAD.map(
-  ([t, d]) => `          <div class="mini-tarjeta">
-            <b>${esc(t)}</b>
-            <p>${esc(d)}</p>
-          </div>`,
+  ([q, sale, d]) =>
+    `            <tr role="row"><th scope="row" role="rowheader">${esc(q)}</th><td role="cell" class="tp-sale${sale === "Nunca" ? " tp-nunca" : ""}">${esc(sale)}</td><td role="cell">${esc(d)}</td></tr>`,
 ).join("\n")}
-        </div>
-        <p class="chico" style="margin-top:20px">
-          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
-          venta de datos. La búsqueda de direcciones consulta a Georef (la
-          API de direcciones del Estado nacional) y, si no la encuentra, a
-          Nominatim (OpenStreetMap), sólo cuando vos la iniciás. Las calles
-          que te sugiere mientras escribís salen de una lista guardada en la
-          app: escribir no manda nada.</p>
+          </tbody>
+        </table>
         <p class="chico">
-          <b>Las estadísticas del sitio.</b> Las miden dos servicios: Vercel
-          Analytics, que es agregado y sin cookies, y Google Analytics, que
-          <b>sí deja cookies en tu navegador</b> y manda los datos de tu visita
-          a Google. Los dos corren en las páginas del sitio y
-          <b>ninguno corre dentro de la app ni dentro del widget</b>: tu cota,
-          tu nivel de aviso y tu plan no salen de tu teléfono, y a los lectores de un
-          <a href="/para-medios">medio que embebe el widget</a> no los mide nadie.
+          No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni
+          venta de datos. Lo que dice esta tabla sobre el widget es la promesa
+          que le hacemos a cada <a href="/para-medios">medio que lo embebe</a>.
         </p>`,
     },
     {
       id: "licencias",
-      kicker: "Licencias y atribuciones",
       titulo: "Sobre hombros de otros",
-      html: `        <div class="filas-licencia">
+      html: `        <p>${LICENCIAS.map(([n]) => esc(n)).join(" · ")}.</p>
+        <details class="h-detalle">
+          <summary>Licencias y atribuciones completas</summary>
+          <div class="filas-licencia">
 ${LICENCIAS.map(
-  ([n, d]) => `          <div>
-            <b>${esc(n)}</b>
-            <p>${d}</p>
-          </div>`,
+  ([n, d]) => `            <div>
+              <b>${esc(n)}</b>
+              <p>${d}</p>
+            </div>`,
 ).join("\n")}
-        </div>`,
+          </div>
+        </details>`,
     },
     {
       borde: true,
       html: `        <p class="chico" style="margin:0">
           Este texto lo redactó quien hizo la app, con la intención de ser claro
-          y honesto. No constituye asesoramiento legal ni fue revisado por un
-          profesional del derecho. Si encontrás un error, o algo que debería
-          decir y no dice, escribinos.
+          y honesto. No es asesoramiento legal ni lo revisó un profesional del
+          derecho. Si encontrás un error, o algo que debería decir y no dice,
+          <a href="/contacto">escribinos</a>.
         </p>`,
     },
   ],

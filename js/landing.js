@@ -66,6 +66,8 @@ const menosMovimiento = () =>
 
      `real` es el dato del INA. Manda en el número grande de arriba, en la
      línea punteada "hoy" y en el pie de la cabecera. No lo mueve nadie.
+     (El diseño de 2026 pedía que el número grande siguiera al deslizador.
+     No: ver README, «La regla del hero se mueve».)
 
      `sim` es lo que dibuja la regla. Arranca en `real` y se despega sólo si
      alguien la mueve —scrolleando o con el control—. Todo lo que la muestra
@@ -133,18 +135,31 @@ function pintarNivel(r) {
   // textContent y no innerHTML: es dato que llega de la red y no hay razón
   // para dejarlo interpretar como marcado.
   num.textContent = m(real);
-  pie.textContent =
-    (real >= evacuacion
-      ? "Nivel de evacuación"
+  /* La alerta y la evacuación de verdad se dicen siempre con «de la ciudad»:
+     decía «Nivel de alerta» a secas, que se confunde con el aviso propio. */
+  const [estadoTxt, tono] =
+    real >= evacuacion
+      ? ["Pasó la evacuación de la ciudad", "peligro"]
       : real >= alerta
-        ? "Nivel de alerta"
-        : "Por debajo del nivel de alerta") +
-    (r.fechaTexto ? " · dato del " + r.fechaTexto.slice(0, 10) : "");
+        ? ["Pasó la alerta de la ciudad", "alerta"]
+        : ["Debajo de la alerta de la ciudad", "ok"];
+  pie.textContent = "";
+  const b = document.createElement("b");
+  b.className = "t-" + tono;
+  b.textContent = estadoTxt;
+  pie.append(
+    b,
+    r.fechaTexto ? " · dato del " + r.fechaTexto.slice(0, 10) : "",
+  );
 
   const d = $("nivel-delta");
   if (d) {
     const cm = r.delta === null ? 0 : Math.round(r.delta * 100);
-    d.textContent = (cm > 0 ? "+" : "") + cm + " cm/día";
+    /* «+4 cm» y no «cm/día»: el INA publica una lectura por día pero puede
+       saltearse una, y ahí el delta abarca dos. Lo mismo que el widget. */
+    d.textContent = (cm > 0 ? "▲ +" : "▼ −") + Math.abs(cm) + " cm";
+    d.title = "Desde la medición anterior del INA";
+    d.classList.toggle("baja", cm < 0);
     d.hidden = cm === 0;
   }
 
@@ -168,8 +183,8 @@ function pintarNivel(r) {
    reubican con los que publicó la estación. */
 function pintarUmbrales() {
   for (const [id, etiqueta, valor] of [
-    ["rm-alerta", "Alerta", alerta],
-    ["rm-evac", "Evacuación", evacuacion],
+    ["rm-alerta", "Alerta de la ciudad", alerta],
+    ["rm-evac", "Evacuación de la ciudad", evacuacion],
   ]) {
     const el = $(id);
     if (!el) continue;
@@ -178,7 +193,7 @@ function pintarUmbrales() {
        medidas al centímetro. El decimal único con tilde de aproximación es
        para el umbral de la app, que sale de curvas cada ~0,5 m; mezclar las
        dos convenciones en la misma regla es lo que confunde. */
-    el.querySelector("b").textContent = etiqueta + " " + m(valor);
+    el.querySelector("b").textContent = etiqueta + " · " + m(valor);
   }
 }
 
@@ -215,7 +230,6 @@ function fijarSim(v, esDirecto) {
   sim = Math.max(0, Math.min(TOPE_REGLA, v));
   pintarRegla();
   pintarLectura();
-  pintarGlobo();
 }
 
 function pintarRegla() {
@@ -230,12 +244,14 @@ function pintarRegla() {
   const simulando = sim - real > 0.005;
   const chip = $("rm-ahora");
   if (chip) {
-    chip.textContent = (simulando ? "Simulado " : "Ahora ") + m(sim);
-    chip.style.bottom = "calc(" + alto + "% - 26px)";
+    chip.textContent = (simulando ? "Simulado " : "Hoy ") + m(sim);
+    chip.style.bottom = "calc(" + alto + "% - 24px)";
+    // Con el río muy bajo no entra adentro del agua: va arriba de la línea.
+    chip.classList.toggle("afuera", alto < 9);
   }
 
   /* La marca de hoy aparece recién cuando hay 80 cm de diferencia: comparten
-     el lado derecho con la etiqueta del agua, y más cerca que eso los dos
+     el lado izquierdo con la etiqueta del agua, y más cerca que eso los dos
      rótulos quedan uno encima del otro y no se lee ninguno. */
   const hoy = $("rm-hoy");
   if (hoy) {
@@ -257,77 +273,77 @@ function pintarRegla() {
   if (volver) volver.hidden = !simulando;
 }
 
-/* La lectura del pie: qué es exactamente lo que se está viendo. Devuelve el
-   texto en dos formas porque el <input type=range> se anuncia por
-   aria-valuetext y ahí el marcado no sirve. */
+/* Debajo de la regla, dos renglones. El primero, en negrita, dice la
+   distancia a la alerta o a la evacuación de la ciudad: «Hoy faltan» con el
+   dato del INA, «Faltarían» con la simulación, para que el tiempo verbal
+   diga cuál de los dos se está viendo. El segundo, con la simulación en
+   marcha, dice cuántos de los años medidos llegaron a ese nivel.
+
+   Ese segundo renglón vivía en una pastilla flotante que se superponía con
+   la regla. Es el contrapeso honesto de poder subir el río con el dedo
+   —«pasó 4 veces en un siglo» es lo contrario de un pronóstico— y por eso no
+   se fue con la pastilla. */
+const dist = (d) =>
+  Math.abs(d) < 1 ? Math.round(Math.abs(d) * 100) + " cm" : m1(Math.abs(d)) + " m";
+
+function textoFalta(v, simulando) {
+  if (record && simulando && v >= record.valor - 0.005)
+    return "Es el récord del hidrómetro, el " + enPalabras(record.fecha) + ".";
+  if (v < alerta - 0.005)
+    return (
+      (simulando ? "Faltarían " : "Hoy faltan ") +
+      dist(alerta - v) +
+      " para la alerta de la ciudad."
+    );
+  const ref = v >= evacuacion ? evacuacion : alerta;
+  const nombre =
+    ref === evacuacion ? "la evacuación de la ciudad" : "la alerta de la ciudad";
+  if (Math.abs(v - ref) < 0.005)
+    return (simulando ? "El río estaría justo en " : "El río está justo en ") + nombre + ".";
+  return (
+    (simulando ? "El río estaría " : "Hoy el río está ") +
+    dist(v - ref) +
+    " por encima de " +
+    nombre +
+    "."
+  );
+}
+
 function pintarLectura() {
   const caja = $("rm-lectura");
+  const falta = $("rm-falta");
   const rango = $("rm-rango");
   if (!caja) return;
 
-  if (sim - real <= 0.005) {
-    const texto = menosMovimiento()
-      ? "Es el nivel de hoy. Deslizá para simular una crecida."
-      : "Es el nivel de hoy. Deslizá —o seguí bajando— para simular una crecida.";
-    caja.textContent = texto;
+  const simulando = sim - real > 0.005;
+  const f = textoFalta(simulando ? sim : real, simulando);
+  if (falta) falta.textContent = f;
+
+  if (!simulando) {
+    caja.textContent = menosMovimiento()
+      ? "Deslizá para simular una crecida."
+      : "Deslizá —o seguí bajando— para simular una crecida.";
     if (rango) rango.setAttribute("aria-valuetext", m(real) + " metros, el nivel de hoy");
     return;
   }
 
-  let cola;
-  if (record && sim >= record.valor - 0.005) {
-    cola =
-      "es el récord del hidrómetro, el " +
-      enPalabras(record.fecha) +
-      ".";
-  } else {
-    const ref = sim >= evacuacion ? evacuacion : alerta;
-    const nombre =
-      ref === evacuacion ? "la evacuación de la ciudad" : "la alerta de la ciudad";
-    const d = sim - ref;
-    const dist =
-      Math.abs(d) < 1 ? Math.round(Math.abs(d) * 100) + " cm" : m1(Math.abs(d)) + " m";
-    cola =
-      Math.abs(d) < 0.005
-        ? "justo en " + nombre + "."
-        : dist + (d > 0 ? " por encima de " : " por debajo de ") + nombre + ".";
-  }
-
-  caja.innerHTML = "Simulación · <b>" + m(sim) + " m</b> — " + cola;
-  if (rango)
-    rango.setAttribute("aria-valuetext", "Simulación: " + m(sim) + " metros, " + cola);
-}
-
-/* La pastilla flotante. Con el nivel de hoy dice cuánto falta para la alerta;
-   con la simulación en marcha dice cuán raro es ese nivel, que es la única
-   respuesta honesta a "¿y si sube hasta acá?". Los dos números salen de datos
-   públicos: el primero de /api/nivel, el segundo de la serie del INA. */
-function pintarGlobo() {
-  const globo = $("globo");
-  if (!globo) return;
-
-  if (sim - real > 0.005 && anios.length) {
+  let rareza = "Es una simulación, no el nivel de hoy.";
+  if (anios.length) {
     const n = anios.filter((e) => e.max >= sim).length;
-    globo.innerHTML =
+    rareza =
       n === 0
-        ? "En " + anios.length + " años medidos<br><b>nunca llegó tan alto</b>"
-        : "<b>" +
+        ? "Simulación: en " + anios.length + " años medidos, nunca llegó tan alto."
+        : "Simulación: " +
           n +
-          "</b> de los " +
+          " de los " +
           anios.length +
-          " años medidos<br>" +
+          " años medidos " +
           (n === 1 ? "llegó" : "llegaron") +
-          " al menos hasta acá";
-    globo.hidden = false;
-    return;
+          " al menos hasta acá.";
   }
-
-  const cm = Math.round((alerta - real) * 100);
-  globo.innerHTML =
-    cm > 0
-      ? "Hoy faltan <b>" + cm + " cm</b><br>para la alerta de la ciudad"
-      : "El río ya pasó<br><b>la alerta de la ciudad</b>";
-  globo.hidden = false;
+  caja.textContent = rareza;
+  if (rango)
+    rango.setAttribute("aria-valuetext", "Simulación: " + m(sim) + " metros. " + f);
 }
 
 /* ---------- el scroll mueve el río ----------
@@ -378,7 +394,7 @@ function engancharScroll() {
 /* El récord y los máximos anuales salen de la misma serie del INA que publica
    /historia: acá no se escribe a mano ningún número. Llega tarde y no pasa
    nada —son 6 KB y no bloquean el nivel de hoy—: hasta que llegue, la
-   simulación va hasta la evacuación y la pastilla habla del día. */
+   simulación va hasta la evacuación y no se dice cuán raro es el nivel. */
 async function cargarHistoria() {
   try {
     const r = await fetch("/datos-abiertos/historia.json");
@@ -406,7 +422,6 @@ async function cargarHistoria() {
       );
     pintarRegla();
     pintarLectura();
-    pintarGlobo();
   } catch (e) {
     /* Sin la serie, la regla no muestra el récord y la simulación llega hasta
        la evacuación. Nada más. */
@@ -560,8 +575,47 @@ function pintarFrescura() {
     "Última lectura INA: " + haceCuanto(min) + (vencido ? " — dato viejo" : "");
 }
 
-/* La lectura ya la pide rio-barra.js: acá sólo se agregan los dos oyentes que
+/* ==========================================================================
+   LA VISTA PREVIA DEL WIDGET
+   En la tarjeta para medios. No es un <iframe> del widget: ése pediría su
+   propio /api/nivel, y la portada podría mostrar dos números distintos a la
+   vez. Es un oyente más del store, con la misma cara.
+   ========================================================================== */
+function pintarPrevia(r) {
+  const nivel = $("wp-nivel");
+  if (!nivel) return;
+  nivel.textContent = r.altura === null ? "—" : m(r.altura);
+  /* El mismo estado que el widget, con el mismo criterio: con el dato
+     vencido no dice ni alerta ni evacuación. */
+  const est = $("wp-estado");
+  if (est) {
+    const [txt, cls] =
+      r.altura === null
+        ? ["", ""]
+        : estaVencido()
+          ? ["Dato viejo", "viejo"]
+          : r.altura >= r.evacuacion
+            ? ["Evacuación de la ciudad", "evac"]
+            : r.altura >= r.alerta
+              ? ["Alerta de la ciudad", "alerta"]
+              : ["Debajo de la alerta de la ciudad", ""];
+    est.textContent = txt;
+    est.className = "wp-estado" + (cls ? " " + cls : "");
+    est.hidden = !txt;
+  }
+  const a = $("wp-alerta");
+  const e = $("wp-evac");
+  if (a) a.textContent = m(r.alerta);
+  if (e) e.textContent = m(r.evacuacion);
+  const f = $("wp-fuente");
+  if (f)
+    f.textContent =
+      (r.fechaTexto ? r.fechaTexto.slice(0, 10) + " · " : "") + "INA · cotacerosf.com";
+}
+
+/* La lectura ya la pide rio-barra.js: acá sólo se agregan los oyentes que
    son de la portada. `suscribir()` pinta en el acto, así que si el dato ya
    llegó no hay que esperar al próximo cambio. */
 suscribir(pintarNivel);
 suscribir(pintarFrescura);
+suscribir(pintarPrevia);

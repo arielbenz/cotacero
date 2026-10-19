@@ -37,8 +37,8 @@ function marcarUmbrales() {
   $("m-evac").style.left = pct(EVACUACION);
   // Los rótulos también: si el INA corrigiera un umbral, la marca y el número
   // que la nombra no pueden decir cosas distintas.
-  $("rot-alerta").textContent = "Alerta " + dosDec(ALERTA);
-  $("rot-evac").textContent = "Evac. " + dosDec(EVACUACION);
+  $("u-alerta").textContent = dosDec(ALERTA);
+  $("u-evac").textContent = dosDec(EVACUACION);
 }
 marcarUmbrales();
 
@@ -61,37 +61,41 @@ function pintar(d) {
   $("agua").style.width = pct(nivel);
 
   const fecha = String(d.fecha_dato || d.fecha_reporte || "").trim();
-  $("fecha").textContent = fecha || "sin fecha";
 
   // ¿El dato es de ahora? Si el reporte trae fecha y hora, se compara.
   const t = fechaINA(fecha);
   const viejo = t && (Date.now() - t) / 36e5 > VENCE_HORAS;
-  if (viejo) $("pulso").classList.add("viejo");
+  $("fecha").textContent = !fecha
+    ? "sin fecha"
+    : viejo
+      ? "del " + fecha.slice(0, 5) + ", puede estar viejo"
+      : fecha.slice(0, 10);
+  $("fecha").classList.toggle("viejo", !!viejo);
 
   const delta = Number(d.delta);
   if (isFinite(delta) && Math.abs(delta) >= 0.01) {
     const cm = Math.round(Math.abs(delta) * 100);
-    /* La píldora va corta —"▲ +2 cm"— y el "desde cuándo" en el title. Poner
-       "cm/día" sería más lindo y sería una afirmación: el INA publica una
-       lectura por día, pero puede saltearse una, y ahí el delta abarca dos. */
+    /* Va corto —"▲ +2 cm"— y el "desde cuándo" en el title. Poner "cm/día"
+       sería más lindo y sería una afirmación: el INA publica una lectura por
+       día, pero puede saltearse una, y ahí el delta abarca dos. */
     $("delta").textContent = (delta > 0 ? "▲ +" : "▼ −") + cm + " cm";
     $("delta").title = "Desde la medición anterior del INA";
+    $("delta").classList.toggle("baja", delta < 0);
     $("delta").hidden = false;
   }
 
-  const falta = ALERTA - nivel;
-  $("falta").innerHTML =
-    falta > 0
-      ? "Faltan <b>" +
-        Math.round(falta * 100) +
-        " cm</b> para la alerta de la ciudad, 5,30 m."
-      : nivel >= EVACUACION
-        ? "El río <b>superó la evacuación de la ciudad</b>, 5,70 m."
-        : "El río <b>superó la alerta de la ciudad</b>, 5,30 m.";
-
-  if (viejo)
-    $("falta").innerHTML +=
-      " <b>Esta lectura no es de hoy</b>: es la del " + fecha + ".";
+  /* El estado, con la alerta y la evacuación «de la ciudad». Con el dato
+     vencido no se dice ninguna de las dos: una alerta de hace tres días con
+     la cara de una de hoy es peor que ninguna. */
+  const [txt, cls] = viejo
+    ? ["Dato viejo", "viejo"]
+    : nivel >= EVACUACION
+      ? ["Evacuación de la ciudad", "evac"]
+      : nivel >= ALERTA
+        ? ["Alerta de la ciudad", "alerta"]
+        : ["Debajo de la alerta de la ciudad", ""];
+  $("estado").textContent = txt;
+  $("estado").className = "estado" + (cls ? " " + cls : "");
 }
 
 /* El reporte del INA viene como "01/09/2026 00:00" o "01/09/2026". */
@@ -113,10 +117,10 @@ function fechaINA(s) {
    enlace, que es lo único que sigue sirviendo. */
 function fallar() {
   $("nivel").textContent = "—";
-  $("pulso").classList.add("viejo");
-  $("fecha").textContent = "sin dato";
-  $("falta").innerHTML =
-    "No se pudo leer el nivel del INA. <b>Probá de nuevo en un rato.</b>";
+  $("estado").textContent = "Sin dato";
+  $("estado").className = "estado viejo";
+  $("fecha").textContent = "no se pudo leer el INA, probá en un rato";
+  $("fecha").classList.add("viejo");
 }
 
 fetch("/api/nivel")

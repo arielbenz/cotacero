@@ -7,6 +7,8 @@
 import {
   CERO_IGN,
   ERROR_DEM,
+  ESCALA_MAX,
+  ESCALA_MIN,
   KM_PUBLICADO,
   PENDIENTE,
   PRECISION_MAX,
@@ -115,9 +117,35 @@ export function origenCota() {
 
 /* Deja el renglón de estado diciendo SIEMPRE de dónde salió la cota, no sólo
    justo después de la acción. */
+/* Las tres formas de cargar la altura van como un selector, y la marcada es
+   la que dio la altura que se está usando: así se lee de un vistazo si el
+   número salió del GPS, de una dirección o del mapa. Escrita a mano no marca
+   ninguna. «Dirección» se marca también mientras su buscador está abierto. */
+export function pintarMetodos() {
+  const dir = document.getElementById("caja-dir");
+  const buscando = dir && dir.style.display !== "none";
+  document.querySelectorAll(".metodos [data-metodo]").forEach((b) => {
+    const m = b.dataset.metodo;
+    const on = buscando
+      ? m === "direccion"
+      : estado.cota != null && estado.cotaOrigen === m;
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+/* Elegir otra forma de cargar la altura cierra el buscador de dirección: si
+   no, el selector seguía marcando «Dirección» con la altura ya tomada del
+   GPS o del mapa. */
+export function cerrarBuscadorDir() {
+  const dir = document.getElementById("caja-dir");
+  if (dir) dir.style.display = "none";
+  pintarMetodos();
+}
+
 export function pintarOrigenCota() {
   const e = document.getElementById("estado-cota");
   const o = origenCota();
+  pintarMetodos();
   if (!o) return (e.innerHTML = "");
   e.innerHTML =
     "Altura del terreno <b>" +
@@ -291,6 +319,7 @@ export function calcular() {
     nz.innerHTML =
       '<span style="color:var(--alerta-texto)">Elegí tu zona</span>: la distancia ' +
       "río arriba cambia el resultado hasta 1,80 m.";
+    pintarCasa(false);
     document.getElementById("resultado").innerHTML =
       '<div class="veredicto v-neutro"><div class="titu">Falta tu zona</div>' +
       '<p class="chico" style="margin:0">Elegila arriba. No la damos por ' +
@@ -325,14 +354,16 @@ export function calcular() {
 
   const cont = document.getElementById("resultado");
   if (estado.cota == null) {
+    pintarCasa(false);
     cont.innerHTML =
-      '<div class="veredicto v-neutro"><div class="titu">Falta la cota de tu terreno</div>' +
+      '<div class="veredicto v-neutro"><div class="titu">Falta la altura de tu terreno</div>' +
       '<p class="chico" style="margin:0">Cargala arriba y estimo el resto.</p></div>';
     pintarRio();
     return;
   }
 
   const km = kmDeZona();
+  pintarCasa(true);
 
   // Con la cota interpolada razonamos siempre con el escenario
   // pesimista, y sale de cotaEnHidrometro() para que la regla, el
@@ -351,7 +382,9 @@ export function calcular() {
     txt = "";
   const ref = criticoPeor;
   /* Ver README §"Los ocho estados y cómo se dicen". El grave empieza con el
-     verbo y lleva el 103; "Margen ajustado/amplio" eran vocabulario contable. */
+     verbo y lleva el 103; "Margen ajustado/amplio" eran vocabulario contable.
+     Ninguno arranca con «Tu nivel de aviso es ≈ X»: el número está en grande
+     justo arriba, y repetirlo era lo primero que se leía. */
   if (r != null && r >= ref) {
     cls = "v-peligro";
     titu = "El río pasó tu nivel de aviso";
@@ -374,11 +407,9 @@ export function calcular() {
     cls = "v-peligro";
     titu = "Tu terreno tiene su propio número";
     txt =
-      "Tu nivel de aviso es " +
-      mU(ref) +
-      ". La alerta de la ciudad —" +
+      "Queda por debajo de la alerta de la ciudad, " +
       m(ALERTA) +
-      "— es una sola para toda Santa Fe y sirve para activar el plan de " +
+      ", que es una sola para toda Santa Fe y sirve para activar el plan de " +
       "contingencia. El tuyo es más bajo porque tu terreno está a otra altura " +
       "y a otra distancia del Puerto: <b>te sirve para prepararte antes</b>. " +
       "La orden de evacuación la sigue dando Defensa Civil.";
@@ -386,9 +417,7 @@ export function calcular() {
     cls = "v-alerta";
     titu = "Tu nivel de aviso cae entre la alerta y la evacuación";
     txt =
-      "Tu nivel de aviso es " +
-      mU(ref) +
-      ", entre los " +
+      "Entre los " +
       m(ALERTA) +
       " y los " +
       m(EVACUACION) +
@@ -398,9 +427,7 @@ export function calcular() {
     cls = "v-alerta";
     titu = "Tenés poco margen";
     txt =
-      "Tu nivel de aviso es " +
-      mU(ref) +
-      ": más alto que la evacuación de la ciudad, pero dentro de lo que el " +
+      "Más alto que la evacuación de la ciudad, pero dentro de lo que el " +
       "municipio dice estar planificando. <b>Con la ciudad en alerta, armá " +
       "la mochila.</b>";
   } else if (ref < RECORD) {
@@ -439,47 +466,58 @@ export function calcular() {
         m(RECORD) +
         ".";
     txt =
-      "Tu nivel de aviso es " +
-      mU(ref) +
-      ": más alto que lo que el municipio dice estar planificando. " +
+      "Más alto que lo que el municipio dice estar planificando. " +
       cuando +
-      " <b>Si la ciudad entra en evacuación, tené la mochila lista.</b> Y si " +
-      "Defensa Civil dice que salgas, salí.";
+      " <b>Si la ciudad entra en evacuación, tené la mochila lista.</b>";
   } else {
     cls = "v-ok";
     titu = "Tenés margen";
     txt =
-      "Tu nivel de aviso es " +
-      mU(ref) +
-      ". Para comparar: la crecida más grande, la de " +
+      "La crecida más grande, la de " +
       RECORD_ANIO +
       ", llegó a " +
       m(RECORD) +
-      ". Igual: si Defensa Civil dice que salgas, salí.";
+      ".";
   }
 
-  html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
-    <p style="margin:0 0 12px;font-size: var(--t-base)">${txt}</p>
-    <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
-    <div class="dato">${mU(ref)}</div></div>`;
+  /* El nivel de aviso mira sólo el río. En los estados con margen, la
+     lluvia es lo que más fácil se olvida: un barrio con margen amplio contra
+     el Paraná puede anegarse igual por lluvia (ver /datos, riesgo pluvial). */
+  if (cls === "v-ok" || cls === "v-neutro")
+    txt +=
+      " <b>Es margen contra el río:</b> con mucha lluvia en poco tiempo, tu " +
+      "calle puede anegarse igual.";
 
-  html += tarjetaDefensa(z);
+  /* La glosa va la primera vez que aparece el número en la pantalla. Con los
+     pasos abiertos ya la dice la introducción de arriba. */
+  const glosa = casaAbierta
+    ? ""
+    : '<p class="chico glosa">El nivel del río a partir del cual el agua ' +
+      "puede llegar a tu terreno. Es un cálculo aproximado.</p>";
+
+  html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
+    <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
+    <div class="dato">${mU(ref)}</div>
+    ${glosa}${barraCasa(ref, r)}
+    <p class="veredicto-pie">${txt}</p></div>`;
+
+  html += renglonCasa(z, km);
 
   // desglose
-  html += `<div class="tarjeta"><h3 style="margin-top:0">Cómo sale ese número</h3>
-    <table style="width:100%;font-family:var(--mono);font-size: var(--t-s);border-collapse:collapse">
-    <tr><td style="padding:6px 0;color:var(--tenue)">Altura de tu terreno<br>
-        <span style="font-size: var(--t-xs)">según ${(origenCota() || {}).corto || "—"}</span></td>
-  <td style="text-align:right;font-weight:700">${m(estado.cota)} sobre el mar</td></tr>
+  html += `<details class="tarjeta plegable"><summary>Cómo sale ese número</summary>
+    <table class="desglose">
+    <tr><td>Altura de tu terreno<br>
+        <span class="nota">según ${(origenCota() || {}).corto || "—"}</span></td>
+  <td class="n"><b>${m(estado.cota)} sobre el mar</b></td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr><td style="padding:6px 0;color:var(--alerta-texto)">Margen de seguridad (el plano tiene líneas cada 50 cm)</td>
-  <td style="text-align:right;color:var(--alerta-texto)">− ${nm(ERROR_DEM, 2)} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Altura usada (la más baja, por seguridad)</td>
-  <td style="text-align:right;font-weight:700">${m(cotaPeor)} IGN</td></tr>`
+        ? `<tr class="ojo"><td>Margen de seguridad (el plano tiene líneas cada 50 cm)</td>
+  <td class="n">− ${nm(ERROR_DEM, 2)} m</td></tr>
+    <tr><td>Altura usada (la más baja, por seguridad)</td>
+  <td class="n"><b>${m(cotaPeor)} IGN</b></td></tr>`
         : ""
     }
-    <tr><td style="padding:6px 0;color:var(--tenue)">Cero de la regla del puerto${
+    <tr><td>Cero de la regla del puerto${
       /* El INA publica 8,378 para esta escala y el cálculo usa 8,20. La
          diferencia son 18 cm en el umbral de cada persona, y está sin
          resolver: puede ser el mismo punto medido en dos sistemas de alturas
@@ -490,66 +528,139 @@ export function calcular() {
              borraría justo el dígito que hace concreta la diferencia. Es la
              excepción a la regla de dos decimales, que existe para el nivel
              del río, no para el cero de la escala. */
-          `<br><span style="font-size: var(--t-xs)">el INA publica ${estado.ceroINA
+          `<br><span class="nota">el INA publica ${estado.ceroINA
             .toFixed(3)
             .replace(".", ",")} m — <a href="/datos#abiertas">por qué usamos ${m(CERO_IGN)}</a></span>`
         : ""
     }</td>
-  <td style="text-align:right">− ${nm(CERO_IGN, 2)} m</td></tr>
-    <tr><td style="padding:6px 0;color:var(--tenue)">Caída del río hasta el puerto (${km} km × 4,5 cm)${
+  <td class="n">− ${nm(CERO_IGN, 2)} m</td></tr>
+    <tr><td>Caída del río hasta el puerto (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""
-        : '<br><span style="color:var(--alerta-texto);font-size: var(--t-xs)">distancia estimada, no medida</span>'
+        : '<br><span class="nota ojo">distancia estimada, no medida</span>'
     }</td>
-  <td style="text-align:right">− ${nm(PENDIENTE * km, 2)} m</td></tr>
-    <tr style="border-top:1px solid var(--linea)">
-  <td style="padding:9px 0;font-weight:700">Tu nivel de aviso</td>
-  <td style="text-align:right;font-weight:700;color:var(--acento)">${m(ref)}</td></tr>
+  <td class="n">− ${nm(PENDIENTE * km, 2)} m</td></tr>
+    <tr class="total">
+  <td>Tu nivel de aviso</td>
+  <td class="n">${m(ref)}</td></tr>
     </table>
     <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
 la cota del terreno viene de curvas cada 0,5 m, y más decimales serían una
 precisión que el dato no tiene.</p>`;
 
+  /* Era una caja ámbar aparte, debajo del resultado. Es parte de cómo sale el
+     número, así que va acá; la frase de «pasa cerca de tu casa, no por tu
+     puerta» quedó fija en el paso 2, donde se carga la altura. */
+  if (estado.cotaEsEstimada)
+    html +=
+      '<p class="chico" style="margin:10px 0 0"><b>Altura calculada entre dos ' +
+      "líneas del plano</b>, que tiene una cada 50 cm." +
+      (estado.cotaDistancia != null
+        ? " La más cercana a ese punto está a " +
+          Math.round(estado.cotaDistancia) +
+          " m."
+        : "") +
+      " Por eso la cuenta usa medio metro menos.</p>";
+
   if (r != null) {
     const falta = ref - r;
-    html += `<p class="chico" style="margin:12px 0 0">Hoy el río está en ${m(r)}.
+    html += `<p class="chico" style="margin:10px 0 0">Hoy el río está en ${m(r)}.
 ${
   falta > 0
     ? "Faltan unos <b>" + mCm(falta) + "</b> para tu nivel de aviso."
     : '<b style="color:var(--peligro-texto)">Ya lo superó.</b>'
 }</p>`;
   }
-  html += "</div>";
+  html += "</details>";
 
-  if (estado.cotaEsEstimada) {
-    html +=
-      '<div class="aviso"><b>Altura calculada entre dos líneas del plano.</b> ' +
-      "El plano de alturas del municipio tiene líneas cada 50 cm." +
-      (estado.cotaDistancia != null
-        ? " La más cercana a ese punto está a " +
-          Math.round(estado.cotaDistancia) +
-          " m."
-        : "") +
-      " La cuenta usa medio metro menos, por seguridad.<br><br>" +
-      "Es un buen dato para orientarte, pero <b>la línea pasa cerca de tu " +
-      "casa, no por tu puerta</b>. Si tenés la altura en la escritura o en un " +
-      "plano, ésa vale más.</div>";
-  }
+  html += tarjetaDefensa(z);
 
-  /* Este aviso llegó a tener 124 palabras y aparecía justo debajo del
-     resultado: el momento exacto en que la persona acaba de recibir su número
-     es el peor para un párrafo con doble negación y una subordinada de 37
-     palabras. Queda lo que hay que saber ahí; el resto —la validación de
-     1992, la lluvia como otra fuente de inundación, el detalle del modelo—
-     vive en /datos#no-dice, que es adonde va el enlace. */
+  /* UNA advertencia fuerte por pantalla. Eran tres cajas —el aviso grave, el
+     de la altura estimada y el de «ni la mejor cota»— y el mismo descargo
+     salía tres veces: la gente dejaba de leerlo, incluida la vez que
+     importaba. El detalle vive en /datos#no-dice.
+     «Aunque acá diga que tenés margen» sólo donde la pantalla dice eso: en
+     los estados graves sería falso, y ahí el verbo y el 103 ya van arriba. */
   html +=
-    '<div class="aviso grave"><b>Es un cálculo aproximado, no una orden.</b> ' +
-    "No tiene en cuenta el terraplén (el anillo de defensas), las bombas, el " +
-    "viento ni la lluvia. El agua puede llegar antes por los desagües, o no " +
-    'llegar. <a href="/datos#no-dice">Qué no dice este número</a>. ' +
-    "<b>Si Defensa Civil o el municipio dicen que salgas, salí, aunque acá " +
-    "diga que tenés margen.</b></div>";
+    '<div class="aviso grave"><b>Si Defensa Civil dice que ' +
+    "salgas, salí.</b> " +
+    (cls === "v-ok" || cls === "v-neutro"
+      ? "Aunque acá diga que tenés margen. "
+      : "") +
+    "El cálculo no sabe de defensas, bombas ni lluvia. " +
+    '<a href="/datos#no-dice">Qué no dice este número</a></div>';
 
   cont.innerHTML = html;
   pintarRio();
+}
+
+/* ---- la casa cargada ----
+   La primera vez, los pasos van arriba y el resultado aparece debajo, como
+   siempre. Para quien ya cargó su casa, lo que viene a buscar es el número:
+   los pasos se pliegan detrás de un renglón con «Cambiar». Se decide al
+   arrancar y con ese botón, nunca en medio de una carga: plegarlos al
+   escribir el primer dígito movería la pantalla bajo el dedo. Y los pasos no
+   se mueven de lugar en el DOM: sacar un nodo con el foco adentro cierra el
+   teclado. */
+let casaAbierta = null;
+
+function pintarCasa(conCasa) {
+  if (casaAbierta === null || !conCasa) casaAbierta = !conCasa;
+  const plegada = conCasa && !casaAbierta;
+  document.getElementById("pasos-casa").hidden = plegada;
+  document.getElementById("cota-intro").hidden = plegada;
+}
+
+export function alternarCasa() {
+  casaAbierta = !casaAbierta;
+  calcular();
+  if (casaAbierta) {
+    const sel = document.getElementById("sel-zona");
+    aLaVista(document.getElementById("pasos-casa"));
+    sel.focus({ preventScroll: true });
+  } else {
+    const b = document.querySelector('[data-accion="cambiar-casa"]');
+    aLaVista(document.getElementById("resultado"));
+    if (b) b.focus({ preventScroll: true });
+  }
+}
+
+function renglonCasa(z, km) {
+  const o = origenCota() || {};
+  const nombre = z
+    ? z.n.replace(/^Santa Fe — /, "").replace(/ — .*/, "")
+    : "";
+  return `<div class="tarjeta casa-renglon">
+    <span class="casa-icono" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg></span>
+    <span class="casa-txt"><b>${atr(nombre)} · terreno a ${m(estado.cota)}</b>
+      <span>Según ${o.corto || "—"} · ${km} km del Puerto</span>
+      ${o.ojo ? `<span class="ojo">${o.largo}</span>` : ""}</span>
+    <button type="button" data-accion="cambiar-casa" aria-controls="pasos-casa"
+      aria-expanded="${casaAbierta ? "true" : "false"}">${casaAbierta ? "Listo" : "Cambiar"}</button>
+  </div>`;
+}
+
+/* La regla del veredicto: hoy, la alerta de la ciudad, el récord y vos en la
+   misma escala que el hidrómetro de la pestaña Río. Es un dibujo: los
+   números van como texto en el renglón de abajo. */
+function barraCasa(ref, r) {
+  const pct = (v) =>
+    Math.max(
+      0,
+      Math.min(100, ((v - ESCALA_MIN) / (ESCALA_MAX - ESCALA_MIN)) * 100),
+    );
+  const n2 = (v) => nm(v, 2);
+  return `<div class="barra-casa" aria-hidden="true">
+    <i class="bc-pista"></i>
+    ${r != null ? `<i class="bc-agua" style="width:${pct(r)}%"></i>` : ""}
+    <i class="bc-marca bc-alerta" style="left:${pct(ALERTA)}%"></i>
+    <i class="bc-marca bc-record" style="left:${pct(RECORD)}%"></i>
+    <i class="bc-vos" style="left:${pct(ref)}%"></i>
+  </div>
+  <div class="barra-casa-ley">
+    ${r != null ? `<span><b class="c-hoy">${n2(r)}</b> hoy</span>` : ""}
+    <span><b class="c-alerta">${n2(ALERTA)}</b> alerta de la ciudad</span>
+    <span><b>${n2(RECORD)}</b> récord</span>
+    <span><b class="c-vos">${mU(ref).replace(" m", "")}</b> vos</span>
+  </div>`;
 }

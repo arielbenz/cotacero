@@ -1,6 +1,7 @@
 /* js/contacto.js — el formulario de /contacto.
    ---------------------------------------------------------------------------
-   Lo único que hace este archivo es mandar el formulario y contar caracteres.
+   Lo que hace este archivo es mandar el formulario, contar caracteres y
+   cambiar la ayuda según el tema.
    Elegir una categoría NO necesita JavaScript: las pastillas son
    <input type="radio"> de verdad con su <label>, así que funcionan con
    teclado, con lector de pantalla y aunque este script no cargue nunca.
@@ -98,7 +99,23 @@ async function enviar(ev) {
   }
 }
 
+/* La ayuda y el ejemplo del campo cambian con el tema. Los textos vienen en
+   el HTML, en data-ayuda y data-ejemplo de cada opción, y los escribe
+   scripts/paginas.js desde lib/sugerencias.js: este archivo no tiene ninguno
+   escrito a mano. Sin JS queda la ayuda del tema por defecto. */
+function pintarAyuda() {
+  const elegida = form.querySelector('input[name="categoria"]:checked');
+  const ayuda = $("sug-ayuda");
+  if (!elegida || !ayuda) return;
+  ayuda.textContent = elegida.dataset.ayuda || "";
+  ayuda.hidden = !elegida.dataset.ayuda;
+  texto.placeholder = elegida.dataset.ejemplo || "";
+}
+
 if (form) {
+  form.addEventListener("change", (ev) => {
+    if (ev.target.name === "categoria") pintarAyuda();
+  });
   form.addEventListener("submit", enviar);
   texto.addEventListener("input", contar);
   contar();

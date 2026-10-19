@@ -6,3 +6,11 @@
 
 # Chrome descartable de scripts/guia-pdf.js
 .chrome-guia/
+
+# Traspaso del rediseño de 2026: el canvas y su LEEME. Referencia de trabajo,
+# no se publica (Vercel despliega desde el repo).
+rediseno/
+
+# Claude Code: lo compartido (.claude/skills, settings.json) va al repo;
+# la configuración personal de cada máquina, no.
+.claude/settings.local.json

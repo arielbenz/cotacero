@@ -79,6 +79,7 @@
   <body class="landing">
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
+    <div class="nav-envoltura">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -123,17 +124,16 @@
         </details>
       </nav>
     </div>
+    </div>
 
     <div class="ancho">
       <header class="pg-cabecera">
-        <p class="chip-tinte">La escala real</p>
         <h1>Más de un siglo del río Paraná en Santa Fe</h1>
         <p class="pg-lead">El hidrómetro marca un número y el número solo no dice nada. Esta página lo pone al lado de <b>un siglo de mediciones oficiales</b> del mismo instrumento, para que se vea qué es mucho y qué es poco.</p>
       </header>
 
       <main>
       <section class="bloque">
-        <p class="kicker">1925 — hoy</p>
         <h2>El Paraná en más de cien años de registros</h2>
         <p>
           El Instituto Nacional del Agua publica la lectura diaria del
@@ -142,40 +142,16 @@
           mismo instrumento, y es la misma serie de la que sale el número que
           la app muestra hoy.
         </p>
-        <table class="cuenta">
-          <tr><td>Mayor altura registrada — 22 de junio de 1992</td><td>7,43 m</td></tr>
-          <tr><td>Bajante más honda — 17 de enero de 2022</td><td>-0,23 m</td></tr>
-          <tr><td>Mediana de la serie diaria</td><td>3,31 m</td></tr>
-          <tr class="total"><td>Años con registro</td><td>102</td></tr>
-        </table>
-        <p style="margin-top:20px" class="chico">
+        <dl class="fichas-hist">
+          <div><dt>Mayor altura · 22 de junio de 1992</dt><dd>7,43 m</dd></div>
+          <div><dt>Bajante más honda · 17 de enero de 2022</dt><dd>−0,23 m</dd></div>
+          <div><dt>Mediana de la serie diaria</dt><dd>3,31 m</dd></div>
+          <div><dt>Años con registro</dt><dd>102</dd></div>
+        </dl>
+        <p class="chico">
           Antes de 1925 el INA no publica esta serie. La crecida de 1905 que se
           cita seguido queda afuera: no la reconstruimos desde recortes de
           diario.
-        </p>
-      </section>
-
-      <section class="bloque" id="umbrales">
-        <h2>¿Qué significan estos números?</h2>
-        <p>
-          El <b>nivel de alerta</b> del hidrómetro del Puerto de Santa Fe es de
-          <b>5,30 m</b> y el <b>nivel de evacuación</b> es
-          de <b>5,70 m</b>. Los dos los publica la
-          estación del INA, y son los mismos con los que se dibujan las líneas
-          punteadas de esta página.
-        </p>
-        <p>
-          Con eso, el récord de 1992 —7,43 m— quedó
-          <b>1,73 m por encima</b> del
-          nivel de evacuación. Y todo el rango en el que se decide algo, del
-          alerta al récord, son
-          <b>2,13 m</b>: por eso un cambio de
-          diez centímetros en el modelo no es un detalle.
-        </p>
-        <p class="chico">
-          Alcanzar una altura no significa que el agua entre a una casa: buena
-          parte de la ciudad está protegida por defensas, compuertas y bombeo.
-          <a href="/datos#no-dice">Por qué el nivel del río no es una predicción de inundación</a>.
         </p>
       </section>
 
@@ -186,47 +162,30 @@
           <h2>Recorré la serie año por año</h2>
           <p>
             Cada barra es un año: va del nivel más bajo al más alto que marcó el
-            hidrómetro. Las dos líneas punteadas son la alerta y la evacuación
-            de la ciudad. Tocá una barra para ver ese año en detalle.
+            hidrómetro. Tocá una barra, o usá las flechas, para ver ese año.
           </p>
-          <div id="h-franja" class="h-franja"></div>
-          <p class="chico">
-            Las barras naranjas son años que llegaron a la alerta; las rojas,
-            los que llegaron a nivel de evacuación.
-          </p>
-
-          <div class="h-modos" role="group" aria-label="Qué recorrer">
-            <button type="button" class="btn sec" data-modo="anios" aria-pressed="true">Recorrer años</button>
-            <button type="button" class="btn sec" data-modo="libre" aria-pressed="false">Mover el río</button>
-          </div>
-
-          <div class="h-panel">
-            <div class="h-tanque">
-              <div class="h-agua" id="h-agua"></div>
-              <div class="h-marcas" id="h-marcas" aria-hidden="true"></div>
+          <ul class="h-leyenda" aria-hidden="true">
+            <li><i class="h-b-normal"></i>No llegó a la alerta</li>
+            <li><i class="h-b-alerta"></i>Llegó a la alerta</li>
+            <li><i class="h-b-evac"></i>Llegó a la evacuación</li>
+          </ul>
+          <div id="h-franja" class="h-franja" role="slider" tabindex="0"
+            aria-label="Año de la serie"></div>
+          <div class="h-detalle-anio">
+            <div class="h-sel">
+              <button type="button" class="h-flecha" id="h-anterior" aria-label="Año anterior">‹</button>
+              <b id="h-anio" class="h-anio"></b>
+              <button type="button" class="h-flecha" id="h-siguiente" aria-label="Año siguiente">›</button>
             </div>
-            <div class="h-lectura" id="h-lectura" role="status"></div>
+            <div id="h-detalle-datos" class="h-detalle-datos"></div>
+            <p id="h-detalle-texto" class="h-detalle-texto" role="status"></p>
           </div>
-
-          <div class="h-control">
-            <input type="range" id="h-rango" min="0" max="1" step="1" value="0" />
-            <div class="h-control-pie">
-              <span id="h-pie-control" class="chico"></span>
-              <button type="button" class="btn sec" id="h-play">Reproducir</button>
-            </div>
-          </div>
-          <p class="chico">
-            Nada se mueve solo: el recorrido arranca cuando lo pedís. Si tu
-            sistema está configurado para reducir el movimiento, la línea del
-            agua salta en vez de deslizarse.
-          </p>
         </section>
       </div>
 
       <section class="bloque">
-        <h2>La tabla completa</h2>
         <details class="h-detalle">
-          <summary>Ver los 102 años, uno por uno</summary>
+          <summary>La tabla completa: los 102 años, uno por uno</summary>
           <div class="h-tabla-caja">
             <table class="h-tabla">
               <thead><tr><th scope="col">Año</th><th scope="col">Máximo</th><th scope="col">Mínimo</th><th scope="col">Días en alerta</th></tr></thead>
@@ -339,6 +298,46 @@
         </details>
       </section>
 
+      <section class="bloque" id="umbrales">
+        <h2>¿Qué significan estos números?</h2>
+        <p>
+          La <b>alerta de la ciudad</b> es de <b>5,30 m</b>
+          en el hidrómetro del Puerto y la <b>evacuación</b>, de
+          <b>5,70 m</b>. Las dos las publica la
+          estación del INA. El récord de 1992 quedó
+          <b>1,73 m por encima</b> de la
+          evacuación. Y todo el rango en el que se decide algo, de la alerta al
+          récord, son <b>2,13 m</b>: por eso
+          diez centímetros en el modelo no son un detalle.
+        </p>
+        <p class="chico">
+          Alcanzar una altura no significa que el agua entre a una casa: buena
+          parte de la ciudad está protegida por defensas, compuertas y bombeo.
+          <a href="/datos#no-dice">Por qué el nivel del río no es una predicción de inundación</a>.
+        </p>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>Esto es historia, no pronóstico</h2>
+        <p>
+          Que una altura se haya alcanzado pocas veces en cien años no dice
+          nada sobre lo que va a pasar este año. En cien años cambiaron las
+          presas aguas arriba, el uso del suelo de la cuenca y el propio
+          régimen del río.
+        </p>
+        <p>
+          Y la ciudad de 1925 no es la de hoy: un mismo número del hidrómetro
+          no significaba lo mismo antes que ahora, porque cambió lo que hay
+          entre el río y las casas. Y la serie mide sólo el Paraná: en 2003 no
+          llegó a la alerta, y la ciudad se inundó igual por el Salado.
+        </p>
+        <p>
+          Lo que marca el hidrómetro hoy está en la <a href="/">portada</a>, y
+          qué significa para un terreno en particular, en la
+          <a href="/app?ir=cota">app</a>.
+        </p>
+      </section>
+
       <section class="bloque borde">
         <p class="kicker">La fuente</p>
         <p class="chico">
@@ -348,49 +347,16 @@
           Fuente: Instituto Nacional del Agua, serie 30
           (altura hidrométrica, medición directa). Descargado el
           2 de septiembre de 2026.
+          Con la libreta incompleta: 2026.
         </p>
         <p class="fuente-enlaces">
           <a class="btn sec" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30" target="_blank" rel="noopener">Ver fuente</a>
           <a class="enlace-crudo" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30/observaciones?timestart=1925-01-01&amp;timeend=2100-01-01" target="_blank" rel="noopener">Ver la serie cruda</a>
         </p>
-        <p class="chico">
-          Los años con la libreta incompleta están marcados en la tabla por su
-          cantidad de días medidos: 2026.
-        </p>
-      </section>
-
-      <section class="bloque">
-        <h2>Comparar con el río de hoy</h2>
-        <p>
-          Esta página cuenta lo que pasó. Para ver cuánto marca el hidrómetro
-          ahora —y qué significa para un terreno en particular— está el resto
-          de Cota Cero.
-        </p>
-        <ul class="pasos">
-          <li><a href="/">Ver el nivel del río Paraná hoy</a></li>
-          <li><a href="/datos">Saber la cota de tu terreno en Santa Fe</a></li>
-          <li><a href="/datos">Conocer de dónde salen estos datos</a></li>
-        </ul>
-      </section>
-
-      <section class="bloque oscuro">
-        <p class="kicker">Ojo con leer de más</p>
-        <h2>Esto es historia, no pronóstico</h2>
-        <p>
-          Que una altura se haya alcanzado pocas veces en cien años no dice
-          nada sobre lo que va a pasar este año. La serie tampoco es homogénea:
-          en cien años cambiaron las presas aguas arriba, el uso del suelo de
-          la cuenca y el propio régimen del río.
-        </p>
-        <p>
-          Y una advertencia sobre las defensas: la ciudad de 1925 no es la de
-          hoy. Un mismo número del hidrómetro no significaba lo mismo antes que
-          ahora, porque cambió lo que hay entre el río y las casas.
-        </p>
       </section>
       </main>
 
-      <p class="pg-cta"><a class="btn" href="/app">Abrir Cota Cero</a></p>
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
     </div>
 
     <div class="pie-envoltura">

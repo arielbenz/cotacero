@@ -18,7 +18,7 @@ import {
 import { calcular, cotaEnHidrometro } from "./cota.js";
 import { curvas } from "./elevacion.js";
 import { estado, guardado } from "./estado.js";
-import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU } from "./formato.js";
+import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";
 import { ofrecerConResultado } from "./instalar.js";
 import {
@@ -26,7 +26,6 @@ import {
   EVACUACION,
   RECORD,
   RECORD_ANIO,
-  etiquetaRecord,
   fijarRecord,
   fijarUmbrales,
 } from "./oficiales.js";
@@ -51,8 +50,6 @@ function adoptarUmbrales(j) {
   const { alerta: a, evacuacion: e } = of;
   if (a === ALERTA && e === EVACUACION) return;
   fijarUmbrales(a, e);
-  REFERENCIAS[0][1] = a;
-  REFERENCIAS[1][1] = e;
 }
 
 export async function cargarRio() {
@@ -250,9 +247,8 @@ export async function cargarTendencia() {
   </div>
 </div>
 ${sparkline(serie, hoyIdx)}
-<p class="chico" style="margin:9px 0 0">Es un cálculo de cuánta agua baja por el río,
-  no el nivel de la regla del puerto. Sirve para ver si sube o baja, no para
-  decidir.</p>`;
+<p class="chico" style="margin:9px 0 0">Mide cuánta agua trae el río, no la regla
+  del puerto: sirve para ver si sube o baja, no para decidir.</p>`;
   } catch (e) {
     caja.innerHTML =
       '<span class="eti">Tendencia</span>' +
@@ -319,9 +315,35 @@ export function fijarRioManual() {
 }
 
 /* ---------------- la regla (elemento firma) ---------------- */
+
+/* Cada etiqueta va pegada a su línea, sobre la regla. Antes había una lista
+   aparte a la derecha que repetía los mismos cinco números, y el ojo tenía
+   que ir y volver para saber qué línea era cuál.
+   Las etiquetas se pueden encimar: 5,30 y 5,70 están a 40 cm, y el río o el
+   nivel de aviso pueden caer justo en el medio. `separar()` las corre lo
+   mínimo para que no se monten, y la línea se queda en su altura. Las
+   posiciones van en % del alto de la regla, que está en rem, así que la
+   cuenta sigue valiendo con el texto agrandado. */
+const ALTO_ETIQUETA = 6.5; // % del alto de la regla (1,3rem sobre 20rem)
+
+function separar(items) {
+  const h = ALTO_ETIQUETA;
+  const o = [...items].sort((a, b) => a.pos - b.pos);
+  o.forEach((it, i) => {
+    it.y = Math.max(it.pos, h / 2, i ? o[i - 1].y + h : -Infinity);
+  });
+  for (let i = o.length - 1; i >= 0; i--) {
+    const tope = i === o.length - 1 ? 100 - h / 2 : o[i + 1].y - h;
+    if (o[i].y > tope) o[i].y = tope;
+  }
+  return items;
+}
+
 export function pintarRio() {
   const regla = document.getElementById("regla");
   const pct = (v) => ((v - ESCALA_MIN) / (ESCALA_MAX - ESCALA_MIN)) * 100;
+  const acotar = (p) => Math.max(0, Math.min(100, p));
+  const n2 = (v) => nm(v, 2);
 
   // La escala vive en su propia columna, al lado de la pista y no encima.
   let escala = "";
@@ -333,53 +355,95 @@ export function pintarRio() {
   }
   document.getElementById("escala").innerHTML = escala;
 
-  let html = "";
   const r = estado.rio;
-  html += `<div class="agua" style="height:${r == null ? 0 : Math.max(0, Math.min(100, pct(r)))}%"></div>`;
-  // "debajo": la etiqueta de alerta va del otro lado de su línea porque si no
-  // se monta con la de evacuación, que está a 40 cm — 15px en esta escala.
-  // Los números salen de las constantes, no escritos a mano: desde que los
-  // publica la estación podrían no ser 5,30 y 5,70 para siempre.
-  html += `<div class="marca-linea debajo" style="bottom:${pct(ALERTA)}%;color:var(--alerta-texto)"><b style="color:var(--alerta-texto)">${m(ALERTA).replace(" m", "")}</b></div>`;
-  html += `<div class="marca-linea" style="bottom:${pct(EVACUACION)}%;color:var(--peligro-texto)"><b style="color:var(--peligro-texto)">${m(EVACUACION).replace(" m", "")}</b></div>`;
-  // El récord de 1992 en tono tenue: no es un umbral que haya que cruzar, es
-  // la escala. Sin él, 5,70 parece el techo del mundo.
-  html += `<div class="marca-linea" style="bottom:${pct(RECORD)}%;color:var(--tenue)"><b>${m(RECORD).replace(" m", "")}</b></div>`;
-
-  // tu umbral estimado, en la escala del hidrómetro
   const critico = cotaEnHidrometro();
-  if (critico !== null && critico >= ESCALA_MIN && critico <= ESCALA_MAX) {
-    html += `<div class="marca-linea propia" style="bottom:${pct(critico)}%;color:var(--tierra)">
-       <b>vos</b></div>`;
+
+  /* Las cinco líneas. Los números salen de las constantes, no escritos a
+     mano: desde que los publica la estación podrían no ser 5,30 y 5,70 para
+     siempre. El récord va en tono tenue: no es un umbral que haya que
+     cruzar, es la escala — sin él, 5,70 parece el techo del mundo. */
+  const lineas = [
+    {
+      pos: pct(ALERTA),
+      cls: "l-alerta",
+      txt: `<b>${n2(ALERTA)}</b> alerta de la ciudad`,
+    },
+    {
+      pos: pct(EVACUACION),
+      cls: "l-evac",
+      txt: `<b>${n2(EVACUACION)}</b> evacuación de la ciudad`,
+    },
+    {
+      pos: pct(RECORD),
+      cls: "l-record",
+      txt: `<b>${n2(RECORD)}</b> récord de ${RECORD_ANIO}`,
+    },
+  ];
+  if (r != null)
+    lineas.push({ pos: acotar(pct(r)), cls: "l-hoy", txt: `<b>${n2(r)}</b> hoy` });
+  /* Tu nivel de aviso, en la escala del hidrómetro. Si cae afuera de la
+     regla no tiene línea, pero la etiqueta se queda en el borde: callarlo
+     haría creer que no hay número. */
+  if (critico !== null) {
+    const fuera = critico > ESCALA_MAX || critico < ESCALA_MIN;
+    lineas.push({
+      pos: acotar(pct(critico)),
+      cls: "l-vos" + (fuera ? " fuera" : ""),
+      // Afuera de la regla, una flecha y no una frase: «más arriba de la
+      // regla» no entraba al lado del tanque. La frase va en el aria-label.
+      txt:
+        `<span class="chip-vos">vos</span><b>${mU(critico).replace(" m", "")}</b> ` +
+        (fuera ? (critico > ESCALA_MAX ? "↑ " : "↓ ") : "") +
+        "tu nivel de aviso",
+    });
   }
+  separar(lineas);
+
+  /* La línea cruza el tanque y un conector la lleva hasta su etiqueta. Si la
+     etiqueta no se corrió, el conector sale horizontal y se lee como una sola
+     línea; si se corrió, sigue diciendo de qué altura es. Con las líneas a lo
+     ancho, «5,40 hoy» corrido quedaba apoyado sobre la de evacuación. */
+  let html = `<div class="tanque"><div class="agua" style="height:${r == null ? 0 : acotar(pct(r))}%"></div></div>`;
+  let conectores = "";
+  for (const l of lineas) {
+    html +=
+      `<div class="marca-linea ${l.cls}" style="bottom:${l.pos}%"></div>` +
+      `<div class="marca-txt ${l.cls}" style="bottom:${l.y}%">${l.txt}</div>`;
+    if (!l.cls.includes("fuera"))
+      conectores += `<line class="${l.cls}" x1="0" y1="${100 - l.pos}" x2="14" y2="${100 - l.y}"/>`;
+  }
+  html += `<svg class="conectores" viewBox="0 0 14 100" preserveAspectRatio="none" aria-hidden="true">${conectores}</svg>`;
   regla.innerHTML = html;
 
-  /* La leyenda, con los mismos números que las marcas de la regla. Sale de
-     acá y no del HTML porque los umbrales los publica la estación del INA y
-     el récord la serie histórica: si alguno cambia, tienen que cambiar los
-     dos a la vez o la regla se contradice a sí misma. */
-  const poner = (id, txt) => {
-    const e = document.getElementById(id);
-    if (e) e.textContent = txt;
-  };
-  poner("lg-alerta", m(ALERTA));
-  poner("lg-evac", m(EVACUACION));
-  poner("lg-record", m(RECORD));
-  poner("lg-record-k", "Récord de " + RECORD_ANIO + ", la mayor crecida registrada");
-
-  document.getElementById("lg-actual").textContent =
-    r == null ? "sin dato" : m(r);
-  const wrap = document.getElementById("lg-cota-wrap");
-  if (critico !== null) {
-    wrap.style.display = "block";
-    document.getElementById("lg-cota").textContent = mU(critico);
-    document.getElementById("lg-cota-k").textContent = estado.cotaEsEstimada
-      ? "Tu nivel de aviso: si el río llega acá, el agua puede llegar a tu terreno. Es aproximado, con medio metro de margen ya descontado"
-      : "Tu nivel de aviso: si el río llega acá, el agua puede llegar a tu terreno. Es aproximado";
-  } else wrap.style.display = "none";
+  /* La regla es un dibujo: para un lector de pantalla, los mismos números en
+     una sola frase y en el orden en que se leen de arriba hacia abajo. */
+  document
+    .getElementById("hidrometro")
+    .setAttribute(
+      "aria-label",
+      "Regla del río, de " +
+        ESCALA_MIN +
+        " a " +
+        ESCALA_MAX +
+        " metros. " +
+        (r == null ? "Sin dato de hoy. " : "Hoy " + m(r) + ". ") +
+        "Alerta de la ciudad " +
+        m(ALERTA) +
+        ". Evacuación de la ciudad " +
+        m(EVACUACION) +
+        ". Récord de " +
+        RECORD_ANIO +
+        ", " +
+        m(RECORD) +
+        "." +
+        (critico !== null
+          ? " Tu nivel de aviso " +
+            mU(critico) +
+            (critico > ESCALA_MAX ? ", más arriba de la regla." : ".")
+          : ""),
+    );
 
   pintarVeredictoRio();
-  pintarPie();
   pintarCtaCota();
   guardarUmbral();
   ofrecerConResultado();
@@ -392,39 +456,23 @@ export function pintarRio() {
 
 /* Sin cota, la app no puede responder su propia pregunta — y en la pestaña
    Río eso no se decía en ningún lado: el renglón del umbral simplemente no
-   aparecía. */
+   aparecía. Con el umbral cargado el hueco queda vacío: la caja ámbar que
+   iba acá repetía la glosa que ya está en el veredicto, dos tarjetas más
+   arriba. El ámbar queda para cuando se juntan río y lluvia. */
 function pintarCtaCota() {
   const cta = document.getElementById("cta-cota");
   if (!cta) return;
-  if (estado.cota != null && estado.zona) {
-    /* Con el umbral ya cargado, este hueco no queda vacío: lleva LA línea de
-       contexto de la pantalla. Una sola, no un bloque legal — el descargo
-       completo vive en la pestaña Mi umbral y en /legal. */
-    cta.innerHTML =
-      '<div class="aviso" style="margin-bottom:14px">Tu nivel de aviso sale de la ' +
-      "altura de tu terreno (con medio metro de margen) y de la caída del río. " +
-      "Sirve para prepararte antes. <b>No dice cuándo entra el agua.</b></div>";
-    return;
-  }
+  const conCasa = estado.cota != null && !!estado.zona;
+  // Para la reserva de alto del veredicto: con casa, mide más.
+  document.getElementById("v-rio").classList.toggle("con-casa", conCasa);
+  if (conCasa) return (cta.innerHTML = "");
   cta.innerHTML =
-    '<div class="aviso" style="margin-bottom:14px"><b>Todavía no sé dónde vivís.</b> ' +
-    "Cargá tu casa y te digo a qué nivel del río el agua puede llegar a tu " +
-    "terreno. Es un cálculo aproximado." +
+    '<div class="tarjeta"><b>Todavía no sé dónde vivís.</b> ' +
+    '<p class="chico" style="margin:4px 0 0">Cargá tu casa y te digo tu ' +
+    "nivel de aviso: el nivel del río a partir del cual el agua puede llegar " +
+    "a tu terreno. Es un cálculo aproximado.</p>" +
     '<button class="btn mini" style="margin-top:11px;display:block" data-accion="ir" data-vista="cota">' +
     "Cargar mi casa</button></div>";
-}
-
-/* El pie decía "Actualizado <hoy>": la fecha del render, no la del dato. Abajo
-   de todo la app afirmaba estar al día aunque el nivel fuera de hace cinco
-   días, justo lo contrario de lo que dice el cartel de vencido. */
-export function pintarPie() {
-  const el = document.getElementById("version");
-  if (!el) return;
-  el.textContent = estado.rioFecha
-    ? "Nivel del río: medición del " + estado.rioFecha
-    : estado.rio == null
-      ? ""
-      : "Nivel del río: " + estado.rioOrigen;
 }
 
 /* Cuántas cosas faltan en la mochila. Lo usan el veredicto y el contador. */
@@ -497,11 +545,10 @@ function pintarVeredictoRio() {
   const d = estado.delta;
   const mov =
     typeof d === "number" && Math.abs(d) >= 0.01
-      ? `<div class="chico" style="margin:-3px 0 8px">${d > 0 ? "▲ subió" : "▼ bajó"} ${Math.abs(
-          d,
-        )
-          .toFixed(2)
-          .replace(".", ",")} m desde la medición anterior</div>`
+      ? `<div class="chico mov-rio"><b class="${d > 0 ? "sube" : "baja"}">${d > 0 ? "▲" : "▼"} ${nm(
+          Math.abs(d),
+          2,
+        )} m</b> desde la medición anterior</div>`
       : "";
   // Un dato vencido se sigue mostrando, pero nunca con la cara de un
   // dato de hoy: el cartel va arriba de todo, antes que el número.
@@ -519,7 +566,15 @@ function pintarVeredictoRio() {
      umbral propio con el margen de hoy, en dos celdas que se leen de un golpe.
      Sin umbral cargado no se dibuja: la CTA de más abajo se encarga. */
   const u = cotaEnHidrometro();
-  let celdas = "";
+  let celdas = "",
+    glosa = "";
+  /* El texto de la ciudad ya trae una instrucción en tres de los cuatro
+     estados, y en los dos graves empieza con el verbo y lleva el 103. Con el
+     umbral cargado se reemplazaba siempre por la frase del margen: con la
+     ciudad en evacuación y un terreno alto, el veredicto decía «el río está a
+     1,2 m de tu nivel de aviso» y perdía el «salí» y el 103. */
+  const graveCiudad = r >= ALERTA;
+  const instruccionCiudad = cls !== "v-ok";
   if (u != null) {
     const margen = u - r;
     const superado = margen <= 0;
@@ -530,13 +585,13 @@ function pintarVeredictoRio() {
     const tono = superado ? "peligro" : cls === "v-ok" ? "ok" : "alerta";
     celdas =
       '<div class="celdas-umbral">' +
-      '<div class="celda"><span class="k">Tu nivel de aviso</span>' +
+      '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
       '<span class="v">' +
       mU(u) +
       "</span></div>" +
       '<div class="celda t-' +
       tono +
-      '"><span class="k">Le falta</span><span class="v">' +
+      '"><span class="k">Le falta al río</span><span class="v">' +
       (superado ? "ya lo pasó" : "≈ " + mCm(margen)) +
       "</span></div></div>";
     /* Y una oración en prosa, que es como esto se cuenta en la vereda.
@@ -547,33 +602,41 @@ function pintarVeredictoRio() {
     // mueve en línea recta y prometer un plazo así sería inventar un futuro.
     const ritmo =
       !superado && dias != null && dias <= 10
-        ? " Al ritmo de la última medición, " +
+        ? " Al ritmo de la última medición, el río tardaría " +
           /* El artículo va adentro de cada rama: con "unos" afuera salía
              "unos 16 horas". */
           (dias < 1.5
             ? "unas " + Math.round(dias * 24) + " horas"
             : "unos " + Math.round(dias) + " días") +
-          "."
+          " en llegar a tu nivel de aviso."
         : "";
-    txt = superado
-      ? "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
+    /* Con el margen en las fichas, la frase «El río está a unos 3,8 m de tu
+       nivel de aviso» decía lo mismo una tercera vez. Queda sólo cuando
+       agrega algo: la instrucción de los estados cercanos, o el ritmo. */
+    if (superado)
+      txt =
+        "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
         "Defensa Civil (103).</b> El río está en " +
         m(r) +
         " y tu nivel de aviso es " +
         mU(u) +
         ": el agua puede llegar a tu terreno aunque todavía no la veas. " +
-        "No cruces agua que corre: con 30 cm —menos que una rodilla— te arrastra."
-      : (margen <= 0.5
-          ? "<b>Terminá la mochila y avisale a tu familia.</b> Faltan unos " +
-            mCm(margen) +
-            " para tu nivel de aviso (" +
-            mU(u) +
-            ")."
-          : "El río está a unos " +
-            mCm(margen) +
-            " de tu nivel de aviso (" +
-            mU(u) +
-            ").") + ritmo;
+        "No cruces agua que corre: con 30 cm —menos que una rodilla— te arrastra.";
+    else if (graveCiudad) txt += ritmo;
+    else if (margen <= 0.5)
+      txt =
+        "<b>Terminá la mochila y avisale a tu familia.</b> Faltan unos " +
+        mCm(margen) +
+        " para tu nivel de aviso." +
+        ritmo;
+    else if (instruccionCiudad) txt += ritmo;
+    else txt = ritmo.trim();
+    /* La glosa va la primera vez que el número aparece en la pantalla, y
+       ésta es la primera. */
+    glosa =
+      '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
+      "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
+      "aproximado: <b>no dice cuándo entra el agua</b>.</p>";
     if (superado) titu = "El río pasó tu nivel de aviso";
     else if (margen <= 0.5) titu = "Cerca de tu nivel de aviso";
   }
@@ -590,46 +653,24 @@ function pintarVeredictoRio() {
         }<button class="btn mini" style="margin-top:9px;display:block" data-accion="ir" data-vista="plan">Abrir mi plan</button></p>`;
   c.className = "veredicto " + cls;
   c.innerHTML = `${vencido}<div class="titu">${titu}</div>
-    <div class="dato" style="margin-bottom:6px">${m(r)}<span class="unidad"> en el puerto</span></div>
+    <div class="dato dato-rio">${nm(r, 2)}<span class="u">m</span><span class="eti">en el puerto</span></div>
     ${mov}
     ${celdas}
-    <p class="chico" style="margin:0">${txt}</p>${plan}`;
+    ${txt ? `<p class="chico" style="margin:0 0 10px">${txt}</p>` : ""}${glosa}${plan}`;
 }
 
 /* ================= EN CONTEXTO =================
    Dónde está el río hoy contra las referencias que SÍ tienen fuente: los dos
    umbrales oficiales y el récord de 1992. Los máximos de otras crecidas no se
    pudieron verificar y por eso no están: un gráfico de una app de evacuación
-   no es lugar para números de memoria. */
-
-const REFERENCIAS = [
-  ["Alerta", ALERTA, "alerta"],
-  ["Evacuación", EVACUACION, "peligro"],
-  [etiquetaRecord(), RECORD, "record"],
-];
+   no es lugar para números de memoria.
+   Las barras de antes repetían lo que ya muestra la regla, dos tarjetas más
+   arriba. Quedan las distancias, que la regla no dice, y el percentil. */
 
 function pintarContexto() {
-  const caja = document.getElementById("contexto");
   const txt = document.getElementById("contexto-texto");
-  if (!caja) return;
-  if (estado.rio == null) {
-    caja.innerHTML = "";
-    if (txt) txt.textContent = "";
-    return;
-  }
-  const filas = [["Hoy", estado.rio, "hoy"], ...REFERENCIAS];
-  const tope = Math.max(...filas.map((f) => f[1]));
-  caja.innerHTML = filas
-    .map(
-      ([n, v, cls]) => `<div class="barra-fila">
-      <span class="barra-nom">${atr(n)}</span>
-      <span class="barra-pista"><i class="b-${cls}" style="width:${(v / tope) * 100}%"></i></span>
-      <span class="barra-val">${m(v)}</span>
-    </div>`,
-    )
-    .join("");
-
   if (!txt) return;
+  if (estado.rio == null) return (txt.innerHTML = "");
   /* Antes esto era una sola frase con la alerta y el récord. Faltaba la
      evacuación, que es el número con el que se decide salir de la casa, y
      faltaba la escala: "3,10 m" no le dice nada a nadie hasta que se lo pone
@@ -638,36 +679,58 @@ function pintarContexto() {
      récord". Armarla acá daba "por debajo de el récord". */
   const contra = (ref, nombre) => {
     const d = ref - estado.rio;
-    return d > 0
-      ? "<li><b>" + mCm(d) + "</b> por debajo " + nombre + "</li>"
-      : '<li><b style="color:var(--peligro-texto)">' +
-          mCm(d) +
-          "</b> por encima " +
-          nombre +
-          "</li>";
+    return (
+      '<div class="contra-fila"><dt' +
+      (d > 0 ? "" : ' class="encima"') +
+      ">" +
+      mCm(d) +
+      "</dt><dd>" +
+      (d > 0 ? "por debajo " : "por encima ") +
+      nombre +
+      "</dd></div>"
+    );
   };
   let h =
-    '<ul class="lista-contra">' +
-    contra(ALERTA, "de la alerta de la ciudad (" + m(ALERTA) + ")") +
-    contra(EVACUACION, "de la evacuación de la ciudad (" + m(EVACUACION) + ")") +
+    '<dl class="lista-contra">' +
+    contra(
+      ALERTA,
+      'de la <b class="c-alerta">alerta de la ciudad</b> (' + m(ALERTA) + ")",
+    ) +
+    contra(
+      EVACUACION,
+      'de la <b class="c-evac">evacuación de la ciudad</b> (' +
+        m(EVACUACION) +
+        ")",
+    ) +
     contra(RECORD, "del récord de " + RECORD_ANIO + " (" + m(RECORD) + ")") +
-    "</ul>";
+    "</dl>";
 
   /* La posición histórica. Es un hecho sobre la serie del INA —cuántos de los
      días medidos estuvieron por debajo de hoy—, no una categoría inventada
      por nosotros: la app no dice "normal", "alto" ni "bajo", porque para eso
      haría falta una metodología oficial que no tenemos. */
   const p = percentilHistorico(estado.rio);
-  if (p !== null)
+  if (p !== null) {
+    const desde = historia.desde.slice(0, 4);
     h +=
+      '<div class="percentil">' +
+      '<span class="eti">Hoy entre los días medidos desde ' +
+      desde +
+      "</span>" +
+      '<div class="percentil-pista" aria-hidden="true"><i style="width:' +
+      p +
+      '%"></i><u style="left:' +
+      p +
+      '%"></u></div>' +
       /* En cada 100 días y no en porcentaje: "el 83 % de los 37.412 días
          medidos" pide alfabetización estadística que no todo el mundo tiene. */
-      '<p class="chico" style="margin:12px 0 0">De cada 100 días medidos desde ' +
-      historia.desde.slice(0, 4) +
+      '<p class="chico" style="margin:0">De cada 100 días medidos desde ' +
+      desde +
       ", en <b>" +
       p +
       "</b> el río estuvo más bajo que hoy. " +
-      '<a href="/historia">Ver cien años del Paraná</a></p>';
+      '<a href="/historia">Ver cien años del Paraná</a></p></div>';
+  }
   txt.innerHTML = h;
 }
 
@@ -700,11 +763,8 @@ export async function cargarHistoria() {
     historia = j;
     // El récord deja de estar escrito a mano y pasa a salir de la serie.
     const top = j.anios.reduce((p, c) => (c[1] > p[1] ? c : p));
-    if (typeof top[1] === "number" && top[1] > 5 && top[1] < 12) {
+    if (typeof top[1] === "number" && top[1] > 5 && top[1] < 12)
       fijarRecord(top[1], top[0]);
-      REFERENCIAS[2][0] = etiquetaRecord();
-      REFERENCIAS[2][1] = RECORD;
-    }
     // calcular() y no sólo pintarRio(): el veredicto de «Mi casa» nombra los
     // años en que el río llegó a tu nivel de aviso, y esos salen de acá.
     // calcular() termina siempre en pintarRio().

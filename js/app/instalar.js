@@ -71,14 +71,14 @@ function pasosInstalacion() {
   };
 }
 
-/* Un solo lugar decide qué hace el botón, lo dispare la barra o el pie. */
+/* Un solo lugar decide qué hace el botón, lo dispare la barra o Ajustes. */
 export async function instalar() {
   if (promptInstalar) {
     promptInstalar.prompt();
     const r = await promptInstalar.userChoice;
     promptInstalar = null;
     quitarBarraInstalar();
-    // Si dijo que no, no se le insiste: el pie queda como única puerta.
+    // Si dijo que no, no se le insiste: Ajustes queda como única puerta.
     if (r && r.outcome === "accepted") guardado.set("cc_instalada", "1");
     pintarEnlaceInstalar();
     return;
@@ -138,7 +138,7 @@ function mostrarBotonInstalar() {
   if (yaLaTiene()) return;
   // Antes se borraba sola a los 20 segundos y no volvía en toda la sesión: si
   // estabas leyendo, la perdías. Ahora se queda hasta que la cierren, y si la
-  // cierran no vuelve a molestar: para eso queda el enlace del pie.
+  // cierran no vuelve a molestar: para eso queda el acceso en Ajustes.
   if (guardado.get("cc_no_instalar") === "1") return;
   // Hasta que la persona tiene su nivel de aviso, la barra no sale: en la
   // primera visita tapaba justo los botones de «Mi casa», que es lo que vino
@@ -185,11 +185,12 @@ function quitarBarraInstalar() {
   document.body.classList.remove("con-instalar");
 }
 
-/* El pie tiene un enlace permanente. Es la red de contención de todo lo que
+/* Ajustes tiene un acceso permanente. Es la red de contención de todo lo que
    puede salir mal con la barra: que la hayan cerrado, que Chrome no dispare
-   el evento, que sea un navegador que no lo implementa. */
+   el evento, que sea un navegador que no lo implementa. Vivía en el pie de
+   todas las pestañas, y con la barra eran dos avisos de instalar a la vez. */
 function pintarEnlaceInstalar() {
-  const caja = document.getElementById("instalar-pie");
+  const caja = document.getElementById("instalar-ajustes");
   if (!caja) return;
   caja.hidden = yaLaTiene();
 }

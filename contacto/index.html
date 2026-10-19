@@ -69,6 +69,7 @@
   <body class="landing">
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
+    <div class="nav-envoltura">
     <div class="ancho">
       <nav class="nav-sitio" aria-label="Principal">
         <a class="lockup" href="/" aria-label="Cota Cero, inicio">
@@ -113,55 +114,60 @@
         </details>
       </nav>
     </div>
+    </div>
 
     <div class="ancho">
       <div class="aviso-emergencia">
         <p>
-          <b>Esto no es una vía de auxilio.</b> Nadie lee esto en el momento.
-          Ante una emergencia, llamá ya a Defensa Civil.
+          <b>¿Es una emergencia?</b> Esto no es una vía de auxilio: nadie lo
+          lee en el momento.
         </p>
         <a class="btn-emergencia" href="tel:103">
-          <span>Emergencias</span><b>103</b>
+          <span>Llamá al</span><b>103</b>
         </a>
       </div>
       <header class="pg-cabecera">
-        <h1>Contacto</h1>
-        <p class="pg-lead">Cota Cero la hacemos vecinos: cada corrección de un dato, cada zona que falta y cada texto que no se entiende mejora la app para toda la ciudad.</p>
+        <h1>Escribinos</h1>
+        <p class="pg-lead">Cada dato corregido, cada zona que falta y cada texto que no se entiende mejora la app para toda la ciudad.</p>
       </header>
 
       <main>
       <section class="bloque">
-        <p class="kicker">Sugerencias</p>
-        <h2>Escribinos</h2>
-
         <form id="form-contacto" novalidate>
           <fieldset class="campo-cat">
             <legend>¿Sobre qué es?</legend>
             <div class="cat-chips">
             <input type="radio" name="categoria" id="cat-dato"
-              value="dato" class="cat-radio" checked />
+              value="dato" class="cat-radio" checked
+              data-ayuda="Decinos qué número viste, dónde y cuál esperabas." data-ejemplo="Ej: la altura que me da la app no coincide con la de la escritura." />
             <label class="cat-chip" for="cat-dato">Error en un dato</label>
             <input type="radio" name="categoria" id="cat-falta"
-              value="falta" class="cat-radio" />
+              value="falta" class="cat-radio"
+              data-ayuda="Qué te gustaría que haga la app." data-ejemplo="Contanos tu idea." />
             <label class="cat-chip" for="cat-falta">Idea o mejora</label>
             <input type="radio" name="categoria" id="cat-zona"
-              value="zona" class="cat-radio" />
+              value="zona" class="cat-radio"
+              data-ayuda="Si tu zona falta o los km no dan, decinos cuál." data-ejemplo="Ej: mi barrio no aparece en la lista de zonas." />
             <label class="cat-chip" for="cat-zona">Mi barrio o mi zona</label>
             <input type="radio" name="categoria" id="cat-confuso"
-              value="confuso" class="cat-radio" />
+              value="confuso" class="cat-radio"
+              data-ayuda="Copiá la frase que no se entiende y dónde la viste." data-ejemplo="Ej: en Mi casa no entiendo qué es la caída del río." />
             <label class="cat-chip" for="cat-confuso">No se entiende algo</label>
             <input type="radio" name="categoria" id="cat-prensa"
-              value="prensa" class="cat-radio" />
+              value="prensa" class="cat-radio"
+              data-ayuda="Dejanos un contacto para responderte." data-ejemplo="Contanos quién sos y qué necesitás." />
             <label class="cat-chip" for="cat-prensa">Prensa u organismos</label>
             <input type="radio" name="categoria" id="cat-otro"
-              value="otro" class="cat-radio" />
+              value="otro" class="cat-radio"
+              data-ayuda="" data-ejemplo="Escribí lo que quieras." />
             <label class="cat-chip" for="cat-otro">Otro</label>
             </div>
           </fieldset>
+          <p class="chico sug-ayuda" id="sug-ayuda">Decinos qué número viste, dónde y cuál esperabas.</p>
 
           <label class="campo" for="sug-texto"><span>Tu mensaje</span></label>
           <textarea id="sug-texto" name="texto" required maxlength="600"
-            rows="6" placeholder="Contanos con el mayor detalle posible…"></textarea>
+            rows="6" aria-describedby="sug-ayuda" placeholder="Ej: la altura que me da la app no coincide con la de la escritura."></textarea>
           <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
 
           <label class="campo" for="sug-contacto">
@@ -175,37 +181,33 @@
         </form>
 
         <p class="chico letra-chica">
-          Es lo único de Cota Cero que envía texto tuyo a un servidor. <b>Tu IP
-          no se guarda</b>: se usa sólo para limitar envíos, y transformada de
-          modo irreversible. Si dejás un contacto, se usa únicamente para
+          Es lo único que manda texto tuyo a un servidor. <b>No se guarda tu
+          IP</b>: se usa sólo para limitar envíos, transformada de modo
+          irreversible. Si dejás un contacto, se usa únicamente para
           responderte. <b>No pongas tu dirección.</b>
-          <a href="/legal">Ver qué se guarda y qué no</a>.
+          <a href="/legal#privacidad">Qué se guarda</a>.
         </p>
       </section>
 
       <div class="rejilla-2 tarjetas-contacto">
-        <div class="mini-tarjeta">
-          <p class="kicker kicker-alerta">¿Encontraste un dato mal?</p>
+        <section class="mini-tarjeta">
+          <h2>¿Encontraste un dato mal?</h2>
           <p>
-            Una cota que no cierra, un punto de encuentro que ya no existe, los
-            kilómetros de una zona que no dan: eso es lo más valioso que nos
-            podés mandar. Decinos la dirección o el lugar exacto — con eso se
-            puede comprobar contra la fuente y corregirlo.
+            Es lo más valioso que nos podés mandar. Decinos la dirección o el
+            lugar exacto: con eso se comprueba contra la fuente.
           </p>
-        </div>
-        <div class="mini-tarjeta">
-          <p class="kicker">¿Sos de un organismo o de prensa?</p>
+        </section>
+        <section class="mini-tarjeta">
+          <h2>¿Sos de un organismo o de prensa?</h2>
           <p>
-            El modelo busca revisión técnica: Gestión de Riesgos, INA, FICH-UNL,
-            Recursos Hídricos. Si podés ayudar a validarlo, o querés el detalle
-            del método, escribinos y te lo pasamos.
-            <a href="/datos">Ver la metodología y sus límites</a>.
+            El modelo busca revisión técnica. Si podés ayudar a validarlo,
+            escribinos. <a href="/datos">La metodología</a>.
           </p>
-        </div>
+        </section>
       </div>
       </main>
 
-      <p class="pg-cta"><a class="btn" href="/app">Abrir Cota Cero</a></p>
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
     </div>
 
     <div class="pie-envoltura">

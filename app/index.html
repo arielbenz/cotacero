@@ -89,7 +89,7 @@
     <header class="top">
       <div class="marca-bloque">
         <h1 class="marca lockup">
-          <svg width="28" height="28" viewBox="0 0 60 60" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 60 60" aria-hidden="true">
             <defs>
               <clipPath id="ma">
                 <rect x="0" y="33" width="60" height="27" />
@@ -324,70 +324,19 @@
 
       <div class="tarjeta">
         <span class="eti">Hidrómetro · Dique 2, Puerto de Santa Fe</span>
-        <div class="regla-caja">
-          <!-- Puro gráfico: cada número está como texto en la leyenda -->
-          <div class="instrumento" aria-hidden="true">
-            <div class="escala" id="escala"></div>
-            <div class="regla" id="regla"></div>
-          </div>
-          <div class="leyenda">
-            <div class="leyenda-item" style="border-color: var(--acento)">
-              <div class="v" id="lg-actual">—</div>
-              <div class="k">Nivel actual del río</div>
-            </div>
-            <!-- Los pone pintarRio(): salen de la estación, no del HTML -->
-            <div class="leyenda-item" style="border-color: var(--alerta)">
-              <div class="v" id="lg-alerta">—</div>
-              <div class="k">
-                Alerta de la ciudad. Empiezan evacuaciones fuera del anillo de
-                defensas
-              </div>
-            </div>
-            <div class="leyenda-item" style="border-color: var(--peligro)">
-              <div class="v" id="lg-evac">—</div>
-              <div class="k">Evacuación de la ciudad</div>
-            </div>
-            <div class="leyenda-item" style="border-color: var(--tenue)">
-              <div class="v" id="lg-record">—</div>
-              <div class="k" id="lg-record-k">La mayor crecida registrada</div>
-            </div>
-            <div
-              class="leyenda-item"
-              id="lg-cota-wrap"
-              style="border-color: var(--tierra); display: none"
-            >
-              <div class="v" id="lg-cota">—</div>
-              <div class="k" id="lg-cota-k">
-                Tu nivel de aviso: si el río llega acá, el agua puede llegar a
-                tu terreno. Es aproximado.
-              </div>
-            </div>
-          </div>
+        <!-- Etiquetas sobre la regla: las pone pintarRio() -->
+        <div class="hidrometro" id="hidrometro" role="img">
+          <div class="escala" id="escala"></div>
+          <div class="regla" id="regla"></div>
         </div>
-        <div
-          class="chico"
-          id="origen-dato"
-          role="status"
-          style="margin-top: 10px"
-        ></div>
+        <div class="chico origen-dato" id="origen-dato" role="status"></div>
       </div>
 
       <!-- Sin altura cargada, la app no contesta su propia pregunta -->
       <div id="cta-cota"></div>
 
-      <details class="tarjeta" id="det-manual">
-        <summary
-          style="
-            cursor: pointer;
-            font-family: var(--sans);
-            font-weight: 600;
-            font-size: var(--t-m);
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-          "
-        >
-          Cargar el nivel a mano
-        </summary>
+      <details class="tarjeta plegable" id="det-manual">
+        <summary>Cargar el nivel a mano</summary>
         <p class="chico" style="margin: 11px 0">
           Si el dato automático falla o querés simular un escenario, escribí la
           altura que informa Prefectura, el INA o la FICH-UNL.
@@ -409,13 +358,18 @@
       </details>
 
       <h2>Lluvia prevista</h2>
+      <p class="chico">
+        Tu nivel de aviso mira sólo el río. La lluvia es otro riesgo: si cae
+        mucha en poco tiempo, o varios días seguidos, puede anegar calles y
+        casas <b>aunque el río esté bajo</b>.
+      </p>
       <div class="tarjeta" id="lluvia-caja">
         <span class="eti">Milímetros por día · próximos 7 días</span>
         <div class="dias" id="dias"></div>
-        <p class="chico" style="margin: 11px 0 0" id="lluvia-resumen"></p>
-        <p class="chico" style="margin: 7px 0 0; color: var(--tenue)">
-          Las barras están a escala. La línea marca los <b>40 mm en un día</b>,
-          desde donde empieza a costar sacar el agua de la ciudad.
+        <p class="chico" style="margin: 11px 0 0">
+          <span id="lluvia-resumen"></span> Las barras están a escala: la línea
+          marca los <b>40 mm en un día</b>, desde donde empieza a costar sacar
+          el agua de la ciudad.
         </p>
       </div>
 
@@ -435,9 +389,7 @@
       <!-- Sólo valores con fuente publicada -->
       <h2>En contexto</h2>
       <div class="tarjeta" id="contexto-caja">
-        <span class="eti">Dónde está el río hoy</span>
-        <div class="barras" id="contexto" aria-hidden="true"></div>
-        <p class="chico" id="contexto-texto" style="margin: 12px 0 0"></p>
+        <div id="contexto-texto"></div>
       </div>
 
       <h2>Compartir</h2>
@@ -460,87 +412,105 @@
 
     <!-- ======================= MI CASA ======================= -->
     <section class="vista" id="v-cota" aria-label="Mi casa" tabindex="-1">
-      <h2>¿A qué nivel del río te toca prepararte?</h2>
-      <p class="chico">
-        El río tiene una regla en el puerto. Tu terreno tiene una altura. Con
-        las dos, la app calcula tu nivel de aviso: el nivel del río a partir
-        del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.
-      </p>
-
-      <div class="tarjeta">
-        <h3 style="margin-top: 0">1 · Dónde vivís</h3>
-        <label class="campo"
-          ><span>Zona</span>
-          <select id="sel-zona"></select
-        ></label>
-        <p class="chico" id="nota-zona"></p>
+      <!-- Con la casa cargada, el resultado va primero: ver cota.js -->
+      <div id="cota-intro">
+        <h2>¿A qué nivel del río te toca prepararte?</h2>
+        <p class="chico">
+          El río tiene una regla en el puerto. Tu terreno tiene una altura. Con
+          las dos, la app calcula tu nivel de aviso: el nivel del río a partir
+          del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.
+        </p>
       </div>
 
-      <div class="tarjeta">
-        <h3 style="margin-top: 0">2 · La cota de tu terreno</h3>
-
-        <label class="campo"
-          ><span>Altura de tu terreno sobre el mar, en metros (la «cota
-            IGN» del plano o la escritura)</span>
-          <input
-            type="text"
-            inputmode="decimal"
-            id="in-cota"
-            autocomplete="off"
-            placeholder="16,00"
-            data-input="cota-manual"
-        /></label>
-
-        <div class="fila">
-          <button class="btn sec" data-accion="cota-gps">
-            Usar mi ubicación
-          </button>
-          <button class="btn sec" data-accion="abrir-dir">
-            Buscar dirección
-          </button>
-          <!-- La única que no pide saber ningún dato -->
-          <button class="btn sec" type="button" data-accion="cota-mapa">
-            Marcar mi casa en el mapa
-          </button>
+      <div id="pasos-casa">
+        <div class="tarjeta">
+          <h3 style="margin-top: 0">1 · Dónde vivís</h3>
+          <label class="campo"
+            ><span>Zona</span>
+            <select id="sel-zona"></select
+          ></label>
+          <p class="chico" id="nota-zona"></p>
         </div>
 
-        <div id="caja-dir" style="display: none">
-          <label class="campo campo-dir"
-            ><span>Dirección</span>
+        <div class="tarjeta">
+          <h3 style="margin-top: 0">2 · La altura de tu terreno</h3>
+
+          <!-- aria-pressed: de dónde salió la altura en uso -->
+          <div
+            class="segmentado metodos"
+            role="group"
+            aria-label="Cómo cargar la altura">
+            <button type="button" data-accion="cota-gps" data-metodo="gps" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="3" />
+                <circle cx="12" cy="12" r="7" />
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+              </svg>
+              Mi ubicación
+            </button>
+            <button type="button" data-accion="abrir-dir" data-metodo="direccion" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="11" cy="11" r="6" />
+                <path d="M20 20l-4.5-4.5" />
+              </svg>
+              Dirección
+            </button>
+            <!-- La única que no pide saber ningún dato -->
+            <button type="button" data-accion="cota-mapa" data-metodo="mapa" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+                <circle cx="12" cy="9.5" r="2.5" />
+              </svg>
+              Mapa
+            </button>
+          </div>
+
+          <div id="caja-dir" style="display: none">
+            <label class="campo campo-dir"
+              ><span>Dirección</span>
+              <input
+                type="text"
+                id="in-dir"
+                placeholder="Ej: Risso 1745"
+                data-input="sugerir-calle"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="sug-dir"
+                aria-describedby="pista-dir"
+                autocomplete="off"
+                autocapitalize="words"
+                spellcheck="false"
+                enterkeyhint="search"
+            /></label>
+            <!-- Sugerencias: js/app/calles.js -->
+            <ul id="sug-dir" class="sug-dir" role="listbox" aria-label="Calles de Santa Fe" hidden></ul>
+            <p class="chico pista-dir" id="pista-dir">
+              Escribí la calle y el número de tu casa.
+            </p>
+            <button class="btn sec" data-accion="buscar-dir">Buscar</button>
+          </div>
+
+          <p class="chico" id="estado-cota" role="status"></p>
+
+          <label class="campo"
+            ><span>O escribila: metros sobre el mar (la «cota IGN» del plano o
+              la escritura)</span>
             <input
               type="text"
-              id="in-dir"
-              placeholder="Ej: Risso 1745"
-              data-input="sugerir-calle"
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded="false"
-              aria-controls="sug-dir"
-              aria-describedby="pista-dir"
+              inputmode="decimal"
+              id="in-cota"
               autocomplete="off"
-              autocapitalize="words"
-              spellcheck="false"
-              enterkeyhint="search"
+              placeholder="16,00"
+              data-input="cota-manual"
           /></label>
-          <!-- Sugerencias: js/app/calles.js -->
-          <ul id="sug-dir" class="sug-dir" role="listbox" aria-label="Calles de Santa Fe" hidden></ul>
-          <p class="chico pista-dir" id="pista-dir">
-            Escribí la calle y el número de tu casa.
-          </p>
-          <button class="btn sec" data-accion="buscar-dir">Buscar</button>
-        </div>
 
-        <p class="chico" id="estado-cota" role="status"></p>
-
-        <div class="aviso" style="margin-top: 12px">
-          <b>Ni la mejor cota reemplaza un relevamiento de tu terreno.</b> Sale
-          de las curvas de nivel del municipio, que pasan cerca de tu casa pero
-          no por tu puerta, y el cálculo va siempre medio metro por debajo. El
-          número que vale es el de un relevamiento, la escritura, o el que te
-          dé el municipio.
           <!-- La explicación larga vive en /datos -->
-          <a href="/datos">Cómo se calcula, en detalle</a>.
-        </div>
+          <p class="chico" style="margin: 0">
+            Sale de las curvas de nivel del municipio: pasan cerca de tu casa,
+            no por tu puerta. Si tenés el número de la escritura o de un
+            relevamiento, vale más. <a href="/datos">Cómo se calcula</a>.
+          </p>
         </div>
       </div>
 
@@ -556,11 +526,13 @@
       tabindex="-1"
     >
       <h2>Plan familiar</h2>
-      <p class="chico" id="resumen-plan" role="status"></p>
       <p class="chico">
         Se guarda en este teléfono. No se envía a ningún lado. Llenalo ahora,
         con tiempo, no cuando el agua ya esté en la puerta.
       </p>
+
+      <!-- Lo llena pintarProgreso() en plan.js -->
+      <div class="tarjeta oscura progreso-plan" id="resumen-plan" role="status"></div>
 
       <div class="tarjeta">
         <h3 style="margin-top: 0">Acuerdos de la familia</h3>
@@ -598,17 +570,25 @@
         /></label>
       </div>
 
-      <h2>
-        Mochila de emergencia <span class="cuenta" id="prog-mochila"></span>
-      </h2>
-      <p class="chico">
-        Preparada durante toda la temporada de lluvias, en un lugar que todos
-        conozcan.
-      </p>
-      <div class="tarjeta" id="lista-mochila"></div>
+      <div class="tarjeta lista-plan">
+        <div class="lp-cabeza">
+          <h2>Mochila de emergencia</h2>
+          <span class="cuenta-lista" id="prog-mochila"></span>
+        </div>
+        <p class="chico">
+          Preparada durante toda la temporada de lluvias, en un lugar que todos
+          conozcan.
+        </p>
+        <div id="lista-mochila"></div>
+      </div>
 
-      <h2>Antes de que suba <span class="cuenta" id="prog-previa"></span></h2>
-      <div class="tarjeta" id="lista-previa"></div>
+      <div class="tarjeta lista-plan">
+        <div class="lp-cabeza">
+          <h2>Antes de que suba</h2>
+          <span class="cuenta-lista" id="prog-previa"></span>
+        </div>
+        <div id="lista-previa"></div>
+      </div>
 
       <!-- El sello, una sola vez al pie de las dos listas -->
       <p class="sello-fuente">
@@ -626,10 +606,10 @@
       <button class="btn" data-accion="compartir">
         Compartir por WhatsApp
       </button>
-      <button class="btn sec" data-accion="exportar">
-        Descargar el plan (.txt)
-      </button>
-      <button class="btn sec" data-accion="imprimir">Imprimir el plan</button>
+      <div class="par-botones">
+        <button class="btn sec" data-accion="exportar">Descargar (.txt)</button>
+        <button class="btn sec" data-accion="imprimir">Imprimir</button>
+      </div>
       <p
         class="chico"
         id="estado-guardado"
@@ -641,26 +621,28 @@
     <!-- ======================= DÓNDE IR ======================= -->
     <section class="vista" id="v-donde" aria-label="Dónde ir" tabindex="-1">
       <!-- Lo que sirve sin configurar nada. Ver README -->
-      <div id="ayuda-simple" class="tarjeta" hidden>
+      <div id="ayuda-simple" class="tarjeta oscura" hidden>
         <h2 style="margin-top: 0">Si no sabés nada de esto</h2>
-        <ol class="pasos">
+        <ol class="pasos-num">
           <li>
-            Guardá este número. Si te dicen que salgas, salí.
-            <a class="btn-emergencia" href="tel:103"
-              ><b>103</b> Defensa Civil</a
+            <span class="pn-txt"><b>Guardá este número. Si te dicen que salgas,
+              salí.</b></span>
+            <a class="btn-emergencia fila-103" href="tel:103"
+              ><span>Defensa Civil</span><b>103</b></a
             >
           </li>
           <li>
-            Tocá <b>«Mostrar el más cercano a mí»</b>, acá abajo, y fijate
-            adónde ir si hay que salir.
+            <span class="pn-txt">Tocá <b>«Mostrar el más cercano a mí»</b>, acá
+              abajo, y fijate adónde ir si hay que salir.</span>
           </li>
           <li>
-            Si hay agua que corre, no la cruces: 30 cm —menos que una rodilla—
-            te arrastran.
+            <span class="pn-txt">Si hay agua que corre, <b>no la cruces</b>: 30
+              cm —menos que una rodilla— te arrastran.</span>
           </li>
           <li>
-            Cuando puedas, pedile a alguien que te ayude a cargar tu casa: así
-            te avisamos cuando el río importe para vos.
+            <span class="pn-txt">Cuando puedas, pedile a alguien que te ayude a
+              cargar tu casa: así te avisamos cuando el río importe para
+              vos.</span>
             <button
               class="btn sec mini"
               type="button"
@@ -691,24 +673,27 @@
       <div class="mapa-y-lista">
         <div class="col-mapa">
           <div id="mapa"></div>
-          <button class="btn sec" data-accion="ubicarme">
+          <button class="btn" data-accion="ubicarme">
             Mostrar el más cercano a mí
           </button>
           <p class="chico" id="estado-mapa" role="status"></p>
+          <p class="aviso nota-puntos">
+            Los puntos abren cuando el municipio los activa.
+            <b>Antes de salir, llamá al <a href="tel:103">103</a>.</b>
+          </p>
         </div>
 
         <div class="col-lista">
-          <label class="campo"
-            ><span>Buscar</span>
-            <input
-              type="text"
-              id="buscar-punto"
-              placeholder="Nombre o calle"
-              data-input="filtrar-puntos"
-          /></label>
-
           <!-- En el HTML, no inyectados: es la fuente de los 30 puntos -->
-          <div class="tarjeta">
+          <div class="tarjeta lista-puntos-caja">
+            <label class="campo"
+              ><span>Buscar por nombre o calle</span>
+              <input
+                type="search"
+                id="buscar-punto"
+                placeholder="Ej: Guadalupe, Blas Parera"
+                data-input="filtrar-puntos"
+            /></label>
             <ul class="lista-plana" id="lista-puntos">
               <li data-lon="-60.72546604" data-lat="-31.5965">
                 <a
@@ -717,7 +702,7 @@
                 >
                   <span class="n">Asoc. Vecinal Sarmiento</span>
                   <span class="d">Vieytes 5047</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.60681828" data-lat="-31.6270493">
@@ -727,7 +712,7 @@
                 >
                   <span class="n">ASOEM Camping</span>
                   <span class="d">RP Nº 1 - km 2.5</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72517614" data-lat="-31.66131579">
@@ -737,7 +722,7 @@
                 >
                   <span class="n">Boca del Tigre</span>
                   <span class="d">J.J. Paso y Zavalla</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72595784" data-lat="-31.65460239">
@@ -747,7 +732,7 @@
                 >
                   <span class="n">Bochas Club Mitre</span>
                   <span class="d">Gral. López 3815</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72689011" data-lat="-31.58001751">
@@ -757,7 +742,7 @@
                 >
                   <span class="n">Bomberos Voluntarios Las Flores</span>
                   <span class="d">Av. Blas Parera 8700</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.63433982" data-lat="-31.64234205">
@@ -767,7 +752,7 @@
                 >
                   <span class="n">Capilla Nuestra Señora de la Guardia</span>
                   <span class="d">A. de Petre y H. Serafina</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.71863653" data-lat="-31.61379472">
@@ -777,7 +762,7 @@
                 >
                   <span class="n">Cementerio Municipal</span>
                   <span class="d">Av. Blas Parera 5401</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.66612462" data-lat="-31.5977847">
@@ -787,7 +772,7 @@
                 >
                   <span class="n">Centro Comunitario Noreste</span>
                   <span class="d">Defensa y French</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.6988815" data-lat="-31.59267741">
@@ -797,7 +782,7 @@
                 >
                   <span class="n">CIC Facundo Zuviría</span>
                   <span class="d">Av. Facundo Zuviría 8002 / Azcuénaga</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.68433875" data-lat="-31.5785339">
@@ -807,7 +792,7 @@
                 >
                   <span class="n">CIC Roca</span>
                   <span class="d">Pasaje Roca y República de Siria</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.73261501" data-lat="-31.66508848">
@@ -817,7 +802,7 @@
                 >
                   <span class="n">Cilsa</span>
                   <span class="d">Mar Argentino y R11</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.68928171" data-lat="-31.57358485">
@@ -827,7 +812,7 @@
                 >
                   <span class="n">Club Banco Provincia</span>
                   <span class="d">Av. Aristóbulo del Valle 9958</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72944315" data-lat="-31.59893853">
@@ -837,7 +822,7 @@
                 >
                   <span class="n">Club Cabal</span>
                   <span class="d">Servando Bayo 6730</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.60493224" data-lat="-31.62688844">
@@ -847,7 +832,7 @@
                 >
                   <span class="n">Distrito La Costa</span>
                   <span class="d">RP Nº 1 - km 2.7</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.60814703" data-lat="-31.62364809">
@@ -857,7 +842,7 @@
                 >
                   <span class="n">Estación Colastiné Norte</span>
                   <span class="d">Las Macluras y Orquídeas</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72427681" data-lat="-31.65484814">
@@ -867,7 +852,7 @@
                 >
                   <span class="n">Estación Mitre (Andenes)</span>
                   <span class="d">Gral. López y San Juan</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72986264" data-lat="-31.65645015">
@@ -877,7 +862,7 @@
                 >
                   <span class="n">Estación San Lorenzo</span>
                   <span class="d">Entre Ríos 4080</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.70727912" data-lat="-31.58704761">
@@ -887,7 +872,7 @@
                 >
                   <span class="n">Jardín Botánico Ing. Lorenzo Parodi</span>
                   <span class="d">Av. Gorriti 3902</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.63365832" data-lat="-31.63972864">
@@ -897,7 +882,7 @@
                 >
                   <span class="n">La Virgencita</span>
                   <span class="d">RN 168 y calle Principal</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72916015" data-lat="-31.64108094">
@@ -907,7 +892,7 @@
                 >
                   <span class="n">Mediateca</span>
                   <span class="d">Pje. Mitre y Tucumán</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.62654115" data-lat="-31.6381007">
@@ -919,7 +904,7 @@
                     >Parada de ómnibus (La Guardia/Colastiné)</span
                   >
                   <span class="d">Ruta 1 y Favaloro</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.74551756" data-lat="-31.56381964">
@@ -929,7 +914,7 @@
                 >
                   <span class="n">Polideportivo La Tablada</span>
                   <span class="d">Teniente Loza 6970</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.71754382" data-lat="-31.63212773">
@@ -939,7 +924,7 @@
                 >
                   <span class="n">Talleres Municipales</span>
                   <span class="d">Pte. Perón 3575</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72236452" data-lat="-31.66487521">
@@ -949,7 +934,7 @@
                 >
                   <span class="n">Vecinal Centenario</span>
                   <span class="d">Zavalía 711</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.69540016" data-lat="-31.59617794">
@@ -959,7 +944,7 @@
                 >
                   <span class="n">Vecinal Facundo Quiroga</span>
                   <span class="d">Almafuerte 7739</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.68367933" data-lat="-31.60310257">
@@ -969,7 +954,7 @@
                 >
                   <span class="n">Vecinal Guadalupe Oeste</span>
                   <span class="d">Risso 1745</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.72253068" data-lat="-31.636429">
@@ -979,7 +964,7 @@
                 >
                   <span class="n">Vecinal Juan de Garay</span>
                   <span class="d">Salvador Caputto 3955</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.69534873" data-lat="-31.58298864">
@@ -989,7 +974,7 @@
                 >
                   <span class="n">Vecinal Las Delicias</span>
                   <span class="d">Alfonsina Storni 3100</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.70076676" data-lat="-31.66521436">
@@ -999,7 +984,7 @@
                 >
                   <span class="n">Vecinal Pro Mejoras Alto Verde</span>
                   <span class="d">Manzana 1, M. Gómez e I. Monzón</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
               <li data-lon="-60.73289024" data-lat="-31.57099227">
@@ -1009,7 +994,7 @@
                 >
                   <span class="n">Vecinal Santa Marta</span>
                   <span class="d">Chubut 6291</span>
-                  <span class="ir">Abrir en mapas →</span>
+                  <span class="ir">Mapas →</span>
                 </a>
               </li>
             </ul>
@@ -1099,6 +1084,17 @@
       <h2 style="margin-top: 0">Ajustes</h2>
 
       <div id="ajustes-avisos"></div>
+
+      <!-- Sólo sin instalar; lo decide instalar.js -->
+      <div class="tarjeta" id="instalar-ajustes" hidden>
+        <h3 style="margin-top: 0">Instalar en el teléfono</h3>
+        <p class="chico" style="margin: 0 0 12px">
+          Entra sin buscarla en el navegador y funciona sin señal.
+        </p>
+        <button class="btn sec mini" type="button" data-accion="instalar">
+          Instalar
+        </button>
+      </div>
 
       <h3>Cómo se ve</h3>
       <div class="tarjeta">
@@ -1213,19 +1209,8 @@
 
     <!-- Corto a propósito: sólo lo que no puede faltar. Ver README -->
     <div class="pie">
-      <!-- Se muestra sólo si la app no está instalada; lo decide instalar.js. -->
-      <p id="instalar-pie" class="instalar-pie" hidden>
-        <button class="btn sec mini" type="button" data-accion="instalar">
-          Instalar en el teléfono
-        </button>
-        <span class="chico"
-          >Entra sin buscarla en el navegador y funciona sin señal.</span
-        >
-      </p>
-      Herramienta ciudadana, sin vínculo con organismos oficiales.<br />
-      No reemplaza una orden de evacuación: si Defensa Civil o el municipio te
-      dicen que salgas, salí.<br />
-      <span id="version"></span>
+      Herramienta ciudadana, sin vínculo oficial. Si Defensa Civil dice que
+      salgas, salí.
 
       <!-- La firma es el contrapeso del «sin vínculo oficial» -->
       <div class="firma">Hecho por <b>Ariel Benz</b></div>

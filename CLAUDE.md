@@ -336,7 +336,7 @@ propósito: se sigue rastreando y sigue pasando autoridad.
 
 **Los datos históricos van en el HTML, no sólo en el JS.** `/historia` los
 emite `scripts/paginas.js` desde `datos-abiertos/historia.json`; `js/historia.js`
-sólo agrega la franja y el tanque que se recorre. Antes esa página no tenía un
+sólo agrega la franja que se recorre. Antes esa página no tenía un
 solo número en el marcado y el contenedor salía con `hidden`. **No volver a
 mover contenido al JavaScript.**
 

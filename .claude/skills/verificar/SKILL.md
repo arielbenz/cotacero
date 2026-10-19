@@ -1,0 +1,130 @@
+---
+name: verificar
+description: Verifica un cambio en Cota Cero en el orden que pide CLAUDE.md — sintaxis, generador de páginas, guía en PDF, servidor local y navegador a 390 px y en escritorio, en claro y en oscuro. Usala después de tocar cualquier .js, .css o HTML del proyecto, antes de dar un cambio por terminado.
+---
+
+# Verificar un cambio
+
+El proyecto no tiene tests ni linter a propósito (ver CLAUDE.md, «Comandos»).
+Esta es la verificación, en este orden. No saltear pasos: cada uno agarra
+algo que el anterior no ve.
+
+## 1. Sintaxis
+
+`node --check` en cada `.js` tocado. Para no olvidarse de ninguno:
+
+```bash
+for f in $(git diff --name-only -- '*.js'); do node --check "$f" || echo "FALLA $f"; done
+```
+
+## 2. El generador
+
+Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js`,
+`app/index.html`, `index.html`, `lib/fuentes.js`, `lib/comun.js`,
+`lib/paginas.js`, `lib/listas.js`, `lib/charlas.js` o `lib/sugerencias.js`.
+Ante la duda, correrlo: es barato.
+
+Las tres últimas líneas tienen que decir:
+
+```
+portada, app y widget: coinciden con lib/paginas.js
+service worker: precachea los 22 módulos de la app
+service worker: precachea las 10 páginas generadas
+```
+
+Si falla, falla ruidoso y dice por qué. Un módulo nuevo en `js/app/` va al
+precache de `sw.js`, o el generador revienta (y si no reventara, la app se
+quedaría sin modo sin conexión, en silencio).
+
+## 3. La guía en PDF
+
+Si se tocó `scripts/paginas.js` o `css/guia.css`:
+
+```bash
+node scripts/guia-pdf.js
+```
+
+Tiene que decir `1 carilla`. Si dice dos, la hoja se pasó: se fotocopia por
+cientos y dos carillas son el doble de plata. Para mirarla sin poppler:
+
+```bash
+sips -s format png guia.pdf --out "$SCRATCHPAD/guia.png"
+```
+
+## 4. Servidor y navegador
+
+```bash
+PORT=3100 node scripts/servir.js   # en segundo plano
+```
+
+Es el único servidor que aplica la CSP de `vercel.json`. Un
+`python -m http.server` no prueba la política.
+
+Mirar con las herramientas de Chrome DevTools, en un contexto aislado (sin
+datos guardados de otra sesión):
+
+- **Ancho de teléfono: 390 px con `emulate`** (`390x844x2,mobile,touch`). Por
+  CDP sí baja a 390; con `--window-size` no baja de ~485.
+- **Escritorio: 1280 px.**
+- **Claro y oscuro** (`colorScheme`). Las cuatro pestañas de la app tienen
+  versión oscura en el diseño.
+- **Consola limpia.** En local siempre aparecen dos errores de
+  `/_vercel/insights/script.js` (404 y MIME): no existen fuera de Vercel y se
+  ignoran. Cualquier otro error es real.
+- **Sin scroll de costado:** `document.documentElement.scrollWidth` tiene que
+  dar el ancho de la ventana (390 o 1265 con barra de scroll).
+
+### La app con datos
+
+Para ver los estados con la casa cargada, sembrar `localStorage` antes de
+recargar:
+
+```js
+localStorage.setItem("cc_zona", "centro");
+localStorage.setItem("cc_cota", "13.7");      // ≈ 5,5 de nivel de aviso
+localStorage.setItem("cc_cota_origen", "mano");
+localStorage.setItem("cc_no_instalar", "1");  // que la barra no tape
+```
+
+Los estados graves se prueban cargando el río a mano: `#in-rio` +
+`[data-accion="rio-manual"]`. Probar al menos normal, atención (4,5), alerta
+(5,4), evacuación (5,8) y nivel de aviso superado.
+
+## Trampas conocidas
+
+- **La 404 en local:** `servir.js` no sirve `404.html` para rutas que no
+  existen. Abrir `http://localhost:3100/404.html` directo.
+- **No se pueden abrir páginas en un `<iframe>`** para recorrerlas de una:
+  la CSP lleva `frame-ancestors 'none'`. Navegar de a una. El widget sí se
+  deja embeber (es el único).
+- **`scripts/servir.js` es binario para `grep`:** usar `grep -a`.
+- **La regla general de enlaces de las páginas mide (0,8,1)**
+  (`.landing a:not(.btn):not(.lockup)…`). Un enlace que sale azul sin
+  querer casi siempre es eso: o lleva una clase excluida (`.punto`), o se
+  repite la cadena entera con el prefijo del contenedor.
+- **Antes de estrenar una clase, `grep` en `css/app.css`.** `.cuenta` y
+  `.cita` ya nombraron dos cosas a la vez y las dos salían rotas sin fallar.
+- **Al tocar el marcado a mano, contar los `<div>`.** Un cierre de más o de
+  menos no da error, sólo rompe el layout lejos de donde está:
+
+  ```bash
+  python3 -c "
+  from html.parser import HTMLParser
+  class P(HTMLParser):
+      d=0
+      def handle_starttag(s,t,a): s.d+= t=='div'
+      def handle_endtag(s,t): s.d-= t=='div'
+  p=P(); p.feed(open('index.html').read()); print('saldo', p.d)"
+  ```
+
+  Tiene que dar `saldo 0`.
+
+## Antes de publicar (no en cada cambio)
+
+- Subir `VERSION` en `sw.js`, o lo que va por caché primero queda congelado.
+- `rediseno/` está en `.gitignore`: no se publica.
+
+## Qué reportar
+
+Lo que se corrió y lo que dio, tal cual. Si algo no se pudo verificar —sin
+Chrome, sin red para el INA— decirlo, no darlo por bueno.
