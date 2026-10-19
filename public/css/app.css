@@ -618,6 +618,15 @@ p {
   background: var(--agua);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Dato vencido: el agua rayada en gris, nunca en --agua. */
+.agua.viejo {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tenue) 0 6px,
+    transparent 6px 12px
+  );
+  opacity: 0.4;
+}
 .marca-linea {
   position: absolute;
   left: 0;
@@ -698,6 +707,14 @@ p {
 }
 .marca-txt.l-hoy b {
   color: var(--acento);
+}
+/* Vencido, la línea del río deja el azul del agua: gris, como el agua
+   rayada y el número de la tarjeta. */
+.conectores .l-hoy.viejo,
+.marca-linea.l-hoy.viejo,
+.marca-txt.l-hoy.viejo,
+.marca-txt.l-hoy.viejo b {
+  color: var(--tenue);
 }
 .l-vos {
   color: var(--tierra);
@@ -849,6 +866,43 @@ p {
 .v-neutro {
   background: var(--panel);
   box-shadow: var(--sombra);
+}
+/* El dato vencido (más de 48 h): gris de punta a punta, número incluido.
+   Con este número no se decide nada, y no puede tener la cara de uno de
+   hoy. */
+.v-viejo {
+  background: var(--panel-2);
+  border: 1px solid var(--linea);
+  box-shadow: none;
+}
+.v-viejo .titu,
+.v-viejo .dato-rio,
+.celdas-umbral .t-viejo .v {
+  color: var(--tenue);
+}
+
+/* Mientras llega el dato: bloques con el alto de lo que va a ocupar, para
+   que la tarjeta no salte bajo el dedo (el CLS de /app era 0,264). */
+.esqueleto {
+  background: var(--panel-2);
+  border-radius: var(--r-s);
+}
+.esqueleto.e-titu {
+  width: 62%;
+  height: 28px;
+  margin-bottom: var(--e-3);
+}
+.esqueleto.e-dato {
+  width: 46%;
+  height: 56px;
+  margin-bottom: var(--e-3);
+}
+.esqueleto.e-linea {
+  height: 12px;
+  margin-top: var(--e-2);
+}
+.esqueleto.e-linea.corta {
+  width: 70%;
 }
 
 /* El número del río, con la unidad y el lugar en la misma línea. */
@@ -1715,17 +1769,113 @@ label.campo-dir {
   letter-spacing: 0;
   text-transform: none;
 }
+/* Sin red, con un dato de menos de 48 h (pintarConexion en rio.js). Gris y
+   no ámbar: el ámbar queda para cuando se juntan río y lluvia, y estar sin
+   señal no es un peligro, es un dato sobre el dato. La hora, a la derecha,
+   es la de la medición. */
 #sin-conexion {
-  background: var(--alerta-tinte);
-  border-bottom: 1px solid var(--alerta);
-  color: var(--alerta-texto);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  font-size: var(--t-s);
+  font-weight: 700;
+  padding: var(--e-3) var(--e-4);
+}
+#sin-conexion b {
   font-family: var(--mono);
   font-size: var(--t-xs);
-  letter-spacing: 0.04em;
-  padding: var(--e-2) var(--e-5);
-  text-align: center;
+  white-space: nowrap;
 }
 #sin-conexion[hidden] {
+  display: none;
+}
+
+/* La franja de la ciudad en la app (pintarFranjaCiudad en rio.js): el mismo
+   componente que la del sitio, más alto y entero tocable, con el 103 a la
+   derecha. Va arriba de la cabecera, así que se lleva el margen de la
+   muesca; la cabecera lo devuelve mientras la franja está. */
+.app .franja-estado .franja {
+  padding-top: env(safe-area-inset-top);
+}
+.app:has(.franja-estado .franja) .top {
+  padding-top: 14px;
+}
+.franja-estado a.franja-103 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 48px;
+  margin: 0;
+  padding: 0 var(--e-4);
+  color: var(--sobre-solido);
+  font-size: var(--t-s);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: normal;
+}
+.franja-estado a.franja-103 > span {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.franja-estado a.franja-103 b {
+  font-size: var(--t-l);
+  font-weight: 800;
+}
+
+/* El punto de Río y el número de Mi plan, en la barra de abajo. Van
+   absolutos: el botón es una columna y en el flujo se apilaban con el
+   ícono. El aro del color del fondo los despega del ícono. */
+.barra-app button {
+  position: relative;
+}
+.punto-tab {
+  position: absolute;
+  top: calc(var(--e-2) + 4px);
+  left: calc(50% + 14px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tenue);
+  box-shadow: 0 0 0 2px var(--panel);
+}
+.barra-app button.on .punto-tab {
+  box-shadow: 0 0 0 2px var(--agua-tinte);
+}
+.punto-tab[data-tono="ok"] {
+  background: var(--ok-texto);
+}
+.punto-tab[data-tono="alerta"] {
+  background: var(--alerta-texto);
+}
+.punto-tab[data-tono="peligro"] {
+  background: var(--peligro-texto);
+}
+.punto-tab[data-tono="cargando"] {
+  background: var(--linea);
+}
+.cuenta-tab {
+  position: absolute;
+  top: calc(var(--e-2) - 3px);
+  left: calc(50% + 8px);
+  min-width: 18px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--texto);
+  color: var(--fondo);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+.cuenta-tab[hidden] {
   display: none;
 }
 

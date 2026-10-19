@@ -86,6 +86,8 @@
   <body class="app">
     <!-- Salto al contenido: sólo visible con el foco -->
     <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <!-- Alerta y evacuación de la ciudad: la pinta rio.js. Vacía no ocupa -->
+    <div id="franja-estado" class="franja-estado" role="status"></div>
     <header class="top">
       <div class="marca-bloque">
         <h1 class="marca lockup">
@@ -315,11 +317,15 @@
       aria-label="Nivel del río"
       tabindex="-1"
     >
+      <!-- Bloques grises con el alto del contenido real: cuidan el CLS -->
       <div id="veredicto-rio" class="veredicto v-neutro cargando" role="status">
-        <div class="titu">El río tiene un número. Tu casa tiene otro.</div>
-        <p class="chico" style="margin: 0">
+        <div class="esqueleto e-titu" aria-hidden="true"></div>
+        <div class="esqueleto e-dato" aria-hidden="true"></div>
+        <p class="chico" style="margin: 0 0 10px">
           Buscando el nivel del río de hoy…
         </p>
+        <div class="esqueleto e-linea" aria-hidden="true"></div>
+        <div class="esqueleto e-linea corta" aria-hidden="true"></div>
       </div>
 
       <div class="tarjeta">
@@ -1225,6 +1231,8 @@
           <path d="M2 15c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
           <path d="M2 9c2.5-2 4-2 6.5 0s4 2 6.5 0 4-2 6.5 0" />
         </svg>
+        <!-- El color del estado: lo pinta rio.js -->
+        <i class="punto-tab" data-tono="cargando" aria-hidden="true"></i>
         <span>Río</span>
       </button>
       <button data-accion="ver" data-vista="cota">
@@ -1240,6 +1248,8 @@
           <path d="M6 6h12v15H6z" />
           <path d="M9 12l2 2 4-4" />
         </svg>
+        <!-- Lo que falta: lo pinta plan.js -->
+        <b class="cuenta-tab" hidden></b>
         <span>Mi plan</span>
       </button>
       <button data-accion="ver" data-vista="donde">

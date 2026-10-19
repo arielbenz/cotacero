@@ -68,6 +68,7 @@ import {
   cargarRio,
   cargarTendencia,
   fijarRioManual,
+  pintarConexion,
   pintarRio,
   ultimoRefresco,
 } from "./rio.js";
@@ -80,7 +81,7 @@ import {
   pintarAjustes,
   pintarSegmentoTema,
 } from "./tema.js";
-import { irA, pintarConexion, ver } from "./vista.js";
+import { irA, ver } from "./vista.js";
 
 /* ==========================================================================
    COTA CERO — Santa Fe
