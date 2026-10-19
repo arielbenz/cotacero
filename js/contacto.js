@@ -119,4 +119,7 @@ if (form) {
   form.addEventListener("submit", enviar);
   texto.addEventListener("input", contar);
   contar();
+  /* Una vez al arrancar: al recargar, el navegador puede restaurar otro tema
+     marcado y la ayuda del HTML quedaría diciendo la del tema por defecto. */
+  pintarAyuda();
 }

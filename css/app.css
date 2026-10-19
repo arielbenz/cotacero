@@ -3887,12 +3887,6 @@ p.pie-frescura,
 
 /* ---------- bienvenida ---------- */
 /* Overlay y no vista: la barra de pestañas se queda en cuatro. */
-/* [hidden] del navegador es display:none, pero pierde contra cualquier regla
-   de autor que fije display. Sin esta línea el overlay no se ocultaba nunca.
-   Vale para todo lo que se oculta con el atributo y tiene display propio. */
-.instalar-pie[hidden] {
-  display: none;
-}
 /* IMPRESCINDIBLE, y no es obvio: el navegador esconde un <dialog> cerrado con
    `dialog:not([open]) { display: none }`, que es (0,1,1). Un `.bienvenida
    { display: flex }` a secas es (0,1,0)… pero gana igual, porque el UA
@@ -5838,9 +5832,11 @@ button.enlace-crudo {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--e-3);
-  margin-top: var(--e-5);
+  margin: var(--e-5) 0;
 }
-.tarjetas-tres > * {
+/* Con `.landing` adelante: en /sobre las tarjetas son <section>, y
+   `.landing section` (0,1,1) les pisaba el padding con uno sin costados. */
+.landing .tarjetas-tres > * {
   border-radius: var(--r-m);
   background: var(--panel);
   box-shadow: var(--sombra);
@@ -5850,13 +5846,11 @@ button.enlace-crudo {
   display: block;
   font-size: var(--t-m);
 }
-/* En /sobre las tarjetas llevan rótulo y título propios. */
+/* En /sobre las tarjetas llevan un título propio. Sin rótulo mono encima:
+   «Qué no es» arriba de «No predice inundaciones» decía lo mismo dos veces. */
 .landing .sobre-tres h2 {
-  margin: var(--e-2) 0 var(--e-3);
+  margin: 0 0 var(--e-3);
   font-size: var(--t-l);
-}
-.sobre-tres .eti {
-  margin: 0;
 }
 .sobre-tres b {
   display: inline;

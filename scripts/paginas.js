@@ -763,7 +763,7 @@ const htmlDatos = pagina({
       oscuro: true,
       id: "cuenta-entera",
       titulo: "La cuenta, entera",
-      html: `        <p class="formula" aria-label="Tu nivel de aviso es la cota del terreno, menos 0,50, menos el cero del hidrómetro (8,20), menos los kilómetros río arriba por 0,045.">
+      html: `        <p class="formula">
           <span>cota del terreno <b>− 0,50</b></span>
           <span><b>−</b> cero del hidrómetro <b>(8,20)</b></span>
           <span><b>−</b> km río arriba <b>× 0,045</b></span>
@@ -1543,9 +1543,9 @@ const htmlHistoria = pagina({
             hidrómetro. Tocá una barra, o usá las flechas, para ver ese año.
           </p>
           <ul class="h-leyenda" aria-hidden="true">
-            <li><i class="h-b-normal"></i>No llegó a la alerta</li>
-            <li><i class="h-b-alerta"></i>Llegó a la alerta</li>
-            <li><i class="h-b-evac"></i>Llegó a la evacuación</li>
+            <li><i class="h-b-normal"></i>No llegó a la alerta de la ciudad</li>
+            <li><i class="h-b-alerta"></i>Llegó a la alerta de la ciudad</li>
+            <li><i class="h-b-evac"></i>Llegó a la evacuación de la ciudad</li>
           </ul>
           <div id="h-franja" class="h-franja" role="slider" tabindex="0"
             aria-label="Año de la serie"></div>
@@ -1809,17 +1809,14 @@ const htmlSobre = pagina({
   sueltos: [
     `      <div class="tarjetas-tres sobre-tres">
         <section>
-          <span class="eti">Quién</span>
           <h2>Una persona, no una institución</h2>
           <p>La hace <b>Ariel Benz</b>, por cuenta propia. Sin empresa, ONG ni organismo detrás, y sin financiamiento.</p>
         </section>
         <section>
-          <span class="eti">Qué no es</span>
           <h2>No predice inundaciones</h2>
           <p>Relaciona dos alturas. No sabe si entre el río y tu casa hay un terraplén o una bomba, y no ve la lluvia que cae sobre la ciudad. <a href="/datos#abiertas">Lo que está en discusión</a>.</p>
         </section>
         <section>
-          <span class="eti">Con qué</span>
           <h2>Todo tiene fuente y enlace</h2>
           <ul class="fuentes-cortas">
             <li><b>El río</b> · INA</li>
