@@ -14,11 +14,11 @@ entre archivos de una forma que no se ve leyendo uno solo.
 
     node scripts/servir.js            # http://localhost:3000 (PORT=3100 para otro puerto)
     node scripts/paginas.js           # regenera las páginas de contenido
-    node scripts/historia.js          # baja la serie del INA -> datos-abiertos/historia.json
-    node scripts/curvas.js            # baja las curvas del municipio -> datos-abiertos/curvas.json
-    node scripts/calles.js            # baja el callejero de Georef -> datos-abiertos/calles.json
+    node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
+    node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
+    node scripts/calles.js            # baja el callejero de Georef -> public/datos-abiertos/calles.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
-    node scripts/guia-pdf.js          # imprime /guia a guia.pdf (Chrome headless)
+    node scripts/guia-pdf.js          # imprime /guia a public/guia.pdf (Chrome headless)
     node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
     node scripts/vapid.js             # claves de push, se corre una sola vez
 
@@ -27,16 +27,16 @@ Es deliberado. Agregar cualquiera de esas cosas es una decisión de proyecto, no
 un detalle de implementación: preguntá antes.
 
 `scripts/servir.js` es el único servidor que sirve: aplica las cabeceras de
-`vercel.json` —**la CSP incluida**— y ejecuta las funciones de `/api`. Un
-`python -m http.server` no prueba la política.
+`vercel.json` —**la CSP incluida**—, sirve el sitio desde `public/` y ejecuta
+las funciones de `/api`. Un `python -m http.server` no prueba la política.
 
 ### Cómo se verifica un cambio
 
 Sin tests, la verificación es esta y en este orden:
 
 1. `node --check <archivo>` en cada `.js` tocado.
-2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `app/index.html`,
-   `lib/fuentes.js` **o `lib/comun.js`** —de este último sale un archivo
+2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
+   `public/lib/fuentes.js` **o `public/lib/comun.js`** —de este último sale un archivo
    generado, ver abajo—.
 3. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
    abierta. Los módulos (`lib/`, `scripts/`) se pueden probar importándolos
@@ -88,7 +88,7 @@ descarga dice una cosa y la página otra. El script falla ruidoso si la hoja
 se pasa de **una carilla**: fotocopiar cien de dos carillas es el doble de
 plata, y esa hoja se reparte en centros vecinales.
 
-Las dos listas de la guía —mochila y previa— salen de `lib/listas.js`, las
+Las dos listas de la guía —mochila y previa— salen de `public/lib/listas.js`, las
 mismas que usa la app. No hay una segunda copia que se pueda desincronizar.
 
 **Subir `VERSION` en `sw.js` en cada deploy**, o todo lo que va por caché
@@ -98,18 +98,48 @@ primero (íconos, tipografías) queda congelado.
 
 ### Dónde vive cada cosa
 
-    js/app/             la app, en módulos ES (principal.js es la entrada)
-    js/ css/ img/       lo que baja el navegador
-    datos-abiertos/     los JSON que la app lee (y que cualquiera puede auditar)
-    app/ widget/        HTML escrito a mano
-    lib/ api/ scripts/  Node
-    sw.js               en la raíz a propósito: un service worker sólo controla
-                        su directorio hacia abajo
+    public/             EL SITIO: lo único que se publica (outputDirectory)
+      index.html          la portada, HTML a mano
+      app/ widget/        HTML a mano
+      datos/ historia/ …  las páginas que emite scripts/paginas.js
+      js/app/             la app, en módulos ES (principal.js es la entrada)
+      js/ css/ img/       lo que baja el navegador
+      lib/                lo que usan Node Y el navegador: comun, comun-clasico,
+                          fuentes, listas
+      datos-abiertos/     los JSON que la app lee (y que cualquiera puede auditar)
+      sw.js               en la raíz del sitio a propósito: un service worker
+                          sólo controla su directorio hacia abajo
+    api/                las funciones de Vercel (se publican como funciones, no
+                        como archivos)
+    lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
+                        sugerencias, charlas
+    scripts/            Node: el generador, el servidor local, las descargas
+    datos-crudos/       análisis y datos de trabajo; no se publican
+
+**Las rutas de este archivo que nombran algo del sitio —`js/app/rio.js`,
+`css/app.css`, `app/index.html`, `datos-abiertos/…`, `sw.js`— están dentro
+de `public/`.** Las de `api/`, `lib/` (la de Node), `scripts/` y
+`datos-crudos/` están en la raíz. Los cuatro archivos compartidos se nombran
+siempre con la ruta entera, `public/lib/…`, porque hay dos `lib/`.
+
+**Vercel publica sólo `public/`** (`"outputDirectory": "public"` en
+`vercel.json`) y toma las funciones de `api/` de la raíz. Antes publicaba la
+raíz entera: `/AUDITORIA.md`, `/scripts/paginas.js` y `/lib/ina.js`
+respondían 200. Las URLs del sitio no cambiaron con la mudanza.
+`scripts/servir.js` lee `outputDirectory` del mismo `vercel.json`, así que la
+carpeta está escrita en un solo lugar.
+
+**Los cuatro de `public/lib/` están ahí porque los importa el navegador**
+(`/lib/comun.js`, `/lib/fuentes.js`, `/lib/listas.js`, `/lib/comun-clasico.js`)
+y Node también. Por eso hay dos `lib/` y no una copia: una copia que se
+regenere sola es una copia que un día se desincroniza. Lo que sólo corre en
+Node no va en `public/`, o se publica.
 
 Las ocho carpetas de páginas —`datos/`, `historia/`, `legal/`…— están en la
-raíz porque **su ruta es su URL**, y por eso no se pueden agrupar. Cada una
-arranca con un comentario que avisa que la emite `scripts/paginas.js`. Si
-abrís un `index.html` y ves ese cartel, el archivo que hay que editar es otro.
+raíz del sitio porque **su ruta es su URL**, y por eso no se pueden agrupar.
+Cada una arranca con un comentario que avisa que la emite
+`scripts/paginas.js`. Si abrís un `index.html` y ves ese cartel, el archivo
+que hay que editar es otro.
 
 ### El nivel del río, y quién depende de su forma
 
@@ -132,7 +162,7 @@ contesta el reporte diario, que no las trae.
 
 Cada archivo dentro de `api/` se publica como una función de Vercel, y el plan
 Hobby topea en **12**. Hoy hay 8. Todo lo compartido va en `lib/`, que no se
-publica.
+publica —salvo los cuatro de `public/lib/`, que el navegador necesita—.
 
 ### Cuatro mundos que no se importan entre sí
 
@@ -148,18 +178,18 @@ Cada cosa que hacía falta en dos de esos cuatro terminaba copiada, y así los
 umbrales oficiales llegaron a estar escritos a mano en **ocho** archivos. Son
 un número de seguridad: una copia vieja hace que ese consumidor avise tarde.
 
-**`lib/comun.js` es la única fuente** de los umbrales de respaldo, el filtro de
+**`public/lib/comun.js` es la única fuente** de los umbrales de respaldo, el filtro de
 plausibilidad (`umbralesDe`), `VENCE_HORAS` y el formato de los números
 (`nm`, `m`, `mU`, `mCm`). Los módulos y Node lo importan. Los otros dos leen
-**`lib/comun-clasico.js`**, que **lo emite `scripts/paginas.js`** sacándole los
+**`public/lib/comun-clasico.js`**, que **lo emite `scripts/paginas.js`** sacándole los
 `export` y envolviéndolo en una IIFE que publica un solo nombre, `CC_COMUN`.
 
 Tres cosas de ahí:
 
-- **`lib/comun.js` no puede tener `import`.** El gemelo sale de una
+- **`public/lib/comun.js` no puede tener `import`.** El gemelo sale de una
   transformación de texto y eso sólo funciona si el archivo no depende de
   nadie. Nada de DOM, nada de fetch, nada de estado.
-- **Tocar `lib/comun.js` sin correr `node scripts/paginas.js` deja el gemelo
+- **Tocar `public/lib/comun.js` sin correr `node scripts/paginas.js` deja el gemelo
   viejo**, y entonces la app dice un número y el sitio otro. Es el único modo
   de romperlo.
 - **`comun-clasico.js` se carga ANTES que `rio-barra.js`** en las once páginas
@@ -178,25 +208,25 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Qué                                           | Dónde vive                                         | Quién lo lee                                                                                                                                                                           |
 | --------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                                              |
-| Organismos, URLs, la estación del INA         | `lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
+| Organismos, URLs, la estación del INA         | `public/lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
 | El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                                          |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                                              |
-| Umbrales de respaldo (5,30 / 5,70)            | `lib/comun.js`                                     | `lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
-| El filtro de plausibilidad de umbrales        | `lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                                                                                                                         |
-| Cómo se escribe un número (la coma, `mU`)     | `lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                                  |
-| Cuándo vence un dato (48 h)                   | `lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                                            |
-| Mochila y checklist previo                    | `lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                                                                                                                       |
+| Umbrales de respaldo (5,30 / 5,70)            | `public/lib/comun.js`                                     | `public/lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
+| El filtro de plausibilidad de umbrales        | `public/lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                                                                                                                         |
+| Cómo se escribe un número (la coma, `mU`)     | `public/lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                                  |
+| Cuándo vence un dato (48 h)                   | `public/lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                                            |
+| Mochila y checklist previo                    | `public/lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                                                                                                                       |
 | Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
-| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `lib/comun.js`; ver el comentario en `sw.js` |
+| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `public/lib/comun.js`; ver el comentario en `sw.js` |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
 portada y la app. Si se cambia el dibujo, se cambia en los cuatro.
 
-`js/app/fuentes.js` **importa `lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
+`js/app/fuentes.js` **importa `public/lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
 que el navegador carga como cualquier módulo porque es puro dato). Antes era
 una copia a mano; ya no hay dos listas que se puedan desincronizar.
 
@@ -526,7 +556,7 @@ hasta 3 m de diferencia para lo mismo en la misma pantalla.
 
 ### Las listas del plan se guardan por índice
 
-Cada casilla de `MOCHILA` y `PREVIA` (`lib/listas.js`, que `js/app/config.js`
+Cada casilla de `MOCHILA` y `PREVIA` (`public/lib/listas.js`, que `js/app/config.js`
 re-exporta) persiste como `cc_mo3`,
 `cc_pv5`… **por su posición**. Reordenar un renglón le mueve el tilde a todo el
 que ya venía llenando el plan. Se agrega al final; si hay que reordenar, hace

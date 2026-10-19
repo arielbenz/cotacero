@@ -172,7 +172,7 @@ try {
         "No se escribió nada.",
     );
 
-  await writeFile(join(RAIZ, "guia.pdf"), pdf);
+  await writeFile(join(RAIZ, "public", "guia.pdf"), pdf);
   console.log(
     `escrito: /guia.pdf  (${(pdf.length / 1024).toFixed(0)} KB, 1 carilla, ` +
       `${p.casillas} casillas)`,

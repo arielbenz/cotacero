@@ -97,7 +97,7 @@ try {
   ];
 
   for (const [nombre, an, al, fondo, trazo, agua, escala] of trabajos) {
-    const salida = join(RAIZ, "img", nombre);
+    const salida = join(RAIZ, "public", "img", nombre);
     await png(
       pagina({ ancho: an, alto: al, fondo, trazo, agua, escala }),
       an,
@@ -110,8 +110,8 @@ try {
 
   // og.png es otra cosa: es la vista previa de WhatsApp, con marca y texto.
   const og = `<!doctype html><meta charset="utf-8"><style>
-  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "vendor/fonts/jakarta-800.woff2")}") format("woff2");font-weight:800}
-  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "vendor/fonts/jakarta-500.woff2")}") format("woff2");font-weight:500}
+  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "public/vendor/fonts/jakarta-800.woff2")}") format("woff2");font-weight:800}
+  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "public/vendor/fonts/jakarta-500.woff2")}") format("woff2");font-weight:500}
   html,body{margin:0}
   body{width:1200px;height:630px;background:${OSCURO};color:${TINTA_CLARA};
        font-family:"Plus Jakarta Sans",system-ui,sans-serif;
@@ -133,7 +133,7 @@ try {
      directamente, sin leer el HTML — y hasta ahora daba 404. Un .ico puede
      envolver un PNG tal cual: seis bytes de cabecera, dieciséis de entrada de
      directorio y el PNG entero. Sin dependencias. */
-  const fuenteIco = join(RAIZ, "img", "favicon-96.png");
+  const fuenteIco = join(RAIZ, "public", "img", "favicon-96.png");
   const datos = await readFile(fuenteIco);
   const cab = Buffer.alloc(22);
   cab.writeUInt16LE(0, 0); // reservado
@@ -148,10 +148,10 @@ try {
   cab.writeUInt16LE(32, 12); // bits por píxel
   cab.writeUInt32LE(datos.length, 14);
   cab.writeUInt32LE(22, 18); // dónde empieza la imagen
-  await writeFile(join(RAIZ, "favicon.ico"), Buffer.concat([cab, datos]));
+  await writeFile(join(RAIZ, "public", "favicon.ico"), Buffer.concat([cab, datos]));
   console.log("  favicon.ico".padEnd(26) + "96×96, en la raíz");
 
-  await png(og, 1200, 630, join(RAIZ, "img", "og.png"), perfil);
+  await png(og, 1200, 630, join(RAIZ, "public", "img", "og.png"), perfil);
   console.log("  og.png".padEnd(26) + "1200×630");
 } finally {
   await rm(perfil, { recursive: true, force: true });

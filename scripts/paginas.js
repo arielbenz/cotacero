@@ -25,9 +25,9 @@ import {
   NORMATIVA,
   ESTACION,
   ENDPOINTS,
-} from "../lib/fuentes.js";
+} from "../public/lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
-import { MOCHILA, PREVIA } from "../lib/listas.js";
+import { MOCHILA, PREVIA } from "../public/lib/listas.js";
 import { CHARLAS } from "../lib/charlas.js";
 import {
   AYUDAS,
@@ -38,6 +38,10 @@ import {
 } from "../lib/sugerencias.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+/* Lo que se publica vive en public/ (es el `outputDirectory` de vercel.json):
+   todo lo que este script lee o escribe del sitio va contra PUBLICO. RAIZ
+   queda para git, que corre sobre el repo entero. */
+const PUBLICO = join(RAIZ, "public");
 const SITIO = "https://cotacerosf.com";
 
 /* La serie histórica del INA, para que las páginas puedan citar el récord y
@@ -47,7 +51,7 @@ const SITIO = "https://cotacerosf.com";
 let historia = null;
 try {
   historia = JSON.parse(
-    await readFile(join(RAIZ, "datos-abiertos", "historia.json"), "utf8"),
+    await readFile(join(PUBLICO, "datos-abiertos", "historia.json"), "utf8"),
   );
 } catch {
   console.warn(
@@ -86,7 +90,7 @@ function selloFuente(clave, extra) {
   } <a href="${f.url}" target="_blank" rel="noopener">ver</a></p>`;
 }
 
-const app = await readFile(join(RAIZ, "app", "index.html"), "utf8");
+const app = await readFile(join(PUBLICO, "app", "index.html"), "utf8");
 
 /* Los puntos salen del HTML de la app, con sus coordenadas oficiales. */
 const puntos = [
@@ -1222,7 +1226,7 @@ const NUMERO_CHARLAS =
    alcanza —quien no tiene teléfono, o lo tiene y nunca cargó nada—, y el
    camino es que alguien la imprima en el centro vecinal y la reparta.
 
-   Las dos listas salen de lib/listas.js, las MISMAS que usa la app: si mañana
+   Las dos listas salen de public/lib/listas.js, las MISMAS que usa la app: si mañana
    se agrega algo a la mochila, aparece acá solo. Los teléfonos también son los
    verificados del proyecto, no una lista nueva.
 
@@ -2143,8 +2147,8 @@ ${LICENCIAS.map(
   sueltos: [],
 });
 
-/* ---------- lib/comun-clasico.js ----------
-   El gemelo clásico de lib/comun.js, para los dos contextos que no pueden
+/* ---------- public/lib/comun-clasico.js ----------
+   El gemelo clásico de public/lib/comun.js, para los dos contextos que no pueden
    importar: el service worker (que lo trae con importScripts) y los scripts
    clásicos del sitio (con un <script> común).
 
@@ -2156,7 +2160,7 @@ ${LICENCIAS.map(
 
    Los nombres que expone se DERIVAN de los `export` del original: agregar uno
    allá lo publica acá solo, sin una segunda lista que se desincronice. */
-const fuenteComun = await readFile(join(RAIZ, "lib", "comun.js"), "utf8");
+const fuenteComun = await readFile(join(PUBLICO, "lib", "comun.js"), "utf8");
 const nombresComun = [
   ...fuenteComun.matchAll(
     /^export (?:const|let|function)\s+([A-Za-z_$][\w$]*)/gm,
@@ -2164,17 +2168,17 @@ const nombresComun = [
 ].map((x) => x[1]);
 if (nombresComun.length < 5)
   throw new Error(
-    "lib/comun.js: no se reconocieron sus exports. ¿Cambió la forma del archivo?",
+    "public/lib/comun.js: no se reconocieron sus exports. ¿Cambió la forma del archivo?",
   );
 const comunClasico =
-  "/* GENERADO por scripts/paginas.js desde lib/comun.js. NO EDITAR:\n" +
-  "   el próximo `node scripts/paginas.js` lo pisa. El original es lib/comun.js. */\n" +
+  "/* GENERADO por scripts/paginas.js desde public/lib/comun.js. NO EDITAR:\n" +
+  "   el próximo `node scripts/paginas.js` lo pisa. El original es public/lib/comun.js. */\n" +
   '(function (raiz) {\n  "use strict";\n' +
   fuenteComun.replace(/^export /gm, "") +
   "\n  raiz.CC_COMUN = { " +
   nombresComun.join(", ") +
   ' };\n})(typeof self !== "undefined" ? self : globalThis);\n';
-await writeFile(join(RAIZ, "lib", "comun-clasico.js"), comunClasico);
+await writeFile(join(PUBLICO, "lib", "comun-clasico.js"), comunClasico);
 console.log(
   "escrito: /lib/comun-clasico.js  (" +
     nombresComun.length +
@@ -2186,9 +2190,9 @@ console.log(
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
    Se emiten desde acá, que ya las leyó de app/index.html, para que no exista
    una tercera copia de la lista. */
-await mkdir(join(RAIZ, "datos-abiertos"), { recursive: true });
+await mkdir(join(PUBLICO, "datos-abiertos"), { recursive: true });
 await writeFile(
-  join(RAIZ, "datos-abiertos", "puntos.json"),
+  join(PUBLICO, "datos-abiertos", "puntos.json"),
   JSON.stringify(puntos.map((p) => [p.nombre, p.direccion, p.lon, p.lat])),
 );
 console.log(
@@ -2198,7 +2202,7 @@ console.log(
 /* La portada es HTML escrito a mano, pero su pie sale de la misma constante:
    se reemplaza el bloque entre los marcadores. Si alguien lo edita a mano,
    la próxima corrida lo pisa — que es exactamente lo que queremos. */
-const portada = join(RAIZ, "index.html");
+const portada = join(PUBLICO, "index.html");
 const antes = await readFile(portada, "utf8");
 const MARCA_INI = "      <!-- PIE:inicio";
 const MARCA_FIN = "      <!-- PIE:fin -->";
@@ -2222,7 +2226,7 @@ if (despues !== antes) {
 }
 
 /* La 404 va a la raíz como 404.html: es donde la busca Vercel. */
-await writeFile(join(RAIZ, "404.html"), htmlNoEncontrada);
+await writeFile(join(PUBLICO, "404.html"), htmlNoEncontrada);
 console.log("escrito: /404.html");
 
 for (const [ruta, html] of [
@@ -2237,8 +2241,8 @@ for (const [ruta, html] of [
   ["charlas", htmlCharlas],
   ["para-medios", htmlMedios],
 ]) {
-  await mkdir(join(RAIZ, ruta), { recursive: true });
-  await writeFile(join(RAIZ, ruta, "index.html"), html);
+  await mkdir(join(PUBLICO, ruta), { recursive: true });
+  await writeFile(join(PUBLICO, ruta, "index.html"), html);
   console.log(
     "escrito: /" + ruta + "  (" + (html.length / 1024).toFixed(0) + " KB)",
   );
@@ -2261,8 +2265,10 @@ console.log("puntos leídos de app/index.html: " + puntos.length);
    Google dice usar: `changefreq` y `priority` los ignora. Se dejan igual
    porque otros rastreadores sí los miran y no cuestan nada. */
 function ultimoCambio(ruta) {
+  // La ruta dentro del repo: el sitio vive en public/.
   const archivo =
-    ruta === "/" ? "index.html" : ruta.replace(/^\//, "") + "/index.html";
+    "public/" +
+    (ruta === "/" ? "index.html" : ruta.replace(/^\//, "") + "/index.html");
   const git = (args) =>
     execFileSync("git", args, { cwd: RAIZ, encoding: "utf8" }).trim();
 
@@ -2270,30 +2276,46 @@ function ultimoCambio(ruta) {
      sitio", que sale del último commit del repo. Sin este filtro, cualquier
      commit reescribe las once páginas y el lastmod colapsa a "fecha del
      último deploy" para todas — cierto, pero sin ninguna información. Un
-     cambio que sólo mueve ese renglón no cuenta como cambio de la página. */
-  const soloElPie = (diff) => {
-    const lineas = diff
+     cambio que sólo mueve ese renglón no cuenta como cambio de la página.
+
+     Y la segunda trampa, del mismo tipo: un renombre. Cuando el sitio se
+     mudó a public/, cada página apareció en git como un archivo nuevo en el
+     commit de la mudanza; sin seguirle el rastro al nombre viejo, las once
+     quedaban con esa fecha. Un renombre sin cambios de contenido tampoco es
+     un cambio de la página. */
+  const cambiaAlgoMasQueElPie = (diff) =>
+    diff
       .split("\n")
-      .filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l));
-    return (
-      lineas.length > 0 &&
-      lineas.every((l) => l.includes("Última actualización del sitio"))
-    );
-  };
+      .filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l))
+      .some((l) => !l.includes("Última actualización del sitio"));
 
   try {
     // Sin commitear: si lo que cambió no es sólo el pie, está cambiando hoy.
-    if (git(["status", "--porcelain", "--", archivo])) {
-      if (!soloElPie(git(["diff", "-U0", "--", archivo])))
+    // Contra HEAD y con -M, para que un renombre en curso se compare con su
+    // nombre de antes y no como un archivo entero nuevo.
+    const estado = git(["status", "--porcelain", "--", archivo]);
+    if (estado) {
+      const renombre = /^R. (.+) -> /.exec(estado);
+      const rutas = renombre ? [renombre[1], archivo] : [archivo];
+      if (cambiaAlgoMasQueElPie(git(["diff", "HEAD", "-M", "-U0", "--", ...rutas])))
         return new Date().toISOString().slice(0, 10);
     }
-    // Y hacia atrás, hasta el commit que tocó algo más que ese renglón.
-    for (const linea of git(["log", "--format=%H %cs", "--", archivo]).split(
-      "\n",
-    )) {
-      const [sha, fecha] = linea.split(" ");
-      if (!sha) continue;
-      if (!soloElPie(git(["show", "--format=", "-U0", sha, "--", archivo])))
+    // Y hacia atrás, siguiendo los renombres, hasta el commit que tocó algo
+    // más que ese renglón.
+    const MARCA = "\u0001";
+    const historia = git([
+      "log",
+      "--follow",
+      "-p",
+      "-U0",
+      `--format=${MARCA}%cs`,
+      "--",
+      archivo,
+    ]);
+    for (const bloque of historia.split(MARCA).slice(1)) {
+      const salto = bloque.indexOf("\n");
+      const fecha = bloque.slice(0, salto === -1 ? undefined : salto);
+      if (cambiaAlgoMasQueElPie(salto === -1 ? "" : bloque.slice(salto)))
         return fecha;
     }
     return null;
@@ -2314,7 +2336,7 @@ const urls = enSitemap()
   })
   .join("\n");
 await writeFile(
-  join(RAIZ, "sitemap.xml"),
+  join(PUBLICO, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
 );
@@ -2371,7 +2393,7 @@ const llms =
   `- No reemplaza una orden de evacuación.\n` +
   `- Las tres constantes del modelo están en discusión técnica abierta:\n` +
   `  ver ${SITIO}/datos y el AUDITORIA.md del repositorio.\n`;
-await writeFile(join(RAIZ, "llms.txt"), llms);
+await writeFile(join(PUBLICO, "llms.txt"), llms);
 console.log("escrito: /llms.txt  (" + enSitemap().length + " páginas)");
 
 /* ---------- /.well-known/api-catalog ----------
@@ -2438,9 +2460,9 @@ const catalogo = {
     })),
   ],
 };
-await mkdir(join(RAIZ, ".well-known"), { recursive: true });
+await mkdir(join(PUBLICO, ".well-known"), { recursive: true });
 await writeFile(
-  join(RAIZ, ".well-known", "api-catalog"),
+  join(PUBLICO, ".well-known", "api-catalog"),
   JSON.stringify(catalogo, null, 2) + "\n",
 );
 console.log(
@@ -2464,7 +2486,7 @@ for (const clave of ["inicio", "app", "widget"]) {
       : clave === "app"
         ? join("app", "index.html")
         : join("widget", "index.html");
-  const h = await readFile(join(RAIZ, archivo), "utf8");
+  const h = await readFile(join(PUBLICO, archivo), "utf8");
   const problemas = [];
   const titulo = enHtml(h, /<title>([\s\S]*?)<\/title>/);
   if (titulo !== meta.titulo)
@@ -2495,13 +2517,13 @@ console.log("portada, app y widget: coinciden con lib/paginas.js");
    abrir sin conexión — y el modo de falla es mudo, aparece recién el día que
    alguien se queda sin señal. Por eso esto revienta acá y no allá. */
 const modulos = [
-  ...(await readdir(join(RAIZ, "js", "app")))
+  ...(await readdir(join(PUBLICO, "js", "app")))
     .filter((f) => f.endsWith(".js"))
     .map((f) => "/js/app/" + f),
   // los módulos compartidos que la app importa desde /lib/
   "/lib/fuentes.js",
 ];
-const sw = await readFile(join(RAIZ, "sw.js"), "utf8");
+const sw = await readFile(join(PUBLICO, "sw.js"), "utf8");
 const faltan = modulos.filter((m) => !sw.includes(`"${m}"`));
 if (faltan.length)
   throw new Error(
@@ -2521,7 +2543,7 @@ for (const ruta of enPrecache) {
   if (ruta.startsWith("/vendor/") || ruta === "/" || !/\.[a-z]+$/.test(ruta))
     continue;
   try {
-    await readFile(join(RAIZ, ruta.replace(/^\//, "")));
+    await readFile(join(PUBLICO, ruta.replace(/^\//, "")));
   } catch {
     sobran.push(ruta);
   }

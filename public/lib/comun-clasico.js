@@ -1,5 +1,5 @@
-/* GENERADO por scripts/paginas.js desde lib/comun.js. NO EDITAR:
-   el próximo `node scripts/paginas.js` lo pisa. El original es lib/comun.js. */
+/* GENERADO por scripts/paginas.js desde public/lib/comun.js. NO EDITAR:
+   el próximo `node scripts/paginas.js` lo pisa. El original es public/lib/comun.js. */
 (function (raiz) {
   "use strict";
 /* lib/comun.js — lo que TODOS necesitan y nadie debería volver a escribir.

@@ -20,8 +20,8 @@ for f in $(git diff --name-only -- '*.js'); do node --check "$f" || echo "FALLA 
 ## 2. El generador
 
 Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js`,
-`app/index.html`, `index.html`, `lib/fuentes.js`, `lib/comun.js`,
-`lib/paginas.js`, `lib/listas.js`, `lib/charlas.js` o `lib/sugerencias.js`.
+`public/app/index.html`, `public/index.html`, `public/lib/fuentes.js`, `public/lib/comun.js`,
+`lib/paginas.js`, `public/lib/listas.js`, `lib/charlas.js` o `lib/sugerencias.js`.
 Ante la duda, correrlo: es barato.
 
 Las tres últimas líneas tienen que decir:
@@ -38,7 +38,7 @@ quedaría sin modo sin conexión, en silencio).
 
 ## 3. La guía en PDF
 
-Si se tocó `scripts/paginas.js` o `css/guia.css`:
+Si se tocó `scripts/paginas.js` o `public/css/guia.css`:
 
 ```bash
 node scripts/guia-pdf.js
@@ -48,7 +48,7 @@ Tiene que decir `1 carilla`. Si dice dos, la hoja se pasó: se fotocopia por
 cientos y dos carillas son el doble de plata. Para mirarla sin poppler:
 
 ```bash
-sips -s format png guia.pdf --out "$SCRATCHPAD/guia.png"
+sips -s format png public/guia.pdf --out "$SCRATCHPAD/guia.png"
 ```
 
 ## 4. Servidor y navegador
@@ -92,8 +92,10 @@ Los estados graves se prueban cargando el río a mano: `#in-rio` +
 
 ## Trampas conocidas
 
-- **La 404 en local:** `servir.js` no sirve `404.html` para rutas que no
-  existen. Abrir `http://localhost:3100/404.html` directo.
+- **Las rutas son relativas a `public/`.** Vercel publica esa carpeta
+  (`outputDirectory`) y `servir.js` también: `/lib/ina.js` o `/scripts/…`
+  dan 404 a propósito. Una ruta que no existe devuelve `404.html` con
+  código 404, igual que en producción.
 - **No se pueden abrir páginas en un `<iframe>`** para recorrerlas de una:
   la CSP lleva `frame-ancestors 'none'`. Navegar de a una. El widget sí se
   deja embeber (es el único).
@@ -102,7 +104,7 @@ Los estados graves se prueban cargando el río a mano: `#in-rio` +
   (`.landing a:not(.btn):not(.lockup)…`). Un enlace que sale azul sin
   querer casi siempre es eso: o lleva una clase excluida (`.punto`), o se
   repite la cadena entera con el prefijo del contenedor.
-- **Antes de estrenar una clase, `grep` en `css/app.css`.** `.cuenta` y
+- **Antes de estrenar una clase, `grep` en `public/css/app.css`.** `.cuenta` y
   `.cita` ya nombraron dos cosas a la vez y las dos salían rotas sin fallar.
 - **Al tocar el marcado a mano, contar los `<div>`.** Un cierre de más o de
   menos no da error, sólo rompe el layout lejos de donde está:
@@ -114,7 +116,7 @@ Los estados graves se prueban cargando el río a mano: `#in-rio` +
       d=0
       def handle_starttag(s,t,a): s.d+= t=='div'
       def handle_endtag(s,t): s.d-= t=='div'
-  p=P(); p.feed(open('index.html').read()); print('saldo', p.d)"
+  p=P(); p.feed(open('public/index.html').read()); print('saldo', p.d)"
   ```
 
   Tiene que dar `saldo 0`.

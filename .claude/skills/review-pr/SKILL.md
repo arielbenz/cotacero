@@ -73,7 +73,7 @@ Leer primero `--stat`. Después el diff entero, salvo lo generado y lo binario,
 que se juzga desde `--stat` y se abre sólo si un hallazgo depende de eso:
 
 ```bash
--- . ':!guia.pdf' ':!img/' ':!vendor/' ':!datos-abiertos/*.json' ':!lib/comun-clasico.js'
+-- . ':!public/guia.pdf' ':!public/img/' ':!public/vendor/' ':!public/datos-abiertos/*.json' ':!public/lib/comun-clasico.js'
 ```
 
 Las páginas generadas (`datos/`, `historia/`, `legal/`…, `404.html`,
@@ -146,7 +146,7 @@ Sólo chequeos que leen el árbol y **no escriben nada que git siga**. Guardar
        d=0
        def handle_starttag(s,t,a): s.d+= t=='div'
        def handle_endtag(s,t): s.d-= t=='div'
-   p=P(); p.feed(open('index.html').read()); print('saldo', p.d)"
+   p=P(); p.feed(open('public/index.html').read()); print('saldo', p.d)"
    ```
 
 5. **El texto visible**, si cambió algo que se lee en pantalla: buscar en el
@@ -187,7 +187,7 @@ que nombran. Se usa una sólo si el cambio incluye lo que dice «Aplica a».
 | Lista                                              | Aplica a                                                                                                   | Va en                       |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------- |
 | [MAINTAINABILITY.md](reference/MAINTAINABILITY.md) | Todo módulo que cambió                                                                                     | Calidad                     |
-| [BLAST-RADIUS.md](reference/BLAST-RADIUS.md)       | La forma de `/api/nivel`, `lib/comun.js` y su gemelo, una fuente única de verdad, tokens de `css/app.css` | Bugs, Arquitectura          |
+| [BLAST-RADIUS.md](reference/BLAST-RADIUS.md)       | La forma de `/api/nivel`, `public/lib/comun.js` y su gemelo, una fuente única de verdad, tokens de `css/app.css` | Bugs, Arquitectura          |
 | [ROOT-CAUSES.md](reference/ROOT-CAUSES.md)         | Arreglos de bugs, y guardas, respaldos o reintentos nuevos                                                 | Bugs                        |
 | [BOUNDARIES.md](reference/BOUNDARIES.md)           | `api/`, `lib/ina.js`, lo que lee datos de la red o del usuario                                             | Seguridad, Arquitectura     |
 | [IDEMPOTENCY.md](reference/IDEMPOTENCY.md)         | `scripts/` que bajan o escriben datos, `api/cron/`, lo que escribe en Redis                                | Bugs                        |
@@ -220,7 +220,7 @@ y, si no se usó el navegador, cómo se ve.
 - **Cada regla de `CLAUDE.md` que aplique a lo que cambió.** Listar sólo las
   que el cambio rompe. Las que más se rompen:
   - Una página generada editada a mano en vez de en `scripts/paginas.js`.
-  - `lib/comun.js` tocado sin regenerar `lib/comun-clasico.js`.
+  - `public/lib/comun.js` tocado sin regenerar `public/lib/comun-clasico.js`.
   - Un módulo nuevo en `js/app/` sin su lugar en el precache de `sw.js`.
   - Un cambio en el generador o en `css/guia.css` sin volver a correr
     `guia-pdf.js`.

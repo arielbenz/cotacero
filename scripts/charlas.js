@@ -28,7 +28,7 @@ import { fileURLToPath } from "node:url";
 import { CHARLAS } from "../lib/charlas.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DESTINO = join(RAIZ, "img", "charlas");
+const DESTINO = join(RAIZ, "public", "img", "charlas");
 const ANCHO = 320; // 160 px de columna a 2x
 const CALIDAD = 62;
 

@@ -36,7 +36,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SALIDA = join(RAIZ, "datos-abiertos", "curvas.json");
+const SALIDA = join(RAIZ, "public", "datos-abiertos", "curvas.json");
 
 const URL_WFS =
   "https://geoserver.santafeciudad.gov.ar/geoserver/sitmax/ows" +

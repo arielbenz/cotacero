@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-const d = JSON.parse(readFileSync("datos-abiertos/curvas.json","utf8"));
+const d = JSON.parse(readFileSync("public/datos-abiertos/curvas.json","utf8"));
 const HOY = process.argv[2];
 const M_LAT=110900, mLon=l=>111320*Math.cos((l*Math.PI)/180);
 function distSeg(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
@@ -28,7 +28,7 @@ console.log("  intervalo local > 2,00 m:                        " + f(100*out.fi
 console.log("  intervalo local < 0,50 m:                        " + f(100*out.filter(x=>x<0.5).length/out.length) + "% del área");
 
 // 2. los 16 puntos: intervalo local y correlación del residuo
-const curvasJson=readFileSync("datos-abiertos/curvas.json","utf8");
+const curvasJson=readFileSync("public/datos-abiertos/curvas.json","utf8");
 globalThis.fetch=async u=>String(u).includes("curvas.json")?{ok:true,json:async()=>JSON.parse(curvasJson)}:{ok:false};
 const {elevacionDe}=await import(process.cwd()+"/js/app/elevacion.js");
 const pts=[];

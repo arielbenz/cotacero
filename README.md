@@ -79,89 +79,115 @@ No hace falta ninguna clave de API. En `js/app/config.js`, bloque `CONFIG`:
 
 ## Estructura
 
-Lo que sirve el navegador está separado de lo que lo genera, y las páginas
-generadas llevan un cartel de "no editar" en la primera línea.
+Lo que se publica vive en `public/`; la raíz guarda lo que no se sirve. Vercel
+publica sólo esa carpeta (`"outputDirectory": "public"` en `vercel.json`) y
+toma las funciones de `api/` de la raíz. Las URLs son las mismas de siempre:
+`public/datos/index.html` se sirve en `/datos`. Las páginas generadas llevan
+un cartel de "no editar" en la primera línea.
 
-    index.html               portada (landing) — la puerta de entrada
-    sw.js                    service worker (va en la raíz: su alcance es su ruta)
-    manifest.webmanifest     PWA
-    vercel.json              cabeceras y CSP
-    robots.txt · sitemap.xml
+    public/                    EL SITIO
+      index.html               portada (landing) — la puerta de entrada
+      sw.js                    service worker (va en la raíz del sitio: su alcance es su ruta)
+      manifest.webmanifest     PWA
+      robots.txt · sitemap.xml · llms.txt · .well-known/api-catalog
+      404.html                 la página de error (generada)
+      guia.pdf                 la guía impresa (artefacto de scripts/guia-pdf.js)
 
-    js/     landing.js       estado del río en vivo (píldora, franja y frescura), regla que se mueve, mapa perezoso, salto a /app
-            historia.js      la serie de un siglo, interactiva
-            medios.js        copiar el código del widget
-    js/app/                  la app, en módulos ES
-        principal.js      261L   arranque, tabla de acciones y eventos
-        avisos.js         252L   push
-        bienvenida.js      50L   la primera visita
-        compartir.js      174L   la imagen para WhatsApp
-        config.js         173L   constantes del cálculo y listas fijas
-        cota.js           375L   de la cota al umbral del hidrómetro
-        elevacion.js       88L   la cota, de las curvas del municipio
-        estado.js         120L   estado de la sesión y lo que persiste
-        formato.js         72L   cómo se escriben los números
-        fuentes.js         50L   de dónde sale cada dato — importa lib/fuentes.js
-        instalar.js       196L   instalar la PWA
-        lluvia.js          65L   pronóstico de lluvia
-        mapa.js           341L   MapLibre y los 30 puntos
-        metricas.js        41L   cuántos la usan, sin saber quiénes
-        oficiales.js       51L   alerta, evacuación y récord (lo único que cambia en caliente)
-        plan.js           181L   el plan familiar
-        puntos.js          79L   la lista de puntos y su filtro
-        rio.js            668L   leer el nivel, la regla y el contexto histórico
-        sugerencias.js     64L   el formulario
-        tema.js            81L   tema, tamaño de texto y Ajustes
-        vista.js           92L   navegación entre pestañas
-    css/    app.css          estilos, compartidos por todo
-    img/    icon-*.png og.png favicon-32.png apple-touch-icon.png screenshot-*.png
+      js/   landing.js         estado del río en vivo (píldora, franja y frescura), regla que se mueve, mapa perezoso, salto a /app
+            historia.js        la serie de un siglo, interactiva
+            medios.js          copiar el código del widget
+      js/app/                  la app, en módulos ES
+          principal.js      261L   arranque, tabla de acciones y eventos
+          avisos.js         252L   push
+          bienvenida.js      50L   la primera visita
+          compartir.js      174L   la imagen para WhatsApp
+          config.js         173L   constantes del cálculo y listas fijas
+          cota.js           375L   de la cota al umbral del hidrómetro
+          elevacion.js       88L   la cota, de las curvas del municipio
+          estado.js         120L   estado de la sesión y lo que persiste
+          formato.js         72L   cómo se escriben los números
+          fuentes.js         50L   de dónde sale cada dato — importa public/lib/fuentes.js
+          instalar.js       196L   instalar la PWA
+          lluvia.js          65L   pronóstico de lluvia
+          mapa.js           341L   MapLibre y los 30 puntos
+          metricas.js        41L   cuántos la usan, sin saber quiénes
+          oficiales.js       51L   alerta, evacuación y récord (lo único que cambia en caliente)
+          plan.js           181L   el plan familiar
+          puntos.js          79L   la lista de puntos y su filtro
+          rio.js            668L   leer el nivel, la regla y el contexto histórico
+          tema.js            81L   tema, tamaño de texto y Ajustes
+          vista.js           92L   navegación entre pestañas
+      css/  app.css            estilos, compartidos por todo
+      img/  icon-*.png og.png favicon-32.png apple-touch-icon.png screenshot-*.png
 
-    app/index.html           la app — FUENTE, y la lista de los 30 puntos
-    widget/                  el widget que embeben los medios — FUENTE
+      app/index.html           la app — FUENTE, y la lista de los 30 puntos
+      widget/                  el widget que embeben los medios — FUENTE
 
-    datos-abiertos/          los JSON que la app lee y cualquiera puede auditar
-            curvas.json      curvas de nivel del municipio
-            historia.json    un renglón por año desde 1925 (INA), 6 KB
-            puntos.json      coordenadas de los 30 puntos, para el mapa de la portada
+      lib/                     lo que usan Node Y el navegador
+            comun.js           umbrales de respaldo, plausibilidad, vencimiento, formato
+            comun-clasico.js   su gemelo para los scripts clásicos (generado)
+            fuentes.js         organismos, URLs y la estación, escritos UNA vez
+            listas.js          la mochila y el checklist previo
 
-    api/nivel.js             sirve el nivel al navegador (CORS proxy)
-    api/suscribir.js         alta de un endpoint de push
-    api/desuscribir.js       baja
-    api/cron/avisar.js       lo dispara Vercel Cron
-    api/sugerencias.js       recibe feedback de la gente
-    api/visita.js            cuenta una apertura (sin caché, a propósito)
-    api/metricas.js          tablero privado, protegido con clave
+      datos-abiertos/          los JSON que la app lee y cualquiera puede auditar
+            curvas.json        curvas de nivel del municipio
+            historia.json      un renglón por año desde 1925 (INA), 6 KB
+            puntos.json        coordenadas de los 30 puntos, para el mapa de la portada
 
-    lib/ina.js               lectura del INA: API primero, raspado de respaldo
-    lib/fuentes.js           organismos, URLs y la estación, escritos UNA vez
-    lib/paginas.js           títulos, descripciones, canónicas e indexabilidad
-    lib/sugerencias.js       las categorías del formulario, en un solo lugar
-    lib/push.js              VAPID y almacén (módulo, NO endpoint)
-    lib/metricas.js          claves y días del contador (módulo, NO endpoint)
+      vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
 
-    scripts/paginas.js       genera las páginas de contenido
-    scripts/curvas.js        baja las curvas de nivel del municipio
-    scripts/historia.js      baja la serie histórica del INA
-    scripts/marca.js         el logo, en un solo lugar
-    scripts/iconos.js        rasteriza el logo a los PNG de img/
-    scripts/servir.js        servidor de desarrollo
-    scripts/vapid.js         genera las claves, se corre una vez
+    api/nivel.js               sirve el nivel al navegador (CORS proxy)
+    api/suscribir.js           alta de un endpoint de push
+    api/desuscribir.js         baja
+    api/cron/avisar.js         lo dispara Vercel Cron
+    api/sugerencias.js         recibe feedback de la gente
+    api/visita.js              cuenta una apertura (sin caché, a propósito)
+    api/metricas.js            tablero privado, protegido con clave
 
-    vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
+    lib/                       lo que corre sólo en Node, y no se publica
+      ina.js                   lectura del INA: API primero, raspado de respaldo
+      paginas.js               títulos, descripciones, canónicas e indexabilidad
+      sugerencias.js           las categorías del formulario, en un solo lugar
+      charlas.js               las charlas de /charlas
+      push.js                  VAPID y almacén (módulo, NO endpoint)
+      metricas.js              claves y días del contador (módulo, NO endpoint)
 
-    404.html                 la página de error (generada)
-    AUDITORIA.md             cada número, su fuente y qué falta validar
-    CLAUDE.md                lo operativo, para agentes
+    scripts/paginas.js         genera las páginas de contenido
+    scripts/curvas.js          baja las curvas de nivel del municipio
+    scripts/historia.js        baja la serie histórica del INA
+    scripts/marca.js           el logo, en un solo lugar
+    scripts/iconos.js          rasteriza el logo a los PNG de public/img/
+    scripts/servir.js          servidor de desarrollo: sirve public/ y ejecuta api/
+    scripts/vapid.js           genera las claves, se corre una vez
 
-**Ocho carpetas más son páginas generadas** —`datos/`, `historia/`,
+    datos-crudos/              análisis y datos de trabajo (no se publican)
+    vercel.json                cabeceras, CSP y outputDirectory
+    AUDITORIA.md               cada número, su fuente y qué falta validar
+    CLAUDE.md                  lo operativo, para agentes
+
+**Por qué `public/`.** Antes Vercel publicaba la raíz entera, y con ella
+`/AUDITORIA.md`, `/scripts/paginas.js`, `/lib/ina.js` y `/datos-crudos/`. Nada
+de eso era secreto, pero tampoco era el sitio, y las once carpetas de páginas
+quedaban mezcladas con el código. No hizo falta un paso de build: es una línea
+en `vercel.json`.
+
+**Por qué dos `lib/`.** Cuatro archivos los importan a la vez Node y el
+navegador (`/lib/comun.js`, `/lib/fuentes.js`, `/lib/listas.js` y
+`/lib/comun-clasico.js`): tienen que estar en `public/` para que el navegador
+los pida, y Node los importa desde ahí. El resto de `lib/` corre sólo en Node
+y se queda en la raíz. La otra salida era que el generador copiara los cuatro
+a `public/` en cada corrida, y una copia que se regenera sola es una copia que
+un día se desincroniza.
+
+**Diez carpetas de `public/` son páginas generadas** —`datos/`, `historia/`,
 `preguntas/`, `legal/`, `charlas/`, `sobre/`, `contacto/`, `para-medios/`,
-`puntos-de-encuentro/`—.
-Están en la raíz porque su ruta _es_ su URL. Cada una arranca con un comentario
-que dice que la emite `scripts/paginas.js` y que editarla a mano no sirve.
+`puntos-de-encuentro/`, `guia/`—. Están en la raíz del sitio porque su ruta
+_es_ su URL. Cada una arranca con un comentario que dice que la emite
+`scripts/paginas.js` y que editarla a mano no sirve.
 
-`sw.js` se queda en la raíz a propósito: un service worker sólo controla su
-propio directorio hacia abajo, así que moverlo a `js/` le sacaría el alcance
-sobre todo el sitio.
+`sw.js` se queda en la raíz del sitio a propósito: un service worker sólo
+controla su propio directorio hacia abajo, así que moverlo a `js/` le sacaría
+el alcance sobre todo el sitio.
 
 ## La app son módulos
 
@@ -181,7 +207,7 @@ evacuación y el récord—, y se mueve sólo con `fijarUmbrales()` y
 ningún otro archivo puede asignarlos aunque quiera, y el resto los ve
 actualizados por el enlace vivo del import.
 
-**`js/app/fuentes.js` importa `lib/fuentes.js` de verdad**, con
+**`js/app/fuentes.js` importa `public/lib/fuentes.js` de verdad**, con
 `import { ORGANISMOS, FUENTES } from "/lib/fuentes.js"`. Ese archivo es puro
 dato y exports, así que el navegador lo carga como cualquier módulo. Era la
 única duplicación consciente que quedaba —`FUENTES_APP` era una copia a mano—
@@ -224,7 +250,7 @@ argentina.gob.ar y sería la primera opción: no anda. Rechaza sus propios
 nombres de parámetro, devuelve errores de Perl y se cae con timeouts de 30 s.
 El detalle está en `AUDITORIA.md` §6. Conviene reintentar cada tanto.
 
-`ESTACION` y `ENDPOINTS` viven en `lib/fuentes.js`, que es donde están escritos
+`ESTACION` y `ENDPOINTS` viven en `public/lib/fuentes.js`, que es donde están escritos
 **una sola vez** los organismos, sus URLs y los identificadores de la estación.
 Antes eso estaba repartido entre la app, `scripts/paginas.js`, `lib/ina.js` y
 el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
@@ -237,7 +263,7 @@ de alerta y evacuación según FICH-UNL y Prefectura Naval Argentina», que era
 cierto antes de la migración a la API y dejó de serlo después: hoy los publica
 la estación del INA, y Prefectura es dueña de la escala, que es otra cosa. Un
 renglón de texto plano no se entera de que cambió la fuente. Cuando haya que
-nombrar de dónde sale un dato, sale de `lib/fuentes.js` —o del sello que ya
+nombrar de dónde sale un dato, sale de `public/lib/fuentes.js` —o del sello que ya
 estampa `selloFuente()` al lado del número—, no de una frase suelta.
 
 ## Cien años del Paraná
@@ -345,7 +371,7 @@ como llega alguien desde una búsqueda.
 
 **El favicon del buscador.** Google lo quiere cuadrado y múltiplo de 48 px, y
 lo busca también en `/favicon.ico` — que hasta ahora daba 404. Se emiten los
-dos (`favicon-96.png` y el `.ico` de la raíz) con `node scripts/iconos.js`. El
+dos (`favicon-96.png` y el `.ico` de la raíz del sitio) con `node scripts/iconos.js`. El
 `.ico` es el PNG envuelto en 22 bytes de cabecera: el formato lo admite y así
 no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
 así que el cambio no se ve enseguida.
@@ -1154,7 +1180,7 @@ explícito: es de lectura, sin clave y el CDN lo cachea una hora
 (`s-maxage=3600`), así que un agente consultándolo no cuesta invocaciones.
 Bloquearlo mientras se lo publica en el catálogo habría sido contradecirse.
 
-## Lo compartido: `lib/comun.js`
+## Lo compartido: `public/lib/comun.js`
 
 El proyecto corre en cuatro contextos que no se pueden importar entre sí —los
 módulos ES de la app, los scripts clásicos del sitio, el service worker y
@@ -1168,8 +1194,8 @@ así se llegó a esto:
 | El filtro de plausibilidad de umbrales | 5 archivos                       |
 | Cuándo vence un dato (48 h)            | 3 archivos, con 2 unidades       |
 
-Hoy todo eso vive en `lib/comun.js` y no hay ninguna copia. Los módulos y Node
-lo importan; los otros dos leen `lib/comun-clasico.js`, que **emite
+Hoy todo eso vive en `public/lib/comun.js` y no hay ninguna copia. Los módulos y Node
+lo importan; los otros dos leen `public/lib/comun-clasico.js`, que **emite
 `scripts/paginas.js`** sacándole los `export` al original y envolviéndolo en
 una IIFE que publica un solo nombre, `CC_COMUN`. Los nombres que expone se
 derivan de los `export` del original, así que agregar uno lo publica en los dos
@@ -1182,7 +1208,7 @@ junto al service worker, así que sigue andando sin señal; se verificó con el
 servidor apagado.
 
 **Los umbrales son un número de seguridad**, no una constante cualquiera: los
-publica la estación del INA en cada consulta y los de `lib/comun.js` son el
+publica la estación del INA en cada consulta y los de `public/lib/comun.js` son el
 arranque y el respaldo. Con ocho copias, la que quedara vieja hacía que ese
 consumidor avisara tarde.
 
@@ -1192,7 +1218,7 @@ en el service worker, pero no ahí — así que una respuesta con la evacuación
 debajo de la alerta habría pintado la franja de la portada con el río en aguas
 medias. Al pasar a `umbralesDe()` compartido, se arregló solo.
 
-Lo único que puede romper esto: **tocar `lib/comun.js` y no correr
+Lo único que puede romper esto: **tocar `public/lib/comun.js` y no correr
 `node scripts/paginas.js`**. El gemelo queda viejo y la app dice un número
 mientras el sitio dice otro.
 
@@ -1225,9 +1251,9 @@ ganar espacio, lo primero que se recortó fue aire —márgenes, interlineado—
 El cuerpo quedó en 10 pt y ahí se queda.
 
 **Las listas no son una copia.** Mochila y checklist previo salen de
-`lib/listas.js`, las mismas que usa la app; el punto marcado sigue
+`public/lib/listas.js`, las mismas que usa la app; el punto marcado sigue
 significando «está en el Plan de Contingencia municipal». Los umbrales oficiales
-salen de `lib/fuentes.js`. Si mañana se agrega un renglón a la mochila, aparece
+salen de `public/lib/fuentes.js`. Si mañana se agrega un renglón a la mochila, aparece
 en el papel solo.
 
 **El PDF es un artefacto.** Vive en el repo porque el sitio es estático, pero no
