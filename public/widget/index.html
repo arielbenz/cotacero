@@ -194,6 +194,45 @@
         bottom: 0;
         width: 2px;
       }
+      /* Dato vencido: el agua rayada en gris, como en la app y en el sitio. */
+      .agua.viejo {
+        background: repeating-linear-gradient(
+          135deg,
+          var(--tenue) 0 6px,
+          transparent 6px 12px
+        );
+        opacity: 0.45;
+      }
+      /* Las marcas de hidrómetro: cada 10 cm, 50 cm y 1 m. Es COPIA de
+         .marcas-rio.h de css/app.css, que el widget no puede leer: si cambia
+         una, cambia la otra. Mide 1 px más que la regla para que entre la
+         marca de 8 m. */
+      .marcas {
+        height: 8px;
+        margin: 2px -1px 0 0;
+        background-image:
+          repeating-linear-gradient(
+            to right,
+            var(--texto) 0 1px,
+            transparent 1px calc((100% - 1px) / 8)
+          ),
+          repeating-linear-gradient(
+            to right,
+            var(--tenue) 0 1px,
+            transparent 1px calc((100% - 1px) / 16)
+          ),
+          repeating-linear-gradient(
+            to right,
+            var(--linea) 0 1px,
+            transparent 1px calc((100% - 1px) / 80)
+          );
+        background-size:
+          100% 8px,
+          100% 6px,
+          100% 4px;
+        background-position: left top;
+        background-repeat: no-repeat;
+      }
       .pie {
         display: flex;
         align-items: baseline;
@@ -301,6 +340,7 @@
           id="m-evac"
           style="background: var(--peligro)"></span>
       </div>
+      <div class="marcas" aria-hidden="true"></div>
 
       <div class="pie">
         <span class="umbrales"

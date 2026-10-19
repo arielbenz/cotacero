@@ -71,9 +71,11 @@ function pintar(d) {
       ? "del " + fecha.slice(0, 5) + ", puede estar viejo"
       : fecha.slice(0, 10);
   $("fecha").classList.toggle("viejo", !!viejo);
+  $("agua").classList.toggle("viejo", !!viejo);
 
   const delta = Number(d.delta);
-  if (isFinite(delta) && Math.abs(delta) >= 0.01) {
+  // Vencido, el ▲ sería el movimiento de hace días contado como de ahora.
+  if (!viejo && isFinite(delta) && Math.abs(delta) >= 0.01) {
     const cm = Math.round(Math.abs(delta) * 100);
     /* Va corto —"▲ +2 cm"— y el "desde cuándo" en el title. Poner "cm/día"
        sería más lindo y sería una afirmación: el INA publica una lectura por
