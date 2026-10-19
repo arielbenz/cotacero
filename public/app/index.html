@@ -428,18 +428,44 @@
         </p>
       </div>
 
+      <!-- La primera vez, en tres pasos: pasoPrimera en cota.js -->
+      <div class="primera-cabeza solo-primera">
+        <p class="eti" id="primera-paso">Paso 1 de 3</p>
+        <div class="progreso-pasos" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+
       <div id="pasos-casa">
-        <div class="tarjeta">
-          <h3 style="margin-top: 0">1 · Dónde vivís</h3>
-          <label class="campo"
+        <div class="tarjeta" id="paso-zona">
+          <h3 class="solo-formulario" style="margin-top: 0">1 · Dónde vivís</h3>
+          <div class="solo-primera">
+            <h2 id="titulo-paso-1" tabindex="-1">¿Dónde vivís?</h2>
+            <p class="chico">
+              Río arriba el agua llega antes. Por eso importa la zona.
+            </p>
+          </div>
+          <label class="campo solo-formulario"
             ><span>Zona</span>
             <select id="sel-zona"></select
           ></label>
+          <!-- Escriben en #sel-zona: ver elegirZona en cota.js -->
+          <fieldset class="zonas-radio solo-primera" id="zonas-radio">
+            <legend class="solo-lectores">Zona</legend>
+          </fieldset>
           <p class="chico" id="nota-zona"></p>
+          <button class="btn solo-primera" type="button" data-accion="primera-seguir">
+            Seguir
+          </button>
         </div>
 
-        <div class="tarjeta">
-          <h3 style="margin-top: 0">2 · La altura de tu terreno</h3>
+        <div class="tarjeta" id="paso-altura">
+          <h3 class="solo-formulario" style="margin-top: 0">2 · La altura de tu terreno</h3>
+          <div class="solo-primera">
+            <h2 id="titulo-paso-2" tabindex="-1">¿Dónde está tu casa?</h2>
+            <p class="chico" id="bajada-curvas">
+              Con eso sacamos la altura de tu terreno de las curvas del
+              municipio.
+            </p>
+          </div>
 
           <!-- Zonas sin curvas: ver sinPlano en config.js -->
           <p class="aviso" id="sin-plano" role="status" hidden></p>
@@ -520,11 +546,22 @@
             no por tu puerta. Si tenés el número de la escritura o de un
             relevamiento, vale más. <a href="/datos">Cómo se calcula</a>.
           </p>
+          <div class="fila-pasos solo-primera">
+            <button class="btn sec" type="button" data-accion="primera-atras">
+              Atrás
+            </button>
+            <button class="btn" type="button" data-accion="primera-ver">
+              Ver mi nivel de aviso
+            </button>
+          </div>
         </div>
       </div>
 
       <div id="resultado" role="status"></div>
       <div id="avisos"></div>
+      <button class="btn sec solo-paso-3" type="button" data-accion="ir" data-vista="plan">
+        Armar mi plan
+      </button>
     </section>
 
     <!-- ======================= MI PLAN ======================= -->

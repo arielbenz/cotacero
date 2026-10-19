@@ -28,11 +28,15 @@ import {
   alternarCasa,
   calcular,
   cerrarBuscadorDir,
+  elegirZona,
   estimarCota,
   fijarKmManual,
   marcarCotaManual,
   pintarMetodos,
   pintarOrigenCota,
+  primeraAtras,
+  primeraSeguir,
+  primeraVer,
 } from "./cota.js";
 import { estado, guardado, limpiarGuardadoViejo } from "./estado.js";
 import { enCampo } from "./formato.js";
@@ -199,6 +203,10 @@ const ACCIONES = {
   },
   // «Cambiar» / «Listo» del renglón de la casa, en Mi casa.
   "cambiar-casa": () => alternarCasa(),
+  // La primera vez, en tres pasos (cota.js).
+  "primera-seguir": () => primeraSeguir(),
+  "primera-atras": () => primeraAtras(),
+  "primera-ver": () => primeraVer(),
   "buscar-dir": () => buscarDireccion(),
   // Una sugerencia del buscador de dirección (js/app/calles.js).
   "elegir-calle": (el) => elegirCalle(el.dataset.calle || ""),
@@ -256,6 +264,7 @@ const ENTRADAS = {
   "cota-manual": () => marcarCotaManual(),
   "filtrar-puntos": () => filtrarPuntos(),
   "km-manual": (el) => fijarKmManual(el.value),
+  "zona-radio": (el) => elegirZona(el.value),
   "sugerir-calle": () => sugerirCalle(),
 };
 

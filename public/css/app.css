@@ -1092,6 +1092,109 @@ b.c-vos {
 }
 
 /* El renglón de la casa cargada, con «Cambiar». */
+/* ---------- Mi casa, la primera vez ----------
+   Tres pasos (pasoPrimera en cota.js). La sección lleva .primera y .paso-N, y
+   esto decide qué se ve: son los mismos campos del formulario de siempre.
+   Con id adelante para ganarle a .btn, .tarjeta y compañía. */
+#v-cota:not(.primera) .solo-primera,
+#v-cota:not(.paso-3) .solo-paso-3,
+#v-cota.primera .solo-formulario,
+#v-cota.primera #cota-intro,
+#v-cota.paso-1 #paso-altura,
+#v-cota.paso-2 #paso-zona,
+#v-cota.paso-1 #resultado,
+#v-cota.paso-2 #resultado,
+#v-cota.paso-1 #avisos,
+#v-cota.paso-2 #avisos {
+  display: none;
+}
+.primera-cabeza {
+  margin: 0 0 var(--e-4);
+}
+.primera-cabeza .eti {
+  display: block;
+  margin-bottom: var(--e-2);
+}
+/* Tres tramos, uno por paso: se llenan los hechos y el actual. */
+.progreso-pasos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-1);
+}
+.progreso-pasos i {
+  height: 5px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+}
+.progreso-pasos i.hecho {
+  background: var(--acento);
+}
+#paso-zona h2,
+#paso-altura h2 {
+  margin-top: 0;
+}
+/* El foco llega a los títulos por código, al cambiar de paso, para que el
+   lector de pantalla arranque ahí. No es un control: sin anillo. */
+#paso-zona h2:focus,
+#paso-altura h2:focus,
+.primera-cabeza:focus {
+  outline: none;
+}
+/* Las doce zonas, a la vista y de un toque: en un <select> había que abrir
+   la lista para enterarse de cuáles había. */
+.zonas-radio {
+  display: grid;
+  gap: var(--e-1);
+  margin: var(--e-3) 0;
+  padding: 0;
+  border: 0;
+}
+.zona-opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 48px;
+  padding: var(--e-2) var(--e-3);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  font-size: var(--t-base);
+  cursor: pointer;
+}
+.zona-opcion input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--acento);
+}
+.zona-opcion:has(input:checked) {
+  border-color: var(--acento);
+  background: var(--agua-tinte);
+  font-weight: 700;
+}
+.zona-opcion:has(input:focus-visible) {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+.fila-pasos {
+  display: flex;
+  gap: var(--e-2);
+  margin-top: var(--e-4);
+}
+/* .btn trae width:100%: en la fila, «Atrás» se comía el renglón entero. */
+.fila-pasos .btn {
+  flex: 1;
+  width: auto;
+  margin: 0;
+}
+.fila-pasos .btn.sec {
+  flex: 0 0 auto;
+}
+.solo-paso-3 {
+  width: 100%;
+  margin-top: var(--e-3);
+}
 .casa-renglon {
   display: flex;
   align-items: center;
