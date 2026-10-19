@@ -1987,7 +1987,7 @@ const LICENCIAS = [
   ],
   [
     "Instituto Geográfico Nacional",
-    'Mapa base (capa argenmap) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
+    'Mapa base (capa argenmap), la foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
   ],
   [
     "Municipalidad de Santa Fe",
@@ -2036,6 +2036,15 @@ const PRIVACIDAD = [
     "Buscar una dirección",
     "Al tocar Buscar",
     "Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada.",
+  ],
+  /* Faltaba: el mapa siempre le pidió el fondo al IGN, y la foto aérea de
+     «Marcar mi casa» sale del mismo organismo. Como pide la zona que se
+     mira, el IGN puede saber más o menos dónde buscaste tu casa; dónde
+     tocaste, no. */
+  [
+    "Ver el mapa",
+    "Al abrirlo",
+    "El fondo del mapa y la foto aérea con la que marcás tu casa los pide tu teléfono al Instituto Geográfico Nacional, que recibe tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.",
   ],
   [
     "Estadísticas del sitio",

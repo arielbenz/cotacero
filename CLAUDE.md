@@ -405,6 +405,14 @@ prohíbe autocompletar contra su API. El archivo no se precachea: buscar una
 dirección necesita señal de todos modos. Se regenera a mano, como las curvas,
 cuando Georef suma calles.
 
+**El mapa son dos hosts del IGN, y cambiarlos toca los mismos lugares.** El
+fondo (`wms.ign.gob.ar`) y la foto aérea de «Marcar mi casa»
+(`imagenes.ign.gob.ar`, vuelos de 2013 y 2014) van en `img-src` **y** en
+`connect-src` —MapLibre baja los tiles con `fetch`, así que además exigen
+CORS—, en la fila «Ver el mapa» de `/legal` y en `LICENCIAS`. Un proveedor con
+clave o cuota no entra: se evaluaron Esri, Mapbox, Stadia y MapTiler, y todos
+cortan o cobran justo en el pico de una crecida.
+
 En la interfaz, el de la casa es **«número»**, nunca «altura»: «altura» es la
 del terreno sobre el mar, y las dos aparecen en la misma tarjeta.
 
