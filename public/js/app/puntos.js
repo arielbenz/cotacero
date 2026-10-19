@@ -2,7 +2,7 @@
 
 import { esIOS } from "./avisos.js";
 import { PUNTOS } from "./estado.js";
-import { atr, m } from "./formato.js";
+import { atr, m, nm } from "./formato.js";
 import { coordsPuntos, distanciaKm, mapa, miPos } from "./mapa.js";
 import { ver } from "./vista.js";
 
@@ -12,6 +12,73 @@ import { ver } from "./vista.js";
 const PUNTOS_VISIBLES = 6;
 
 let verTodosLosPuntos = false;
+
+/* Los tres más cercanos, cuando la persona dio su ubicación. Van en
+   tarjetas arriba y salen de la lista, que sigue desde el 4: con las tres
+   repetidas abajo la lista volvía a empezar por lo que ya se había leído. */
+let cercanos = [];
+
+const enc = encodeURIComponent;
+
+/* El enlace a la app de mapas del teléfono. `geo:` abre la que la persona ya
+   tenga, sin JavaScript. Safari en iPhone no lo entiende y el toque no hacía
+   nada: ahí va Apple Maps, que abre la app de Mapas del sistema. Con `ruta`
+   («Cómo llegar»), en iPhone pide la ruta a pie; `geo:` no tiene forma de
+   pedir una ruta, pero la app que abre la ofrece con un toque. */
+export function enlaceMapa(n, d, ruta = false) {
+  const c = coordsPuntos[n];
+  const dir = enc(d + ", Santa Fe, Argentina");
+  if (esIOS()) {
+    if (ruta)
+      return c
+        ? `https://maps.apple.com/?daddr=${c[1]},${c[0]}&dirflg=w&q=${enc(n)}`
+        : `https://maps.apple.com/?daddr=${dir}&dirflg=w`;
+    return c
+      ? `https://maps.apple.com/?ll=${c[1]},${c[0]}&q=${enc(n)}`
+      : `https://maps.apple.com/?q=${dir}`;
+  }
+  return c
+    ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${enc(n)})`
+    : `geo:0,0?q=${dir}`;
+}
+
+/* La distancia es en línea recta, porque es lo único que se puede calcular
+   sin mandar la ubicación a nadie, y la pantalla lo dice. Los minutos salen
+   de esa misma distancia a 5 km/h: es un piso, no una promesa. */
+const distancia = (km) =>
+  km < 1 ? Math.round(km * 100) * 10 + " m" : nm(km, 1) + " km";
+const aPie = (km) => Math.max(1, Math.round((km / 5) * 60));
+
+/* Las tres tarjetas. La primera, destacada, con el único botón sólido de la
+   pantalla: es adónde ir. La línea del agua que corre va al pie y no en
+   cada tarjeta: es una regla para todo el camino. */
+export function pintarCercanos(orden) {
+  const tres = orden.slice(0, 3);
+  cercanos = tres.map((o) => o.nombre);
+  const cont = document.getElementById("cercanos");
+  if (!cont) return;
+  cont.innerHTML =
+    '<h3 class="cercanos-titu">Los más cercanos a vos</h3>' +
+    '<p class="chico">Según dónde estás ahora, en línea recta: el camino ' +
+    "real puede ser más largo.</p>" +
+    '<ol class="cercanos">' +
+    tres
+      .map(
+        (o, i) =>
+          `<li class="cercano${i === 0 ? " primero" : ""}">` +
+          `<span class="punto-num" aria-hidden="true">${i + 1}</span>` +
+          `<span class="c-txt"><b>${atr(o.nombre)}</b>` +
+          `<span>${atr(o.dir)}${i ? " · " + distancia(o.km) : ""}</span>` +
+          (i === 0
+            ? `<span class="c-dist"><b>${distancia(o.km)}</b> en línea recta · ≈ ${aPie(o.km)} min a pie</span>`
+            : "") +
+          `</span><a class="btn${i ? " sec mini" : ""}" href="${atr(enlaceMapa(o.nombre, o.dir, true))}">Cómo llegar</a></li>`,
+      )
+      .join("") +
+    "</ol>" +
+    '<p class="chico">Si en el camino hay agua que corre, <b>no la ' +
+    "cruces</b>: buscá otro punto.</p>";
+}
 
 export function alternarTodosLosPuntos() {
   verTodosLosPuntos = !verTodosLosPuntos;
@@ -33,6 +100,18 @@ export function pintarPuntos(filtro = "", destacar = null) {
         distanciaKm(miPos, coordsPuntos[b[0]] || [0, 0]),
     );
   const cont = document.getElementById("lista-puntos");
+  /* Con los cercanos en tarjetas, la lista es «los demás» y sigue la cuenta
+     desde el 4. Una búsqueda muestra todo lo que coincide, cercanos
+     incluidos: sacarle resultados a una búsqueda desconcierta. */
+  const demas = Boolean(miPos && !f && cercanos.length);
+  if (demas) {
+    const quitar = new Set(cercanos);
+    for (let i = lista.length - 1; i >= 0; i--)
+      if (quitar.has(lista[i][0])) lista.splice(i, 1);
+  }
+  const titulo = document.getElementById("titulo-demas");
+  if (titulo) titulo.hidden = !demas;
+  const desde = demas ? cercanos.length + 1 : 0;
   // Con búsqueda activa mostramos todo lo que coincide: recortar un
   // resultado de búsqueda sería desconcertante.
   const recorta = !f && !verTodosLosPuntos && lista.length > PUNTOS_VISIBLES;
@@ -44,23 +123,16 @@ export function pintarPuntos(filtro = "", destacar = null) {
     return;
   }
   cont.innerHTML = mostrar
-    .map(([n, d]) => {
+    .map(([n, d], i) => {
       const c = coordsPuntos[n];
-      // geo: abre la app de mapas que la persona ya tenga en el teléfono.
-      // Safari en iPhone no lo entiende y el toque no hacía nada: ahí va el
-      // enlace de Apple Maps, que abre la app de Mapas del sistema.
-      const href = esIOS()
-        ? c
-          ? `https://maps.apple.com/?ll=${c[1]},${c[0]}&q=${encodeURIComponent(n)}`
-          : `https://maps.apple.com/?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`
-        : c
-          ? `geo:${c[1]},${c[0]}?q=${c[1]},${c[0]}(${encodeURIComponent(n)})`
-          : `geo:0,0?q=${encodeURIComponent(d + ", Santa Fe, Argentina")}`;
-      const km =
-        miPos && c ? " · " + distanciaKm(miPos, c).toFixed(1) + " km" : "";
+      const href = enlaceMapa(n, d);
+      const km = miPos && c ? " · " + distancia(distanciaKm(miPos, c)) : "";
+      const num = desde
+        ? `<span class="punto-num" aria-hidden="true">${desde + i}</span> `
+        : "";
       return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
-<div class="n">${n}${destacar === n ? ' <span style="color:var(--ok-texto);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
+<div class="n">${num}${n}${destacar === n ? ' <span style="color:var(--ok-texto);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
 <div class="d">${d}${km}</div>
 <span class="ir">Mapas →</span></a>`;
     })

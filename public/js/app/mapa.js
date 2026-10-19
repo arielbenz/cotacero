@@ -9,7 +9,7 @@ import { BOTON_MARCAR, fijarCotaEstimada } from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
 import { m } from "./formato.js";
-import { pintarPuntos } from "./puntos.js";
+import { pintarCercanos, pintarPuntos } from "./puntos.js";
 import { aLaVista, irA, ocupar } from "./vista.js";
 
 /* ================= MAPA ================= */
@@ -21,7 +21,9 @@ export let mapa = null,
 /* La promesa de armarMapa() mientras el mapa se construye (ver ahí), y el
    pin de la casa marcada a mano, para reemplazarlo si marca de nuevo. */
 let promesaMapa = null,
-  pinCasa = null;
+  pinCasa = null,
+  // Uno solo: cada «Mostrar el más cercano» sumaba un «Estás acá» nuevo.
+  pinYo = null;
 
 /* ---------- la búsqueda de dirección: Georef primero, Nominatim detrás ----------
    Georef es la API de direcciones del Estado nacional (apis.datos.gob.ar).
@@ -508,16 +510,19 @@ export function ubicarmeEnMapa() {
     (pos) => {
       miPos = [pos.coords.longitude, pos.coords.latitude];
       if (mapa && typeof maplibregl !== "undefined") {
-        const el = document.createElement("div");
-        el.className = "pin yo";
-        new maplibregl.Marker({ element: el })
-          .setLngLat(miPos)
-          .setPopup(
-            new maplibregl.Popup({ offset: 14 }).setHTML(
-              "<strong>Estás acá</strong>",
-            ),
-          )
-          .addTo(mapa);
+        if (pinYo) pinYo.setLngLat(miPos);
+        else {
+          const el = document.createElement("div");
+          el.className = "pin yo";
+          pinYo = new maplibregl.Marker({ element: el })
+            .setLngLat(miPos)
+            .setPopup(
+              new maplibregl.Popup({ offset: 14 }).setHTML(
+                "<strong>Estás acá</strong>",
+              ),
+            )
+            .addTo(mapa);
+        }
       }
       // Sale de coordsPuntos y no de los marcadores: así funciona
       // aunque el mapa nunca se haya abierto o no haya podido cargar.
@@ -534,25 +539,38 @@ export function ubicarmeEnMapa() {
           km: distanciaKm(miPos, coordsPuntos[n]),
         }))
         .sort((a, b) => a.km - b.km);
-      const cerca = orden[0];
-      Object.values(pinDe).forEach((el) => el.classList.remove("cerca"));
-      if (pinDe[cerca.nombre]) pinDe[cerca.nombre].classList.add("cerca");
-      if (mapa)
+      /* Los tres más cercanos, numerados en el mapa como en las tarjetas:
+         con uno solo, si el primero quedaba cruzando agua no había a cuál
+         ir. */
+      const tres = orden.slice(0, 3);
+      Object.values(pinDe).forEach((el) => {
+        el.classList.remove("cerca");
+        el.textContent = "";
+      });
+      tres.forEach((o, i) => {
+        const el = pinDe[o.nombre];
+        if (!el) return;
+        el.classList.add("cerca");
+        el.textContent = String(i + 1);
+      });
+      if (mapa) {
         // MapLibre toma un array plano [a, b] como [sw, ne] al pie de la
         // letra: si vienen al revés arma un bounds invertido y se va al mundo
         // entero (zoom -0.15). Por eso se construye con extend().
-        mapa.fitBounds(
-          new maplibregl.LngLatBounds(miPos, miPos).extend(cerca.coord),
-          { padding: 70, maxZoom: 14 },
-        );
-      e.innerHTML =
-        "El más cercano es <b>" +
-        cerca.nombre +
-        "</b>, a " +
-        cerca.km.toFixed(1) +
-        " km en línea recta. <b>Fijate el recorrido real</b>: el camino más " +
-        "corto puede pasar por zona baja.";
-      pintarPuntos(document.getElementById("buscar-punto").value, cerca.nombre);
+        const caja = new maplibregl.LngLatBounds(miPos, miPos);
+        tres.forEach((o) => caja.extend(o.coord));
+        mapa.fitBounds(caja, { padding: 50, maxZoom: 15 });
+      }
+      e.textContent = "";
+      pintarCercanos(orden);
+      pintarPuntos(document.getElementById("buscar-punto").value);
+      /* Con las tarjetas a la vista, el sólido de la pantalla es «Cómo
+         llegar» del primero: este botón pasa a secundario. */
+      const b = document.querySelector('[data-accion="ubicarme"]');
+      if (b) {
+        b.classList.add("sec");
+        b.textContent = "Actualizar mi ubicación";
+      }
     },
     () => {
       e.textContent = "No diste permiso de ubicación.";

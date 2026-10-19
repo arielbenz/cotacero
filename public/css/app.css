@@ -1853,6 +1853,107 @@ label.campo-dir {
     0 0 0 1px var(--ok),
     0 0 14px var(--ok);
 }
+/* Los tres más cercanos llevan su número, el mismo de las tarjetas. */
+.pin.cerca {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--sobre-solido);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ---------- Dónde ir: los más cercanos ----------
+   Después de «Mostrar el más cercano a mí» (pintarCercanos en puntos.js). */
+#cercanos:empty {
+  display: none;
+}
+.cercanos-titu {
+  margin: var(--e-5) 0 var(--e-1);
+}
+.cercanos {
+  display: grid;
+  gap: var(--e-2);
+  margin: var(--e-3) 0;
+  padding: 0;
+  list-style: none;
+}
+.cercano {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+}
+/* El primero, a lo ancho: es adónde ir, y su «Cómo llegar» va debajo. */
+.cercano.primero {
+  grid-template-columns: auto 1fr;
+  padding: var(--e-4);
+  border-color: var(--ok);
+  background: var(--ok-tinte);
+}
+.cercano.primero .btn {
+  grid-column: 1 / -1;
+  margin: var(--e-1) 0 0;
+}
+.cercano .btn.mini {
+  width: auto;
+  margin: 0;
+}
+.c-txt {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.c-txt b {
+  font-size: var(--t-m);
+}
+.c-txt > span {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.c-txt .c-dist {
+  color: var(--texto);
+}
+.c-txt .c-dist b {
+  font-family: var(--mono);
+  font-size: var(--t-base);
+}
+.punto-num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  vertical-align: 2px;
+}
+.cercano.primero .punto-num {
+  background: var(--ok);
+  color: var(--sobre-solido);
+}
+.punto .punto-num {
+  min-width: 22px;
+  height: 22px;
+  margin-right: var(--e-1);
+}
+.titulo-demas {
+  margin: var(--e-4) 0 0;
+  font-size: var(--t-base);
+}
+.titulo-demas[hidden] {
+  display: none;
+}
 .pin.yo {
   background: var(--tierra);
   box-shadow: 0 0 0 1px var(--tierra);
