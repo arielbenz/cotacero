@@ -1,853 +1,234 @@
 # Cota Cero — Santa Fe
 
 Herramienta ciudadana para la emergencia hídrica (Ley provincial 14.477).
-Traduce la altura del hidrómetro del Puerto de Santa Fe a un **umbral personal
-estimado**: la lectura del río que sirve de referencia para tu terreno.
+Traduce la lectura del hidrómetro del Puerto de Santa Fe a **tu nivel de
+aviso**: el nivel del río a partir del cual el agua puede llegar a tu terreno.
+Es un cálculo aproximado, no una predicción, y no tiene vínculo oficial.
 
-## Modelo
+Tres documentos, tres trabajos:
+
+- **este README** — cómo funciona cada pieza y por qué se decidió así;
+- **`AUDITORIA.md`** — cada número, de dónde sale y qué falta validar;
+- **`CLAUDE.md`** — lo operativo: comandos, reglas que no se rompen y qué
+  archivos están conectados entre sí.
+
+## El modelo
 
     cota del agua (IGN) = lectura del hidrómetro + 8,20
-    corrección aguas arriba = 0,045 m por km
-
-Contrastado con la crecida de junio 1992: puerto 7,43 m -> 15,62 IGN;
-Arroyo Leyes (24 km arriba) -> 16,70 IGN. El modelo da 15,63 y 16,71. **Esa
-coincidencia no prueba nada**: el 16,70 se publicó como estimación hecha con
-la misma pendiente (`AUDITORIA.md` §3).
-
-**Las dos constantes están en discusión y no se tocaron.** El INA publica hoy
-`cero_ign = 8,378` para esta escala —relevamiento INA-IGN de diciembre de 2016,
-contemporáneo del cambio de SRVN71 a SRVN16— y las curvas del municipio no
-declaran su sistema de alturas, así que mover el cero metería un sesgo de 18 cm
-sin que nadie lo note. La pendiente, además, se despejó del mismo caso de 1992
-con el que después se la valida. Todo eso está desarrollado en **`AUDITORIA.md`**,
-con las preguntas concretas para cada organismo, y explicado para cualquiera en
-`/datos`. No cambiar ninguno de los dos sin leer ese archivo primero.
-
-Un centímetro en cada punto, pero es **una sola validación independiente**.
-Coincidir con una única crecida histórica no convierte esto en un modelo
-predictivo de inundación: falta la revisión de especialistas y organismos
-competentes (Gestión de Riesgos, INA, FICH-UNL). Hasta entonces lo que la app
-calcula son niveles de referencia estimados, y así se nombran en la interfaz.
-
-Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m. **Ya no
-están escritos a mano**: los publica la estación del INA en cada consulta y la
-app los adopta (con un filtro de plausibilidad). Las constantes que quedan en
-`js/app/oficiales.js`, `sw.js`, `landing.js` y el widget son el respaldo para cuando contesta
-el reporte diario, que no los trae.
-
-## Tres conceptos, tres nombres
-
-La interfaz los mezclaba y eso era lo que hacía sonar la app como una
-predicción de inundación. Son tres y nunca se intercambian. **En el código y en
-`/datos` se llaman nivel, cota y umbral; en la interfaz se dicen en llano:**
-
-| Concepto                                                                              | En el código | En pantalla                                      |
-| ------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------ |
-| La lectura del hidrómetro del Puerto (INA / Prefectura)                               | `nivel`      | «el río está en 4,86 m», «la regla del río»      |
-| La elevación IGN del terreno, de las curvas municipales, ±0,5 m                       | `cota`       | «la altura de tu terreno», «16,4 m sobre el mar» |
-| La lectura del hidrómetro a partir de la cual el agua equivalente alcanzaría esa cota | `umbral`     | **«tu nivel de aviso»**, «≈ 5,1 m»               |
-
-**Por qué «umbral» salió de la interfaz.** Es la palabra correcta y no tiene
-reemplazo técnico —por eso sigue en `/datos`, en el código
-(`cotaEnHidrometro`, `guardarUmbral`, la clave `umbral` de IndexedDB) y en
-`AUDITORIA.md`—. Pero en pantalla no la entendía nadie que no la supiera de
-antes: las cinco definiciones que había eran circulares (definían _umbral_ con
-_hidrómetro_, que la app nunca explicaba) y la única frase llana aparecía sólo
-en el estado de error, o sea casi nunca.
-
-«Tu nivel de aviso» dice qué hacer con el número —estar avisado— y no qué va a
-pasar. Va siempre con la glosa «el nivel del río a partir del cual el agua
-puede llegar a tu terreno. Es un cálculo aproximado» la primera vez que
-aparece en cada pantalla. La pestaña se llama **Mi casa**.
-
-Prohibido: «umbral» en pantalla; llamarle «tu cota» o «la altura de tu casa»
-al nivel de aviso; «cuándo llega el agua», «te llega», «se inunda»; «tu
-alerta» o «tu evacuación». Las oficiales llevan siempre **«de la ciudad»**
-pegado.
-
-**Falsa precisión.** La cota del terreno viene de curvas cada 0,5 m, así que el
-umbral **nunca** se muestra con dos decimales: un decimal y tilde de
-aproximación (`mU()` en `js/app/formato.js`, `unDec()` en `sw.js`). La única excepción es
-el desglose del cálculo, que conserva la aritmética exacta y aclara al pie por
-qué la pantalla muestra otra cosa.
-
-## Configuración
-
-No hace falta ninguna clave de API. En `js/app/config.js`, bloque `CONFIG`:
-
-    NIVEL_ENDPOINT: '/api/nivel'  no tocar en Vercel
-
-## Estructura
-
-Lo que se publica vive en `public/`; la raíz guarda lo que no se sirve. Vercel
-publica sólo esa carpeta (`"outputDirectory": "public"` en `vercel.json`) y
-toma las funciones de `api/` de la raíz. Las URLs son las mismas de siempre:
-`public/datos/index.html` se sirve en `/datos`. Las páginas generadas llevan
-un cartel de "no editar" en la primera línea.
-
-    public/                    EL SITIO
-      index.html               portada (landing) — la puerta de entrada
-      sw.js                    service worker (va en la raíz del sitio: su alcance es su ruta)
-      manifest.webmanifest     PWA
-      robots.txt · sitemap.xml · llms.txt · .well-known/api-catalog
-      404.html                 la página de error (generada)
-      guia.pdf                 la guía impresa (artefacto de scripts/guia-pdf.js)
-
-      js/   landing.js         estado del río en vivo (píldora, franja y frescura), regla que se mueve, mapa perezoso, salto a /app
-            historia.js        la serie de un siglo, interactiva
-            medios.js          copiar el código del widget
-      js/app/                  la app, en módulos ES
-          principal.js      261L   arranque, tabla de acciones y eventos
-          avisos.js         252L   push
-          bienvenida.js      50L   la primera visita
-          compartir.js      174L   la imagen para WhatsApp
-          config.js         173L   constantes del cálculo y listas fijas
-          cota.js           375L   de la cota al umbral del hidrómetro
-          elevacion.js       88L   la cota, de las curvas del municipio
-          estado.js         120L   estado de la sesión y lo que persiste
-          formato.js         72L   cómo se escriben los números
-          fuentes.js         50L   de dónde sale cada dato — importa public/lib/fuentes.js
-          instalar.js       196L   instalar la PWA
-          lluvia.js          65L   pronóstico de lluvia
-          mapa.js           341L   MapLibre y los 30 puntos
-          metricas.js        41L   cuántos la usan, sin saber quiénes
-          oficiales.js       51L   alerta, evacuación y récord (lo único que cambia en caliente)
-          plan.js           181L   el plan familiar
-          puntos.js          79L   la lista de puntos y su filtro
-          rio.js            668L   leer el nivel, la regla y el contexto histórico
-          tema.js            81L   tema, tamaño de texto y Ajustes
-          vista.js           92L   navegación entre pestañas
-      css/  app.css            estilos, compartidos por todo
-      img/  icon-*.png og.png favicon-32.png apple-touch-icon.png screenshot-*.png
-
-      app/index.html           la app — FUENTE, y la lista de los 30 puntos
-      widget/                  el widget que embeben los medios — FUENTE
-
-      lib/                     lo que usan Node Y el navegador
-            comun.js           umbrales de respaldo, plausibilidad, vencimiento, formato
-            comun-clasico.js   su gemelo para los scripts clásicos (generado)
-            fuentes.js         organismos, URLs y la estación, escritos UNA vez
-            listas.js          la mochila y el checklist previo
-
-      datos-abiertos/          los JSON que la app lee y cualquiera puede auditar
-            curvas.json        curvas de nivel del municipio
-            historia.json      un renglón por año desde 1925 (INA), 6 KB
-            puntos.json        coordenadas de los 30 puntos, para el mapa de la portada
-
-      vendor/maplibre-gl.*     motor del mapa, self-hosteado (BSD-3)
-
-    api/nivel.js               sirve el nivel al navegador (CORS proxy)
-    api/suscribir.js           alta de un endpoint de push
-    api/desuscribir.js         baja
-    api/cron/avisar.js         lo dispara Vercel Cron
-    api/sugerencias.js         recibe feedback de la gente
-    api/visita.js              cuenta una apertura (sin caché, a propósito)
-    api/metricas.js            tablero privado, protegido con clave
-
-    lib/                       lo que corre sólo en Node, y no se publica
-      ina.js                   lectura del INA: API primero, raspado de respaldo
-      paginas.js               títulos, descripciones, canónicas e indexabilidad
-      sugerencias.js           las categorías del formulario, en un solo lugar
-      charlas.js               las charlas de /charlas
-      push.js                  VAPID y almacén (módulo, NO endpoint)
-      metricas.js              claves y días del contador (módulo, NO endpoint)
-
-    scripts/paginas.js         genera las páginas de contenido
-    scripts/curvas.js          baja las curvas de nivel del municipio
-    scripts/historia.js        baja la serie histórica del INA
-    scripts/marca.js           el logo, en un solo lugar
-    scripts/iconos.js          rasteriza el logo a los PNG de public/img/
-    scripts/servir.js          servidor de desarrollo: sirve public/ y ejecuta api/
-    scripts/vapid.js           genera las claves, se corre una vez
-
-    datos-crudos/              análisis y datos de trabajo (no se publican)
-    vercel.json                cabeceras, CSP y outputDirectory
-    AUDITORIA.md               cada número, su fuente y qué falta validar
-    CLAUDE.md                  lo operativo, para agentes
-
-**Por qué `public/`.** Antes Vercel publicaba la raíz entera, y con ella
-`/AUDITORIA.md`, `/scripts/paginas.js`, `/lib/ina.js` y `/datos-crudos/`. Nada
-de eso era secreto, pero tampoco era el sitio, y las once carpetas de páginas
-quedaban mezcladas con el código. No hizo falta un paso de build: es una línea
-en `vercel.json`.
-
-**Por qué dos `lib/`.** Cuatro archivos los importan a la vez Node y el
-navegador (`/lib/comun.js`, `/lib/fuentes.js`, `/lib/listas.js` y
-`/lib/comun-clasico.js`): tienen que estar en `public/` para que el navegador
-los pida, y Node los importa desde ahí. El resto de `lib/` corre sólo en Node
-y se queda en la raíz. La otra salida era que el generador copiara los cuatro
-a `public/` en cada corrida, y una copia que se regenera sola es una copia que
-un día se desincroniza.
-
-**Diez carpetas de `public/` son páginas generadas** —`datos/`, `historia/`,
-`preguntas/`, `legal/`, `charlas/`, `sobre/`, `contacto/`, `para-medios/`,
-`puntos-de-encuentro/`, `guia/`—. Están en la raíz del sitio porque su ruta
-_es_ su URL. Cada una arranca con un comentario que dice que la emite
-`scripts/paginas.js` y que editarla a mano no sirve.
-
-`sw.js` se queda en la raíz del sitio a propósito: un service worker sólo
-controla su propio directorio hacia abajo, así que moverlo a `js/` le sacaría
-el alcance sobre todo el sitio.
-
-## La app son módulos
-
-`app/index.html` carga `/js/app/principal.js` con `type="module"` y de ahí
-cuelga el resto. Antes era un solo `app.js` de 3.100 líneas.
-
-**Qué cambió para quien lo toca.** Ya no hay globals: escribir `estado` en la
-consola del navegador no devuelve nada. Para hurgar desde ahí:
-
-    const rio = await import('/js/app/rio.js')
-
-que devuelve la instancia que la página ya cargó, no una copia.
-
-**El único lugar con estado mutable compartido es `oficiales.js`** —alerta,
-evacuación y el récord—, y se mueve sólo con `fijarUmbrales()` y
-`fijarRecord()`. No es ceremonia: un import de ESM es de sólo lectura, así que
-ningún otro archivo puede asignarlos aunque quiera, y el resto los ve
-actualizados por el enlace vivo del import.
-
-**`js/app/fuentes.js` importa `public/lib/fuentes.js` de verdad**, con
-`import { ORGANISMOS, FUENTES } from "/lib/fuentes.js"`. Ese archivo es puro
-dato y exports, así que el navegador lo carga como cualquier módulo. Era la
-única duplicación consciente que quedaba —`FUENTES_APP` era una copia a mano—
-y se murió.
-
-**Un módulo nuevo hay que agregarlo al precache de `sw.js`**, o `/app` deja de
-abrir sin conexión. `scripts/paginas.js` compara la lista de `js/app/` contra
-la de `sw.js` y **falla** si no coinciden: el olvido se ve al regenerar, no el
-día que alguien se queda sin señal.
-
-**Qué NO se partió.** `app.css` sigue en un solo archivo: es render-crítico y
-partirlo agrega pedidos en la carga que más importa. Y `sw.js` sigue siendo un
-script clásico, porque un service worker con módulos todavía no está en todos
-lados.
-
-## De dónde sale el nivel
-
-Dos fuentes, en este orden, en `lib/ina.js`:
-
-    API del SIyAH (alerta.ina.gob.ar/a5)  ->  si falla  ->  reporte diario (raspado)
-
-La **API es la preferida**. Es pública, sin clave y sin cuota: es la misma que
-consume el visor del propio INA. Devuelve JSON estructurado con la fecha exacta
-del dato y —esto es lo que más cambia— con `nivel_alerta`, `nivel_evacuacion`,
-`nivel_aguas_bajas` y `cero_ign` de la propia estación, así que esos umbrales
-dejaron de ser constantes nuestras.
-
-    estación 30 · SAFE · id externo 240 · propietario Prefectura Naval
-    serie 30 · altura hidrométrica · medición directa · metros
-    https://alerta.ina.gob.ar/a5/obs/puntual/series/30
-
-El **raspado del reporte diario sigue existiendo como red**, no se borró: ya se
-rompió una vez en silencio y no hay motivo para quedarse con una sola puerta. La
-respuesta de `/api/nivel` trae `origen` (`"api"` o `"reporte"`) y, cuando hubo
-que usar el respaldo, `degradado` con el motivo. **Si aparece `degradado`, algo
-se rompió**: se ve en el JSON en lugar de descubrirse meses después.
-
-**Por qué no se usa `/pub/datos`**, que es la ruta que documenta
-argentina.gob.ar y sería la primera opción: no anda. Rechaza sus propios
-nombres de parámetro, devuelve errores de Perl y se cae con timeouts de 30 s.
-El detalle está en `AUDITORIA.md` §6. Conviene reintentar cada tanto.
-
-`ESTACION` y `ENDPOINTS` viven en `public/lib/fuentes.js`, que es donde están escritos
-**una sola vez** los organismos, sus URLs y los identificadores de la estación.
-Antes eso estaba repartido entre la app, `scripts/paginas.js`, `lib/ina.js` y
-el HTML, y ya se había desincronizado. Si cambia un enlace, cambia ahí.
-
-Ya no hay excepción: desde que la app son módulos, `js/app/fuentes.js`
-importa `/lib/fuentes.js` directo. La copia a mano en `FUENTES_APP` se murió.
-
-**Ojo con las atribuciones escritas a mano.** El pie de la app decía «Niveles
-de alerta y evacuación según FICH-UNL y Prefectura Naval Argentina», que era
-cierto antes de la migración a la API y dejó de serlo después: hoy los publica
-la estación del INA, y Prefectura es dueña de la escala, que es otra cosa. Un
-renglón de texto plano no se entera de que cambió la fuente. Cuando haya que
-nombrar de dónde sale un dato, sale de `public/lib/fuentes.js` —o del sello que ya
-estampa `selloFuente()` al lado del número—, no de una frase suelta.
-
-## Cien años del Paraná
-
-`/historia` es la escala. El hidrómetro marca un número y el número solo no
-dice nada hasta que se lo ve al lado de los 7,43 m de 1992 y de los −0,23 m de 2022.
-
-    node scripts/historia.js     # baja la serie y escribe datos-abiertos/historia.json
-
-Baja las **39.115 observaciones de la serie 30 desde el 2 de enero de 1925**
-(unos 10 MB) y las resume a un renglón por año: máximo, mínimo, sus fechas,
-cuántos días hubo lectura y cuántos estuvo sobre cada umbral oficial. Quedan
-**6 KB**. El resumen se hace en el script y no en el navegador a propósito:
-procesar 37.000 registros en un teléfono el día de una crecida no es aceptable.
-
-El archivo lleva además **101 cuantiles** de la serie diaria. Sirven para una
-sola frase, en la app y en la página: _"el río estuvo por debajo del nivel de
-hoy en el X % de los días medidos desde 1925"_. Es un hecho sobre la serie del
-INA, no una categoría inventada: la app **no** dice "normal", "alto" ni "bajo",
-porque para eso haría falta una metodología oficial que no tenemos.
-
-El récord también sale de ahí. `RECORD` y `RECORD_ANIO` en `js/app/oficiales.js` son sólo el
-arranque, para que la regla se dibuje bien antes de que llegue el archivo: si
-alguna crecida rompe el récord, se actualiza volviendo a correr el script.
-
-**Nada anterior a 1925.** La crecida de 1905 que se cita seguido no está en
-esta serie y no se reconstruye desde recortes de diario.
-
-**La visualización.** Una franja con una barra por año —del mínimo al máximo, y
-teñida según si llegó a alerta o a evacuación de la ciudad— y, al lado, el
-detalle del año elegido: máximo, mínimo, días en alerta y una frase que lo
-pone contra la alerta y la evacuación. Hasta el rediseño de 2026 había además
-un tanque con dos modos y un «Reproducir»; se fueron. Dos cosas que no son
-negociables:
-
-- **Nada se mueve solo.** El año cambia cuando alguien toca una barra o las
-  flechas.
-- **La franja es un slider de verdad para el teclado** (`role="slider"`, con
-  `aria-valuetext`): se enfoca y se recorre con las flechas, Inicio y Fin. El
-  dibujo va `aria-hidden` y la tabla completa con los mismos números ya viene
-  en el HTML.
-
-**2003 lleva una nota escrita a mano**, y es la única: el Paraná llegó a 5,29 m,
-un centímetro debajo de la alerta, y la inundación de ese año la trajo el
-Salado. Sin la nota, la barra contaría que no pasó nada.
-
-**Los rótulos de la franja son HTML, no `<text>` del SVG.** El dibujo se estira
-con `preserveAspectRatio="none"` para que 102 barras entren en un teléfono, y
-eso aplasta las letras horizontalmente hasta volverlas ilegibles. Las barras
-aguantan la deformación; las letras no. Es el mismo criterio que la regla de la
-app, que también lleva la numeración fuera de la pista.
-
-## Buscadores
-
-`lib/paginas.js` es el mapa del sitio: por cada página, su título, su
-descripción, su canónica, su prioridad en el sitemap y **si se indexa**.
-También lleva `busqueda`, que no lo lee ningún programa — documenta a qué va
-cada página, para que nadie escriba dos que compitan por lo mismo.
-
-De ahí salen tres cosas: el `<head>` de las páginas generadas, `sitemap.xml`
-(sólo las indexables, sin `lastmod` inventado) y un chequeo que **falla** si la
-portada, la app o el widget dejan de coincidir con el registro.
-
-**`/mi-cota` se fusionó con `/datos`, y por qué.** Eran dos páginas explicando
-la misma resta, la misma discusión del cero del hidrómetro y la misma
-comprobación de 1992 —con el mismo H2 «Honestidad también acá» escrito dos
-veces— y llegaban a tener dos juegos de números para el mismo ejemplo, uno con
-Arroyo Leyes a 24 km y otro con Colastiné a 11: quien leía las dos no podía
-rehacer ninguna cuenta. Es exactamente lo que `busqueda` existe para evitar, y
-se nos pasó igual.
-
-Sobrevive `/datos` porque es la que enlazan el pie, la app y otras seis
-páginas; `/mi-cota` se va con un **301 en `vercel.json`** y su intención de
-búsqueda se conserva en el H1 y en el título de la página fusionada, que ahora
-abre con «¿Cuál es la cota de tu terreno en Santa Fe?». La página resultante es
-**más corta que la `/datos` que ya existía** —2.400 palabras contra 2.580, y
-8.370 px de scroll contra 10.318— pese a haber absorbido otra: lo que se sacó
-fue duplicación, no contenido. De los dos números en discusión no se sacó ni un
-dato: `AUDITORIA.md` los gobierna y siguen con su propio H3 a la vista, no
-plegados.
-
-**Tres URLs van con `noindex, follow`:**
-
-    /app       es la interfaz, no un documento. Las páginas de contenido
-               existen justamente porque la app esconde tres de sus cuatro
-               secciones detrás de pestañas: indexar las dos es competir
-               contra uno mismo, y repite los 30 puntos de encuentro.
-    /widget    es un fragmento para embeber en otros sitios.
-    /404.html  es un error, no contenido.
-
-`follow` en las tres: se siguen rastreando y siguen pasando autoridad.
-
-**`/historia` sirve sus datos en HTML.** Las crecidas, las bajantes, los
-umbrales y la tabla de los 102 años los emite `scripts/paginas.js` desde
-`datos-abiertos/historia.json`. `js/historia.js` quedó para lo único que
-necesita JavaScript: la franja del siglo que se recorre. Antes esa
-página tenía 328 palabras y ni un número; ahora tiene 1.372 y la serie
-completa. **No volver a mover contenido al JavaScript**: es la página que
-existe para contar la historia del río.
-
-**El CLS de `/app` era 0,264.** Cuatro tarjetas de la pantalla del río se
-llenan cuando contesta la red y empujaban todo lo de abajo. Reservarles el
-alto en `app.css` lo dejó en 0,009. Medido con caché frío y 4G lento, que es
-como llega alguien desde una búsqueda.
-
-**El favicon del buscador.** Google lo quiere cuadrado y múltiplo de 48 px, y
-lo busca también en `/favicon.ico` — que hasta ahora daba 404. Se emiten los
-dos (`favicon-96.png` y el `.ico` de la raíz del sitio) con `node scripts/iconos.js`. El
-`.ico` es el PNG envuelto en 22 bytes de cabecera: el formato lo admite y así
-no hace falta ninguna dependencia. Ojo: **Google cachea el favicon semanas**,
-así que el cambio no se ve enseguida.
-
-**Las páginas de contenido se precachean.** `/datos`, `/historia` y
-`/contacto` entran en `ESENCIALES`. Es lo que permitió sacar de la app las
-explicaciones largas que ya estaban en el sitio: la app enlaza y el enlace
-abre aunque no haya señal. Son ~25 KB comprimidos.
-
-**Dos trampas del service worker, las dos aprendidas rompiéndolo.**
-`cache.addAll()` es todo o nada: una sola ruta muerta en el precache y la app
-se queda sin modo sin conexión, sin un error visible. Y el registro no puede
-esperar al evento `load` —con la app en módulos, `load` puede haber pasado
-antes de que terminen de evaluarse— así que se mira `document.readyState`.
-`scripts/paginas.js` comprueba el precache en los dos sentidos y falla si algo
-no cierra.
-
-**robots.txt y sitemap.xml nunca se cachean** en el service worker: son dos
-archivos de 1 KB y una copia guardada de ellos no caduca nunca.
-
-## Correr en local
-
-    node scripts/servir.js        # http://localhost:3000
-
-Sirve los estáticos, **ejecuta las funciones de `/api`** y —lo que ningún
-servidor estático hace— **aplica las cabeceras de `vercel.json`, CSP incluida**.
-Sin eso la política no se prueba hasta producción.
-
-`/api/nivel` anda de verdad contra el INA. Las que necesitan Redis devuelven
-503, igual que en producción sin configurar.
-
-`scripts/servir.js` usa un byte NUL como centinela al convertir los patrones de
-`vercel.json` a expresiones regulares. Efecto colateral: `file` lo reporta como
-`data` y **`grep` lo trata como binario** — hay que pasarle `-a` para buscar ahí
-adentro.
-
-**El service worker cachea fuerte.** Mientras desarrollás, en DevTools →
-Application → Service Workers tildá **"Update on reload"**, o vas a estar
-mirando código viejo y creyendo que los cambios no se aplicaron. Y subí
-`VERSION` en `sw.js` en cada deploy.
-
-`vercel dev` (con `npx vercel dev`) es la otra opción: más fiel para las
-funciones, pero pide login y no corre los cron jobs.
-
-## Caché
-
-`index.html`, `app.css` y los módulos de la app van por **red primero** (revalidan en cada
-carga, 304 si no cambiaron) y caen a la copia guardada si no hay conexión. No
-llevan hash en el nombre a propósito: sin build step, nombres versionados
-significan acordarse de editar dos archivos en cada deploy, y el modo de falla
-—alguien con el HTML nuevo y el JS viejo— es silencioso. Revalidar cuesta un
-304; el desfasaje no se paga con nada.
-
-Lo demás (íconos, tipografías) va por caché primero. **Subir `VERSION` en
-`sw.js` en cada deploy**, o esos archivos quedan congelados.
-
-## CSP
-
-La política está en `vercel.json`. `script-src` es estricta: no hay ni un
-manejador `onclick` en el HTML, todo pasa por el delegador de eventos de
-`js/app/principal.js`, así que un script inyectado no corre.
-
-Desde que MapLibre va self-hosteado, `script-src` es `'self'` a secas: sin
-dominios externos.
-
-`style-src` sí lleva `'unsafe-inline'`, y es deliberado: hay ~70 atributos
-`style=` en el marcado generado y el `<style>` dentro del `<noscript>`.
-Sacarlos sería un refactor grande a cambio de poco — el vector que importa es
-la ejecución de scripts, no los estilos.
-
-## Mapa
-
-MapLibre GL (BSD-3), servido desde `vendor/`. Va self-hosteado a propósito:
-no depende de ningún CDN y deja la CSP con `script-src 'self'` sin una sola
-excepción.
-
-**No se precachea**, y eso es deliberado: son 275 KB comprimidos —el 41 % de
-todo lo que bajaba la primera visita a `/app`— por una pestaña que mucha gente
-no abre nunca. En un teléfono con datos contados, eso es plata. El modo sin
-conexión no se pierde: la rama de red-primero del service worker guarda todo
-`.js|.css` del propio origen, así que la primera vez que alguien abre «Dónde
-ir» queda cacheado y de ahí en más el mapa abre sin señal (sin tiles, pero con
-los 30 puntos).
-
-**Y se pregunta por WebGL antes de bajarlo.** MapLibre dibuja con WebGL; sin
-WebGL fallaba igual, pero después de gastar los 275 KB. Ahora
-`cargarMapLibre()` prueba un canvas primero y, si no hay, cae directo al
-mensaje de siempre sin pedir un solo byte. La lista de los 30 puntos no
-depende del mapa: sus coordenadas salen del HTML y «el más cercano a mí» se
-calcula sin él.
-
-El basemap son los tiles del **Instituto Geográfico Nacional**, los mismos que
-usa el GeoPortal de la Municipalidad. Sin clave, sin cuota y de un organismo
-nacional. Es un servicio TMS (la Y se cuenta desde abajo): de ahí
-`scheme: "tms"` en el estilo. Como el basemap es claro y la app oscura, se
-invierte por CSS sobre el canvas de los tiles.
-
-El motor del mapa va self-hosteado en `vendor/`. **No usar un proveedor con
-clave y cuota**: el modo de falla es caerse justo cuando la app se comparte
-durante una crecida, que es cuando importa. No hay ningún token en el repo ni
-hace falta.
-
-La búsqueda de dirección va en cascada y sin clave: primero **Georef**, la
-API de direcciones del Estado nacional, que normaliza lo que escribe la gente
-(«Bv Galvez al 1500») e interpola la altura sobre el callejero del INDEC; si
-no la encuentra o no contesta, **Nominatim** (OpenStreetMap), que es el que
-conoce barrios y parajes. Una consulta por búsqueda que inicia la persona.
-Cuando sólo resuelve la calle y no la altura, la app lo dice en pantalla en
-vez de dar un número que parece firme.
-
-Se midió el 17/10/2026 con 30 direcciones escritas como las escribe la gente.
-Nominatim solo ubicaba la altura en 15; en 3 la ponía en Santo Tomé o
-Candioti —el `viewbox` es un rectángulo y los vecinos quedan adentro, así
-que ahora se filtra por municipio con `addressdetails`— y en 7 devolvía una
-esquina o la calle entera, hasta 1,4 km de la casa. Georef ubicó 25, y donde
-los dos la tienen coinciden a menos de 50 m. Lo que la gente contaba como «no
-encuentra mi dirección» era, casi siempre, una de esas dos cosas: la cota de
-otra ciudad, que las curvas no cubren, o la esquina con la advertencia.
-
-**Mientras escribe, el campo sugiere calles y dice qué entendió.** La lista
-sale de `datos-abiertos/calles.json` —845 calles de la ciudad con su rango
-de numeración, 8 KB comprimido— que genera `node scripts/calles.js` desde
-Georef. Se filtra en el teléfono: no sale ninguna letra hasta que la persona
-aprieta Buscar. Entiende las formas en que se escribe una calle en Santa Fe
-(«Boulevard», «Bv.», «Avenida Pellegrini» para el que Georef llama bulevar,
-«Gral», sin tildes) y perdona una letra («Pelegrini»). Debajo del campo, un
-renglón dice lo que falta: elegir de la lista, escribir el número, o que el
-número pasa el último de esa calle. Sólo se avisa cuando lo pasa: el rango
-es la unión de los tramos y puede tener huecos, así que por debajo decide la
-búsqueda.
-
-## Puntos de encuentro
-
-Los 30 puntos salen de la capa `puntos_de_encuentro` del GeoServer público de
-la Municipalidad de Santa Fe, la misma que dibuja el GeoPortal. Van
-hardcodeadas en `PUNTOS` dentro de `js/app/estado.js`: el dato es fijo, así funcionan
-sin conexión y no gastan cuota de geocodificación.
-
-Para actualizarlas:
+    corrección río arriba = 0,045 m por km
+
+Para un terreno dado se despeja al revés: qué lectura del hidrómetro pone el
+agua a la altura de ese terreno. Lo hace una sola función,
+`cotaEnHidrometro()`, que por defecto descuenta `ERROR_DEM` (0,5 m) para
+quedarse en el escenario pesimista.
+
+**Las constantes están en discusión y no se tocaron.** El INA publica hoy
+`cero_ign = 8,378` (relevamiento de 2016, SRVN16), y las curvas del municipio
+no declaran su sistema de alturas: mover el cero metería un sesgo de 18 cm sin
+que nadie lo note. La pendiente se despejó del mismo caso de 1992 con el que
+después se la «validaba», así que esa coincidencia de un centímetro no prueba
+nada. Todo está en `AUDITORIA.md` §3, y explicado para cualquiera en `/datos`.
+
+Hasta que lo revisen organismos competentes (Gestión de Riesgos del municipio,
+INA, FICH-UNL), lo que la app calcula son niveles de referencia estimados, y
+así se nombran en la interfaz.
+
+**Tres conceptos, tres nombres.** El **nivel** es la lectura del hidrómetro;
+la **cota**, la altura del terreno sobre el mar; el **umbral**, la lectura a
+partir de la cual el agua alcanzaría esa cota. En pantalla el umbral se llama
+«tu nivel de aviso», siempre con ≈ y un decimal. El vocabulario completo, y lo
+que está prohibido decir, está en CLAUDE.md.
+
+## Las fuentes de los datos
+
+| Dato                | De dónde                                                    | Cómo llega                                    |
+| ------------------- | ----------------------------------------------------------- | --------------------------------------------- |
+| Nivel del río       | API del SIyAH del INA, estación 30 (SAFE, Prefectura Naval) | `lib/ina.js` → `/api/nivel`, en cada consulta |
+| Alerta y evacuación | la misma estación del INA                                   | vienen junto con el nivel                     |
+| Cota del terreno    | curvas de nivel del municipio (`sitmax:curvas_nivel`)       | `datos-abiertos/curvas.json`, se lee local    |
+| Serie desde 1925    | INA, serie 30                                               | `datos-abiertos/historia.json`, resumida      |
+| Puntos de encuentro | GeoServer municipal (`puntos_de_encuentro`)                 | escritos en `app/index.html`                  |
+| Callejero           | Georef (API de direcciones del Estado nacional)             | `datos-abiertos/calles.json`, se lee local    |
+| Mapa base           | tiles del IGN (TMS)                                         | en vivo; MapLibre self-hosteado en `vendor/`  |
+
+Ninguna pide clave ni tiene cuota. Es deliberado: un proveedor con cuota se
+cae justo cuando la app se comparte durante una crecida.
+
+**El nivel tiene dos puertas.** Primero la API REST del SIyAH
+(`alerta.ina.gob.ar/a5`), que trae además los umbrales oficiales y el
+`cero_ign` de la estación. Si falla, se raspa el reporte diario en HTML, que
+no trae umbrales: para ese caso quedan los de respaldo, 5,30 / 5,70, en
+`public/lib/comun.js`. La respuesta de `/api/nivel` dice `origen` (`"api"` o
+`"reporte"`) y, si hubo que usar el respaldo, `degradado` con el motivo:
+**si aparece `degradado`, algo se rompió**. La ruta que documenta
+argentina.gob.ar (`/pub/datos`) no anda; ver `AUDITORIA.md` §6.
+
+**La cota sale de curvas, no de un modelo satelital.** Antes se usaba
+Copernicus GLO-90 vía Open-Meteo, que mide techos y arbolado: contra 36 puntos
+de nivelación del IGN tenía un desvío de 7,5 m, y dentro de la ciudad
+sobreestimaba 2,15 m de media. Todo el rango de decisión —de 5,30 a 7,43, el
+récord de 1992— son 2,13 m. Las curvas son 169, cada ~50 cm, en metros IGN.
+Dos trampas del origen que resuelve `scripts/curvas.js`: 25 curvas traen
+`Z = 0` y la cota verdadera está en el atributo `layer`, que además mezcla
+`17,2` y `17.2`. La distancia se mide punto-a-segmento, no al vértice. Fuera
+de la cobertura la app dice que no tiene el dato y pide la cota a mano.
+
+**Los puntos de encuentro no se geocodifican.** Se probó y seis quedaban a más
+de 90 km y diez en la calle homónima de otro municipio. Para actualizarlos:
 
     https://geoservicios.santafeciudad.gov.ar/geoserver/publico/ows
       ?service=WFS&version=1.0.0&request=GetFeature
       &typeName=publico:puntos_de_encuentro&outputFormat=application/json
 
-**No volver a geocodificar estas direcciones en runtime.** Se probó y salía
-mal: seis puntos quedaban a más de 90 km, y diez en la calle homónima de otro
-municipio (Santo Tomé, Recreo, Sauce Viejo) — "Santa Fe" es ciudad y provincia
-a la vez y los geocodificadores se van a Rosario. El listado publicado en
-prensa además tenía 29 puntos; el oficial tiene 30. Faltaba **Vecinal Pro
-Mejoras Alto Verde**, en un barrio fuera del anillo de defensas.
+Ese host está detrás de Cloudflare y suele dar 403 fuera de un navegador; el
+que responde es `geoserver.santafeciudad.gov.ar/geoserver/sitmax`. El listado
+de prensa tenía 29; el oficial tiene 30 (faltaba la Vecinal Pro Mejoras Alto
+Verde).
 
-**La página `/puntos-de-encuentro` los muestra en tarjetas, agrupadas por
-zona.** Son treinta y hay que encontrar UNO, rápido y probablemente nervioso:
-lo que se hace ahí no es leer la lista sino descartar cuatro quintos de golpe
-y mirar sólo la zona propia. Por eso el aire entre grupos es grande y el que
-hay entre un título y sus tarjetas es chico — el título tiene que leerse
-pegado a lo suyo. El número de cada tarjeta usa el mismo par sólido que el
-botón principal (`--btn-fuerte`), que es el de máximo contraste contra la
-superficie en los dos temas; con `--fondo-invertido` quedaba negro sobre
-blanco en tema claro y casi invisible sobre la tarjeta en tema oscuro.
+**La búsqueda de dirección va en cascada:** Georef primero, porque normaliza lo
+que escribe la gente e interpola el número; Nominatim detrás, filtrado por
+municipio. Medido el 17/10/2026 con 30 direcciones: Nominatim solo ubicaba 15
+(y mandaba 3 a Santo Tomé o Candioti); Georef, 25. Las sugerencias del campo
+se filtran en el teléfono contra `calles.json`, sin mandar nada hasta que la
+persona aprieta Buscar.
 
-Los grupos —Norte, Centro, Sur, Alto Verde, La Costa— **los deducimos de las
-coordenadas**, para orientar. No son los distritos del Plan de Contingencia
-municipal, que no publicamos porque no los tenemos, y la página lo dice.
+## Estructura
 
-**Cada punto es un `<a href="geo:…">`, salvo en iPhone.** En Android `geo:`
-abre la app de mapas que la persona ya tenga, sin JavaScript. Safari en iOS no
-lo entiende: tocar un punto no hacía nada, y era la página de evacuación. En
-iPhone se reescriben a `https://maps.apple.com/?ll=…&q=…`, que abre la app de
-Mapas del sistema — en el sitio lo hace `js/rio-barra.js` sobre el HTML ya
-emitido; en la app, `js/app/puntos.js` al dibujar la lista. El HTML generado
-sigue diciendo `geo:` a propósito: sin JavaScript, Android sigue andando.
+Lo que se publica vive en `public/`; la raíz guarda lo que no se sirve. Vercel
+publica sólo esa carpeta (`"outputDirectory": "public"`) y toma las funciones
+de `api/` de la raíz. `public/datos/index.html` se sirve en `/datos`.
 
-Los módulos compartidos van en `lib/`, no en `api/`: cada archivo dentro de
-`api/` se publica como una función de Vercel, y en Hobby hay un tope de 12.
+    public/                    EL SITIO
+      index.html               la portada, a mano
+      app/index.html           la app, a mano — y la lista de los 30 puntos
+      widget/                  el widget que embeben los medios, a mano
+      datos/ historia/ …       diez páginas que emite scripts/paginas.js
+      sw.js                    service worker (en la raíz del sitio: su alcance es su ruta)
+      js/app/                  la app, en módulos ES (principal.js es la entrada)
+      js/                      los scripts clásicos del sitio: landing, rio-barra, historia,
+                               contacto, medios, analitica, sin-modulos
+      lib/                     lo que usan Node Y el navegador: comun, comun-clasico,
+                               fuentes, listas
+      css/ img/ vendor/        estilos, íconos, MapLibre
+      datos-abiertos/          curvas, historia, calles y puntos, en JSON
+      guia.pdf                 la hoja para imprimir (artefacto, no fuente)
 
-## Avisos (Web Push)
+    api/                       funciones de Vercel: nivel, suscribir, desuscribir,
+                               sugerencias, visita, metricas, probar-aviso, cron/avisar
+    lib/                       sólo Node, no se publica: ina, push, metricas, paginas,
+                               sugerencias, charlas
+    scripts/                   el generador, el servidor local y las descargas
+    datos-crudos/              análisis y datos de trabajo
 
-Apagados hasta que se configuren las variables de entorno. Con
-`VAPID_PUBLIC_KEY` vacía en `js/app/config.js`, la app funciona igual y no muestra nada.
+**Por qué dos `lib/`.** Cuatro archivos los importan a la vez Node y el
+navegador, así que tienen que estar en `public/`. Lo que corre sólo en Node se
+queda afuera, o se publicaría. La alternativa era que el generador copiara los
+cuatro en cada corrida, y una copia que se regenera sola un día se
+desincroniza.
 
-**Cómo funciona.** El servidor manda un push **sin contenido**: no sabe la
-cota de nadie ni a qué altura hay que avisarle. Sólo despierta al teléfono.
-El service worker consulta `/api/nivel`, lo compara contra el umbral que la
-app guardó en IndexedDB de ese dispositivo, y arma ahí la notificación.
+**Las páginas de contenido se generan.** `/datos`, `/historia`, `/preguntas`,
+`/legal`, `/charlas`, `/sobre`, `/contacto`, `/para-medios`,
+`/puntos-de-encuentro` y `/guia` las emite `node scripts/paginas.js`. Existen
+porque la app esconde tres de sus cuatro secciones detrás de pestañas, y un
+buscador no pondera bien el contenido oculto. El generador también escribe el
+pie de la portada, `sitemap.xml`, `llms.txt`, el catálogo de la API y el gemelo
+clásico de `comun.js`, y **falla** si la portada, la app o el precache del
+service worker no coinciden con lo que espera.
 
-De cada persona, el servidor guarda **un solo dato: el endpoint opaco del
-navegador**. Ni la cota, ni la zona, ni el umbral, ni el plan. Las claves
-`p256dh`/`auth` de la suscripción sólo sirven para cifrar contenido: como no
-mandamos contenido, no se piden ni se guardan.
+**Cuatro mundos que no se importan entre sí:** los módulos de la app, los
+scripts clásicos del sitio, el service worker y Node. Lo que hace falta en más
+de uno vive en `public/lib/comun.js` (umbrales de respaldo, filtro de
+plausibilidad, vencimiento, formato de números); los clásicos y el service
+worker leen su gemelo `comun-clasico.js`. Antes los umbrales estaban escritos a
+mano en ocho archivos, y una copia vieja hace que ese consumidor avise tarde.
 
-Efecto colateral: un push sin contenido no se cifra (RFC 8291 aplica al
-payload), así que alcanza con firmar un JWT ES256. Por eso esto no agrega
-ninguna dependencia y el proyecto sigue sin `package.json`.
+## Correr en local
 
-**Puesta en marcha**
+    node scripts/servir.js        # http://localhost:3000
 
-1. `node scripts/vapid.js` — imprime el par de claves y un CRON_SECRET.
-2. En Vercel, variables de entorno:
-   `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:),
-   `CRON_SECRET`, `METRICAS_CLAVE`, y las del almacén.
-3. Pegar la pública también en `js/app/config.js`, en `CONFIG.VAPID_PUBLIC_KEY`.
-4. Almacén: Upstash Redis desde el marketplace de Vercel. Se usa por su API
-   REST (`KV_REST_API_URL` / `KV_REST_API_TOKEN`), sin librería.
+Sirve `public/`, ejecuta las funciones de `api/` y aplica las cabeceras de
+`vercel.json`, **CSP incluida**: sin eso la política no se prueba hasta
+producción. `/api/nivel` consulta al INA de verdad; las funciones que
+necesitan Redis devuelven 503, igual que en producción sin configurar.
 
-**Cron.** En el plan Hobby cada expresión puede correr una vez por día, con
-±59 min de imprecisión, pero se admiten muchas expresiones: por eso hay tres
-entradas diarias a las 9, 15 y 21. El INA publica una vez por día.
+No hay `package.json`, ni build, ni tests: la verificación de cada cambio
+está en CLAUDE.md. Mientras desarrollás, tildá **«Update on reload»** en
+DevTools → Application → Service Workers, o vas a mirar código viejo. Y subí
+`VERSION` en `sw.js` en cada deploy.
 
-**Cuándo avisa.** Cuando el nivel sube 15 cm desde el último aviso, o cuando
-cruza 5,30 / 5,70 hacia arriba (esos van con urgencia alta). La referencia
-baja con el río, así una crecida nueva vuelve a disparar. Las suscripciones
-que devuelven 404/410 se borran solas.
+## La portada
 
-**iOS.** Safari sólo permite avisos si la PWA está instalada en la pantalla
-de inicio. La app lo detecta y lo explica en vez de quedarse muda.
+**Muestra el nivel del río en vivo**, arriba de todo: quien entra en plena
+crecida tiene el dato sin abrir nada. Quien tiene la PWA instalada nunca la ve:
+`landing.js` detecta `display-mode: standalone` y salta a `/app`.
 
-## Instalar
+**El estado en vivo tiene un solo dueño**, el objeto `rio` de `landing.js`. El
+mockup del hero, la píldora de la barra, la franja de alerta y la frescura del
+pie se suscriben a él: un solo `fetch`, un solo número. La franja de alerta
+está siempre en el HTML —vacía mide cero— porque un `role="status"` que
+aparece con el aviso adentro no lo anuncia ningún lector de pantalla. Y nunca
+sale con un dato vencido (más de 48 h).
 
-`beforeinstallprompt` existe sólo en Chromium, y aun ahí Chrome lo dispara
-cuando quiere. En iPhone no existe: Safari deja instalar únicamente desde su
-menú Compartir. Antes el botón dependía de ese evento, así que en iOS no
-aparecía nunca.
+### La regla del hero se mueve
 
-Ahora hay dos caminos. Si el navegador ofrece el diálogo, se usa. Si no, el
-botón abre una hoja con los pasos del navegador que corresponda —Safari,
-Chrome/Edge en iPhone, Firefox, Chromium— y en iPhone fuera de Safari avisa
-que puede no estar la opción.
+El agua arranca en el nivel real y sube con el scroll, o con el control «Mové
+el río», hasta el récord del hidrómetro. Es la respuesta a que los umbrales,
+escritos, no significan nada.
 
-Tres puertas de entrada: la barra flotante cuando llega el evento, la misma
-barra a los 2,5 s si no llegó y estamos en un móvil, y una tarjeta permanente
-en Ajustes que sobrevive a que la cierren. Esa tarjeta vivía en el pie de las
-cuatro pestañas, y con la barra eran dos avisos de instalar en la misma
-pantalla. Todo se oculta si `display-mode: standalone` dice que ya está
-instalada.
+Conviven dos variables que no se mezclan: `real`, el dato del INA, manda en el
+número grande y en la marca «hoy»; `sim` es lo único que dibuja la regla. **El
+número grande no sigue al deslizador**: un hero que cambia la altura mientras
+alguien scrollea en una crecida le estaría mintiendo en el peor momento. Apenas
+`sim` se despega, la etiqueta dice «Simulado» y el renglón de abajo pasa a
+condicional («Faltarían…»), con cuántos de los 102 años medidos llegaron a ese
+nivel: «pasó 4 veces en un siglo» es lo contrario de un pronóstico.
 
-La hoja va en `<dialog>` por lo que trae gratis: foco atrapado, Escape y el
-resto de la página inerte para un lector de pantalla.
+Nada se mueve solo: sin autoplay ni scroll-jacking, y con
+`prefers-reduced-motion` no se engancha al scroll. Tocar el control apaga el
+scroll.
 
-## Sugerencias
+## La app
 
-Formulario plegado al pie, accesible desde cualquier pestaña. Abre con la
-negación —**no es una vía para pedir ayuda**— y los teléfonos de emergencia,
-porque en una app así cualquier caja de texto se puede leer como un pedido de
-auxilio.
+Cuatro pestañas —Río, Mi casa, Mi plan, Dónde ir— y Ajustes desde el engranaje
+de la cabecera, para que la barra de emergencia se quede en cuatro.
 
-Es lo **único** de la app que manda texto de la persona a un servidor, y el
-formulario lo dice. No se guarda la IP: se usa sólo para limitar envíos (3 por
-hora) y hasheada con `CRON_SECRET` de sal.
+- **Río.** La lectura oficial en grande; debajo, tu nivel de aviso y el margen
+  de hoy. La regla marca alerta, evacuación y el récord de 1992: sin él, 5,70
+  parece el techo del mundo.
+- **Mi casa.** Tres formas de cargar la altura del terreno: dirección, GPS o
+  tocando el mapa (con confirmación). Para quien ya la cargó, el resultado va
+  primero y los pasos se pliegan. Debajo, si la zona tiene defensa y a qué
+  niveles **pasó algo** ahí, con fuente (`ZONAS` en `js/app/config.js`,
+  rastreados en `AUDITORIA.md` §9). La defensa no cambia la cuenta: cambia lo
+  que la cuenta significa.
+- **Mi plan.** Mochila y checklist previo (`public/lib/listas.js`), que se
+  imprimen como plan familiar. Lo marcado como del municipio está en su Plan
+  de Contingencia; lo demás lo agregamos nosotros.
+- **Dónde ir.** Los 30 puntos, el más cercano y el mapa. MapLibre no se
+  precachea —son 275 KB por una pestaña que mucha gente no abre— y se pregunta
+  por WebGL antes de bajarlo. `/app?ir=ayuda` abre la tarjeta «Si no sabés
+  nada de esto»: el 103 y tres instrucciones, para afiches y mensajes.
 
-Se guardan en Redis, lista `cc:sugerencias`, con tope de 500. Se leen en el
-tablero (abajo), o a mano desde la consola de Upstash:
+**El pie de la app es corto a propósito.** Quedan tres cosas: «Sin vínculo
+oficial», «Si Defensa Civil dice que salgas, salí» y quién la hizo. Las dos
+primeras sólo se dicen ahí; la tercera es el contrapeso de la primera. Todo lo
+demás está en el sitio o en Ajustes.
 
-    LRANGE cc:sugerencias 0 49
-
-Sin almacén configurado el endpoint devuelve 503 y el formulario lo explica.
-
-## Estructura del sitio
-
-Cuatro URLs, no una:
-
-| URL                    | Qué es                                                              |
-| ---------------------- | ------------------------------------------------------------------- |
-| `/`                    | Portada. Muestra el nivel del río en vivo y explica la herramienta  |
-| `/app`                 | La app                                                              |
-| `/puntos-de-encuentro` | Los 30 puntos oficiales                                             |
-| `/datos`               | La cota de tu terreno, la cuenta completa y de dónde sale cada dato |
-| `/historia`            | Cien años del Paraná, con la serie del INA desde 1925               |
-| `/preguntas`           | Ocho preguntas, con datos estructurados `FAQPage`                   |
-| `/legal`               | Descargo, privacidad y licencias                                    |
-
-Las cinco últimas las genera `node scripts/paginas.js`.
-
-**Por qué.** La app esconde 3 de sus 4 secciones detrás de pestañas
-(`.vista { display: none }`), así que ~800 de sus ~975 palabras —los 30 puntos
-de encuentro y los teléfonos incluidos— le llegan a un buscador como contenido
-oculto: lo indexa, pero lo pondera menos y no lo usa en el fragmento. Una app
-con pestañas nunca va a presentar bien su material a un buscador; estas
-páginas sí.
-
-**La portada no es folletería**: lee `/api/nivel` y muestra la altura del río
-arriba de todo. Alguien que entra en plena crecida tiene el dato ahí, sin abrir
-nada. Y quien tiene la PWA instalada nunca la ve: `landing.js` detecta
-`display-mode: standalone` y salta a `/app`, lo que además cubre a las
-instalaciones viejas cuyo `start_url` todavía apunta a `/`.
-
-**La regla del hero se mueve, y la simulación se llama simulación.** El agua
-arranca en el nivel real y sube con el scroll —y con el control «Mové el río»,
-que es un `<input type=range>` nativo como el de `/historia`— hasta el récord
-del hidrómetro, que sale de `datos-abiertos/historia.json` y no de un número
-escrito a mano. Es la respuesta a que los umbrales, escritos, no significan
-nada: 5,30 m no dice nada hasta que se ve dónde queda el agua.
-
-En `landing.js` conviven dos variables y no se mezclan nunca: `real`, el dato
-del INA, manda en el número grande, en la línea punteada «hoy» y en el pie de
-la cabecera; `sim` es lo único que dibuja la regla. Por eso el número del
-hidrómetro no se mueve aunque el agua suba: un hero que cambia la altura
-mientras alguien scrollea durante una crecida le estaría mintiendo en el peor
-momento. El rediseño de 2026 pedía que el número grande siguiera al
-deslizador, y por esto no se hizo. Apenas `sim` se despega de `real`, la
-etiqueta del agua pasa a decir «Simulado», aparece la marca de «hoy» y el
-renglón de abajo cambia de tiempo verbal: «Hoy faltan 1,6 m» pasa a
-«Faltarían…» o «El río estaría…».
-
-Debajo va la otra mitad: con la simulación en marcha, cuántos de los 102 años
-medidos llegaron a ese nivel. Es el contrapeso honesto de poder subir el río
-con el dedo —«pasó 4 veces en un siglo» es lo contrario de un pronóstico—.
-Vivía en una pastilla flotante que se superponía con la regla; ahora es un
-renglón del propio instrumento. La regla es de 0 a 8 m, como la de la app, y
-no de 2 a 8 como en el diseño: con el piso en 2 m una bajante como la de 2021
-dejaba el tanque vacío.
-
-No hay autoplay ni scroll-jacking: la página baja como cualquier otra y lo
-único que sigue al scroll es el agua. Con `prefers-reduced-motion: reduce` no
-se engancha nada y el control queda igual, para quien lo quiera mover. Tocar
-el control apaga el scroll: quien tomó el volante se lo queda.
-
-**El estado en vivo sale de un solo objeto.** Cuatro piezas de la portada
-hablan del mismo dato —el mockup del hero, la píldora de la barra, la franja de
-alerta sobre la barra y el renglón de frescura del pie— y las cuatro se
-suscriben al objeto `rio` de `landing.js`. Hay un solo `fetch` a `/api/nivel` y
-un solo lugar donde vive el número. Con cuatro fetch la portada podría mostrar
-dos valores distintos al mismo tiempo si uno fallara, y una barra que dice
-5,48 m con la franja callada es la clase de contradicción que no se puede
-permitir en una crecida. Se refresca cada diez minutos y al volver a la
-pestaña; un segundo reloj de 30 s sólo repinta, para que el «hace N min»
-avance y un dato pueda vencerse con la pestaña abierta.
-
-**La franja de alerta no reserva espacio y no sale nunca con un dato viejo.**
-El contenedor está siempre en el HTML —vacío mide cero— porque un
-`role="status"` que recién aparece con el aviso adentro no lo anuncia ningún
-lector de pantalla: tiene que estar antes de que el texto cambie. Y la guarda
-de vencimiento es deliberada: una alerta de hace tres días con la cara de una
-alerta de ahora es peor que ninguna.
-
-**La píldora no recalcula el umbral personal.** `cotaEnHidrometro()` sigue
-siendo la única función que traduce cota a umbral y vive en `js/app/cota.js`,
-que la portada no carga. La app ya espeja su resultado a IndexedDB para que lo
-lea el service worker (ver `js/app/avisos.js`); la portada lee esa misma copia.
-Duplicar la cuenta era la manera segura de que un día la barra y la app
-mostraran dos umbrales distintos para la misma casa.
-
-**La frescura se mide con las 48 h de la app, no con 90 minutos.** El INA
-publica UNA lectura por día, sellada a las 00:00: con un corte de 90 minutos el
-dato de hoy figuraría vencido todos los días a la 1:31 de la mañana. Los 90
-minutos quedan para lo único que el ritmo del INA soporta —abajo de eso la
-antigüedad se cuenta en minutos y no en horas— y el vencimiento usa
-`VENCE_HORAS`, el mismo criterio que `js/app/rio.js`.
-
-**Abajo de 560 px la píldora se esconde**, por lo mismo que ya se escondía el
-chip «NO OFICIAL»: en 390 px la barra son marca, menú y botón, y un cuarto
-elemento empuja «Abrir la app» a un segundo renglón. En esa pantalla el nivel
-está 200 px más abajo en 56 px de tipografía, la franja sigue saliendo si hay
-alerta y el pie sigue diciendo de cuándo es la lectura.
-
-**Los colores de las tres piezas salen de los tokens.** La portada tiene tema
-claro y oscuro: un naranja escrito a mano se ve bien en uno y se rompe en el
-otro. Los únicos dos valores nuevos son `--alerta-solido` y `--evac-solido`,
-los rellenos de la franja, que no existían porque `--alerta` y `--peligro`
-están calibrados para TEXTO sobre el fondo y no para ser fondo.
-
-**Los avisos de «Te dice lo que sabe» son los de la app, no una ilustración.**
-Se citan textuales: si la app cambia la frase, la portada la cambia también
-—en el rediseño de 2026 las dos citas habían quedado viejas, y una nunca había
-existido en la app—.
-Toman prestado el componente `.aviso` —mismo tinte, mismo radio, mismo padding,
-sin borde— porque la sección afirma que la app avisa lo que no sabe: dibujar
-esos avisos con otra piel sería ilustrar la afirmación en vez de mostrarla. La
-etiqueta va una sola vez, como encabezado de la columna: repetida en cada
-tarjeta se leía como una categoría y no como lo que es.
-
-Se llamaban `.cita` y chocaban con la cita textual de `/datos`, que tiene el
-mismo nombre mil líneas más abajo y la misma especificidad. Ganaba la de abajo,
-así que la portada salía monoespaciada sobre fondo gris con 6 px de aire, y
-`/datos` se comía un borde ámbar de 2 px que sí sobrevivía de la otra. Las dos
-estaban rotas y ninguna fallaba de forma visible.
-
-**Las dos páginas de contenido se generan** con `node scripts/paginas.js`. Los
-30 puntos se leen de `app/index.html`, que es la fuente de verdad
-—`js/app/estado.js` hace lo mismo— para que no existan dos listas que se puedan desincronizar.
-Volver a correrlo cuando cambien los puntos o los textos.
-
-**El pie está escrito una sola vez.** Vive en `scripts/paginas.js` como la
-función `pie()`: las páginas generadas lo insertan, y en `index.html` el script
-reemplaza el bloque entre los marcadores `<!-- PIE:inicio -->` y
-`<!-- PIE:fin -->` —ahí con `pie({ frescura: true })`, que agrega el renglón de
-la última lectura del INA; va sólo en la portada porque quien lo llena es
-`landing.js`, y en las nueve páginas generadas quedarían nueve renglones vacíos
-que no completa nadie—. Antes eran dos copias y ya se habían desincronizado: a la
-de las páginas le faltaban una columna entera y el teléfono de emergencias.
-
-**Cómo se prueba el ancho de teléfono.** Chrome headless no baja de unos
-485 px de viewport, así que `--window-size=390` no prueba nada: hay que meter
-la página en un `<iframe width="390">` y medir ahí adentro. Y como la CSP lleva
-`frame-ancestors 'none'`, ni siquiera se deja enmarcar a sí misma desde el
-servidor de desarrollo — para eso se levanta un `python3 -m http.server`
-aparte, que no aplica cabeceras.
-
-**El bug que esto destapó.** El service worker guardaba TODA respuesta de
-navegación bajo la clave `/index.html`. Con un solo documento no se notaba;
-con dos, visitar la portada dejaba su HTML como copia offline de la app. Ahora
-cada navegación se guarda bajo su propia URL, y el respaldo sin conexión usa
-`ignoreSearch` (por los deep links `/app?ir=cota`) antes de caer a `/app` o `/`
-según la ruta.
-
-**Cuidado al mover la app.** Cinco lugares apuntaban a `/` y fallan en
-silencio si se olvida uno: `start_url` y los `shortcuts` del manifest, el
-precache del service worker, los destinos `ir` de las notificaciones push (un
-aviso de evacuación abriría la portada), `scripts/servir.js` —que no servía
-`index.html` para directorios— y las cabeceras de `vercel.json`.
-
-## La marca
-
-Un cero partido por la línea del agua: el círculo es el cero del hidrómetro,
-la mitad de abajo es el agua, la línea que lo cruza es el nivel. El SVG vive
-en `scripts/marca.js` y en el HTML de la portada y la app, escrito a mano.
-
-`node scripts/iconos.js` lo rasteriza a PNG con Chrome headless —sin
-dependencias, el navegador dibuja SVG mejor que cualquier librería que
-pudiéramos instalar— y genera el favicon, los íconos de app, el maskable, el
-de iOS y el `og.png` de las vistas previas.
-
-**Dos cosas que costaron.** El agua llevaba relleno _y_ trazo del mismo color,
-así que por debajo de la línea tapaba el anillo y a 512 px la marca se leía
-como una canasta: ahora el agua rellena sólo el interior y el anillo se dibuja
-encima. Y cada corrida de Chrome necesita su propio `--user-data-dir`, o la
-segunda se queda esperando el lock de la primera y el script no termina nunca.
-
-## Los botones
-
-Dos estilos y nada más.
-
-`.btn` es **el sólido**: la acción principal, una sola por pantalla. Negro
-sobre fondo claro y claro sobre fondo oscuro — no es un color de marca, es
-siempre el de máximo contraste contra la superficie donde está. Sale de
-`--btn-fuerte` / `--btn-fuerte-texto`.
-
-`.btn.sec` es **el azul del agua** (`--agua`): todo lo demás.
-
-Había cuatro rellenos: azul, gris, negro y celeste. El gris y el celeste eran
-el mismo secundario escrito dos veces —el celeste existía sólo porque el gris
-desaparecía sobre las cajas oscuras—, y el negro hacía de principal en el
-sitio mientras el azul hacía de principal en la app: dos jerarquías distintas
-en el mismo producto, y ninguna pantalla diciendo cuál era LA acción.
-
-Dos detalles que resuelve el sistema y antes se resolvían a mano:
-
-- **Superficies invertidas.** La franja histórica, la caja de cierre, los
-  bloques oscuros y la caja de código son oscuros en los dos temas: ahí el
-  sólido no puede seguir al tema, porque en tema claro sería negro sobre
-  negro. Esos contenedores redefinen `--btn-fuerte` a las mismas dos
-  variables que ya pintan la superficie (`--texto-invertido` /
-  `--fondo-invertido`), así que el botón se invierte solo. Eso era `.btn-claro`
-  y una clase que había que acordarse de poner.
-- **Tema oscuro.** `--btn-fuerte` era el azul, con lo cual el principal y el
-  secundario quedaban idénticos y en oscuro no había jerarquía ninguna. Ahora
-  se invierte a claro.
-
-La única excepción es `.btn-emergencia`, el 103 de `/contacto`: va rojo porque
-no es una acción de la interfaz, es un teléfono de emergencia.
+**En un teléfono viejo.** Si el navegador no corre módulos ES o la sintaxis de
+2020, la app se quedaría en «Buscando el nivel del río…» para siempre.
+`js/sin-modulos.js` lo detecta y muestra lo que el HTML ya trae: los teléfonos
+de emergencia y los 30 puntos. Es ES5 a propósito.
 
 ## Los ocho estados y cómo se dicen
 
 La misma situación se cuenta en tres lugares: el veredicto de la pantalla del
-río (`js/app/rio.js`, `pintarVeredictoRio`), el de «Mi casa» (`js/app/cota.js`,
-`calcular`) y la notificación (`sw.js`, `armarAviso`). **No comparten código y
-no pueden**: `sw.js` es un `<script>` clásico y no puede importar los módulos
-ES de la app; registrarlo como módulo dejaría afuera justo a los Android
-viejos, que son el motivo de todo esto. Así que las frases están copiadas a
-mano y **esta tabla es la fuente**: si tocás una, revisá las tres.
+río (`rio.js`, `pintarVeredictoRio`), el de Mi casa (`cota.js`, `calcular`) y
+la notificación (`sw.js`, `armarAviso`). No comparten código —`sw.js` es un
+script clásico— así que las frases están copiadas a mano y **esta tabla es la
+fuente**: si tocás una, revisá las tres.
 
-Dos reglas para los tres lugares: en los estados graves el texto **empieza con
-el verbo** de lo que hay que hacer, no con lo que está pasando, y **lleva el
-103**. Antes era al revés — «Nivel de alerta» sólo describía y «Nivel de
-evacuación» delegaba, o sea que los dos estados más graves de la escala eran
-los que menos instrucción daban.
+En los estados graves el texto **empieza con el verbo** de lo que hay que
+hacer y **lleva el 103**.
 
 | #   | Cuándo                        | Título                                  | Con qué empieza                                                      |
 | --- | ----------------------------- | --------------------------------------- | -------------------------------------------------------------------- |
@@ -860,482 +241,116 @@ los que menos instrucción daban.
 | 7   | Subió, con nivel cargado      | El río subió a X m                      | Faltan unos N para tu nivel de aviso. Por ahora, seguí mirando       |
 | 8   | Subió, sin nivel cargado      | El río subió a X m                      | Cargá tu casa en la app y te avisamos cuando el río importe para vos |
 
-**Los cuerpos de las notificaciones no pasan de 180 caracteres.** Android corta
-ahí, y el 2 —el más importante— llegó a 203: la línea que se cortaba era
-justamente la del 103. Se mide corriendo `armarAviso()` en un sandbox, sin
-navegador.
-
-## Las pantallas de la app
-
-Cuatro pestañas —Río, Mi casa, Mi plan, Dónde ir— más:
-
-**La tarjeta de Río.** Arriba la lectura oficial en grande, y debajo una fila
-de dos celdas —`.celdas-umbral` en `app.css`— con **tu umbral estimado** y el
-**margen de hoy**, y la glosa. La oración en prosa queda sólo cuando agrega
-algo que las celdas no dicen: la instrucción del estado de la ciudad (que en
-los graves empieza con el verbo y lleva el 103, y **no** la reemplaza el margen
-propio) o el ritmo al que viene subiendo. Es lo que convierte «cómo está el
-río» en «qué significa para mí» sin un gráfico nuevo. El color del estado va en
-el valor del margen, no en el fondo de la celda: la tarjeta ya está tintada y
-tinte sobre tinte no se distingue. Si el río pasó tu umbral, el margen manda
-sobre el color de la tarjeta aunque la ciudad esté en nivel normal.
-
-**La regla.** Además de alerta (5,30) y evacuación (5,70) lleva la marca del
-**récord de 1992 (7,43)** en tono tenue. Sin ella, 5,70 parece el techo del
-mundo; con ella se ve que todo el rango de decisión son 2,13 m. Cada etiqueta
-va al lado de su altura, unida por un conector; no hay una lista aparte que
-repita los números. Como 5,30 y 5,70 están a 15 px y el río o el nivel de
-aviso pueden caer en el medio, `separar()` corre las etiquetas lo mínimo
-para que no se encimen, y el conector sigue diciendo de qué altura es cada
-una. Para un lector de pantalla la regla es una imagen con los mismos números
-en el `aria-label`.
-
-**Mi casa: el resultado primero.** La primera vez los pasos van arriba y el
-resultado aparece debajo. Para quien ya cargó su casa, al abrir la pestaña
-los pasos se pliegan detrás de un renglón —zona, altura, de dónde salió— con
-«Cambiar». Se decide al arrancar y con ese botón, nunca en medio de una
-carga: plegarlos al escribir el primer dígito movería la pantalla bajo el
-dedo, y mover el nodo con el foco adentro cierra el teclado. Hay **una sola
-advertencia fuerte**, roja, pegada a donde se decide; eran tres cajas con el
-mismo descargo y la gente dejaba de leerlas. Las tres formas de cargar la
-altura son un `.segmentado`, el mismo selector de Ajustes, con
-`aria-pressed` en la que dio la altura que se está usando.
-
-**Mi casa: lo que hay entre el río y tu casa.** Debajo del veredicto va una
-tarjeta que dice si la zona tiene defensa —`defensa` en `ZONAS`,
-`js/app/config.js`: el anillo de la ciudad, una propia, o ninguna— y una
-lista de **niveles a los que pasó algo** en esa zona (`observado`): a qué
-altura del hidrómetro se cortó un camino, filtró un terraplén o se evacuó un
-barrio, con fuente y fecha. Salió de un caso real: un vecino de Colastiné
-Norte vio ≈ 5,4 y lo leyó como «a 5,4 me tengo que ir», cuando en 2016 el río
-llegó a 6,61 y no se mojó, porque el Garello aguantó. La cuenta estaba bien
-—es el agua libre contra el terreno— y lo que faltaba era decir qué hay en el
-medio. Tres reglas: **la defensa no cambia la cuenta**, cambia lo que la cuenta
-significa, así que la tarjeta va al lado del número y nunca en su lugar;
-**no se usa la cota de coronamiento como umbral** —son 17 m sobre el mar, más
-de 8,5 en la regla, y daría «margen» a barrios que se encharcan a 6 porque el
-agua entra por abajo, no por arriba—; y **cada renglón tiene fuente** y está
-rastreado en `AUDITORIA.md` §9. No hay tabla oficial por barrio: la fuente es
-el municipio citado en prensa y las crónicas de 2016, y la tarjeta lo dice.
-
-**Bienvenida.** Primera visita: muestra el río antes de pedir nada. Es un
-overlay y no una vista, para no meter una quinta entrada en el sistema de
-pestañas.
-
-**Ajustes.** Se llega desde el engranaje de la cabecera, **no** desde una
-quinta pestaña: la barra de abajo se deja en cuatro para no tocar los caminos
-que se usan en una emergencia. Trae los avisos —incluido el aviso anticipado a
-50 y 20 cm de tu umbral, que el service worker resuelve leyendo `avisarCerca` de
-IndexedDB—, el tema y el tamaño de texto.
-
-**En contexto.** Barras con el nivel de hoy contra los dos umbrales oficiales
-y el récord de 1992. Sólo entran valores con fuente: los máximos de otras
-crecidas no se pudieron verificar y por eso no están.
-
-**Compartir como imagen.** Dibuja una imagen 1080×1920 en un canvas del propio
-teléfono y la pasa a la API de compartir del sistema; donde no existe, la
-descarga. Espera a `document.fonts.ready` o el canvas dibuja con la
-tipografía del sistema en vez de la de la app.
-
-**Un bug que vale recordar.** `[hidden]` del navegador es `display: none`,
-pero pierde contra cualquier regla de autor que fije `display`. El overlay de
-bienvenida tenía `display: flex` y no se ocultaba nunca. Hay una regla
-explícita en `app.css` para eso.
-
-**Otro: `armarMapa()` devuelve la promesa en curso, no un flag.** «Marcar mi
-casa en el mapa» hace `irA("donde")` —que arma el mapa por su cuenta, sin
-esperarlo— y recién después `await armarMapa()`. Con el flag `mapaPedido` esa
-segunda llamada volvía al instante, `mapa` seguía nulo porque un `<script>`
-carga siempre asíncrono, y la app decía «Este teléfono no puede mostrar el
-mapa» con el mapa cargando bien. Falló en el primer uso, para todo el mundo,
-desde que existe la función, sin un error en consola: lo contó una persona
-cuya calle —Avenida de los Ombúes— OpenStreetMap no tiene, y para quien el
-mapa era la única vía. Por eso los tres mensajes donde las otras vías fallan
-(dirección no encontrada, GPS impreciso, GPS que tarda) ofrecen ahora el mapa
-con un botón. Una función que arranca algo y puede llamarse dos veces
-devuelve la misma promesa.
-
-**Marcar mi casa en el mapa es un modo, con principio y fin.** El mapa lleva
-la clase `marcando`, el aviso va **sobre** el mapa (`.mapa-aviso`, donde está
-el dedo, y no en el renglón de estado que queda debajo del botón de «más
-cercano») y el toque no decide solo: deja el pin a la vista, dice qué altura
-encontró —«Marcaste un punto a 17,04 m sobre el mar. ¿Es tu casa?»— y espera
-**Sí, usar esta altura**, **Marcar de nuevo** o **Cancelar**. Antes mandaba
-a «Mi casa» en el acto, sin que se viera dónde había quedado la marca, y la
-gente no sabía si había tocado bien. Cambiar de pestaña cancela desde
-`vista.js`: si no, quedaba un toque armado y la próxima tocada del mapa en
-«Dónde ir» marcaba una casa que nadie pidió. Si ya pidió «el más cercano a
-mí», el modo arranca sobre su posición a zoom 16. Un pin sin confirmar no se
-queda; el confirmado sí, para poder volver a verlo.
-
-## La cota del terreno
-
-El cálculo tiene dos mitades. Las dos están medidas contra una fuente externa,
-que no es lo mismo que estar validadas por un organismo.
-
-**La hidráulica.** El cero del hidrómetro del Puerto de Santa Fe es 8,20 m
-IGN. La pendiente de la superficie del agua, 0,045 m/km, se creía contrastada
-con un caso independiente: en 1992, con el puerto en 7,43 m, Arroyo Leyes —24
-km río arriba— habría llegado a 16,70 IGN según un ingeniero civil citado en
-prensa, y el modelo da 16,71. **No es independiente.** La nota que lo publica
-(El Litoral, julio de 2026) dice que el 16,70 «se estima» sumando 15,62 más 24
-km por 4,5 cm: es la misma cuenta. La pendiente no tiene ninguna observación
-que la respalde, y por eso la interfaz dice «nivel de aviso» con el ≈ y no
-«cuándo llega el agua». `AUDITORIA.md` §3 lo desarrolla.
-
-**La cota del terreno.** Sale de las curvas de nivel de la Municipalidad de
-Santa Fe, capa `sitmax:curvas_nivel` del GeoServer municipal, subida por la
-Secretaría de Recursos Hídricos. 169 curvas cada 50 cm, de 12,5 a 22,5 m, en
-metros IGN — el mismo sistema que el cero del hidrómetro. Se descargan una vez
-con `node scripts/curvas.js` y quedan en `datos-abiertos/curvas.json` (72 KB), que la
-app lee localmente: sin API de terceros y sin conexión.
-
-`ERROR_DEM` es 0,5 m, la mitad del intervalo entre curvas, que es la
-convención para interpolar entre ellas.
-
-**Dos trampas del origen**, las dos manejadas en `scripts/curvas.js`:
-
-1. 25 de las 169 curvas traen `Z = 0` en la geometría; la cota verdadera está
-   en el atributo `layer`. Leer la Z daba puntos de encuentro bajo el agua.
-2. `layer` mezcla separador decimal: hay `17,2` y hay `17.2`.
-
-**Y una del cálculo**: la distancia va medida punto-a-segmento, no al vértice
-más cercano. Con vértices, simplificar la geometría movía el resultado 1,85 m;
-con segmentos, 2 cm de media y 42 cm en el peor de los 30 puntos de encuentro.
-
-**Por qué no un modelo satelital.** Hasta acá la elevación salía de Open-Meteo
-(Copernicus GLO-90), un modelo de _superficie_: mide techos y arbolado, no el
-piso. Medido contra 36 puntos de nivelación del IGN alrededor de Santa Fe
-(`ign:nivelacion_topografica`, cotas de campo al milímetro):
-
-    sesgo medio      +0,89 m
-    desvío estándar   7,46 m
-    peor caso       −22,9 / +14,8 m
-
-Y contra las curvas municipales, dentro de la ciudad, sobreestimaba 2,15 m de
-media. Todo el rango de decisión de la app —de 5,30 (alerta) a 7,43 (récord de
-1992)— son 2,13 m: el error era más grande que la escala entera.
-
-**Fuera de cobertura.** Las curvas abarcan la ciudad, no toda el área
-metropolitana (1 de los 30 puntos de encuentro queda afuera). Ahí la app dice
-que no tiene el dato y pide la cota a mano, en vez de caer a una fuente peor.
-
-**Nota sobre los servicios municipales.** `geoservicios.santafeciudad.gov.ar`
-—el endpoint documentado para refrescar los puntos de encuentro— está detrás
-de Cloudflare y devuelve 403 a cualquier cliente que no sea un navegador con
-JS. El que sí responde es `geoserver.santafeciudad.gov.ar/geoserver/sitmax`,
-que es el que usa el GeoVisualizador.
-
-## El pie de la app es corto a propósito
-
-Tenía diez renglones: tres enlaces al sitio, tres descargos, la atribución de
-las fuentes, la firma y dos pastillas de redes sociales. Desde que existe la
-portada, casi todo eso vive en el sitio —y Ajustes → «Sobre esto» tiene la
-lista entera—, así que repetirlo abajo de las cuatro pantallas era gastar el
-pie en cosas que ya están a un toque.
-
-Quedaron tres, y ninguno es decorativo:
-
-| Qué queda                              | Por qué no se puede ir                                                                                                                                  |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| «Sin vínculo oficial»                  | Es el **único** lugar de la app donde se dice, y la portada afirma por escrito que la app «lo dice en cada pantalla»                                    |
-| «Si Defensa Civil dice que salgas, salí» | Idem, y es la frase que separa esta herramienta de una orden                                                                                          |
-| «Hecho por Ariel Benz»                 | Una herramienta que dice «no tiene vínculo con organismos oficiales» gana en que se vea quién responde por ella: es el contrapeso del renglón de arriba |
-
-Los dos primeros van en una sola línea. Se fueron también el enlace de
-instalar —ahora en Ajustes— y la fecha de la medición, que ya está en el
-renglón de la fuente, debajo del hidrómetro.
-
-Se fueron las pastillas de X e Instagram: eso no es quién responde sino dónde
-seguirlo, y para escribirnos está `/contacto`, en Ajustes.
-
-## Cuántos la usan
-
-Dos fuentes, por si una falla:
-
-**Vercel Web Analytics.** El script ya está en `index.html` y el service worker
-deja pasar `/_vercel/` sin cachear. Hay que activarlo en el panel del proyecto;
-hasta entonces devuelve 404 y no registra nada. No mide a quien abre la app sin
-conexión, que es justo el día que más importa.
-
-**Contador propio.** `POST /api/visita` una vez por sesión, con un número al
-azar que el teléfono guarda en `cc_id`. Del lado del servidor entra a un
-HyperLogLog (`cc:activos:AAAA-MM-DD`, 40 días de vida): responde _cuántos
-distintos_ sin guardar ninguno. No viaja la cota, ni la zona, ni el plan.
-
-Va en su propia función y **no** dentro de `/api/nivel`: ese está cacheado una
-hora en el CDN, así que la mayoría de las llamadas nunca ejecutan la función.
-Contar ahí subestimaría, y más los días de tráfico alto.
-
-El día se corta en hora argentina (UTC-3 fijo, sin horario de verano): con el
-corte en UTC, todo lo que pasa entre las 21 y la medianoche caería en el día
-siguiente.
-
-**El tablero.** `GET /api/metricas?clave=...` con `METRICAS_CLAVE`. Dos
-solapas: _Resumen_ (activos de hoy / 7 / 30 días, los últimos 14 en barras,
-suscriptos a los avisos y las últimas 5 sugerencias) y _Sugerencias_
-(`&ver=sugerencias`, hasta 200, con el desglose por categoría). Con
-`&formato=json` sale todo en JSON.
-
-Sin clave configurada no responde: es preferible que no funcione a que quede
-abierto. Compara en tiempo constante y responde 404, no 401, para no confirmar
-que existe.
-
-Las sugerencias **no** se muestran dentro de la app: traen el contacto que la
-gente deja para que le respondan.
-
-Ojo: los totales de 7 y 30 días son la **unión**, no la suma. Quien entró
-lunes y martes cuenta una vez.
-
-## Analítica
-
-Vercel Web Analytics, sólo el `<script defer src="/_vercel/insights/script.js">`.
-El snippet oficial trae además un `<script>` inline que la CSP bloquea; ese
-inline sólo encola _custom events_, que son de plan Pro. Al ser mismo-origen
-entra en `script-src 'self'` y `connect-src 'self'` sin abrir la política.
-
-Hay que **habilitarlo en el panel de Vercel** (Analytics → Enable) o la ruta no
-existe. En local da 404, es normal.
-
-Es sin cookies y agregada: no identifica personas. La promesa del plan familiar
-—"se guarda en este teléfono"— sigue siendo cierta; lo único que sale del
-dispositivo son las sugerencias, y ahí el formulario lo dice.
-
-**Va sólo en las páginas del sitio, no en `/app` ni en `/widget`**, igual que
-Google Analytics. Estuvo en `/app` hasta octubre de 2026 mientras `/legal`
-decía que ninguno de los dos corría ahí. Lo que se cuenta de la app sale del
-contador propio (§«Cuántos la usan»).
-
-El service worker no toca `/_vercel/`: cachear ese script serviría una versión
-vieja para siempre.
-
-## Quién registra el service worker, y qué precachea
-
-Lo registraba **sólo `/app`**. El sitio precacheaba sus once páginas para andar
-sin señal, pero ese precache no corría nunca para quien no abría la app — y la
-bajada de `/puntos-de-encuentro` dice, con todas las letras, _«esta página
-funciona sin conexión»_. Alguien que llegaba de un buscador a la página de
-evacuación leía una promesa falsa. El arreglo anterior —meter las páginas en
-el precache— resolvió _qué_ se cachea, no _si el worker llega a instalarse_.
-
-Ahora lo registran las dos mitades: `js/app/instalar.js` para la app y
-`js/rio-barra.js` para las once páginas, que es el archivo que ya iba en todas.
-En los dos casos después de `load`, y comprobando `document.readyState` en vez
-de esperar el evento — el bug que dejó la app sin caché durante semanas.
-
-Registrar en todas las páginas hacía que quien entra a leer `/legal` se bajara
-los 387 KB del precache entero. Así que va en dos tandas:
-
-| Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
-| ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
-| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
-| `DEL_APP`  | los 22 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
-
-La segunda **no se pide en `install`**: la pide la app con un `postMessage`.
-Pedirla en la instalación habría sido partirla para nada.
-
-Las dos van con `addAll`, que es todo o nada. Que la segunda sea aparte no la
-afloja —media app cacheada abre y se rompe callada—; lo que cambia es que su
-fracaso no voltea la instalación, así que el sitio anda sin señal igual.
-
-**Las tipografías salieron del precache y no se perdió nada.** El sitio las
-baja para pintar la página: precachearlas con `cache: "reload"` era bajarlas
-dos veces. La rama de caché primero las guarda en la segunda página que alguien
-mira, y sin señal el sitio sale con Plus Jakarta Sans — medido, con las cinco
-variantes cargadas. Queda un solo caso afuera: quien mira UNA página y se queda
-sin señal ve la tipografía del sistema. Es legible, y no vale 164 KB
-duplicados.
-
-## Qué encuentra un agente
-
-Tres cosas, y las tres nombran sólo lo que existe:
-
-- **`/llms.txt`** — qué es el proyecto, en texto plano, con la advertencia que
-  más importa conservar: el nivel de aviso es un cálculo aproximado, no una
-  predicción de inundación.
-- **`/.well-known/api-catalog`** — un linkset (RFC 9727, formato RFC 9264) con
-  `/api/nivel` y los tres JSON abiertos, cada uno apuntando a su documentación
-  en `/datos` y a las licencias en `/legal`. Lo emite `scripts/paginas.js`, así
-  que sus URLs no se pueden desincronizar del registro de páginas.
-- **Cabeceras `Link`** (RFC 8288) en todas las respuestas: `describedby` al
-  `llms.txt`, `api-catalog`, `license`, `privacy-policy`, `terms-of-service` y
-  `author`. En `/api/nivel`, además, `service-doc` a `/datos`.
-
-Y `Content-Signal: search=yes, ai-input=yes, ai-train=yes` en `robots.txt`. Los
-tres en «sí» a propósito: los datos son públicos, el sitio ya publica `llms.txt`
-para que lo citen bien, y la meta del proyecto es que la información llegue a
-más gente.
-
-**Lo que no se publica, y no por olvido.** Un chequeo automático de «agent
-readiness» pide además `openid-configuration`, `oauth-protected-resource`,
-`auth.md`, un MCP Server Card, un índice de agent skills y registros DNS-AID.
-Acá **no hay autenticación de ningún tipo** —el único dato que el servidor
-guarda de alguien es el endpoint opaco de push—, no hay servidor MCP y no hay
-skills. Publicar esos documentos sería declarar capacidades que no existen, y
-para un sitio del que alguien puede depender en una crecida eso es peor que no
-sumar puntos en un chequeo.
-
-`/api/nivel` se saca del `Disallow: /api/` de robots.txt con un `Allow`
-explícito: es de lectura, sin clave y el CDN lo cachea una hora
-(`s-maxage=3600`), así que un agente consultándolo no cuesta invocaciones.
-Bloquearlo mientras se lo publica en el catálogo habría sido contradecirse.
-
-## Lo compartido: `public/lib/comun.js`
-
-El proyecto corre en cuatro contextos que no se pueden importar entre sí —los
-módulos ES de la app, los scripts clásicos del sitio, el service worker y
-Node—. Cada cosa que hacía falta en dos de esos cuatro terminaba copiada, y
-así se llegó a esto:
-
-| Qué                                    | Copias que había                 |
-| -------------------------------------- | -------------------------------- |
-| Los umbrales oficiales 5,30 / 5,70     | 8 archivos                       |
-| «un número con coma decimal»           | 7 veces, con 5 nombres distintos |
-| El filtro de plausibilidad de umbrales | 5 archivos                       |
-| Cuándo vence un dato (48 h)            | 3 archivos, con 2 unidades       |
-
-Hoy todo eso vive en `public/lib/comun.js` y no hay ninguna copia. Los módulos y Node
-lo importan; los otros dos leen `public/lib/comun-clasico.js`, que **emite
-`scripts/paginas.js`** sacándole los `export` al original y envolviéndolo en
-una IIFE que publica un solo nombre, `CC_COMUN`. Los nombres que expone se
-derivan de los `export` del original, así que agregar uno lo publica en los dos
-mundos sin una segunda lista.
-
-`sw.js` lo trae con `importScripts`, que funciona en un worker clásico y no
-obliga a registrarlo como módulo —eso habría dejado afuera justo a los Android
-viejos que este proyecto sostiene a mano—. El navegador guarda lo importado
-junto al service worker, así que sigue andando sin señal; se verificó con el
-servidor apagado.
-
-**Los umbrales son un número de seguridad**, no una constante cualquiera: los
-publica la estación del INA en cada consulta y los de `public/lib/comun.js` son el
-arranque y el respaldo. Con ocho copias, la que quedara vieja hacía que ese
-consumidor avisara tarde.
-
-Y una que estaba rota sin que se notara: **`rio-barra.js` adoptaba los
-umbrales de la API sin filtrarlos.** El filtro estaba en la app, en el widget y
-en el service worker, pero no ahí — así que una respuesta con la evacuación por
-debajo de la alerta habría pintado la franja de la portada con el río en aguas
-medias. Al pasar a `umbralesDe()` compartido, se arregló solo.
-
-Lo único que puede romper esto: **tocar `public/lib/comun.js` y no correr
-`node scripts/paginas.js`**. El gemelo queda viejo y la app dice un número
-mientras el sitio dice otro.
+Los cuerpos de las notificaciones no pasan de **180 caracteres**: Android corta
+ahí, y la línea que se cortaba era la del 103.
+
+## Cien años del Paraná
+
+`node scripts/historia.js` baja las ~39.000 observaciones de la serie 30 desde
+el 2 de enero de 1925 (unos 10 MB) y las resume a un renglón por año: máximo,
+mínimo, sus fechas y los días sobre cada umbral oficial. Quedan 6 KB, más 101
+cuantiles para una sola frase: «el río estuvo por debajo del nivel de hoy en
+el X % de los días medidos». La app **no** dice «normal», «alto» ni «bajo»:
+para eso haría falta una metodología oficial que no tenemos.
+
+`/historia` lleva todos los números en el HTML; `js/historia.js` sólo agrega
+la franja que se recorre, que es un slider de verdad para el teclado. 2003
+lleva la única nota a mano: el Paraná quedó un centímetro debajo de la alerta
+y la inundación la trajo el Salado. Nada anterior a 1925 se reconstruye desde
+recortes de diario.
 
 ## La hoja para imprimir
 
-`/guia` es lo contrario del plan que imprime la app: sale **en blanco**, con
-renglones y casillas, para llenar con birome y pegar en la heladera. El público
-es el que la app no alcanza —quien no tiene teléfono, o lo tiene y nunca cargó
-nada—, y el camino previsto es que alguien la imprima en un centro vecinal y la
-reparta. `guia.pdf` es la misma hoja ya impresa, para quien no quiere pelearse
-con el diálogo de impresión del navegador.
+`/guia` sale **en blanco**, para llenar con birome y pegar en la heladera. Es
+para quien la app no alcanza, y el camino previsto es que alguien la imprima en
+un centro vecinal y la reparta. `guia.pdf` es la misma hoja ya impresa.
 
-Tres cosas que la gobiernan:
+Entra en **una carilla**, porque fotocopiar cien de dos cuesta el doble:
+`node scripts/guia-pdf.js` no escribe nada si salieron dos, o si lo que cargó
+no es la guía. No trae el nivel del día: en papel, un número de hace tres
+semanas se lee como si fuera de hoy.
 
-**Entra en una carilla, y eso no es estética.** Fotocopiar cien hojas de dos
-carillas cuesta el doble. `node scripts/guia-pdf.js` levanta su propio
-servidor, la imprime con Chrome headless y **no escribe nada** si salieron dos
-carillas o si lo que cargó no es la guía. Las dos comprobaciones existen porque
-faltaban: el script apuntaba al puerto 3100 y `scripts/servir.js` escucha en el
-3000, así que imprimió el «This site can't be reached» de Chrome, contó una
-carilla, dijo que todo bien, y ese PDF se publicó. Una página de error también
-ocupa una carilla; ahora se verifica que en el DOM estén la hoja, el 103 y las
-26 casillas antes de imprimir.
+## Avisos (Web Push)
 
-El envoltorio del sitio —`.ancho`, `.bloque`— se anula en `@media print`. Eran
-60 px de padding invisibles en pantalla y era todo lo que empujaba la hoja a
-una segunda carilla. Cuando hubo que
-ganar espacio, lo primero que se recortó fue aire —márgenes, interlineado— y lo
-último el tamaño de letra: la hoja la va a leer alguien apurado y con poca luz.
-El cuerpo quedó en 10 pt y ahí se queda.
+El servidor manda un push **sin contenido**: no sabe la cota ni el nivel de
+aviso de nadie. Sólo despierta al teléfono; el service worker consulta
+`/api/nivel`, lo compara contra lo que la app guardó en IndexedDB y arma ahí la
+notificación. De cada persona el servidor guarda un solo dato, el endpoint
+opaco del navegador. Como no hay contenido no hay cifrado, y alcanza con firmar
+un JWT ES256: ninguna dependencia.
 
-**Las listas no son una copia.** Mochila y checklist previo salen de
-`public/lib/listas.js`, las mismas que usa la app; el punto marcado sigue
-significando «está en el Plan de Contingencia municipal». Los umbrales oficiales
-salen de `public/lib/fuentes.js`. Si mañana se agrega un renglón a la mochila, aparece
-en el papel solo.
+Avisa cuando el nivel sube 15 cm desde el último aviso, cuando cruza alerta o
+evacuación hacia arriba (con urgencia alta), y a 50 y 20 cm de tu nivel de
+aviso si lo pediste en Ajustes. En iPhone sólo funciona con la app instalada,
+y la app lo explica.
 
-**El PDF es un artefacto.** Vive en el repo porque el sitio es estático, pero no
-es una fuente: cualquier cambio en el generador o en `css/guia.css` obliga a
-correr `node scripts/guia-pdf.js` de nuevo. Si no, el papel que la gente
-descarga dice una cosa y la página otra.
+**Puesta en marcha**
 
-La hoja **no trae el nivel del río del día**, y es deliberado: un número
-impreso hace tres semanas se lee como si fuera de hoy. Lo que sí trae es el
-renglón en blanco del nivel de aviso, que cada familia completa una vez.
+1. `node scripts/vapid.js` — imprime el par de claves y un `CRON_SECRET`.
+2. En Vercel: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+   (mailto:), `CRON_SECRET`, `METRICAS_CLAVE` y las del almacén.
+3. Pegar la pública en `js/app/config.js`, `CONFIG.VAPID_PUBLIC_KEY`. Vacía,
+   la app funciona igual y no ofrece avisos.
+4. Almacén: Upstash Redis desde el marketplace de Vercel, por su API REST
+   (`KV_REST_API_URL` / `KV_REST_API_TOKEN`), sin librería.
+
+El cron corre tres veces por día (9, 15 y 21): en el plan Hobby cada expresión
+corre una vez por día, pero se admiten varias. El INA publica una vez por día.
+`POST /api/probar-aviso` manda uno de prueba y devuelve lo que contestaron
+Apple o Google.
+
+## Sugerencias y métricas
+
+El formulario es lo **único** que manda texto de la persona a un servidor, y
+lo dice. Abre aclarando que **no es una vía para pedir ayuda**, con los
+teléfonos de emergencia. La IP no se guarda: se usa hasheada sólo para limitar
+a 3 envíos por hora. Se guardan en Redis (`cc:sugerencias`, tope 500).
+
+**Cuántos la usan, sin saber quiénes.** `POST /api/visita` una vez por sesión,
+con un número al azar que entra a un HyperLogLog por día (hora argentina):
+cuenta distintos sin guardar ninguno. Va aparte de `/api/nivel` porque ése está
+cacheado una hora en el CDN y contaría de menos.
+
+**El tablero:** `GET /api/metricas?clave=…` con `METRICAS_CLAVE`. Activos de
+hoy, 7 y 30 días (unión, no suma), suscriptos y sugerencias; `&ver=sugerencias`
+las lista y `&formato=json` da todo en JSON. Sin clave configurada no responde,
+y ante una clave mala da 404, no 401.
+
+**Analítica:** Google Analytics y Vercel Web Analytics van **sólo en las
+páginas del sitio**, nunca en `/app` ni en `/widget`, porque `/legal` y
+`/para-medios` prometen por escrito que ahí no hay rastreo. Vercel Analytics
+hay que habilitarlo en el panel; en local da 404.
 
 ## A quién no le llegamos todavía
 
-Cota Cero es una página web. Para usarla hacen falta un teléfono con navegador
-de los últimos seis años, datos o wifi **al menos una vez**, y poder leer. En
-los barrios que más se inundan, eso deja gente afuera, y conviene tenerlo
-escrito en vez de descubrirlo cada vez que alguien pregunta.
+Para usar Cota Cero hace falta un teléfono con navegador de los últimos seis
+años, datos al menos una vez y poder leer. En los barrios que más se inundan
+eso deja gente afuera. La hoja para imprimir es lo único hecho; hoy no hay
+forma de saber el nivel del río sin un teléfono así.
 
-**Hecho: la hoja de papel.** `/guia` y `guia.pdf` son una guía de emergencia
-para llenar a mano —ver «La hoja para imprimir», más arriba—. No trae el nivel
-del día a propósito: en papel, un número de ayer miente.
+| Canal                          | A quién alcanza                          | Qué haría falta                                         | Qué rompe                      |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------- | ------------------------------ |
+| Audio en la app («Escuchar»)   | quien no lee bien pero tiene teléfono    | `speechSynthesis`, un día de trabajo                    | nada                           |
+| Lectura fácil / pictogramas    | ídem                                     | reescribir los ocho estados y validarlos con quien sepa | nada                           |
+| Qom, mocoví, guaraní           | comunidades del Gran Santa Fe            | traductores humanos de esas comunidades                 | nada                           |
+| RSS del nivel, y radio barrial | radios, otras webs, quien no tiene datos | que el cron escriba un feed estático                    | nada                           |
+| Línea de voz                   | quien no tiene datos o no lee            | un número con IVR leyendo `/api/nivel`                  | nada, si no se guardan números |
+| SMS o bot de WhatsApp          | casi todos                               | un proveedor y **guardar números de teléfono**          | **la promesa de privacidad**   |
 
-Lo verificado hoy: **no hay ninguna forma de saber el nivel del río sin un
-teléfono así.** Ni SMS, ni USSD, ni una línea para llamar y escuchar, ni bot de
-WhatsApp, ni correo, ni RSS, ni audio. El único aviso que sale es el push, que
-exige la app instalada.
-
-Esta tabla es lo que haría falta para cada canal. Los costos son órdenes de
-magnitud, no presupuestos.
-
-| Canal                                                          | A quién alcanza                       | Qué haría falta                                                                                                                                   | Costo                                             | Qué rompe                                                                                                                                         |
-| -------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Audio en la app** — un botón «Escuchar» que lea el veredicto | quien no lee bien pero tiene teléfono | `speechSynthesis`; en Android las voces en español vienen instaladas y andan sin red                                                              | un día, cero pesos                                | nada                                                                                                                                              |
-| **Lectura fácil / pictogramas**                                | idem                                  | reescribir los ocho estados con pautas de lectura fácil y **validarlos con una organización que sepa hacerlo**; sin eso no vale                   | acuerdo, no plata                                 | nada                                                                                                                                              |
-| **Qom, mocoví, guaraní**                                       | comunidades del Gran Santa Fe         | traductores **humanos** de esas comunidades para los ocho estados, los teléfonos y las tres reglas. Traducción automática acá sería peor que nada | acuerdo institucional                             | nada                                                                                                                                              |
-| **RSS del nivel**                                              | radios barriales, otras webs          | que `api/cron/avisar.js` escriba un feed estático                                                                                                 | horas, cero pesos                                 | nada                                                                                                                                              |
-| **Radio** — que una FM barrial lea el nivel                    | quien no tiene datos                  | el feed de arriba y alguien que llame                                                                                                             | tiempo de gestión                                 | nada                                                                                                                                              |
-| **Línea de voz** — llamás y escuchás el nivel                  | quien no tiene datos, y quien no lee  | un número con IVR y texto‑a‑voz leyendo `/api/nivel`                                                                                              | dólares por mes + por minuto                      | nada, si no se guardan los números que llaman                                                                                                     |
-| **SMS de alerta**                                              | teléfono sin internet                 | proveedor de SMS, alta con consentimiento, y **guardar números de teléfono**                                                                      | centavos de dólar por mensaje × personas × avisos | **la promesa de privacidad.** Hoy el servidor guarda un solo dato opaco; un número de celular es un dato personal. Habría que reescribir `/legal` |
-| **Bot de WhatsApp**                                            | casi todos                            | cuenta de WhatsApp Business API, plantillas aprobadas por Meta, y guardar números                                                                 | por conversación                                  | lo mismo que SMS                                                                                                                                  |
-| **USSD** (`*123#`)                                             | teléfonos con teclas                  | acuerdo con las operadoras                                                                                                                        | fuera de alcance para un proyecto ciudadano       | —                                                                                                                                                 |
-
-**Orden sugerido si alguna vez se hace:** afiche → audio → RSS y radio → línea
-de voz. Los tres primeros no tocan la privacidad ni cuestan plata.
-
-**Y la línea que no se cruza sin decidirlo antes:** cualquier canal que guarde
-un número de teléfono cambia lo que la app promete por escrito en `/legal` y en
-`/para-medios`. Eso se decide antes de escribir una línea de código, no después.
+Orden sugerido: audio → RSS y radio → línea de voz, que no tocan la privacidad
+ni cuestan plata. Cualquier canal que guarde un número de teléfono cambia lo
+que la app promete en `/legal` y `/para-medios`, y eso se decide antes de
+escribir código.
 
 ## Pendientes
 
-- Los km río arriba de cada zona son estimaciones propias, salvo
-  Arroyo Leyes (24 km, publicado). Medirlos sobre el cauce.
-  La app ya lo aclara en pantalla, pero el número sigue sin medirse.
-- ~~Verificar el datum vertical del DEM satelital (Copernicus GLO-90, vía
-  Open-Meteo, referido al geoide EGM2008).~~ **Resuelto por la migración a las
-  curvas municipales**: las curvas ya vienen en metros IGN, el mismo sistema
-  que el cero del hidrómetro, así que no hay conversión de datum en el camino.
-  La app no consulta ningún DEM satelital; Copernicus queda sólo como historia
-  de validación en `/datos`.
 - **Validar el modelo con la Dirección de Gestión de Riesgos del municipio.**
-  Es la limitación más importante del estado actual, no un pendiente más de la
-  lista. Lo que hay es una coincidencia de un centímetro con la crecida de
-  1992, en dos puntos: buena señal, pero una sola validación independiente no
-  prueba un modelo. Hasta que lo revisen especialistas y organismos competentes
-  (Gestión de Riesgos, INA, FICH-UNL), lo que la app publica son niveles de
-  referencia estimados y así están nombrados en toda la interfaz.
-- ~~El nivel se saca raspando el HTML del reporte diario del INA.~~
-  **Resuelto.** La API REST del SIyAH (`alerta.ina.gob.ar/a5`) es pública, sin
-  clave y sin cuota: `lib/ina.js` la usa primero y cae al raspado sólo si
-  falla. El campo `origen` de `/api/nivel` dice cuál contestó y `degradado`
-  aparece cuando hubo que usar el respaldo, así que la próxima vez que el
-  raspado se rompa se va a ver en el JSON en lugar de descubrirse meses
-  después. La ruta documentada (`/pub/datos`) no se pudo usar: ver
-  `AUDITORIA.md` §6.
-- ~~La cota de Arroyo Leyes en 1992 (16,70 IGN) sigue sin fuente primaria.~~
-  **Resuelto, para mal:** no hay registro que conseguir. La nota de prensa lo
-  presenta como una estimación hecha con la misma pendiente (`AUDITORIA.md`
-  §3). Lo que falta ahora es **una** cota medida de 1992 o 2016 en cualquier
-  punto río arriba del Puerto; con una sola, la pendiente deja de ser un
-  número sin respaldo.
-- **El margen de la cota (±0,5 m) no debería ser una constante.** 21 de las 169
-  curvas están fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay
-  ninguna. El margen tendría que salir de la separación local entre las dos
-  curvas usadas para interpolar.
+  Es la limitación más importante, no un pendiente más.
+- **Una cota de agua medida** de 1992 o 2016 en cualquier punto río arriba del
+  puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
+- **Medir los km río arriba de cada zona sobre el cauce.** Salvo Arroyo Leyes
+  (24 km, publicado) son estimaciones propias, y a 4,5 cm por km equivocarse
+  5 km son 22 cm. La app ya lo aclara en pantalla.
+- **El margen de la cota (±0,5 m) no debería ser fijo.** 21 de las 169 curvas
+  caen fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay ninguna: el
+  margen tendría que salir de la separación local entre las curvas usadas.
