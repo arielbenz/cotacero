@@ -6,7 +6,7 @@
 // hace cada service worker contra el umbral guardado en su propio dispositivo.
 
 import { leerNivelINA } from "../../lib/ina.js";
-import { UMBRALES_RESPALDO } from "../../lib/comun.js";
+import { UMBRALES_RESPALDO } from "../../public/lib/comun.js";
 import {
   enviarPush,
   redis,
@@ -19,7 +19,7 @@ import {
 /* Respaldo de los umbrales oficiales. Los de verdad los publica la estación
    y vienen en la lectura del INA; éstos se usan sólo si esa respuesta llega
    sin ellos, que es lo que pasa cuando contesta el reporte diario.
-   Salen de lib/comun.js: estaban escritos a mano acá y en otros siete
+   Salen de public/lib/comun.js: estaban escritos a mano acá y en otros siete
    archivos, y una copia vieja hace que este cron avise tarde. */
 const { alerta: ALERTA_RESPALDO, evacuacion: EVACUACION_RESPALDO } =
   UMBRALES_RESPALDO;

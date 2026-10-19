@@ -33,7 +33,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SALIDA = join(RAIZ, "datos-abiertos", "calles.json");
+const SALIDA = join(RAIZ, "public", "datos-abiertos", "calles.json");
 const LOCALIDAD = "82063170"; // Santa Fe, departamento La Capital
 
 const url =

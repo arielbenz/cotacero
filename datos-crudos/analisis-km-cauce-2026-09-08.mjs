@@ -71,7 +71,7 @@ function dijkstra(src) {
   return D;
 }
 
-// --- el hidrómetro: coordenadas de la estación del INA (lib/fuentes.js)
+// --- el hidrómetro: coordenadas de la estación del INA (public/lib/fuentes.js)
 const HID = { lat: -31.6514772196376, lon: -60.7002319185745 };
 const [src, dSrc] = cercano(HID.lat, HID.lon);
 console.log("  hidrómetro: nodo a " + Math.round(dSrc) + " m de la traza\n");

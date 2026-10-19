@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Nivel del río Paraná en Santa Fe hoy | Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/" />
+    <meta
+      name="description"
+      content="Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad." />
+    <!-- Uno por tema: la barra del navegador -->
+    <meta
+      name="theme-color"
+      content="#fafbfc"
+      media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content="#0e1619"
+      media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Nivel del río Paraná en Santa Fe hoy" />
+    <meta
+      property="og:description"
+      content="El nivel del río hoy, qué significa para tu terreno, los puntos de encuentro y un plan familiar. Datos públicos del INA y de la Municipalidad." />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png?v=2" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Cota Cero",
+        "alternateName": "Cota Cero — Santa Fe",
+        "url": "https://cotacerosf.com/",
+        "inLanguage": "es-AR",
+        "description": "Herramienta ciudadana que relaciona el nivel del río Paraná en la ciudad de Santa Fe con la cota del terreno.",
+        "creator": {
+          "@type": "Person",
+          "name": "Ariel Benz",
+          "sameAs": [
+            "https://x.com/arielbenz",
+            "https://www.instagram.com/ariel.front/"
+          ]
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Cota Cero",
+        "url": "https://cotacerosf.com/",
+        "installUrl": "https://cotacerosf.com/app",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "es-AR",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "ARS" },
+        "description": "Traduce la altura del hidrómetro del Puerto de Santa Fe a tu nivel de aviso: el nivel del río a partir del cual el agua puede llegar a tu terreno. Incluye los puntos de encuentro del Plan de Contingencia municipal.",
+        "author": {
+          "@type": "Person",
+          "name": "Ariel Benz",
+          "sameAs": [
+            "https://x.com/arielbenz",
+            "https://www.instagram.com/ariel.front/"
+          ]
+        },
+        "about": {
+          "@type": "Place",
+          "name": "Santa Fe, Argentina",
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": -31.63,
+            "longitude": -60.7
+          }
+        }
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="96x96" />
+    <!-- 96 px: Google descarta los de 32 -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="/img/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Cota Cero" />
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta-800.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+    <link rel="stylesheet" href="/css/app.css" />
+    <!-- comun-clasico primero (lo generan desde lib/comun.js), después
+         rio-barra, que arma el store que usa landing.js. -->
+    <script src="/lib/comun-clasico.js" defer></script>
+    <script src="/js/rio-barra.js" defer></script>
+    <script src="/js/landing.js" defer></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Analytics: la config va en /js/analitica.js (CSP) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
+  </head>
+  <body class="landing">
+    <!-- Franja de alerta: vacía mide cero. Ver README -->
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
+    <!-- El filete de la barra va de borde a borde: ver app.css -->
+    <div class="nav-envoltura">
+    <div class="ancho">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="mn">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua)"
+              clip-path="url(#mn)" />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7" />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round" />
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <span class="chip-borde">NO OFICIAL</span>
+        <!-- Nivel en vivo: lo llena js/rio-barra.js -->
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span
+            class="punto-estado"
+            id="pildora-punto"
+            aria-hidden="true"></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
+            <a href="/contacto">Contacto</a>
+          </div>
+        </details>
+      </nav>
+    </div>
+    </div>
+
+    <div class="ancho">
+      <header class="hero">
+        <div>
+          <!-- Sin píldora acá: ver CLAUDE.md, «el mono en mayúsculas» -->
+          <h1 class="titulo-hero">
+            El río Paraná tiene un número.<br /><span class="acento-hero"
+              >Tu casa tiene otro.</span
+            >
+          </h1>
+          <p class="bajada">
+            Cota Cero traduce el nivel del Paraná a <b>tu nivel de aviso</b>: el
+            nivel del río a partir del cual el agua puede llegar a tu terreno.
+            En muchos barrios queda por debajo de la alerta de la ciudad.
+          </p>
+          <div class="hero-botones">
+            <a class="btn" href="/app">Cargar mi casa</a>
+            <a class="btn sec" href="#como">Ver cómo funciona</a>
+          </div>
+          <ul class="hero-tildes">
+            <li>Gratis</li>
+            <li>Funciona sin señal una vez cargada</li>
+            <li>Tus datos quedan en tu teléfono</li>
+          </ul>
+          <p class="chico marco-legal">
+            Santa Fe está en emergencia hídrica por la
+            <a href="/datos#fuentes">Ley provincial 14.477</a>. Es el marco del
+            que nace esta herramienta, y no la respalda.
+          </p>
+        </div>
+
+        <!-- `real` no se mueve, `sim` sí. Ver README -->
+        <div class="mockup-envoltura" id="abrir">
+          <div class="mockup">
+            <div class="mockup-cabecera">
+              <div class="mc-fila">
+                <span class="eti">Hidrómetro · Puerto Santa Fe</span>
+                <span class="chip-delta" id="nivel-delta" hidden></span>
+              </div>
+              <div class="mockup-numero">
+                <span class="dato" id="nivel">—</span>
+                <span class="mockup-m">m</span>
+              </div>
+              <p class="chico" id="nivel-pie">Buscando el último dato…</p>
+            </div>
+            <!-- Umbrales de respaldo en el marcado, por si no corre el JS -->
+            <div class="regla-mini" id="regla-mini">
+              <div class="rm-escala" aria-hidden="true">
+                <span style="bottom: 100%">8 m</span>
+                <span style="bottom: 75%">6 m</span>
+                <span style="bottom: 50%">4 m</span>
+                <span style="bottom: 25%">2 m</span>
+                <span style="bottom: 0">0</span>
+              </div>
+              <div class="rm-tanque">
+                <div class="rm-agua" id="rm-agua"></div>
+                <div class="rm-linea" id="rm-superficie"></div>
+                <div class="rm-umbral rm-record" id="rm-record" hidden>
+                  <b></b>
+                </div>
+                <div class="rm-umbral rm-evac" id="rm-evac">
+                  <b>Evacuación de la ciudad · 5,70</b>
+                </div>
+                <div class="rm-umbral rm-alerta" id="rm-alerta">
+                  <b>Alerta de la ciudad · 5,30</b>
+                </div>
+                <div class="rm-umbral rm-hoy" id="rm-hoy" hidden><b></b></div>
+                <span class="rm-ahora" id="rm-ahora"></span>
+              </div>
+            </div>
+            <!-- Siempre en el marcado, para no saltar al llegar el dato -->
+            <div class="mockup-sim">
+              <p class="ms-falta" id="rm-falta">&nbsp;</p>
+              <label class="eti" for="rm-rango">Mové el río</label>
+              <input
+                type="range"
+                id="rm-rango"
+                min="0"
+                max="1000"
+                step="1"
+                value="0"
+                disabled
+                aria-label="Nivel del río a simular, en metros" />
+              <div class="ms-fila">
+                <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
+                <button type="button" class="ms-volver" id="rm-volver" hidden>
+                  Volver a hoy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="franja-oscura">
+        <h2>Santa Fe ya sabe lo que es.</h2>
+        <ol class="hitos">
+          <li>
+            <b>1983</b>
+            <p>La Setúbal se llevó el Puente Colgante, el símbolo de la ciudad.</p>
+          </li>
+          <li>
+            <b>1992</b>
+            <p>Récord: 7,43 m en el hidrómetro. Sigue vigente.</p>
+          </li>
+          <li>
+            <b>2003</b>
+            <p>
+              Entró el Salado. Muchos barrios se inundaron antes de recibir
+              aviso.
+            </p>
+          </li>
+          <li>
+            <b>2007</b>
+            <p>La lluvia volvió a anegar los barrios del oeste.</p>
+          </li>
+        </ol>
+        <div class="franja-pie">
+          <p class="franja-nota">
+            Las grandes crecidas del Paraná —1983, 1992, 2016— llegaron con años
+            de <b>El Niño</b>.
+            <a href="/historia">Cien años del río, año por año →</a>
+          </p>
+          <p class="franja-cierre">
+            Para que la próxima crecida encuentre a cada familia sabiendo su
+            número, su plan y su punto de encuentro.
+            <a href="/sobre">Quién la hace y con qué límites</a>.
+          </p>
+        </div>
+      </section>
+
+      <section id="como">
+        <div class="como-cabeza">
+          <h2>Tres datos, un nivel de aviso</h2>
+          <a href="/datos">Cómo se calcula, paso por paso →</a>
+        </div>
+        <ol class="tres">
+          <li class="tarjeta">
+            <span class="numerito">1</span>
+            <h3>Elegís tu zona</h3>
+            <p>
+              Once zonas de Santa Fe, cada una con su distancia al Puerto. Río
+              arriba el agua llega antes.
+            </p>
+          </li>
+          <li class="tarjeta">
+            <span class="numerito">2</span>
+            <h3>Cargás tu terreno</h3>
+            <p>
+              La altura de tu terreno: por GPS, buscando tu dirección, o a mano
+              si la conocés. Sale de las curvas de nivel del municipio.
+            </p>
+          </li>
+          <li class="tarjeta oscura">
+            <span class="numerito">3</span>
+            <h3>Mirás un solo número</h3>
+            <p class="tres-dato">
+              <b>≈ 5,1 m</b> <span class="eti">en la regla del Puerto</span>
+            </p>
+            <p>
+              Con el cálculo desglosado, no una caja negra, y sin fingir una
+              precisión que los datos no tienen.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- La lluvia, dicha donde se explica qué mide la app -->
+      <section class="tarjeta-seccion rio-lluvia">
+        <div class="ts-texto">
+          <h2>Mira el río. La lluvia es otra cuenta.</h2>
+          <p>
+            Tu nivel de aviso sirve para las crecidas del Paraná. Pero si llueve
+            mucho en poco tiempo, o varios días seguidos, una calle puede
+            anegarse y entrar agua a las casas
+            <b>aunque el río esté lejos de la alerta de la ciudad</b>.
+          </p>
+          <a href="/datos#no-dice">Qué no dice tu nivel de aviso →</a>
+        </div>
+        <div class="rl-tarjetas">
+          <div class="rl-par">
+            <div class="rl-caja rl-mide">
+              <span class="eti">Lo que mide</span>
+              <p>
+                El nivel del Paraná en el hidrómetro del Puerto, y cuánto le
+                falta para llegar a tu terreno.
+              </p>
+            </div>
+            <div class="rl-caja rl-no-mide">
+              <span class="eti">Lo que no mide</span>
+              <p>
+                La lluvia sobre tu barrio, los desagües ni las bombas. Muestra
+                la lluvia prevista, pero no la vuelve un número para tu casa.
+              </p>
+            </div>
+          </div>
+          <div class="rl-caja rl-juntan">
+            <span class="eti">Cuando se juntan</span>
+            <p>
+              El municipio planifica para <b>río en 6 m + lluvia de 200 a 300
+              mm</b>: con el río alto, las bombas no alcanzan a sacar el agua
+              de la ciudad. Y desde los <b>40 mm en un día</b> ya empieza a
+              costar.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tarjeta-seccion con-mapa">
+        <div class="ts-texto">
+          <h2>30 puntos de encuentro oficiales</h2>
+          <p>
+            Los del municipio, verificados contra su GeoServer. En la app,
+            ordenados por cercanía y sin conexión.
+          </p>
+          <div class="aviso">
+            Su activación la confirma Defensa Civil: llamá al
+            <a href="tel:103"><b>103</b></a> antes de salir.
+          </div>
+          <a class="btn sec" href="/puntos-de-encuentro">Ver la lista completa</a>
+        </div>
+        <!-- A sangre: recorta la tarjeta con overflow -->
+        <div
+          id="mapa-landing"
+          role="img"
+          aria-label="Mapa con los 30 puntos de encuentro de Santa Fe"></div>
+      </section>
+
+      <section class="tarjeta-seccion">
+        <div class="ts-texto">
+          <h2>Te dice lo que sabe.<br />Y lo que no.</h2>
+          <p>
+            Te dice de dónde sale cada número y cuánto margen tiene. Redondea en
+            vez de fingir centímetros. Y cuando un dato no alcanza, lo dice en
+            vez de inventarlo.
+          </p>
+          <a href="/datos">De dónde salen los datos →</a>
+        </div>
+        <!-- Texto exacto de la app: si cambia allá, cambia acá -->
+        <div class="avisos-app">
+          <span class="eti">Avisos de la app</span>
+          <blockquote class="aviso-app">
+            <p>
+              «Sale de las curvas de nivel del municipio: pasan cerca de tu
+              casa, no por tu puerta.»
+            </p>
+          </blockquote>
+          <blockquote class="aviso-app">
+            <p>
+              «Si Defensa Civil dice que salgas, salí. Aunque acá diga que
+              tenés margen.»
+            </p>
+          </blockquote>
+          <!-- Aclaración del proyecto, no un aviso de la app -->
+          <div class="aviso-app neutro">
+            <p>
+              Hecha por un vecino. No es una comunicación del municipio, y lo
+              dice en cada pantalla.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div>
+          <svg width="44" height="44" viewBox="0 0 60 60" aria-hidden="true">
+            <defs>
+              <clipPath id="mc">
+                <rect x="0" y="33" width="60" height="27" />
+              </clipPath>
+            </defs>
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="var(--agua-clara)"
+              clip-path="url(#mc)" />
+            <circle
+              cx="30"
+              cy="30"
+              r="21"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="7" />
+            <line
+              x1="2"
+              y1="33"
+              x2="58"
+              y2="33"
+              stroke="currentColor"
+              stroke-width="4.5"
+              stroke-linecap="round" />
+          </svg>
+          <h2>Conocé tu número antes<br />de que lo diga el río.</h2>
+          <p>
+            Dos minutos para cargar tu terreno. Se instala desde el navegador,
+            sin tienda de aplicaciones.
+          </p>
+        </div>
+        <a class="btn" href="/app">Abrir Cota Cero</a>
+      </section>
+
+      <!-- Segundo público: quien publica, no quien consulta. Va después del
+           cierre y sin número de secuencia: no es un cuarto paso del recorrido. -->
+      <section class="tarjeta-seccion tarjeta-medios">
+        <div class="ts-texto">
+          <h2>¿Tenés un medio, una radio o una vecinal?</h2>
+          <p>
+            Publicá el nivel del río en tu sitio, con la alerta y la evacuación
+            de la ciudad. Son dos líneas de HTML: gratis, sin claves y
+            <b>sin cookies para tus lectores</b>.
+          </p>
+          <a href="/para-medios">Cómo se pone →</a>
+        </div>
+        <!-- Lo pinta landing.js desde el store: no es un iframe -->
+        <div class="widget-previa" id="widget-previa">
+          <div class="wp-fila">
+            <span class="eti">Río Paraná · Santa Fe</span>
+            <span class="eti">Vista previa</span>
+          </div>
+          <div class="wp-numero">
+            <span id="wp-nivel">—</span><span class="wp-m">m</span>
+            <span class="wp-estado" id="wp-estado"></span>
+          </div>
+          <span class="wp-fuente"
+            >Alerta <b class="wp-alerta" id="wp-alerta">5,30</b> · Evacuación
+            <b class="wp-evac" id="wp-evac">5,70</b> ·
+            <span id="wp-fuente">INA · cotacerosf.com</span></span
+          >
+        </div>
+      </section>
+    </div>
+
+    <div class="pie-envoltura">
+      <!-- PIE:inicio — generado por scripts/paginas.js, no editar a mano -->
+
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Hecha por un vecino de Santa Fe. Sin vínculo con el municipio: la
+            orden de evacuación la da la Defensa Civil.
+          </p>
+          <a class="chip-tel" href="tel:103">Emergencias <b>103</b></a>
+        </div>
+        <div>
+          <span class="eti">La app</span>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/guia">Guía para imprimir</a>
+          <a href="/historia">Cien años del Paraná</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+        </div>
+        <div>
+          <span class="eti">Transparencia</span>
+          <a href="/datos">De dónde salen los datos</a>
+          <p class="pie-frescura" id="pie-frescura" hidden>
+            <span
+              class="punto-estado"
+              id="frescura-punto"
+              aria-hidden="true"></span>
+            <span id="frescura-texto"></span>
+          </p>
+          <a href="/sobre">Quién hace Cota Cero</a>
+          <a href="/legal">Legal y privacidad</a>
+          <a href="/contacto">Contacto y sugerencias</a>
+          <a href="/para-medios">Widget para medios</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefecturanaval" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/" target="_blank" rel="noopener">Gestión de Riesgos</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>
+      <p class="pie-cierre">
+        Última actualización del sitio: 19/10/2026 · Hecho en Santa Fe
+      </p>
+
+      <!-- PIE:fin -->
+    </div>
+  </body>
+</html>

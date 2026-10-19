@@ -1,0 +1,575 @@
+<!doctype html>
+<!-- Generado por scripts/paginas.js — no editar a mano -->
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cota de tu terreno y datos del río en Santa Fe | Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/datos" />
+
+    <meta name="description" content="Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso." />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Cota de tu terreno y datos del río en Santa Fe | Cota Cero" />
+    <meta property="og:description" content="Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso." />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png?v=2" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/datos" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Cota Cero",
+            "item": "https://cotacerosf.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "La cota de tu terreno y los datos",
+            "item": "https://cotacerosf.com/datos"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "La cota de tu terreno en Santa Fe: el cálculo y de dónde salen los datos",
+        "inLanguage": "es-AR",
+        "author": {
+          "@type": "Person",
+          "name": "Ariel Benz"
+        },
+        "mainEntityOfPage": "https://cotacerosf.com/datos"
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="96x96" />
+    
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/lib/comun-clasico.js" defer></script>
+    <script src="/js/rio-barra.js" defer></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
+  </head>
+  <body class="landing">
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
+    <div class="nav-envoltura">
+    <div class="ancho">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <span class="chip-borde">NO OFICIAL</span>
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="/#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span
+            class="punto-estado"
+            id="pildora-punto"
+            aria-hidden="true"></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
+            <a href="/contacto">Contacto</a>
+          </div>
+        </details>
+      </nav>
+    </div>
+    </div>
+
+    <div class="ancho">
+      <header class="pg-cabecera">
+        <h1>¿Cuál es la cota de tu terreno en Santa Fe, y de dónde sale?</h1>
+        <p class="pg-lead">Tres datos —<b>la altura de tu terreno</b>, <b>el cero de la regla del puerto</b> y <b>tu distancia al puerto</b>— dan tu umbral estimado: la lectura del hidrómetro a la que el agua alcanzaría la cota de tu terreno. En la app se llama «tu nivel de aviso».</p>
+      </header>
+
+      <main>
+      <section class="bloque oscuro" id="cuenta-entera">
+        <h2>La cuenta, entera</h2>
+        <p class="formula">
+          <span>cota del terreno <b>− 0,50</b></span>
+          <span><b>−</b> cero del hidrómetro <b>(8,20)</b></span>
+          <span><b>−</b> km río arriba <b>× 0,045</b></span>
+          <span class="f-total"><b>=</b> tu nivel de aviso</span>
+        </p>
+        <p class="chico">Una referencia para prepararte, no el minuto en que entra el agua. Cota Cero <b>no genera información hidrológica propia</b>: toma datos públicos, los combina y los cita.</p>
+        <nav class="atajos-num" aria-label="En esta página">
+          <a href="#rio"><b>1</b> El nivel del río</a>
+          <a href="#terreno"><b>2</b> La altura de tu terreno</a>
+          <a href="#cuenta"><b>3</b> Cómo se relacionan</a>
+          <a href="#firme"><b>4</b> Qué tan firme es esto</a>
+          <a href="#fuentes"><b>5</b> Las fuentes</a>
+        </nav>
+      </section>
+
+      <section class="bloque" id="rio">
+        <p class="kicker">1 · El nivel del río</p>
+        <h2>Lo mide el Estado, no nosotros</h2>
+        <p>
+          El número grande de la app es la lectura del <b>hidrómetro del
+          Puerto</b>: la lee Prefectura y la publica el INA. Cota Cero la
+          muestra; no la mide, no la corrige y no la promedia.
+        </p>
+        <div class="ficha-estacion">
+          <div><span class="k">Estación</span><span class="v">Santa Fe · SAFE</span></div>
+          <div><span class="k">Río</span><span class="v">Paraná</span></div>
+          <div><span class="k">Serie del INA</span><span class="v">n.º 30 — altura hidrométrica</span></div>
+          <div><span class="k">Quién la lee</span><span class="v">Prefectura Naval Argentina</span></div>
+          <div><span class="k">Alerta</span><span class="v">5,30 m</span></div>
+          <div><span class="k">Evacuación</span><span class="v">5,70 m</span></div>
+        </div>
+        <p class="chico">
+          Los umbrales los publica la propia estación en la API del sistema de
+          alerta del INA; si la API falla, la app cae sola al reporte diario.
+          Si tampoco contesta, muestra la última lectura con su fecha, y a las
+          48 horas deja de darla por vigente. <b>Nunca inventa un valor.</b>
+        </p>
+        <p class="sello-fuente"><span class="k">Fuente</span> INA · serie 30, altura hidrométrica <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">ver</a></p>
+      </section>
+
+      <section class="bloque" id="terreno">
+        <p class="kicker">2 · La altura de tu terreno</p>
+        <h2>La cota sale de las curvas de nivel del municipio</h2>
+        <p>
+          La <b>cota</b> es la altura de un terreno sobre el mar, en el sistema
+          oficial argentino (IGN). La Municipalidad publica <b>169 curvas de
+          nivel</b>, cada 50 cm: si caminás sobre una, no subís ni bajás.
+        </p>
+        <div class="curvas-dibujo" aria-hidden="true">
+          <div class="cd-linea"><span>16,0 m</span><i></i></div>
+          <div class="cd-casa">🏠 tu casa</div>
+          <div class="cd-linea"><span>15,5 m</span><i></i></div>
+        </div>
+        <p>
+          Si tu casa cae entre dos, la app estima su altura y <b>descuenta
+          medio metro</b>, por las dudas. Donde no hay curvas —cubren la ciudad,
+          no toda el área metropolitana— te pide la cota a mano, en vez de caer
+          a una fuente peor.
+        </p>
+        <p class="chico">
+          Es una estimación, no una medición de tu terreno: la curva pasa cerca,
+          no por tu puerta.
+        </p>
+
+        <h3>Por qué no un satélite</h3>
+        <p>
+          Los modelos satelitales miden <b>techos y copas de árboles</b>, no el
+          piso. Contra <b>36 puntos medidos en campo por el IGN</b>, el que usaba
+          la app tenía un <b>desvío estándar de 7,46 m</b>, con casos de hasta
+          23 m.
+        </p>
+        <div class="barras-error" role="img" aria-label="Desvío estándar del satélite, 7,46 metros, contra 2,13 metros entre la alerta de la ciudad y el récord.">
+          <div class="be-fila">
+            <span class="be-k">Error del satélite (desvío estándar)</span>
+            <span class="be-pista"><i class="be-mal" style="width:100%"></i></span>
+            <span class="be-v">7,46 m</span>
+          </div>
+          <div class="be-fila">
+            <span class="be-k">De la alerta (5,30) al récord (7,43)</span>
+            <span class="be-pista"><i style="width:28.6%"></i></span>
+            <span class="be-v">2,13 m</span>
+          </div>
+        </div>
+        <p><b>El error de la fuente era más grande que toda la escala de la decisión.</b></p>
+        <p class="chico">
+          Ni la mejor curva reemplaza un relevamiento de tu terreno: no sabe si
+          está elevado sobre la vereda ni si la casa tiene escalones. <b>El
+          número que vale es el de un relevamiento, la escritura o el plano de
+          mensura.</b> Si lo conseguís, cargalo a mano en la app.
+        </p>
+        <p class="sello-fuente"><span class="k">Fuente</span> Municipalidad · curvas de nivel de la ciudad <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">ver</a></p>
+      </section>
+
+      <section class="bloque" id="cuenta">
+        <p class="kicker">3 · Cómo se relacionan</p>
+        <h2>Dos alturas, una resta</h2>
+        <p>
+          El hidrómetro no mide altura sobre el mar: mide cuánto sube el agua
+          sobre el <b>cero de su escala</b>, que está a una altura conocida.
+          Sumando las dos se obtiene la superficie del agua en la misma escala
+          que tu terreno.
+        </p>
+        <div class="cuenta-vertical">
+          <div class="cv-fila">
+            <span class="cv-k">Lectura del hidrómetro</span><span class="cv-v">5,00 m</span>
+          </div>
+          <div class="cv-op" aria-hidden="true">+</div>
+          <div class="cv-fila">
+            <span class="cv-k">Cero del hidrómetro</span><span class="cv-v">8,20 m IGN</span>
+          </div>
+          <div class="cv-op" aria-hidden="true">+</div>
+          <div class="cv-fila">
+            <span class="cv-k">Corrección río arriba (11 km)</span><span class="cv-v">0,50 m</span>
+          </div>
+          <div class="cv-op" aria-hidden="true">=</div>
+          <div class="cv-fila cv-total">
+            <span class="cv-k">Superficie de agua equivalente</span><span class="cv-v">13,70 m IGN</span>
+          </div>
+        </div>
+        <svg class="corte" viewBox="0 0 340 190" role="img"
+          aria-label="Corte del terreno: a la derecha el río, a la izquierda una casa sobre terreno más alto. La superficie del agua se prolonga en línea punteada hasta debajo de la casa, y la diferencia entre esa línea y el piso de la casa es el margen.">
+          <defs>
+            <linearGradient id="grad-agua" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--agua)" stop-opacity=".55"/>
+              <stop offset="1" stop-color="var(--agua)" stop-opacity=".18"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 118 L96 118 L150 128 L214 141 L258 150 L340 150 L340 190 L0 190 Z"
+            fill="var(--tierra)" opacity=".22"/>
+          <path d="M214 141 L258 150 L340 150 L340 190 L214 190 Z" fill="url(#grad-agua)"/>
+          <line x1="214" y1="141" x2="340" y2="141" stroke="var(--agua)" stroke-width="2"/>
+          <line x1="12" y1="141" x2="214" y2="141" stroke="var(--agua)" stroke-width="1.5"
+            stroke-dasharray="5 4" opacity=".8"/>
+          <g transform="translate(52 86)">
+            <path d="M0 14 L21 0 L42 14 L42 32 L0 32 Z" fill="none"
+              stroke="var(--texto)" stroke-width="2" stroke-linejoin="round"/>
+            <rect x="16" y="20" width="10" height="12" fill="var(--texto)" opacity=".45"/>
+          </g>
+          <line x1="26" y1="118" x2="26" y2="141" stroke="var(--acento)" stroke-width="2"/>
+          <path d="M22 122 L26 118 L30 122" fill="none" stroke="var(--acento)" stroke-width="2"/>
+          <path d="M22 137 L26 141 L30 137" fill="none" stroke="var(--acento)" stroke-width="2"/>
+          <text x="36" y="134" fill="var(--acento)" font-size="12" font-family="var(--sans)">margen</text>
+          <text x="10" y="78" fill="var(--texto)" font-size="12" font-family="var(--sans)">cota del terreno</text>
+          <text x="228" y="134" fill="var(--agua)" font-size="12" font-family="var(--sans)">superficie del agua</text>
+          <text x="292" y="176" fill="var(--tenue)" font-size="12" font-family="var(--sans)">Paraná</text>
+        </svg>
+        <p>
+          Lo que a una persona le sirve no es «cuánta agua hay hoy» sino
+          <b>«¿qué tendría que marcar el hidrómetro para que el agua llegue a
+          la altura de mi terreno?»</b>. Es la misma cuenta despejada.
+        </p>
+      </section>
+
+      <section class="bloque ejemplo">
+        <div class="ej-cabeza">
+          <span class="eti">Ejemplo · Colastiné Norte</span>
+          <span class="eti">11 km río arriba</span>
+        </div>
+        <ol class="ej-filas">
+          <li class="ej-fila">
+            <span class="numerito" aria-hidden="true">1</span>
+            <div>
+              <h3>La altura de tu terreno, en metros IGN</h3>
+              <p>Entre dos curvas, medio metro por debajo, por las dudas: es el <b>escenario pesimista</b>, el número con el que hay que decidir.</p>
+            </div>
+            <span class="ej-valor">15,80 → 15,30</span>
+          </li>
+          <li class="ej-fila">
+            <span class="numerito" aria-hidden="true">2</span>
+            <div>
+              <h3>Restar el cero del hidrómetro: 8,20 m</h3>
+              <p>Pasa tu terreno a la escala del hidrómetro. El INA publica 8,378: esos 18 cm están sin resolver. <a href="#abiertas">Por qué usamos 8,20</a>.</p>
+            </div>
+            <span class="ej-valor">− 8,20 = 7,10</span>
+          </li>
+          <li class="ej-fila">
+            <span class="numerito" aria-hidden="true">3</span>
+            <div>
+              <h3>Restar el desnivel río arriba: 0,045 m por km</h3>
+              <p>El río no es una pileta: río arriba el agua está más alta. 11 × 0,045 = 0,495, que redondeamos a 0,50.</p>
+            </div>
+            <span class="ej-valor">− 0,50 = 6,60</span>
+          </li>
+        </ol>
+      </section>
+
+      <section class="bloque oscuro resultado">
+        <p class="kicker">Resultado del ejemplo</p>
+        <p class="dato-grande">≈ 6,6 m</p>
+        <p class="cuenta-chica">15,30 − 8,20 − 0,50 = 6,60</p>
+        <p>
+          Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
+          de agua equivalente alcanza la cota de ese terreno según el modelo.
+          <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
+          lo que pase depende de las defensas, del bombeo, del viento y de la
+          lluvia, y nada de eso está en la cuenta.
+        </p>
+      </section>
+
+      <section class="bloque" id="firme">
+        <p class="kicker">4 · Qué tan firme es esto</p>
+        <h2>Lo que se comprobó, lo que está en discusión y lo que falta</h2>
+        <p>Preferimos publicar nuestros supuestos antes de que los encuentre otro.</p>
+        <div class="firme-tres">
+          <div class="firme-caja f-ok">
+            <span class="eti">Se comprobó</span>
+            <h3>La crecida de 1992</h3>
+            <table class="cuenta">
+              <tr><td>Puerto, junio de 1992</td><td>7,43 m</td></tr>
+              <tr><td>Arroyo Leyes, registrado</td><td>16,70 IGN</td></tr>
+              <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
+            </table>
+            <p class="chico">Un centímetro. Pero es <b>un punto, de una crecida, de un año</b>: no demuestra que el modelo valga en todos lados.</p>
+          </div>
+          <div class="firme-caja f-discusion" id="abiertas">
+            <span class="eti">En discusión</span>
+            <h3>Dos números sin cerrar</h3>
+            <p><b>El cero: 8,20 o 8,378.</b> 8,20 es el de la normativa de Rincón; el INA publica 8,378 desde 2016. Pueden ser el mismo punto en dos sistemas de alturas.</p>
+            <p><b>La pendiente: 0,045 m/km.</b> Da bien en 1992, pero es una sola observación y usamos un solo valor para todas las zonas.</p>
+            <details class="h-detalle">
+              <summary>Por qué no cambiamos ninguno</summary>
+              <p class="chico">
+                <b>El cero.</b> El Reglamento de Edificaciones de San José del
+                Rincón fija la cota de edificación en
+                <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>
+                —la diferencia es exactamente 8,20— y coincide con el que da un
+                ingeniero hidrólogo de la FICH-UNL. El INA publica 8,378 de una
+                campaña INA-IGN de diciembre de 2016. Los 18 cm no son de
+                redondeo: en enero de 2017 el país cambió de sistema de alturas
+                —del SRVN71 al SRVN16— y antes convivían referencias del ex
+                Ministerio de Obras Públicas, de Obras Sanitarias y de sistemas
+                municipales. Lo que importa no es cuál número es más nuevo,
+                sino que el cero y las curvas estén en el <b>mismo</b> sistema,
+                y las curvas no declaran el suyo. Mover el cero a 8,378 metería
+                un sesgo de 18 cm en todos los umbrales sin que nadie se entere.
+              </p>
+              <p class="chico">
+                <b>La pendiente.</b> El reglamento de Rincón, 16 km río arriba,
+                convierte cota a hidrómetro sin ninguna corrección por
+                distancia; con la pendiente de la app serían 72 cm más. O el
+                reglamento simplifica, o la pendiente real en ese tramo es otra:
+                depende del tramo, del caudal y de la condición hidráulica del
+                momento.
+              </p>
+            </details>
+          </div>
+          <div class="firme-caja f-falta">
+            <span class="eti">Falta</span>
+            <h3>Que lo revisen especialistas</h3>
+            <p>Ningún organismo ni universidad revisó este modelo. Nadie lo aprobó.</p>
+            <p class="chico">Hasta que lo revisen —Gestión de Riesgos, INA, FICH-UNL, Recursos Hídricos— lo que la app publica son <b>niveles de referencia estimados</b>, y así están nombrados en toda la interfaz. Cota Cero no tiene vínculo con esos organismos ni cuenta con su aval.</p>
+          </div>
+        </div>
+        <p class="sello-fuente"><span class="k">Fuente</span> IGN · ceros de escala y sistema de alturas <a href="https://www.ign.gob.ar/NuestrasActividades/Geodesia/Nivelacion/Escalas" target="_blank" rel="noopener">ver</a></p>
+      </section>
+
+      <section class="bloque" id="no-dice">
+        <h2>Hay dos maneras de inundarse. Cota Cero mira una sola.</h2>
+        <p>
+          Un barrio puede tener margen amplio contra el Paraná y entrar en
+          emergencia igual, por lluvia. El modelo tampoco sabe si entre el río y
+          tu casa hay un terraplén, ni en qué estado está.
+        </p>
+        <div class="dos-maneras">
+          <div class="dm-caja dm-fluvial">
+            <span class="eti">Fluvial · lo que mira</span>
+            <h3>Crece el río</h3>
+            <p>El Paraná sube durante semanas y se ve venir en el hidrómetro. Es lo que traduce tu nivel de aviso.</p>
+          </div>
+          <div class="dm-caja dm-pluvial">
+            <span class="eti">Pluvial · lo que no</span>
+            <h3>Llueve sobre la ciudad</h3>
+            <p>Mucha lluvia en pocas horas, o varios días seguidos, anegan calles y casas por los desagües, sola o combinada con el Salado. Puede pasar con el río bajo.</p>
+          </div>
+          <div class="dm-caja dm-juntan">
+            <span class="eti">Cuando se juntan</span>
+            <h3>Río alto + lluvia</h3>
+            <p>Con el río alto las bombas no pueden desagotar contra el agua de afuera. El municipio planifica para <b>río en 6 m más lluvia de 200 a 300 mm</b>.</p>
+          </div>
+        </div>
+        <p class="chico">
+          Y una defensa protege mientras funciona: en 2003 el agua entró por un
+          tramo abierto de una defensa existente. Que haya obra no es garantía.
+          Más dudas de este tipo, contestadas cortas, en
+          <a href="/preguntas">preguntas frecuentes</a>.
+        </p>
+        <p class="sello-fuente"><span class="k">Fuente</span> Gestión de Riesgos · Plan de Contingencia <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/plan-de-contingencia/" target="_blank" rel="noopener">ver</a></p>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>Lo que todavía no sabe</h2>
+        <ul class="no-sabe">
+          <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero correcto es 8,20 o 8,378.</li>
+          <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
+          <li><b>Cuánto error tiene la cota interpolada.</b> El ±0,5 m es la convención cartográfica, no una medición.</li>
+          <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>
+          <li><b>En qué estado está la defensa de tu zona.</b> Cambia el resultado más que cualquiera de las constantes.</li>
+          <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar antes por el desagüe que por el río.</li>
+        </ul>
+        <p class="chico">
+          Cuando no sabemos algo con precisión suficiente, preferimos decirlo
+          antes que rellenar el hueco con un número que parezca firme.
+        </p>
+      </section>
+
+      <section class="bloque" id="fuentes">
+        <p class="kicker">5 · Las fuentes</p>
+        <h2>Cada dato, con su enlace</h2>
+        <p>
+          Todo lo que muestra la app sale de acá. Cada ficha lleva la página del
+          organismo y el dato crudo, tal como lo pide la app.
+        </p>
+        <div class="fuentes-rejilla">
+        <div class="fuente-ficha">
+          <p class="fuente-que">El nivel del río</p>
+          <p class="fuente-quien">Instituto Nacional del Agua</p>
+          <p class="chico">Altura, alerta y evacuación del hidrómetro del Puerto.</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30?timestart=2026-01-01&amp;timeend=2100-01-01" target="_blank" rel="noopener">Ver el dato crudo</a>
+          </p>
+        </div>
+        <div class="fuente-ficha">
+          <p class="fuente-que">La altura de tu terreno</p>
+          <p class="fuente-quien">Municipalidad de Santa Fe</p>
+          <p class="chico">Curvas de nivel de la ciudad, Secretaría de Recursos Hídricos (Departamento de Relevamientos Planialtimétricos).</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="https://geoserver.santafeciudad.gov.ar/geoserver/sitmax/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=sitmax:curvas_nivel&amp;outputFormat=application/json&amp;srsName=EPSG:4326" target="_blank" rel="noopener">Ver el dato crudo</a>
+          </p>
+        </div>
+        <div class="fuente-ficha">
+          <p class="fuente-que">Puntos de encuentro y qué hacer</p>
+          <p class="fuente-quien">Dirección de Gestión de Riesgos</p>
+          <p class="chico">Plan de contingencia y los 30 puntos de encuentro oficiales.</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/plan-de-contingencia/" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="https://geoservicios.santafeciudad.gov.ar/geoserver/publico/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=publico:puntos_de_encuentro&amp;outputFormat=application/json" target="_blank" rel="noopener">Ver el dato crudo</a>
+          </p>
+        </div>
+        <div class="fuente-ficha">
+          <p class="fuente-que">El sistema de alturas</p>
+          <p class="fuente-quien">Instituto Geográfico Nacional</p>
+          <p class="chico">Red de nivelación y cero de las escalas hidrométricas (SRVN16).</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://www.ign.gob.ar/NuestrasActividades/Geodesia/Nivelacion/Escalas" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="https://www.ina.gob.ar/delta/pdf/03_02_INA-DELTA_Info04_CerosHidrometricos.pdf" target="_blank" rel="noopener">Ver el dato crudo</a>
+          </p>
+        </div>
+        <div class="fuente-ficha">
+          <p class="fuente-que">Cien años de mediciones</p>
+          <p class="fuente-quien">Instituto Nacional del Agua</p>
+          <p class="chico">Serie diaria del hidrómetro del Puerto de Santa Fe desde 1925, medición directa.</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30/observaciones?timestart=1925-01-01&amp;timeend=2100-01-01" target="_blank" rel="noopener">Ver el dato crudo</a>
+          </p>
+        </div>
+        <div class="fuente-ficha">
+          <p class="fuente-que">Cartografía provincial</p>
+          <p class="fuente-quien">Infraestructura de Datos Espaciales de Santa Fe</p>
+          <p class="chico">Servicios OGC de la Provincia de Santa Fe.</p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="https://www.santafe.gov.ar/idesf/geoportal/paginas/servicios-OGC" target="_blank" rel="noopener">Ver fuente</a>
+          </p>
+        </div>
+        </div>
+        <details class="h-detalle" style="margin-top:22px">
+          <summary>Investigación, antecedentes y normativa</summary>
+          <p class="chico">
+            No aportan ningún número al cálculo: explican el contexto.
+          </p>
+          <ul class="pasos">
+            <li><b>Facultad de Ingeniería y Ciencias Hídricas — UNL</b> — Investigación en hidrología del Paraná y el Salado.
+              Es la institución natural para revisar este modelo.
+              <a href="https://www.fich.unl.edu.ar/cim/" target="_blank" rel="noopener">Ver</a></li>
+            <li><b>Ley provincial 11.730</b> — Uso de las áreas inundables. La Provincia distingue legalmente zonas según el riesgo hídrico. <a href="https://www.santafe.gov.ar/index.php/web/content/view/full/128300" target="_blank" rel="noopener">Ver</a></li>
+            <li><b>Ley provincial 14.477</b> — Emergencia hídrica provincial. Es el marco institucional del que nace esta herramienta; no respalda el modelo. <a href="https://www.santafe.gov.ar/normativa/" target="_blank" rel="noopener">Ver</a></li>
+            <li><b>Reglamento de Edificaciones — Comuna de San José del Rincón</b> — Fija la cota de edificación en &quot;16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)&quot;. La diferencia entre esos dos números es exactamente 8,20. <a href="https://capsf.org.ar/modulos/ejercicio_prof./archivos/rincon.pdf" target="_blank" rel="noopener">Ver</a></li>
+          </ul>
+          <p class="chico">
+            La prensa se usa para contexto histórico o para llegar a una fuente
+            primaria, nunca para un número del cálculo: si una nota cita a un
+            especialista o a un documento, buscamos el original.
+          </p>
+        </details>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
+    </div>
+
+    <div class="pie-envoltura">
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Hecha por un vecino de Santa Fe. Sin vínculo con el municipio: la
+            orden de evacuación la da la Defensa Civil.
+          </p>
+          <a class="chip-tel" href="tel:103">Emergencias <b>103</b></a>
+        </div>
+        <div>
+          <span class="eti">La app</span>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/guia">Guía para imprimir</a>
+          <a href="/historia">Cien años del Paraná</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+        </div>
+        <div>
+          <span class="eti">Transparencia</span>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/sobre">Quién hace Cota Cero</a>
+          <a href="/legal">Legal y privacidad</a>
+          <a href="/contacto">Contacto y sugerencias</a>
+          <a href="/para-medios">Widget para medios</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefecturanaval" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/" target="_blank" rel="noopener">Gestión de Riesgos</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>
+      <p class="pie-cierre">
+        Última actualización del sitio: 19/10/2026 · Hecho en Santa Fe
+      </p>
+
+    </div>
+  </body>
+</html>

@@ -22,10 +22,10 @@
 import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ESTACION, ENDPOINTS } from "../lib/fuentes.js";
+import { ESTACION, ENDPOINTS } from "../public/lib/fuentes.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SALIDA = join(RAIZ, "datos-abiertos", "historia.json");
+const SALIDA = join(RAIZ, "public", "datos-abiertos", "historia.json");
 
 const URL_SERIE = `${ENDPOINTS.api}/${ESTACION.serieId}`;
 const URL_OBS = `${URL_SERIE}/observaciones?timestart=1900-01-01&timeend=2100-01-01`;

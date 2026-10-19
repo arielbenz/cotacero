@@ -3,7 +3,7 @@ const HOY = process.argv[2];
 
 /* Se importa el MÓDULO DE LA APP, no una reimplementación. Sólo se le presta
    un fetch que lee el archivo del disco en vez de la red. */
-const curvasJson = readFileSync("datos-abiertos/curvas.json", "utf8");
+const curvasJson = readFileSync("public/datos-abiertos/curvas.json", "utf8");
 globalThis.fetch = async (u) =>
   String(u).includes("curvas.json")
     ? { ok: true, json: async () => JSON.parse(curvasJson) }

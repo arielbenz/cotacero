@@ -3,7 +3,7 @@
    El margen se resta del lado pesimista, así que un margen mayor BAJA el nivel
    de aviso (avisa antes) y uno menor lo sube. */
 import { readFileSync } from "node:fs";
-const d = JSON.parse(readFileSync("datos-abiertos/curvas.json", "utf8"));
+const d = JSON.parse(readFileSync("public/datos-abiertos/curvas.json", "utf8"));
 const M_LAT=110900, mLon=l=>111320*Math.cos((l*Math.PI)/180);
 const xy=([lo,la])=>[lo*mLon(la),la*M_LAT];
 function ds(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
