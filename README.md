@@ -196,7 +196,10 @@ de la cabecera, para que la barra de emergencia se quede en cuatro.
   de hoy. La regla marca alerta, evacuación y el récord de 1992: sin él, 5,70
   parece el techo del mundo.
 - **Mi casa.** Tres formas de cargar la altura del terreno: dirección, GPS o
-  tocando el mapa (con confirmación). En Rincón, Arroyo Leyes y Calchines las
+  tocando el mapa (con confirmación). Al marcar, el fondo pasa a la foto
+  aérea del IGN (vuelos de 2013 y 2014) con los nombres de las calles: el
+  argenmap no dibuja edificios. La fecha se dice en pantalla, porque una casa
+  más nueva sale como baldío. En Rincón, Arroyo Leyes y Calchines las
   curvas no llegan (`sinPlano` en `ZONAS`): ahí las tres se esconden y la app
   pide la altura a mano de entrada, en vez de mandar de un camino al otro.
   Para quien ya la cargó, el resultado va

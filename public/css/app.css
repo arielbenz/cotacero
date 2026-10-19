@@ -1579,6 +1579,9 @@ label.campo-dir {
 }
 #mapa.marcando .maplibregl-canvas {
   cursor: crosshair;
+  /* Al marcar se ve la foto aérea (fondoDeMarcar en mapa.js): invertida
+     para el tema oscuro sería un negativo en el que no se reconoce nada. */
+  filter: none;
 }
 #mapa .maplibregl-ctrl-attrib-button {
   filter: var(--filtro-iconos-mapa);

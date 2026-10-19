@@ -272,6 +272,37 @@ const ESTILO_IGN = {
         '<a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a> · ' +
         '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
     },
+    /* La foto aérea, sólo para «Marcar mi casa»: el argenmap no dibuja
+       edificios ni numeración, y a la altura de una cuadra se veía una
+       manzana lisa. Son los vuelos fotogramétricos del IGN de 2013 (40 cm)
+       y del 9/7/2014 (30 cm), según su capa de áreas de vuelo; la app dice
+       la fecha en pantalla porque una casa más nueva sale como baldío.
+       Va por WMS en JPEG y no por su TMS en PNG: 15 KB contra 190 KB por
+       tile, y en una crecida se mira con datos móviles. Sin clave ni cuota,
+       como el resto del mapa. */
+    vuelos: {
+      type: "raster",
+      tiles: [
+        "https://imagenes.ign.gob.ar/geoserver/mosaicos_vuelos/wms?service=WMS" +
+          "&version=1.1.1&request=GetMap&layers=mosaicos_vuelos&styles=" +
+          "&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256" +
+          "&format=image/jpeg",
+      ],
+      tileSize: 256,
+      attribution:
+        'Foto aérea: <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>, vuelos de 2013 y 2014',
+    },
+    // Los nombres de las calles, transparentes, encima de la foto.
+    calles: {
+      type: "raster",
+      tiles: [
+        "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/" +
+          "mapabase_hibrido@EPSG:3857@png/{z}/{x}/{y}.png",
+      ],
+      scheme: "tms",
+      tileSize: 256,
+      maxzoom: 18,
+    },
   },
   layers: [
     {
@@ -288,8 +319,26 @@ const ESTILO_IGN = {
       // raster, que sólo bajan brillo y dejan todo lavado.
       paint: { "raster-saturation": -0.15 },
     },
+    // Apagadas hasta que se marca: una capa oculta no pide tiles.
+    { id: "vuelos", type: "raster", source: "vuelos", layout: { visibility: "none" } },
+    { id: "calles", type: "raster", source: "calles", layout: { visibility: "none" } },
   ],
 };
+
+/* Al marcar, la foto reemplaza al argenmap, que deja de pedir tiles. Antes
+   de que termine de cargar el estilo MapLibre no acepta cambios de capa:
+   ahí se espera al `load`. */
+function fondoDeMarcar(prender) {
+  if (!mapa) return;
+  try {
+    const v = prender ? "visible" : "none";
+    mapa.setLayoutProperty("vuelos", "visibility", v);
+    mapa.setLayoutProperty("calles", "visibility", v);
+    mapa.setLayoutProperty("ign", "visibility", prender ? "none" : "visible");
+  } catch (e) {
+    mapa.once("load", () => fondoDeMarcar(prender));
+  }
+}
 
 /* Si el IGN no contesta, el mapa quedaba con el fondo liso y los puntos
    encima, sin decir nada: «se ve sólo gris», contó alguien. Pasa sin señal y
@@ -300,19 +349,20 @@ const ESTILO_IGN = {
 let llegaron = 0;
 let fallaron = 0;
 let relojFondo = null;
+const FONDOS = new Set(["ign", "vuelos", "calles"]);
 
 function vigilarFondo() {
   mapa.on("data", (e) => {
-    if (e.sourceId === "ign" && e.tile) llegaron++;
+    if (FONDOS.has(e.sourceId) && e.tile) llegaron++;
   });
   mapa.on("error", (e) => {
-    if (e.sourceId === "ign") fallaron++;
+    if (FONDOS.has(e.sourceId)) fallaron++;
     // Con un oyente propio MapLibre deja de escribir sus errores en la
     // consola: los que no son del fondo se siguen mostrando.
     else console.error(e.error || e);
   });
   mapa.on("dataloading", (e) => {
-    if (e.sourceId !== "ign" || relojFondo) return;
+    if (!FONDOS.has(e.sourceId) || relojFondo) return;
     relojFondo = setTimeout(() => {
       relojFondo = null;
       if (!llegaron) avisoFondo(true);
@@ -550,11 +600,18 @@ function avisoMapa(html) {
   el.innerHTML = html;
 }
 
+/* La fecha va en el pedido, no sólo en la atribución plegada: una casa
+   construida después de 2014 sale como baldío, y quien la busca tiene que
+   saber por qué no la encuentra. */
 const pedirToque = (texto) =>
   avisoMapa(
     "<b>" +
       (texto || "Acercá el mapa hasta ver tu cuadra y tocá tu casa.") +
       "</b>" +
+      (texto
+        ? ""
+        : " La foto es del IGN, de 2013 y 2014: si tu casa es más nueva, " +
+          "guiate por las calles.") +
       CANCELAR,
   );
 
@@ -617,6 +674,7 @@ async function alTocar(e) {
 function salirDeMarcar() {
   const cont = document.getElementById("mapa");
   if (cont) cont.classList.remove("marcando");
+  fondoDeMarcar(false);
   avisoMapa(null);
   if (mapa) mapa.off("click", alTocar);
   marca = null;
@@ -640,6 +698,7 @@ export async function marcarCasaEnMapa() {
   aLaVista(cont);
   if (estaMarcando()) return; // ya está esperando el toque: no armar dos
   cont.classList.add("marcando");
+  fondoDeMarcar(true);
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.
   if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
