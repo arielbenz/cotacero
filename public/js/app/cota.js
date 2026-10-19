@@ -326,6 +326,8 @@ function pintarSinPlano(z) {
   if (o) o.textContent = sin ? "Escribila" : "O escribila";
   const pista = document.getElementById("pista-curvas");
   if (pista) pista.hidden = sin;
+  const bajada = document.getElementById("bajada-curvas");
+  if (bajada) bajada.hidden = sin;
   if (!sin) return;
   cerrarBuscadorDir();
   aviso.innerHTML =
@@ -637,13 +639,101 @@ ${
 let casaAbierta = null;
 
 function pintarCasa(conCasa) {
+  // La primera vez se decide una sola vez, al arrancar, como el plegado.
+  if (casaAbierta === null && !conCasa) pasoPrimera = estado.zona ? 2 : 1;
   if (casaAbierta === null || !conCasa) casaAbierta = !conCasa;
   const plegada = conCasa && !casaAbierta;
   document.getElementById("pasos-casa").hidden = plegada;
   document.getElementById("cota-intro").hidden = plegada;
+  pintarPrimera();
 }
 
+/* ---- la primera vez, en tres pasos ----
+   Zona → dónde está tu casa → resultado, con una barra de progreso. Antes
+   eran dos tarjetas abiertas a la vez con el resultado diciendo «Falta tu
+   zona» debajo: la pantalla arrancaba con un reporte de lo que faltaba. Los
+   pasos usan los MISMOS campos que el formulario de siempre —el <select>, la
+   dirección, el GPS, el mapa, la altura a mano— y sólo cambia qué se ve, con
+   una clase en la sección. Así la búsqueda, las zonas sin plano y lo que se
+   guarda siguen teniendo un solo camino. «Cambiar», con la casa ya cargada,
+   abre el formulario de siempre, como en el diseño. */
+let pasoPrimera = null; // 1, 2 o 3; null cuando no es la primera vez
+
+function pintarPrimera() {
+  const v = document.getElementById("v-cota");
+  if (!v) return;
+  v.classList.toggle("primera", pasoPrimera != null);
+  for (const n of [1, 2, 3]) v.classList.toggle("paso-" + n, pasoPrimera === n);
+  if (pasoPrimera == null) return;
+
+  const z = ZONAS.find((x) => x.id === estado.zona);
+  document.getElementById("primera-paso").textContent =
+    pasoPrimera === 3
+      ? "Listo"
+      : "Paso " +
+        pasoPrimera +
+        " de 3" +
+        (pasoPrimera === 2 && z ? " · " + z.n.replace(/^Santa Fe — /, "") : "");
+  document
+    .querySelectorAll(".progreso-pasos i")
+    .forEach((i, k) => i.classList.toggle("hecho", k < pasoPrimera));
+
+  const radios = document.getElementById("zonas-radio");
+  if (radios && !radios.querySelector("input"))
+    radios.insertAdjacentHTML(
+      "beforeend",
+      ZONAS.map(
+        (x) =>
+          `<label class="zona-opcion"><input type="radio" name="zona" value="${x.id}" data-input="zona-radio"><span>${x.n}</span></label>`,
+      ).join(""),
+    );
+  radios
+    ?.querySelectorAll("input")
+    .forEach((r) => (r.checked = r.value === estado.zona));
+
+  // Sin zona no se sigue; sin altura no hay nivel de aviso que ver.
+  const seguir = document.querySelector('[data-accion="primera-seguir"]');
+  if (seguir) seguir.disabled = !estado.zona;
+  const ver = document.querySelector('[data-accion="primera-ver"]');
+  if (ver) ver.disabled = estado.cota == null || !estado.zona;
+}
+
+/* La lista de zonas escribe en el <select> y dispara su «change»: es el que
+   guarda la zona y recalcula. Una sola puerta. */
+export function elegirZona(id) {
+  const sel = document.getElementById("sel-zona");
+  if (!sel || sel.value === id) return;
+  sel.value = id;
+  sel.dispatchEvent(new Event("change"));
+}
+
+/* Cada paso arranca arriba y con el foco en su título: si no, quien usa un
+   lector de pantalla se queda en un botón que ya no está. */
+function irAPaso(n) {
+  pasoPrimera = n;
+  if (n === 3) casaAbierta = false;
+  calcular();
+  const destino =
+    n === 3
+      ? document.querySelector(".primera-cabeza")
+      : document.getElementById("titulo-paso-" + n);
+  /* Arriba de todo, no «a la vista»: aLaVista() mueve lo mínimo, y un paso
+     nuevo que arranca a la mitad se lee como la continuación del anterior. */
+  window.scrollTo(0, 0);
+  if (destino) {
+    if (n === 3) destino.setAttribute("tabindex", "-1");
+    destino.focus({ preventScroll: true });
+  }
+}
+
+export const primeraSeguir = () => estado.zona && irAPaso(2);
+export const primeraAtras = () => irAPaso(1);
+export const primeraVer = () =>
+  estado.cota != null && estado.zona && irAPaso(3);
+
 export function alternarCasa() {
+  // «Cambiar» abre el formulario de siempre, no los pasos de la primera vez.
+  pasoPrimera = null;
   casaAbierta = !casaAbierta;
   calcular();
   if (casaAbierta) {
