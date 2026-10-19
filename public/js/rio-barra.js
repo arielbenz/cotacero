@@ -234,15 +234,33 @@ const SIGNO = { sube: "▲ sube", baja: "▼ baja", estable: "▂ estable" };
 const EN_VOZ = { sube: " y sube", baja: " y baja", estable: " y está estable" };
 
 /* ---------- la píldora de la barra ---------- */
+/* La regla mini: la misma escala de 0 a 8 m que la de la app y la del hero,
+   con el agua y la marca de la alerta de la ciudad. Reemplazó al punto de
+   color; lo que el punto decía con el color —sobre todo «pasó tu nivel de
+   aviso», que era tinta— ahora va en palabras al lado del número. */
+const TOPE_MINI = 8;
+const enMini = (v) =>
+  Math.max(0, Math.min(100, (v / TOPE_MINI) * 100)).toFixed(1) + "%";
+const PALABRA = {
+  ok: "normal",
+  propio: "pasó tu nivel de aviso",
+  alerta: "alerta de la ciudad",
+  evacuacion: "evacuación de la ciudad",
+};
+
 function pintarPildora(r) {
   const caja = $("pildora-rio");
-  const punto = $("pildora-punto");
+  const agua = $("pildora-agua");
+  const marca = $("pildora-alerta");
+  const palabra = $("pildora-estado");
   const nivel = $("pildora-nivel");
   const tend = $("pildora-tendencia");
-  if (!caja || !punto || !nivel || !tend) return;
+  if (!caja || !agua || !marca || !palabra || !nivel || !tend) return;
+  marca.style.left = enMini(r.alerta);
 
   if (r.altura === null) {
-    punto.removeAttribute("data-estado"); // gris: no sabemos, no decimos
+    agua.style.width = "0"; // sin agua: no sabemos, no decimos
+    palabra.hidden = true;
     nivel.textContent = "— sin dato";
     tend.hidden = true;
     caja.setAttribute("aria-label", "No se pudo leer el nivel del río");
@@ -250,19 +268,40 @@ function pintarPildora(r) {
   }
 
   const t = tendencia(r);
-  punto.setAttribute("data-estado", estadoDelRio(r));
+  /* Vencido no dice ni normal ni alerta: dice que es viejo, y el agua va
+     rayada como en las otras reglas. */
+  const viejo = estaVencido();
+  const est = viejo ? "viejo" : estadoDelRio(r);
+  agua.style.width = enMini(r.altura);
+  agua.classList.toggle("viejo", viejo);
+  palabra.textContent = " · " + (viejo ? "dato viejo" : PALABRA[est]);
+  palabra.setAttribute("data-estado", est);
+  palabra.hidden = false;
   nivel.textContent = m(r.altura) + " m";
   tend.textContent = SIGNO[t];
   tend.setAttribute("data-tendencia", t);
-  tend.hidden = false;
+  // Vencido, «▲ sube» sería el movimiento de hace días contado como de ahora.
+  tend.hidden = viejo;
   /* El aria-label reemplaza el contenido para quien escucha: "Río 4,86 m
      ▲ sube" no es una frase, y el triángulo se lee como "triángulo negro
      apuntando hacia arriba". */
   caja.setAttribute(
     "aria-label",
-    "El río está a " + m(r.altura) + " metros" + EN_VOZ[t],
+    (viejo
+      ? "Último dato guardado: el río estaba a "
+      : EN_VOZ_ESTADO[est] + ": el río está a ") +
+      m(r.altura) +
+      " metros" +
+      (viejo ? "" : EN_VOZ[t]),
   );
 }
+// El estado primero, como en la tarjeta: «Alerta de la ciudad: el río está…».
+const EN_VOZ_ESTADO = {
+  ok: "Río normal",
+  propio: "Pasó tu nivel de aviso",
+  alerta: "Alerta de la ciudad",
+  evacuacion: "Evacuación de la ciudad",
+};
 
 /* ---------- la franja de estado oficial ----------
    No existe en día normal: el contenedor queda vacío y `:empty` lo saca del

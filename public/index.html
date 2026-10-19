@@ -164,13 +164,14 @@
           id="pildora-rio"
           href="#abrir"
           aria-label="Nivel del río, todavía sin dato">
-          <span
-            class="punto-estado"
-            id="pildora-punto"
-            aria-hidden="true"></span>
+          <span class="pr-regla" aria-hidden="true"
+            ><span class="pr-agua" id="pildora-agua"></span
+            ><span class="pr-alerta" id="pildora-alerta"></span
+          ></span>
           <span>
             <span class="pr-etiqueta">Río </span
-            ><span id="pildora-nivel">—</span>
+            ><span id="pildora-nivel">—</span
+            ><span class="pr-estado" id="pildora-estado" hidden></span>
           </span>
           <span
             class="pr-tendencia"
@@ -240,6 +241,7 @@
             <!-- Umbrales de respaldo en el marcado, por si no corre el JS -->
             <div class="regla-mini" id="regla-mini">
               <div class="rm-escala" aria-hidden="true">
+                <div class="marcas-rio"></div>
                 <span style="bottom: 100%">8 m</span>
                 <span style="bottom: 75%">6 m</span>
                 <span style="bottom: 50%">4 m</span>

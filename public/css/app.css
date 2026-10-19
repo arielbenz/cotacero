@@ -589,7 +589,8 @@ p {
    cuenta sólo vale si la regla crece junto con el texto. */
 .hidrometro {
   display: grid;
-  grid-template-columns: 22px 1fr;
+  /* 14 px de marcas más los números a la izquierda. */
+  grid-template-columns: 36px 1fr;
   gap: 6px;
   height: 20rem;
   margin: var(--e-4) 0 var(--e-3);
@@ -617,15 +618,6 @@ p {
   bottom: 0;
   background: var(--agua);
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-}
-/* Dato vencido: el agua rayada en gris, nunca en --agua. */
-.agua.viejo {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--tenue) 0 6px,
-    transparent 6px 12px
-  );
-  opacity: 0.4;
 }
 .marca-linea {
   position: absolute;
@@ -741,20 +733,91 @@ p {
   text-transform: uppercase;
   vertical-align: 1px;
 }
-.tic {
+/* ---------- la regla del río: las marcas ----------
+   Un solo componente para el nivel del río, en sus tres medidas (rediseño,
+   «Regla»). Marcas de hidrómetro de 0 a 8 m: cada 10 cm, más largas cada
+   50 cm y más largas todavía cada metro. Son degradados que se repiten, así
+   que sirven a cualquier largo sin una línea de JavaScript: por eso la misma
+   clase anda en la portada (script clásico), en la app (módulos) y en Mi
+   casa. El widget no puede leer este archivo y lleva una copia en su
+   <style>: si cambia una, cambia la otra.
+
+   El elemento mide 1 px más que la escala, y el período es (largo − 1 px)
+   dividido 8, 16 u 80: así la marca de 8 m también entra. Con el período en
+   % puro, la última caía 1 px afuera y no se dibujaba. */
+.marcas-rio {
+  background-image:
+    repeating-linear-gradient(
+      to top,
+      var(--texto) 0 1px,
+      transparent 1px calc((100% - 1px) / 8)
+    ),
+    repeating-linear-gradient(
+      to top,
+      var(--tenue) 0 1px,
+      transparent 1px calc((100% - 1px) / 16)
+    ),
+    repeating-linear-gradient(
+      to top,
+      var(--linea) 0 1px,
+      transparent 1px calc((100% - 1px) / 80)
+    );
+  background-size:
+    14px 100%,
+    9px 100%,
+    5px 100%;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+.marcas-rio.h {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--texto) 0 1px,
+      transparent 1px calc((100% - 1px) / 8)
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--tenue) 0 1px,
+      transparent 1px calc((100% - 1px) / 16)
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--linea) 0 1px,
+      transparent 1px calc((100% - 1px) / 80)
+    );
+  background-size:
+    100% 8px,
+    100% 6px,
+    100% 4px;
+  background-position: left top;
+}
+/* En la pestaña Río, a la derecha de la columna de números. */
+.escala .marcas-rio {
   position: absolute;
   right: 0;
-  width: 5px;
-  height: 1px;
-  background: var(--linea);
+  top: -1px;
+  bottom: 0;
+  width: 14px;
 }
-.tic.mayor {
-  width: 9px;
-  background: var(--tenue);
+
+/* Dato vencido: el agua rayada en gris, nunca en --agua, en las cuatro
+   reglas —la de Río, la del hero, la de Mi casa y la mini de la píldora—.
+   Un dato viejo no puede tener la cara de uno de hoy, tampoco en el dibujo. */
+.agua.viejo,
+.rm-agua.viejo,
+.bc-agua.viejo,
+.pr-agua.viejo {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tenue) 0 6px,
+    transparent 6px 12px
+  );
+  opacity: 0.45;
 }
 .tic-num {
   position: absolute;
-  right: var(--e-3);
+  right: 18px;
   font-family: var(--mono);
   font-size: var(--t-tick);
   font-weight: 500;
@@ -991,6 +1054,14 @@ p {
   margin-left: -7px;
   border-radius: 6px;
   background: var(--tierra);
+}
+/* Las marcas de hidrómetro, pegadas debajo de la pista. Un pixel más largas
+   que la pista, para que entre la de 8 m (ver .marcas-rio). */
+.bc-marcas {
+  left: 0;
+  right: -1px;
+  top: calc(50% + 8px);
+  height: 8px;
 }
 .barra-casa-ley {
   display: flex;
@@ -2989,6 +3060,54 @@ body.landing {
      va en cifras de ancho fijo. */
   font-variant-numeric: tabular-nums;
 }
+/* La regla mini (pintarPildora en js/rio-barra.js): la misma escala de 0 a
+   8 m que las otras dos, con el agua y la marca de la alerta de la ciudad. */
+.pr-regla {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.pr-agua {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--agua);
+}
+.pr-alerta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--alerta-solido);
+}
+/* La palabra del estado: lo que antes decía el color del punto. El naranja
+   y el rojo son de los umbrales de la ciudad; «pasó tu nivel de aviso» va en
+   tinta, que es tuyo y no se presta. */
+.pr-estado[data-estado="ok"] {
+  color: var(--ok-texto);
+}
+.pr-estado[data-estado="propio"] {
+  color: var(--texto);
+}
+.pr-estado[data-estado="alerta"] {
+  color: var(--alerta-texto);
+}
+.pr-estado[data-estado="evacuacion"] {
+  color: var(--peligro-texto);
+}
+.pr-estado[data-estado="viejo"] {
+  color: var(--tenue);
+}
+.pr-estado[hidden] {
+  display: none;
+}
 .pildora-rio:focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
@@ -3104,8 +3223,10 @@ p.pie-frescura,
   }
 }
 @media (max-width: 900px) {
-  /* Entre 560 y 900 px la barra ya va justa: se cae la palabra "Río" y la
-     tendencia, que el punto de color ya cuenta. El número queda. */
+  /* Abajo de 900 px la barra ya va justa: se caen la palabra "Río" y la
+     tendencia. Quedan la regla mini, el número y la palabra del estado, que
+     es lo que antes contaba el punto de color. La más larga, «evacuación de
+     la ciudad», entra a 390 px (medido). */
   .pildora-rio {
     padding: 6px 10px;
   }
@@ -3223,6 +3344,14 @@ p.pie-frescura,
 .mc-fila .eti {
   margin: 0;
 }
+#nivel-pie .t-viejo,
+#nivel.viejo {
+  color: var(--tenue);
+}
+/* La superficie del agua vencida deja el celeste, como el agua rayada. */
+.rm-linea.viejo {
+  background: var(--tenue);
+}
 #nivel-pie .t-ok {
   color: var(--ok-texto);
 }
@@ -3281,15 +3410,23 @@ p.pie-frescura,
    justo cuando hay que leerlos. */
 .regla-mini {
   display: grid;
-  grid-template-columns: 2.5rem 1fr;
+  /* Los números y, a su derecha, los 14 px de marcas. */
+  grid-template-columns: 3.25rem 1fr;
   margin: 0 var(--e-5) var(--e-4) 0;
 }
 .rm-escala {
   position: relative;
 }
+.rm-escala .marcas-rio {
+  position: absolute;
+  right: 0;
+  top: -1px;
+  bottom: 0;
+  width: 14px;
+}
 .rm-escala span {
   position: absolute;
-  right: var(--e-2);
+  right: 20px;
   transform: translateY(50%);
   font-family: var(--mono);
   font-size: var(--t-xs);

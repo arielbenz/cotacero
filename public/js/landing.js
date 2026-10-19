@@ -135,10 +135,16 @@ function pintarNivel(r) {
   // textContent y no innerHTML: es dato que llega de la red y no hay razón
   // para dejarlo interpretar como marcado.
   num.textContent = m(real);
+  // En gris si venció, como el número de la tarjeta de la app.
+  num.classList.toggle("viejo", estaVencido());
   /* La alerta y la evacuación de verdad se dicen siempre con «de la ciudad»:
      decía «Nivel de alerta» a secas, que se confunde con el aviso propio. */
-  const [estadoTxt, tono] =
-    real >= evacuacion
+  /* Vencido no se dice ni alerta ni evacuación: «Pasó la alerta de la
+     ciudad» con un número de hace tres días es la cara de un aviso de hoy. */
+  const viejo = estaVencido();
+  const [estadoTxt, tono] = viejo
+    ? ["Dato viejo, puede haber cambiado", "viejo"]
+    : real >= evacuacion
       ? ["Pasó la evacuación de la ciudad", "peligro"]
       : real >= alerta
         ? ["Pasó la alerta de la ciudad", "alerta"]
@@ -160,7 +166,8 @@ function pintarNivel(r) {
     d.textContent = (cm > 0 ? "▲ +" : "▼ −") + Math.abs(cm) + " cm";
     d.title = "Desde la medición anterior del INA";
     d.classList.toggle("baja", cm < 0);
-    d.hidden = cm === 0;
+    // Vencido, el ▲ sería el movimiento de hace días contado como de ahora.
+    d.hidden = cm === 0 || viejo;
   }
 
   pintarUmbrales();
@@ -242,9 +249,16 @@ function pintarRegla() {
   // La etiqueta va DENTRO del agua: es lo que convierte el bloque azul en un
   // dato y no en una decoración. Y dice "simulado" apenas deja de ser el dato.
   const simulando = sim - real > 0.005;
+  /* Vencido, el agua del dato va rayada en gris y no dice «hoy»: es la misma
+     regla que la de la app y la de Mi casa. Simulando ya no es el dato, es
+     el río que alguien movió, y va con el agua de siempre. */
+  const viejo = !simulando && estaVencido();
+  if (agua) agua.classList.toggle("viejo", viejo);
+  if (sup) sup.classList.toggle("viejo", viejo);
   const chip = $("rm-ahora");
   if (chip) {
-    chip.textContent = (simulando ? "Simulado " : "Hoy ") + m(sim);
+    chip.textContent =
+      (simulando ? "Simulado " : viejo ? "Último dato " : "Hoy ") + m(sim);
     chip.style.bottom = "calc(" + alto + "% - 24px)";
     // Con el río muy bajo no entra adentro del agua: va arriba de la línea.
     chip.classList.toggle("afuera", alto < 9);
@@ -257,7 +271,8 @@ function pintarRegla() {
   if (hoy) {
     hoy.hidden = sim - real < 0.8;
     hoy.style.bottom = pc(real).toFixed(2) + "%";
-    hoy.querySelector("b").textContent = "Hoy " + m(real);
+    hoy.querySelector("b").textContent =
+      (estaVencido() ? "Último dato " : "Hoy ") + m(real);
   }
 
   for (const [id, valor] of [
@@ -266,7 +281,8 @@ function pintarRegla() {
     ["rm-record", record ? record.valor : Infinity],
   ]) {
     const el = $(id);
-    if (el) el.classList.toggle("activo", sim >= valor);
+    // Vencido, el rótulo no se enciende: sería el aviso de hoy.
+    if (el) el.classList.toggle("activo", sim >= valor && !viejo);
   }
 
   const volver = $("rm-volver");
@@ -316,7 +332,12 @@ function pintarLectura() {
   if (!caja) return;
 
   const simulando = sim - real > 0.005;
-  const f = textoFalta(simulando ? sim : real, simulando);
+  /* «Hoy faltan…» o «Hoy el río está 12 cm por encima…» con un dato vencido
+     afirman algo de hoy que no sabemos. Simulando sí vale: es una cuenta. */
+  const f =
+    !simulando && estaVencido()
+      ? "Es la última medición guardada: el río puede estar en otro nivel."
+      : textoFalta(simulando ? sim : real, simulando);
   if (falta) falta.textContent = f;
 
   if (!simulando) {

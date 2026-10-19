@@ -682,15 +682,20 @@ function barraCasa(ref, r) {
       Math.min(100, ((v - ESCALA_MIN) / (ESCALA_MAX - ESCALA_MIN)) * 100),
     );
   const n2 = (v) => nm(v, 2);
+  /* La regla horizontal: las mismas marcas que la de la pestaña Río
+     (.marcas-rio.h) y, con el dato vencido, el agua rayada y «último dato»:
+     un número viejo no puede decir «hoy». */
+  const viejo = estado.rioVencido;
   return `<div class="barra-casa" aria-hidden="true">
     <i class="bc-pista"></i>
-    ${r != null ? `<i class="bc-agua" style="width:${pct(r)}%"></i>` : ""}
+    ${r != null ? `<i class="bc-agua${viejo ? " viejo" : ""}" style="width:${pct(r)}%"></i>` : ""}
     <i class="bc-marca bc-alerta" style="left:${pct(ALERTA)}%"></i>
     <i class="bc-marca bc-record" style="left:${pct(RECORD)}%"></i>
     <i class="bc-vos" style="left:${pct(ref)}%"></i>
+    <i class="marcas-rio h bc-marcas"></i>
   </div>
   <div class="barra-casa-ley">
-    ${r != null ? `<span><b class="c-hoy">${n2(r)}</b> hoy</span>` : ""}
+    ${r != null ? `<span><b class="c-hoy">${n2(r)}</b> ${viejo ? "último dato" : "hoy"}</span>` : ""}
     <span><b class="c-alerta">${n2(ALERTA)}</b> alerta de la ciudad</span>
     <span><b>${n2(RECORD)}</b> récord</span>
     <span><b class="c-vos">${mU(ref).replace(" m", "")}</b> vos</span>

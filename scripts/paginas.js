@@ -366,13 +366,14 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
           id="pildora-rio"
           href="/#abrir"
           aria-label="Nivel del río, todavía sin dato">
-          <span
-            class="punto-estado"
-            id="pildora-punto"
-            aria-hidden="true"></span>
+          <span class="pr-regla" aria-hidden="true"
+            ><span class="pr-agua" id="pildora-agua"></span
+            ><span class="pr-alerta" id="pildora-alerta"></span
+          ></span>
           <span>
             <span class="pr-etiqueta">Río </span
-            ><span id="pildora-nivel">—</span>
+            ><span id="pildora-nivel">—</span
+            ><span class="pr-estado" id="pildora-estado" hidden></span>
           </span>
           <span
             class="pr-tendencia"

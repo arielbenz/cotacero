@@ -350,14 +350,13 @@ export function pintarRio() {
   const acotar = (p) => Math.max(0, Math.min(100, p));
   const n2 = (v) => nm(v, 2);
 
-  // La escala vive en su propia columna, al lado de la pista y no encima.
-  let escala = "";
-  for (let t = ESCALA_MIN; t <= ESCALA_MAX; t += 0.5) {
-    const mayor = Number.isInteger(t);
-    escala += `<div class="tic ${mayor ? "mayor" : ""}" style="bottom:${pct(t)}%"></div>`;
-    if (mayor)
-      escala += `<div class="tic-num" style="bottom:${pct(t)}%">${t}</div>`;
-  }
+  /* La escala vive en su propia columna, al lado de la pista y no encima.
+     Las marcas de 10 cm, 50 cm y 1 m son el componente compartido
+     (.marcas-rio en app.css); los números van cada 2 m, como en la portada:
+     con las marcas al lado, uno por metro era ruido. */
+  let escala = '<div class="marcas-rio"></div>';
+  for (let t = ESCALA_MIN; t <= ESCALA_MAX; t += 2)
+    escala += `<div class="tic-num" style="bottom:${pct(t)}%">${t}</div>`;
   document.getElementById("escala").innerHTML = escala;
 
   const r = estado.rio;
