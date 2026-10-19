@@ -435,6 +435,9 @@
         <div class="tarjeta">
           <h3 style="margin-top: 0">2 · La altura de tu terreno</h3>
 
+          <!-- Zonas sin curvas: ver sinPlano en config.js -->
+          <p class="aviso" id="sin-plano" role="status" hidden></p>
+
           <!-- aria-pressed: de dónde salió la altura en uso -->
           <div
             class="segmentado metodos"
@@ -494,8 +497,8 @@
           <p class="chico" id="estado-cota" role="status"></p>
 
           <label class="campo"
-            ><span>O escribila: metros sobre el mar (la «cota IGN» del plano o
-              la escritura)</span>
+            ><span><span id="o-escribila">O escribila</span>: metros sobre el
+              mar (la «cota IGN» del plano o la escritura)</span>
             <input
               type="text"
               inputmode="decimal"
@@ -506,7 +509,7 @@
           /></label>
 
           <!-- La explicación larga vive en /datos -->
-          <p class="chico" style="margin: 0">
+          <p class="chico" id="pista-curvas" style="margin: 0">
             Sale de las curvas de nivel del municipio: pasan cerca de tu casa,
             no por tu puerta. Si tenés el número de la escritura o de un
             relevamiento, vale más. <a href="/datos">Cómo se calcula</a>.
