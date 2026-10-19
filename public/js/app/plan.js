@@ -61,6 +61,18 @@ function pintarProgreso() {
   const pv = PREVIA.filter((_, i) => guardado.get("cc_pv" + i) === "1").length;
   const total = MOCHILA.length + PREVIA.length;
   const hechos = mo + pv;
+  /* Lo que falta, también en la barra de abajo: se ve desde cualquier
+     pestaña sin entrar al plan. Completo, no dice nada: un 0 se lee como un
+     aviso más. */
+  const cuenta = document.querySelector(
+    '.barra-app [data-vista="plan"] .cuenta-tab',
+  );
+  if (cuenta) {
+    const faltan = total - hechos;
+    cuenta.hidden = faltan === 0;
+    cuenta.innerHTML =
+      faltan + '<span class="solo-lectores"> cosas sin hacer</span>';
+  }
   const res = document.getElementById("resumen-plan");
   if (res)
     res.innerHTML =

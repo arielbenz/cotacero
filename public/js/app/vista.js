@@ -71,19 +71,6 @@ window.addEventListener("popstate", (ev) => {
 
 /* ---------------- utilidades ---------------- */
 
-/* La app funciona sin conexión, pero no lo decía en ningún lado: sólo
-   avisaba que el dato del río estaba vencido. navigator.onLine miente cuando
-   hay wifi sin internet, pero cuando dice que NO hay red, no se equivoca. */
-export function pintarConexion() {
-  const el = document.getElementById("sin-conexion");
-  if (!el) return;
-  const sinRed = navigator.onLine === false;
-  el.hidden = !sinRed;
-  if (sinRed)
-    el.textContent =
-      "SIN CONEXIÓN · estás viendo lo último que se guardó en el teléfono";
-}
-
 /* Un botón que dispara algo lento tiene que decirlo él mismo. Antes quedaba
    idéntico y la única señal era un renglón gris más abajo que, con el teclado
    abierto en el teléfono, ni se ve. Devuelve la función que lo libera. */

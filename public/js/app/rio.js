@@ -91,6 +91,11 @@ export async function cargarRio() {
           extra = " Medición del " + j.fecha_dato + ".";
           estado.rioFecha = j.fecha_dato;
         }
+        /* La API puede contestar bien con una lectura vieja: pasa si el INA
+           deja de publicar. Vence igual que la guardada, o la tarjeta
+           mostraría la cara de hoy con un número de la semana pasada. */
+        const horas = horasDesde(fechaINA(j.fecha_dato));
+        estado.rioVencido = horas !== null && horas > VENCE_HORAS;
         if (typeof j.delta === "number") estado.delta = j.delta;
         guardado.set("cc_rio_auto", String(j.altura));
         guardado.set("cc_rio_fecha", j.fecha_dato || "");
@@ -379,8 +384,13 @@ export function pintarRio() {
       txt: `<b>${n2(RECORD)}</b> récord de ${RECORD_ANIO}`,
     },
   ];
+  // Vencido, el número no es «de hoy»: la etiqueta no puede decirlo.
   if (r != null)
-    lineas.push({ pos: acotar(pct(r)), cls: "l-hoy", txt: `<b>${n2(r)}</b> hoy` });
+    lineas.push({
+      pos: acotar(pct(r)),
+      cls: "l-hoy" + (estado.rioVencido ? " viejo" : ""),
+      txt: `<b>${n2(r)}</b> ${estado.rioVencido ? "último dato" : "hoy"}`,
+    });
   /* Tu nivel de aviso, en la escala del hidrómetro. Si cae afuera de la
      regla no tiene línea, pero la etiqueta se queda en el borde: callarlo
      haría creer que no hay número. */
@@ -403,7 +413,9 @@ export function pintarRio() {
      etiqueta no se corrió, el conector sale horizontal y se lee como una sola
      línea; si se corrió, sigue diciendo de qué altura es. Con las líneas a lo
      ancho, «5,40 hoy» corrido quedaba apoyado sobre la de evacuación. */
-  let html = `<div class="tanque"><div class="agua" style="height:${r == null ? 0 : acotar(pct(r))}%"></div></div>`;
+  /* Con el dato vencido el agua va rayada en gris: un número viejo nunca
+     tiene la cara de uno de hoy, tampoco en el dibujo. */
+  let html = `<div class="tanque"><div class="agua${estado.rioVencido ? " viejo" : ""}" style="height:${r == null ? 0 : acotar(pct(r))}%"></div></div>`;
   let conectores = "";
   for (const l of lineas) {
     html +=
@@ -426,7 +438,11 @@ export function pintarRio() {
         " a " +
         ESCALA_MAX +
         " metros. " +
-        (r == null ? "Sin dato de hoy. " : "Hoy " + m(r) + ". ") +
+        (r == null
+          ? "Sin dato de hoy. "
+          : (estado.rioVencido ? "Último dato guardado, " : "Hoy ") +
+            m(r) +
+            ". ") +
         "Alerta de la ciudad " +
         m(ALERTA) +
         ". Evacuación de la ciudad " +
@@ -444,6 +460,7 @@ export function pintarRio() {
     );
 
   pintarVeredictoRio();
+  pintarConexion();
   pintarCtaCota();
   guardarUmbral();
   ofrecerConResultado();
@@ -482,6 +499,15 @@ export const faltanMochila = () =>
 function pintarVeredictoRio() {
   const c = document.getElementById("veredicto-rio");
   const r = estado.rio;
+  /* Mientras viaja el dato, la tarjeta se queda con los bloques de carga. El
+     arranque pinta la pantalla antes de que conteste el INA, y sin esta
+     guarda reemplazaba los bloques por «no pudimos leer el nivel del INA»:
+     un error que todavía no había pasado. La clase la ponen el HTML y
+     cargarRio(), y la saca cargarRio() cuando termina. */
+  if (r == null && c.classList.contains("cargando")) {
+    pintarPuntoRio("v-cargando");
+    return;
+  }
   if (r == null) {
     // Lo primero que veía alguien que abre la app por primera vez era
     // "FALTA EL NIVEL DEL RÍO" en tipografía gigante: un reporte de lo que
@@ -499,6 +525,8 @@ function pintarVeredictoRio() {
       '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">Ahora mismo ' +
       "no pudimos leer el nivel del INA.</b> Cargalo a mano acá abajo, o probá de " +
       "nuevo en un rato.</p>";
+    pintarFranjaCiudad(null);
+    pintarPuntoRio("v-neutro");
     return;
   }
   let cls, titu, txt;
@@ -540,11 +568,21 @@ function pintarVeredictoRio() {
       mCm(ALERTA - r) +
       " para la alerta de la ciudad. Es el momento de prepararse, no de esperar.";
   }
+  /* Vencido, no sabemos en qué estado está la ciudad: el título dejaba
+     «Río normal» con un número de hace tres días, que es justo la cara que
+     un dato viejo no puede tener. Sin instrucción, sin margen y sin ritmo:
+     con este número no se decide nada. */
+  const viejo = estado.rioVencido;
+  if (viejo) {
+    cls = "v-viejo";
+    titu = "Último dato guardado";
+    txt = "Con este número no se decide nada: puede haber cambiado.";
+  }
   // El INA publica la diferencia contra el registro anterior y hasta
   // ahora se guardaba sin mostrarse nunca.
   const d = estado.delta;
   const mov =
-    typeof d === "number" && Math.abs(d) >= 0.01
+    !viejo && typeof d === "number" && Math.abs(d) >= 0.01
       ? `<div class="chico mov-rio"><b class="${d > 0 ? "sube" : "baja"}">${d > 0 ? "▲" : "▼"} ${nm(
           Math.abs(d),
           2,
@@ -559,7 +597,14 @@ function pintarVeredictoRio() {
       ? "Es la medición del " + estado.rioFecha + "."
       : "No sabemos de cuándo es."
   }
-  No hay conexión con el INA. Cargá la altura a mano acá abajo antes de decidir nada con este número.</div>`
+  ${
+    /* Si contestó la API, hay conexión: lo que falta es una medición nueva.
+       Decir «no hay conexión» mandaría a revisar el wifi. */
+    (estado.rioOrigen || "").startsWith("INA")
+      ? "El INA no publicó una medición nueva desde entonces."
+      : "No hay conexión con el INA."
+  }
+  Cargá la altura a mano acá abajo antes de decidir nada con este número.</div>`
     : "";
   /* La fila del umbral. Es lo que convierte esta tarjeta de "cómo está el río"
      en "qué significa para mí": la lectura oficial grande arriba, y debajo el
@@ -575,7 +620,24 @@ function pintarVeredictoRio() {
      1,2 m de tu nivel de aviso» y perdía el «salí» y el 103. */
   const graveCiudad = r >= ALERTA;
   const instruccionCiudad = cls !== "v-ok";
-  if (u != null) {
+  /* La glosa va la primera vez que el número aparece en la pantalla, y
+     ésta es la primera. */
+  const GLOSA =
+    '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
+    "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
+    "aproximado: <b>no dice cuándo entra el agua</b>.</p>";
+  if (u != null && viejo) {
+    // Tu nivel de aviso no vence: lo que vence es cuánto le falta al río.
+    celdas =
+      '<div class="celdas-umbral">' +
+      '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
+      '<span class="v">' +
+      mU(u) +
+      "</span></div>" +
+      '<div class="celda t-viejo"><span class="k">Le falta al río</span>' +
+      '<span class="v">—</span></div></div>';
+    glosa = GLOSA;
+  } else if (u != null) {
     const margen = u - r;
     const superado = margen <= 0;
     // El estado del margen manda sobre el color de la tarjeta: si el río pasó
@@ -631,12 +693,7 @@ function pintarVeredictoRio() {
         ritmo;
     else if (instruccionCiudad) txt += ritmo;
     else txt = ritmo.trim();
-    /* La glosa va la primera vez que el número aparece en la pantalla, y
-       ésta es la primera. */
-    glosa =
-      '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
-      "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
-      "aproximado: <b>no dice cuándo entra el agua</b>.</p>";
+    glosa = GLOSA;
     if (superado) titu = "El río pasó tu nivel de aviso";
     else if (margen <= 0.5) titu = "Cerca de tu nivel de aviso";
   }
@@ -644,7 +701,7 @@ function pintarVeredictoRio() {
   // la mochila" y no lo decía: las dos pestañas no se hablaban.
   const falta = faltanMochila();
   const plan =
-    cls === "v-ok"
+    cls === "v-ok" || viejo
       ? ""
       : `<p class="chico" style="margin:10px 0 0;padding-top:9px;border-top:1px solid var(--linea)">${
           falta
@@ -657,6 +714,78 @@ function pintarVeredictoRio() {
     ${mov}
     ${celdas}
     ${txt ? `<p class="chico" style="margin:0 0 10px">${txt}</p>` : ""}${glosa}${plan}`;
+  pintarFranjaCiudad(viejo || esManual() ? null : r);
+  pintarPuntoRio(cls);
+}
+
+/* El nivel lo cargó la persona: para probar un escenario o porque el INA no
+   contestó. Sirve para la cuenta, no para anunciar el estado de la ciudad. */
+const esManual = () => (estado.rioOrigen || "").includes("a mano");
+
+/* ---------------- la franja de la ciudad ----------------
+   Alerta y evacuación de la ciudad, en una franja sólida arriba de todo y en
+   las cuatro pestañas: en una crecida importa más en «Dónde ir» que en
+   ningún otro lado. Es el mismo componente que pinta js/rio-barra.js en el
+   sitio, con la misma regla: NUNCA con un dato vencido, y tampoco con uno
+   cargado a mano —una simulación no puede salir con la cara del aviso
+   oficial—. El 103 se repite a propósito: la tarjeta también lo lleva.
+   El contenedor está siempre en el HTML y vacío no ocupa nada, porque un
+   role="status" que aparece con el texto adentro no lo anuncia nadie. */
+function pintarFranjaCiudad(r) {
+  const caja = document.getElementById("franja-estado");
+  if (!caja) return;
+  if (r == null || r < ALERTA) {
+    if (caja.firstChild) caja.textContent = "";
+    delete caja.dataset.texto;
+    return;
+  }
+  const evacua = r >= EVACUACION;
+  const texto = evacua
+    ? "Evacuación en la ciudad · llamá al"
+    : "Alerta en la ciudad · dudas:";
+  // Sólo si cambió: repintar en cada vuelta cortaría la animación del punto.
+  if (caja.dataset.texto === texto) return;
+  caja.dataset.texto = texto;
+  /* La franja entera es el enlace, no sólo el «103»: tres cifras sueltas
+     son un blanco chico para un dedo apurado. */
+  caja.innerHTML =
+    '<div class="franja' +
+    (evacua ? " evacuacion" : "") +
+    '"><a class="ancho franja-103" href="tel:103"><span>' +
+    '<span class="punto-estado" aria-hidden="true"></span>' +
+    texto +
+    '<span class="solo-lectores"> Defensa Civil,</span></span><b>103</b></a>' +
+    "</div>";
+}
+
+/* ---------------- el punto de la pestaña Río ----------------
+   Sigue a la tarjeta, no sólo a la ciudad: si el río pasó tu nivel de aviso
+   la tarjeta se pone roja aunque la ciudad esté normal, y el punto no puede
+   decir otra cosa. Vencido o sin dato, gris. Es un adorno de la barra: el
+   estado se lee en la tarjeta, así que va aria-hidden. */
+function pintarPuntoRio(cls) {
+  const p = document.querySelector('.barra-app [data-vista="rio"] .punto-tab');
+  if (p) p.dataset.tono = cls.replace("v-", "");
+}
+
+/* ---------------- sin conexión ----------------
+   navigator.onLine miente cuando hay wifi sin internet, pero cuando dice que
+   NO hay red, no se equivoca. La banda va sólo con un dato de menos de 48 h:
+   vencido, el cartel de la tarjeta ya dice que no hay conexión con el INA,
+   y dos avisos de lo mismo hacen que no se lea ninguno. La hora es la de la
+   medición, no la de cuándo se guardó: es la que dice cuánto puede haber
+   cambiado el río. */
+export function pintarConexion() {
+  const el = document.getElementById("sin-conexion");
+  if (!el) return;
+  const mostrar =
+    navigator.onLine === false && estado.rio != null && !estado.rioVencido;
+  el.hidden = !mostrar;
+  if (!mostrar) return;
+  const hora = (estado.rioFecha || "").replace(/^(\d{2}\/\d{2})\/\d{4}/, "$1");
+  el.innerHTML =
+    "<span>Sin conexión · mostrando lo guardado</span>" +
+    (hora ? "<b>" + hora + "</b>" : "");
 }
 
 /* ================= EN CONTEXTO =================
