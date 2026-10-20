@@ -52,6 +52,19 @@ export function pintarListas() {
   }
 }
 
+/* Una casilla tildada desde otra pestaña («Ahora»): se guarda igual, se
+   copia a la del plan para que las dos digan lo mismo, y se recalcula lo
+   que depende de ella. `k` es la clave sin el «cc_»: mo3, pv5, sa0. */
+export function marcarCasilla(k, valor) {
+  guardado.set("cc_" + k, valor ? "1" : "0");
+  const enPlan = document.querySelector(
+    '#lista-mochila input[data-k="' + k + '"], #lista-previa input[data-k="' + k + '"]',
+  );
+  if (enPlan) enPlan.checked = valor;
+  pintarProgreso();
+  pintarRio();
+}
+
 /* 26 casillas sin ninguna señal de avance: nadie sabía si iba por la mitad.
    El resumen va arriba de la pestaña, en una tarjeta con la barra y el
    detalle por lista: los contadores de cada lista quedaban abajo, donde no

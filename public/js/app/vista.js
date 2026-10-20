@@ -57,12 +57,28 @@ export function irA(id, desdeHistorial) {
     ver("ajustes", null, desdeHistorial);
     return true;
   }
-  const i = { rio: 0, cota: 1, plan: 2, donde: 3 }[id];
-  if (i === undefined) return false;
-  const b = document.querySelectorAll(".barra-app button")[i];
-  if (!b) return false;
-  ver(id, b, desdeHistorial);
+  /* «Ahora» existe sólo en una emergencia de la ciudad con dato vigente
+     (ahora.js). Un aviso abre /app?ir=ahora, y la app lee la URL antes de
+     que conteste el INA: el pedido se anota, se muestra Río, y pintarAhora()
+     lo cumple cuando llega el dato, si sigue la emergencia. */
+  if (id === "ahora" && !document.getElementById("ahora")?.firstChild) {
+    pedidoAhora = true;
+    id = "rio";
+  }
+  if (!["rio", "cota", "plan", "donde", "ahora"].includes(id)) return false;
+  /* Por su data-vista y no por su posición: con «Ahora» la barra cambia, y
+     Mi casa puede no estar. Sin botón visible se abre igual, sin marcar
+     ninguna pestaña, como Ajustes. */
+  const b = document.querySelector(`.barra-app [data-vista="${id}"]`);
+  ver(id, b && !b.hidden ? b : null, desdeHistorial);
   return true;
+}
+
+let pedidoAhora = false;
+export function tomarPedidoAhora() {
+  const p = pedidoAhora;
+  pedidoAhora = false;
+  return p;
 }
 
 window.addEventListener("popstate", (ev) => {

@@ -62,3 +62,17 @@ export const PREVIA = [
   ["Tener a mano el número del contacto fuera de la zona", false],
 ];
 
+
+/* Antes de salir: la lista corta de la pestaña «Ahora» cuando la ciudad está
+   en evacuación (js/app/ahora.js). Son cuatro renglones a propósito: en ese
+   momento nadie lee quince. Se guardan por índice como las otras (`cc_sa0`…):
+   NO REORDENAR, se agrega al final.
+   Cortar la luz y el gas va en `true`: el plan municipal pide saber cortar la
+   energía eléctrica y cerrar las llaves de gas (ver el comentario de PREVIA).
+   Los otros tres los agregamos nosotros. */
+export const SALIDA = [
+  ["Cortar la luz y el gas", true],
+  ["Llevar la mochila y el celular cargado", false],
+  ["Ayudar a quien necesita salir (está en tu plan)", false],
+  ["No cruzar agua que corre, ni a pie ni en auto", false],
+];

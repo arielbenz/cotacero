@@ -291,4 +291,4 @@ export const ZONAS = [
    scripts/paginas.js para la hoja imprimible, y desde acá no las puede leer
    —config.js importa de estado.js, que toca el DOM—. Se re-exportan para que
    nada de la app cambie de import. */
-export { MOCHILA, PREVIA } from "../../lib/listas.js";
+export { MOCHILA, PREVIA, SALIDA } from "../../lib/listas.js";
