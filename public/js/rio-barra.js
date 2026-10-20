@@ -386,7 +386,11 @@ leerUmbralPropio();
 const esIOS =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-if (esIOS) {
+/* En una computadora tampoco: el clic en un geo: no hacía nada. Ahí va
+   OpenStreetMap —de donde sale el mapa base, y no suma a Google—, en otra
+   pestaña para no perder la página. Android se queda con su geo:. */
+const enEscritorio = !esIOS && !/Android/i.test(navigator.userAgent);
+if (esIOS || enEscritorio) {
   const GEO = /^geo:(-?[\d.]+),(-?[\d.]+)\?q=-?[\d.]+,-?[\d.]+\((.*)\)$/;
   document.querySelectorAll('a[href^="geo:"]').forEach((a) => {
     const p = GEO.exec(a.getAttribute("href"));
@@ -395,6 +399,20 @@ if (esIOS) {
     try {
       nombre = decodeURIComponent(nombre);
     } catch (e) {}
+    if (enEscritorio) {
+      a.href =
+        "https://www.openstreetmap.org/?mlat=" +
+        p[1] +
+        "&mlon=" +
+        p[2] +
+        "#map=17/" +
+        p[1] +
+        "/" +
+        p[2];
+      a.target = "_blank";
+      a.rel = "noopener";
+      return;
+    }
     a.href =
       "https://maps.apple.com/?ll=" +
       p[1] +
