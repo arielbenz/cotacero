@@ -329,8 +329,13 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     }
     <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
-    <link rel="preload" href="/vendor/fonts/jakarta-800.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/vendor/fonts/jakarta-500.woff2" as="font" type="font/woff2" crossorigin />
+    ${
+      /* Sólo la sans. La mono no aparece en el primer pantallazo de estas
+         páginas, y precargarla le disputaría la conexión a app.css, que es
+         lo que bloquea. La portada y la app sí la precargan: el hidrómetro
+         está arriba de todo. */ ""
+    }
+    <link rel="preload" href="/vendor/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/app.css" />
     <script src="/lib/comun-clasico.js" defer></script>
     <script src="/js/rio-barra.js" defer></script>
@@ -2202,6 +2207,59 @@ console.log(
     ")",
 );
 
+/* ---------- public/css/app.css ----------
+   La hoja de estilo se escribe en estilos/app.css, fuera de public/, y acá
+   se publica SIN COMENTARIOS. Es la misma regla que los comentarios cortos
+   del HTML, aplicada a donde más pesaba: el razonamiento era un tercio del
+   archivo, y como es prosa se comprime mal —43 KB con gzip contra 18 sin
+   él—. Y app.css bloquea el renderizado en todas las páginas.
+
+   Sólo se sacan los comentarios: no se minifica. Ahorraría menos de 1,5 KB con gzip y dejaría
+   ilegible lo que se ve en las herramientas del navegador.
+
+   El recorrido salta las cadenas entre comillas, para que un "/*" adentro de
+   un `content:` o de una URL no se tome por el comienzo de un comentario. */
+const fuenteCss = await readFile(join(RAIZ, "estilos", "app.css"), "utf8");
+let cssSinComentarios = "";
+for (let i = 0; i < fuenteCss.length; ) {
+  const c = fuenteCss[i];
+  if (c === '"' || c === "'") {
+    let j = i + 1;
+    while (j < fuenteCss.length && fuenteCss[j] !== c)
+      j += fuenteCss[j] === "\\" ? 2 : 1;
+    cssSinComentarios += fuenteCss.slice(i, j + 1);
+    i = j + 1;
+  } else if (c === "/" && fuenteCss[i + 1] === "*") {
+    const fin = fuenteCss.indexOf("*/", i + 2);
+    if (fin < 0)
+      throw new Error("estilos/app.css: un comentario que no cierra");
+    i = fin + 2;
+  } else {
+    cssSinComentarios += c;
+    i++;
+  }
+}
+cssSinComentarios = cssSinComentarios
+  .split("\n")
+  .map((l) => l.trimEnd())
+  .join("\n")
+  .replace(/\n{3,}/g, "\n\n")
+  .trim();
+await writeFile(
+  join(PUBLICO, "css", "app.css"),
+  "/* GENERADO por scripts/paginas.js desde estilos/app.css, sin los\n" +
+    "   comentarios. NO EDITAR: el próximo `node scripts/paginas.js` lo pisa. */\n" +
+    cssSinComentarios +
+    "\n",
+);
+console.log(
+  "escrito: /css/app.css  (" +
+    Math.round(fuenteCss.length / 1024) +
+    " KB -> " +
+    Math.round(cssSinComentarios.length / 1024) +
+    " KB, sin comentarios)",
+);
+
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
    Se emiten desde acá, que ya las leyó de app/index.html, para que no exista
    una tercera copia de la lista. */
@@ -2297,12 +2355,27 @@ function ultimoCambio(ruta) {
      mudó a public/, cada página apareció en git como un archivo nuevo en el
      commit de la mudanza; sin seguirle el rastro al nombre viejo, las once
      quedaban con esa fecha. Un renombre sin cambios de contenido tampoco es
-     un cambio de la página. */
-  const cambiaAlgoMasQueElPie = (diff) =>
+     un cambio de la página.
+
+     Y la tercera: lo que el lector no ve. Un archivo de tipografía nombrado en
+     el <head> —precargado en una línea o en varias—, un comentario HTML o un
+     renglón vacío —el que deja cada comentario `${""}`
+     de este archivo— cambian el
+     HTML en las once páginas a la vez. Pasó al unificar las tipografías: las
+     once salían modificadas hoy sin una letra distinta, y un lastmod que se
+     mueve sin motivo es uno que Google aprende a no creer. */
+  const cambiaAlgoQueSeLee = (diff) =>
     diff
       .split("\n")
       .filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l))
-      .some((l) => !l.includes("Última actualización del sitio"));
+      .map((l) => l.slice(1).trim())
+      .some(
+        (l) =>
+          l &&
+          !l.includes("Última actualización del sitio") &&
+          !l.includes("/vendor/fonts/") &&
+          !/^<!--.*-->$/.test(l),
+      );
 
   try {
     // Sin commitear: si lo que cambió no es sólo el pie, está cambiando hoy.
@@ -2312,7 +2385,7 @@ function ultimoCambio(ruta) {
     if (estado) {
       const renombre = /^R. (.+) -> /.exec(estado);
       const rutas = renombre ? [renombre[1], archivo] : [archivo];
-      if (cambiaAlgoMasQueElPie(git(["diff", "HEAD", "-M", "-U0", "--", ...rutas])))
+      if (cambiaAlgoQueSeLee(git(["diff", "HEAD", "-M", "-U0", "--", ...rutas])))
         return new Date().toISOString().slice(0, 10);
     }
     // Y hacia atrás, siguiendo los renombres, hasta el commit que tocó algo
@@ -2330,7 +2403,7 @@ function ultimoCambio(ruta) {
     for (const bloque of historia.split(MARCA).slice(1)) {
       const salto = bloque.indexOf("\n");
       const fecha = bloque.slice(0, salto === -1 ? undefined : salto);
-      if (cambiaAlgoMasQueElPie(salto === -1 ? "" : bloque.slice(salto)))
+      if (cambiaAlgoQueSeLee(salto === -1 ? "" : bloque.slice(salto)))
         return fecha;
     }
     return null;

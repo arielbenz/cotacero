@@ -13,7 +13,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
 ## Comandos
 
     node scripts/servir.js            # http://localhost:3000 (PORT=3100 para otro puerto)
-    node scripts/paginas.js           # regenera las páginas de contenido
+    node scripts/paginas.js           # regenera las páginas de contenido y public/css/app.css
     node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
     node scripts/calles.js            # baja el callejero de Georef -> public/datos-abiertos/calles.json
@@ -36,8 +36,8 @@ Sin tests, la verificación es esta y en este orden:
 
 1. `node --check <archivo>` en cada `.js` tocado.
 2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
-   `public/lib/fuentes.js` **o `public/lib/comun.js`** —de este último sale un archivo
-   generado, ver abajo—.
+   `public/lib/fuentes.js`, **`public/lib/comun.js` o `estilos/app.css`** —de los
+   dos últimos sale un archivo generado, ver abajo—.
 3. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
    abierta. Los módulos (`lib/`, `scripts/`) se pueden probar importándolos
    desde Node.
@@ -114,6 +114,7 @@ primero (íconos, tipografías) queda congelado.
     lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
                         sugerencias, charlas
     scripts/            Node: el generador, el servidor local, las descargas
+    estilos/            app.css CON comentarios: la fuente de public/css/app.css
     datos-crudos/       análisis y datos de trabajo; no se publican
 
 **Las rutas de este archivo que nombran algo del sitio —`js/app/rio.js`,
@@ -199,6 +200,23 @@ Tres cosas de ahí:
 prolijo y dejaba afuera justo a los Android viejos que este proyecto sostiene
 a mano; `importScripts` funciona en un worker clásico y el navegador guarda lo
 importado junto al service worker, así que sigue andando sin señal.
+
+### La hoja de estilo se escribe en `estilos/`, no en `public/css/`
+
+**`public/css/app.css` lo emite `scripts/paginas.js`** desde `estilos/app.css`,
+sacándole los comentarios y nada más (no minifica). El razonamiento era un
+tercio del archivo y, como es prosa, se comprime mal: 43 KB con gzip contra 18
+sin él, en la hoja que bloquea el renderizado de todas las páginas. Editar
+`public/css/app.css` se pisa en la próxima corrida, y tocar `estilos/app.css`
+sin correr el generador no cambia nada en el sitio. `guia.css` sigue a mano en
+`public/css/`: son 8 KB y sólo los pide `/guia`.
+
+**Las tipografías son variables: un archivo por familia**
+(`vendor/fonts/jakarta.woff2` y `jetbrains.woff2`), con un rango en
+`font-weight`. Antes había seis `@font-face`, uno por peso, apuntando a seis
+copias del mismo par de archivos con nombres distintos, y el navegador bajaba
+cada copia: 175 KB donde alcanzan 59. Si se cambia una tipografía, se mira
+primero si el archivo es variable. Si lo es, alcanza con uno.
 
 ### Fuentes únicas de verdad
 
@@ -372,7 +390,7 @@ mover contenido al JavaScript.**
 
 **Reservar el alto de lo que llega por red.** Las tarjetas de la pantalla del
 río que se llenan cuando contesta el servidor tienen `min-height` en
-`app.css`. Sin eso el CLS de `/app` era 0,264 (el límite es 0,1): la pantalla
+`estilos/app.css`. Sin eso el CLS de `/app` era 0,264 (el límite es 0,1): la pantalla
 saltaba bajo el dedo de quien estaba leyendo el nivel del río.
 
 ### CSP: nada de manejadores inline
@@ -538,7 +556,7 @@ portada y la cita textual de `/datos`—, con la misma especificidad y mil líne
 de distancia. Ganaba la de más abajo, así que la portada salía en monoespaciada
 sobre fondo gris y `/datos` arrastraba un borde ámbar que nadie pidió. **Las dos
 estaban rotas y ninguna fallaba de forma visible.** Hoy son `.aviso-app` y
-`.cita`. Antes de estrenar un nombre de clase, `grep` en `css/app.css`.
+`.cita`. Antes de estrenar un nombre de clase, `grep` en `estilos/app.css`.
 
 ### Dos botones, no tres
 
@@ -609,13 +627,16 @@ instalarse_.
 
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
-| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
-| `DEL_APP`  | los 23 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
+| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 87 KB  | todo el que entra al sitio |
+| `DEL_APP`  | los 23 módulos, `curvas.json`, las dos tipografías, los íconos         | 200 KB | sólo quien abre `/app`     |
+
+Medido con gzip en octubre de 2026, después de sacarle los comentarios a
+`app.css` y de dejar las tipografías en un archivo por familia.
 
 La segunda **no se pide en `install`**. La pide la app con un
 `postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la
 instalación, quien entró a leer dos párrafos de `/legal` se bajaría igual los
-módulos de la app y las seis tipografías, y partirla no habría servido de nada.
+módulos de la app y las tipografías, y partirla no habría servido de nada.
 
 Las dos van con `addAll`, que es todo o nada. Que la segunda sea aparte no la
 afloja: media app cacheada abre y se rompe callada, que es lo peor de los dos
@@ -633,12 +654,12 @@ en su lugar quedaba nuestro 504. Ahora es una sola regla,
 la rama de caché primero sólo guarda lo del propio origen. Una regla no se queda
 corta; una lista sí.
 
-**Las tipografías salieron del precache y no se perdió nada.** El sitio las
-baja para pintar la página, así que precachearlas con `cache: "reload"` era
-bajarlas dos veces. La rama de caché primero las guarda en la segunda página
+**Las tipografías no van en la tanda del sitio**, sólo en la de `/app`. El
+sitio las baja para pintar la página, así que meterlas en `CRITICOS` con
+`cache: "reload"` era bajarlas dos veces. La rama de caché primero las guarda en la segunda página
 que alguien mira, y sin señal el sitio sale con Plus Jakarta Sans — verificado.
 Lo único que queda afuera: quien mira UNA sola página y se queda sin señal ve
-la tipografía del sistema. Es legible, y no vale 164 KB duplicados.
+la tipografía del sistema. Es legible, y no vale bajar dos veces 59 KB.
 
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si

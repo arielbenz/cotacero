@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v103";
+const VERSION = "cota-cero-v104";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -143,13 +143,10 @@ const DEL_APP = [
      señal. Los tiles no se cachean nunca (son muchos y pesados): sale el fondo
      liso con los 30 puntos, que es lo que importa. */
   // Las tipografías ahora son nuestras: precacheadas andan sin conexión de
-  // verdad, no con los fallbacks del sistema.
-  "/vendor/fonts/jakarta-500.woff2",
-  "/vendor/fonts/jakarta-600.woff2",
-  "/vendor/fonts/jakarta-700.woff2",
-  "/vendor/fonts/jakarta-800.woff2",
-  "/vendor/fonts/jetbrains-500.woff2",
-  "/vendor/fonts/jetbrains-700.woff2",
+  // verdad, no con los fallbacks del sistema. Son variables, un archivo por
+  // familia con todos los pesos (ver el @font-face de estilos/app.css).
+  "/vendor/fonts/jakarta.woff2",
+  "/vendor/fonts/jetbrains.woff2",
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
   "/datos-abiertos/curvas.json",
@@ -179,7 +176,7 @@ self.addEventListener("install", (e) => {
         await c.addAll(frescas(CRITICOS));
         /* La tanda 2 NO se pide acá. Si se pidiera, quien entró a leer dos
            párrafos de /legal se bajaría igual los módulos de la app, las
-           curvas y las seis tipografías —275 KB comprimidos— en segundo plano,
+           curvas y las tipografías —200 KB comprimidos— en segundo plano,
            y el partido en dos no habría servido de nada.
            La pide /app, que es quien los necesita: ver el mensaje de abajo. */
       })

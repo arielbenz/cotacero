@@ -187,7 +187,7 @@ que nombran. Se usa una sólo si el cambio incluye lo que dice «Aplica a».
 | Lista                                              | Aplica a                                                                                                   | Va en                       |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------- |
 | [MAINTAINABILITY.md](reference/MAINTAINABILITY.md) | Todo módulo que cambió                                                                                     | Calidad                     |
-| [BLAST-RADIUS.md](reference/BLAST-RADIUS.md)       | La forma de `/api/nivel`, `public/lib/comun.js` y su gemelo, una fuente única de verdad, tokens de `css/app.css` | Bugs, Arquitectura          |
+| [BLAST-RADIUS.md](reference/BLAST-RADIUS.md)       | La forma de `/api/nivel`, `public/lib/comun.js` y su gemelo, una fuente única de verdad, tokens de `estilos/app.css` | Bugs, Arquitectura          |
 | [ROOT-CAUSES.md](reference/ROOT-CAUSES.md)         | Arreglos de bugs, y guardas, respaldos o reintentos nuevos                                                 | Bugs                        |
 | [BOUNDARIES.md](reference/BOUNDARIES.md)           | `api/`, `lib/ina.js`, lo que lee datos de la red o del usuario                                             | Seguridad, Arquitectura     |
 | [IDEMPOTENCY.md](reference/IDEMPOTENCY.md)         | `scripts/` que bajan o escriben datos, `api/cron/`, lo que escribe en Redis                                | Bugs                        |
@@ -233,7 +233,7 @@ y, si no se usó el navegador, cómo se ve.
     segundo `.btn` sólido en la misma pantalla, un bloque «Seguí por acá».
   - Un `onclick` en el HTML, o un `const` suelto en un clásico que va en
     todas las páginas.
-  - Una clase nueva que ya nombraba otra cosa en `css/app.css`.
+  - Una clase nueva que ya nombraba otra cosa en `estilos/app.css`.
 - **Lo que ningún chequeo ve:** `VERSION` de `sw.js` sin subir en un cambio
   que se va a publicar; un `observado` sin su renglón en `AUDITORIA.md` §9;
   un `min-height` de reserva de CLS que ya no coincide con lo que mide la
