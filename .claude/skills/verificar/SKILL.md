@@ -21,7 +21,8 @@ for f in $(git diff --name-only -- '*.js'); do node --check "$f" || echo "FALLA 
 
 Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js`,
 `public/app/index.html`, `public/index.html`, `public/lib/fuentes.js`, `public/lib/comun.js`,
-`lib/paginas.js`, `public/lib/listas.js`, `lib/charlas.js` o `lib/sugerencias.js`.
+`lib/paginas.js`, `public/lib/listas.js`, `lib/charlas.js`, `lib/sugerencias.js`
+o `estilos/app.css` (de ahí sale `public/css/app.css`).
 Ante la duda, correrlo: es barato.
 
 Las tres últimas líneas tienen que decir:
@@ -104,7 +105,7 @@ Los estados graves se prueban cargando el río a mano: `#in-rio` +
   (`.landing a:not(.btn):not(.lockup)…`). Un enlace que sale azul sin
   querer casi siempre es eso: o lleva una clase excluida (`.punto`), o se
   repite la cadena entera con el prefijo del contenedor.
-- **Antes de estrenar una clase, `grep` en `public/css/app.css`.** `.cuenta` y
+- **Antes de estrenar una clase, `grep` en `estilos/app.css`.** `.cuenta` y
   `.cita` ya nombraron dos cosas a la vez y las dos salían rotas sin fallar.
 - **Al tocar el marcado a mano, contar los `<div>`.** Un cierre de más o de
   menos no da error, sólo rompe el layout lejos de donde está:

@@ -1,0 +1,6591 @@
+/* ==========================================================================
+   TIPOGRAFÍAS
+   Self-hosteadas, subset latin (cubre los acentos del español, ¿ y ¡).
+   Plus Jakarta Sans para todo el texto; JetBrains Mono sólo para datos,
+   etiquetas y coordenadas — la mono es deliberada: la app quiere leerse como
+   un instrumento de medición.
+
+   Las dos son VARIABLES: un solo archivo trae todos los pesos. Por eso hay un
+   @font-face por familia con un rango en `font-weight`, y no uno por peso.
+   Antes eran seis caras apuntando a seis copias del mismo par de archivos con
+   nombres distintos, y el navegador bajaba cada copia: 175 KB donde alcanzan
+   59. El rango es el que usa el CSS; un peso fuera de él se ajusta al borde,
+   igual que hacía antes con caras sueltas.
+   ========================================================================== */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 500 800;
+  font-display: swap;
+  src: url("/vendor/fonts/jakarta.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("/vendor/fonts/jetbrains.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+/* ==========================================================================
+   TEMAS
+   El light no es preferencia estética: la app se usa parada en la vereda, de
+   día, y un tema oscuro a pleno sol se lee mucho peor.
+   Los semánticos del diseño venían entre 3,86 y 4,32 de contraste — elegidos
+   por cómo se ven, no medidos. Están corregidos al mínimo necesario para
+   pasar AA conservando el tono; el desplazamiento es de pocos por ciento y no
+   se nota, pero es la diferencia entre que una alerta se lea o no.
+   ========================================================================== */
+:root {
+  --fondo: #0e1619;
+  --panel: #17232a;
+  --panel-2: rgba(233, 238, 240, 0.07);
+  --linea: rgba(233, 238, 240, 0.1);
+  --texto: #e9eef0;
+  --tenue: #93a6ad;
+  /* #5FC8E8 es el azul de la marca y es el MISMO en los dos temas: el agua
+     del símbolo, el agua de la regla y el relleno de los botones no cambian
+     de color porque cambie el fondo de la página. En claro era #1f7a9e, un
+     azul mucho más hondo, y la marca se veía distinta en cada tema. */
+  --agua: #5fc8e8;
+  --agua-clara: #5fc8e8;
+  --acento: #5fc8e8;
+  /* La tinta que va ENCIMA del relleno azul. Blanco sobre #5FC8E8 da 1,92:1
+     —ilegible—; ésta da 9,51. Misma idea que --sobre-solido para los rellenos
+     de alerta: un relleno claro necesita su propio color de texto. */
+  --sobre-agua: #0e1619;
+  --alerta: #e8a33d;
+  --peligro: #e15f49;
+  --ok: #4fa88b;
+  --alerta-texto: #e8a33d;
+  --peligro-texto: #e57563;
+  --ok-texto: #51ab8e;
+  --tierra: #c9a227;
+
+  /* Relleno sólido: ahí encima va texto blanco y necesita su propio valor.
+     El del diseño daba 3,67 con blanco. */
+  --peligro-solido: #d93e24;
+  --sobre-solido: #ffffff;
+
+  /* Los dos rellenos de la franja de estado en vivo. NO se remapean por tema:
+     una franja de alerta oficial es la misma franja de noche que de día —lo
+     que cambia con el tema es la página, no la emergencia—. Van con texto
+     blanco (--sobre-solido), y ese es el motivo de que no sean --alerta ni
+     --peligro: esos dos están calibrados para TEXTO sobre el fondo, no para
+     ser fondo. Medidos contra blanco: 4,67 y 7,24. El diseño traía #d9480f
+     para el naranja y da 4,30 con el bold de 13 px de la franja, o sea por
+     debajo del 4,5 de AA; #cf440d es el mismo naranja un escalón más hondo. */
+  --alerta-solido: #cf440d;
+  --evac-solido: #a5271a;
+  /* Las líneas de alerta y evacuación de las reglas —la de la app, la de
+     Mi casa, la de la portada, la franja de /historia—. En claro son los
+     rellenos sólidos, que se distinguen bien entre sí; en oscuro, los
+     sólidos sobre #17232a quedan apagados (el rojo hondo, 2,3:1) y van los
+     tonos de texto del tema. */
+  --linea-alerta: #e8a33d;
+  --linea-evac: #e57563;
+
+  --agua-tinte: rgba(46, 155, 196, 0.16);
+  --alerta-tinte: rgba(232, 163, 61, 0.14);
+  --peligro-tinte: rgba(224, 90, 68, 0.16);
+  --ok-tinte: rgba(79, 168, 139, 0.15);
+
+  --btn-texto: #0e1619;
+  --fondo-invertido: #1b2b33;
+  /* El relleno sólido del botón principal. No es un color de marca: es
+     SIEMPRE el de máximo contraste contra la superficie. Negro sobre fondo
+     claro, claro sobre fondo oscuro. Antes en tema oscuro era el azul, y eso
+     dejaba el botón principal y el secundario idénticos: en oscuro no había
+     jerarquía ninguna. */
+  --btn-fuerte: var(--texto);
+  --btn-fuerte-texto: var(--fondo);
+  --texto-invertido: #e9eef0;
+  --tenue-invertido: #93a6ad;
+  /* Las tarjetas sólidas oscuras de la app (el progreso del plan, «Si no
+     sabés nada de esto»). En tema oscuro, oscuro sobre oscuro se pierde: van
+     como panel con borde. En claro son el negro de siempre. */
+  --sup-fuerte: var(--panel);
+  --sup-fuerte-borde: var(--linea);
+  /* El sitio en oscuro (rediseño, «SitioOscuro»). Las superficies que en
+     claro son oscuras —la franja de historia, el cierre, la caja de código—
+     en oscuro ya son --fondo-invertido, pero sin borde se fundían con el
+     fondo: llevan un filete de 1 px y ninguna sombra, que en oscuro no se
+     ve. «Mira el río» es panel en claro y baja a --fondo-invertido en
+     oscuro. El pie va un tono más oscuro que el fondo.
+     En claro, los cuatro son neutros: el tema claro no cambia. */
+  --borde-invertido: rgba(233, 238, 240, 0.08);
+  --sup-lluvia: var(--fondo-invertido);
+  --fondo-pie: #0a1114;
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
+  --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
+  --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
+    contrast(0.9);
+  --filtro-iconos-mapa: invert(1) brightness(0.92);
+
+  /* ---- medidas del sitio ----
+     Dos anchos y nada más. La cabecera y el pie usan el de sitio en TODAS las
+     páginas, así la marca arranca en la misma vertical se venga de donde se
+     venga; el cuerpo de las páginas de contenido usa el de lectura, que es más
+     angosto porque son para leer, no para recorrer. Van como variables para
+     que no haya dos números sueltos que se desincronicen. */
+  --ancho-sitio: 1100px;
+
+  /* ---- escalas ----
+     En rem, no en px, y esto NO es estilo: con px, alguien que agrandó la
+     letra en los ajustes de Android no veía ninguna diferencia. El rem sigue
+     al tamaño de fuente del navegador, que es lo que mueve ese ajuste.
+     Los valores son la fracción exacta sobre 16 px (el default), así que al
+     100 % el render es idéntico al que había con px. */
+  --t-hero: 4rem; /* 64px · el número del hidrómetro */
+  --t-display: 2.75rem; /* 44px · h1 de landing y páginas, sólo en escritorio */
+  --t-xxl: 1.875rem; /* 30px */
+  --t-xl: 1.5rem; /* 24px */
+  --t-l: 1.25rem; /* 20px */
+  --t-m: 1.0625rem; /* 17px */
+  --t-base: 0.9375rem; /* 15px */
+  --t-s: 0.8125rem; /* 13px */
+  --t-xs: 0.75rem; /* 12px */
+  --t-tick: 0.75rem; /* 12px */
+
+  /* El espaciado también: si el texto crece y el aire no, a 130 % las
+     palabras se pegan a los bordes de las tarjetas. */
+  --e-1: 0.25rem; /* 4px */
+  --e-2: 0.5rem; /* 8px */
+  --e-3: 0.75rem; /* 12px */
+  --e-4: 1rem; /* 16px */
+  --e-5: 1.25rem; /* 20px */
+  --e-6: 1.5rem; /* 24px */
+  --e-7: 2rem; /* 32px */
+
+  --r-s: 8px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 28px;
+  --r-full: 99px;
+
+  --mov: 160ms cubic-bezier(0.2, 0, 0.2, 1);
+
+  --sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Los valores del tema claro viven UNA sola vez acá. Los dos selectores de
+   abajo sólo los remapean: duplicarlos garantiza que tarde o temprano uno se
+   actualice y el otro no. */
+:root {
+  /* OJO: este hex está escrito a mano en cinco lugares más —el <meta
+     theme-color> de la portada y el de scripts/paginas.js, el respaldo de
+     js/app/tema.js, CLARO en scripts/iconos.js y el CSS embebido de
+     api/metricas.js—. Si se mueve acá, se mueven los seis o la barra del
+     navegador deja de coincidir con la página. */
+  --c-fondo: #fafbfc;
+  --c-panel: #ffffff;
+  --c-panel-2: rgba(27, 38, 44, 0.055);
+  --c-linea: rgba(27, 38, 44, 0.09);
+  --c-texto: #1b262c;
+  --c-tenue: #66747a;
+  --c-agua: #5fc8e8;
+  --c-agua-clara: #5fc8e8;
+  /* --acento NO es el azul de marca: es la tinta de los enlaces, y en claro
+     #5FC8E8 sobre el fondo da 1,86:1 contra el 4,5 que pide AA. O sea, unos
+     ochenta enlaces del sitio y de la app quedarían ilegibles. El azul de
+     marca vive en --agua, que es relleno y no tinta. */
+  --c-acento: #1f7a9e;
+  --c-alerta: #cb430e;
+  --c-peligro: #ca442f;
+  --c-ok: #387f64;
+  --c-alerta-texto: #c4410e;
+  --c-peligro-texto: #be402c;
+  --c-ok-texto: #35785e;
+  --c-tierra: #7a5f0d;
+  --c-peligro-solido: #ca442f;
+  --c-agua-tinte: #e8f3f8;
+  --c-alerta-tinte: #ffefe3;
+  --c-peligro-tinte: #fbe9e5;
+  --c-ok-tinte: #e6f2ec;
+  --c-btn-texto: #ffffff;
+  --c-fondo-invertido: #0e1619;
+  --c-btn-fuerte: #0e1619;
+  --c-btn-fuerte-texto: #e9eef0;
+  --c-texto-invertido: #e9eef0;
+  --c-tenue-invertido: #93a6ad;
+  --c-sup-fuerte: #0e1619;
+  --c-sup-fuerte-borde: transparent;
+  --c-borde-invertido: transparent;
+  --c-sup-lluvia: var(--panel);
+  --c-fondo-pie: transparent;
+  --c-linea-alerta: #cf440d;
+  --c-linea-evac: #a5271a;
+  --c-sombra:
+    0 1px 2px rgba(23, 36, 42, 0.05), 0 10px 28px rgba(23, 36, 42, 0.07);
+  --c-sombra-nav: 0 -6px 24px rgba(23, 36, 42, 0.06);
+  --c-filtro-mapa: saturate(0.92);
+  --c-filtro-iconos-mapa: none;
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) {
+    --fondo: var(--c-fondo);
+    --panel: var(--c-panel);
+    --panel-2: var(--c-panel-2);
+    --linea: var(--c-linea);
+    --texto: var(--c-texto);
+    --tenue: var(--c-tenue);
+    --agua: var(--c-agua);
+    --agua-clara: var(--c-agua-clara);
+    --acento: var(--c-acento);
+    --alerta: var(--c-alerta);
+    --peligro: var(--c-peligro);
+    --ok: var(--c-ok);
+    --alerta-texto: var(--c-alerta-texto);
+    --peligro-texto: var(--c-peligro-texto);
+    --ok-texto: var(--c-ok-texto);
+    --tierra: var(--c-tierra);
+    --peligro-solido: var(--c-peligro-solido);
+    --agua-tinte: var(--c-agua-tinte);
+    --alerta-tinte: var(--c-alerta-tinte);
+    --peligro-tinte: var(--c-peligro-tinte);
+    --ok-tinte: var(--c-ok-tinte);
+    --btn-texto: var(--c-btn-texto);
+    --fondo-invertido: var(--c-fondo-invertido);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --texto-invertido: var(--c-texto-invertido);
+    --tenue-invertido: var(--c-tenue-invertido);
+    --fondo-invertido: var(--c-fondo-invertido);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --btn-fuerte: var(--c-btn-fuerte);
+    --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+    --texto-invertido: var(--c-texto-invertido);
+    --tenue-invertido: var(--c-tenue-invertido);
+    --sup-fuerte: var(--c-sup-fuerte);
+    --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+    --borde-invertido: var(--c-borde-invertido);
+    --sup-lluvia: var(--c-sup-lluvia);
+    --fondo-pie: var(--c-fondo-pie);
+    --linea-alerta: var(--c-linea-alerta);
+    --linea-evac: var(--c-linea-evac);
+    --sombra: var(--c-sombra);
+    --sombra-nav: var(--c-sombra-nav);
+    --filtro-mapa: var(--c-filtro-mapa);
+    --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
+  }
+}
+
+html[data-theme="light"] {
+  --fondo: var(--c-fondo);
+  --panel: var(--c-panel);
+  --panel-2: var(--c-panel-2);
+  --linea: var(--c-linea);
+  --texto: var(--c-texto);
+  --tenue: var(--c-tenue);
+  --agua: var(--c-agua);
+  --agua-clara: var(--c-agua-clara);
+  --acento: var(--c-acento);
+  --alerta: var(--c-alerta);
+  --peligro: var(--c-peligro);
+  --ok: var(--c-ok);
+  --alerta-texto: var(--c-alerta-texto);
+  --peligro-texto: var(--c-peligro-texto);
+  --ok-texto: var(--c-ok-texto);
+  --tierra: var(--c-tierra);
+  --peligro-solido: var(--c-peligro-solido);
+  --agua-tinte: var(--c-agua-tinte);
+  --alerta-tinte: var(--c-alerta-tinte);
+  --peligro-tinte: var(--c-peligro-tinte);
+  --ok-tinte: var(--c-ok-tinte);
+  --btn-texto: var(--c-btn-texto);
+  --fondo-invertido: var(--c-fondo-invertido);
+  --btn-fuerte: var(--c-btn-fuerte);
+  --btn-fuerte-texto: var(--c-btn-fuerte-texto);
+  --texto-invertido: var(--c-texto-invertido);
+  --tenue-invertido: var(--c-tenue-invertido);
+  --sup-fuerte: var(--c-sup-fuerte);
+  --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+  --borde-invertido: var(--c-borde-invertido);
+  --sup-lluvia: var(--c-sup-lluvia);
+  --fondo-pie: var(--c-fondo-pie);
+  --linea-alerta: var(--c-linea-alerta);
+  --linea-evac: var(--c-linea-evac);
+  --sombra: var(--c-sombra);
+  --sombra-nav: var(--c-sombra-nav);
+  --filtro-mapa: var(--c-filtro-mapa);
+  --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+/* OJO: `html` NO lleva font-size. Es la raíz contra la que se resuelven todos
+   los rem: si acá se fija 15px, cada rem vale 15/16 y toda la escala se
+   encoge. El tamaño base del texto lo pone `body`.
+   Y NO va `-webkit-text-size-adjust: 100%`: esa línea es justo la que hacía
+   que el ajuste de "Tamaño de fuente" de Chrome en Android no hiciera nada. */
+html,
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--sans);
+  font-weight: 500;
+  line-height: 1.55;
+}
+body {
+  font-size: var(--t-base);
+  /* En rem: la barra de abajo crece con su etiqueta cuando el texto es más
+     grande, y con 88px fijos tapaba el último bloque de cada pestaña. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+/* La barra de instalar es fixed: sin esto flotaba encima del último bloque
+   de cada pestaña, que además suele ser un aviso importante. */
+body.con-instalar {
+  padding-bottom: calc(6rem + 3.75rem + env(safe-area-inset-bottom));
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+/* El salto al contenido. Fuera de pantalla hasta que lo enfocan; no se usa
+   `display:none` ni `visibility:hidden` porque eso lo saca del orden de
+   tabulación y entonces no sirve para nada. */
+.saltar {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-s);
+  background: var(--panel);
+  color: var(--texto);
+  font-weight: 700;
+  text-decoration: none;
+}
+.saltar:focus {
+  left: var(--e-3);
+  top: var(--e-3);
+  box-shadow: var(--sombra);
+}
+
+/* El foco, en dos reglas y no en una lista: si se escriben juntas, un
+   navegador que no entiende `:focus-visible` descarta el selector ENTERO y se
+   queda sin ningún indicador de foco. Separadas, ése ve la primera —foco
+   visible siempre, que es lo correcto para él— y los modernos aplican la
+   segunda, que lo saca cuando el foco vino del mouse. */
+:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- cabecera ---------- */
+.top {
+  /* viewport-fit=cover hace que el contenido vaya por debajo de la muesca y
+     la barra de estado. El safe-area estaba contemplado abajo (la nav) pero
+     no arriba, así que el logo quedaba pisado. */
+  padding: calc(14px + env(safe-area-inset-top)) var(--e-4) 12px;
+  /* El botón de tema va en el flujo, no absoluto: estaba posicionado y el
+     subtítulo le pasaba por debajo. Con flex no se solapan nunca, cualquiera
+     sea el largo del texto. */
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e-4);
+  border-bottom: 1px solid var(--linea);
+  position: relative;
+}
+/* El botón de tema va en el encabezado, arriba a la derecha, donde no
+   compite con nada. */
+.tema {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--linea);
+  background: var(--panel);
+  color: var(--texto);
+  font-size: var(--t-m);
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* La marca de la app es ahora símbolo + nombre. El tamaño lo pone
+   .lockup-nombre; acá sólo queda la caja. */
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-3);
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+/* El nombre va en el color del texto, igual que en la barra del sitio:
+   iba en el acento y la marca se veía distinta en la app y en el sitio. */
+.marca span {
+  color: var(--texto);
+}
+.sub {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  letter-spacing: 0;
+  text-transform: none;
+  /* Es un <p> por semántica; el margen inferior de los párrafos no va acá. */
+  margin: var(--e-1) 0 0;
+}
+
+/* ---------- estructura ---------- */
+.vista {
+  display: none;
+  /* 16 px de margen al costado: el del diseño, y el mínimo para que el texto
+     no se pegue al borde del teléfono. */
+  padding: var(--e-4);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.vista.on {
+  display: block;
+}
+/* El título de sección de la app. Las páginas del sitio lo agrandan con
+   `.landing h2`; en un teléfono, 24 px por sección competían con el número
+   del veredicto. */
+h2 {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-l);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin: var(--e-6) 0 var(--e-2);
+}
+h2:first-child {
+  margin-top: var(--e-1);
+}
+/* El contador de cada lista del plan. Se llamaba `.cuenta`, como la tabla
+   del cálculo de /datos: la tabla le ponía width:100% y en la cabecera
+   flex de la lista lo estiraba a todo el ancho. */
+.cuenta-lista {
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--acento);
+  text-transform: none;
+  white-space: nowrap;
+}
+.cuenta-lista.completa {
+  color: var(--ok-texto);
+}
+h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-m);
+  letter-spacing: -0.01em;
+  color: var(--texto);
+  margin: var(--e-5) 0 var(--e-2);
+}
+p {
+  margin: 0 0 var(--e-3);
+}
+.chico {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.tarjeta {
+  background: var(--panel);
+  border: none;
+  box-shadow: var(--sombra);
+  border-radius: var(--r-l);
+  padding: var(--e-5);
+  margin-bottom: var(--e-4);
+}
+.eti {
+  font-family: var(--mono);
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  display: block;
+  margin-bottom: var(--e-2);
+}
+.dato {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-hero);
+  line-height: 0.9;
+}
+.unidad {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  margin-top: var(--e-2);
+}
+
+/* ---------- regla / hidrómetro (elemento firma) ---------- */
+/* La escala a la izquierda, el tanque y, a lo ancho, una línea por cada
+   nivel con su etiqueta pegada. Antes las etiquetas iban en una lista aparte
+   a la derecha que repetía los mismos números. El alto va en rem: rio.js
+   calcula en % cuánto separar las etiquetas para que no se encimen, y esa
+   cuenta sólo vale si la regla crece junto con el texto. */
+.hidrometro {
+  display: grid;
+  /* 14 px de marcas más los números a la izquierda. */
+  grid-template-columns: 36px 1fr;
+  gap: 6px;
+  height: 20rem;
+  margin: var(--e-4) 0 var(--e-3);
+}
+.escala {
+  position: relative;
+}
+.regla {
+  position: relative;
+}
+.tanque {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  background: var(--panel-2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.agua {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--agua);
+  transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.marca-linea {
+  position: absolute;
+  left: 0;
+  width: 50px;
+  height: 0;
+  border-top: 2px solid currentColor;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Del borde de la línea a la etiqueta. Va en % del alto, como las
+   posiciones: el SVG se estira y el trazo no, por non-scaling-stroke. */
+.conectores {
+  position: absolute;
+  left: 50px;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  overflow: visible;
+}
+.conectores line {
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.conectores .l-record {
+  stroke-dasharray: 4 3;
+}
+.conectores .l-vos {
+  stroke-dasharray: 2 2;
+}
+.conectores .l-alerta {
+  color: var(--linea-alerta);
+}
+.conectores .l-evac {
+  color: var(--linea-evac);
+}
+.conectores .l-hoy {
+  color: var(--acento);
+}
+.marca-txt {
+  position: absolute;
+  left: 64px;
+  transform: translateY(50%);
+  padding: 0 var(--e-1);
+  font-size: var(--t-xs);
+  line-height: 1.3rem;
+  white-space: nowrap;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.marca-txt b {
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.l-alerta {
+  color: var(--alerta-texto);
+}
+.marca-linea.l-alerta {
+  color: var(--linea-alerta);
+}
+.l-evac {
+  color: var(--peligro-texto);
+}
+.marca-linea.l-evac {
+  color: var(--linea-evac);
+}
+.l-record {
+  color: var(--tenue);
+}
+.marca-linea.l-record {
+  border-top-style: dashed;
+}
+.l-hoy {
+  color: var(--texto);
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.marca-linea.l-hoy {
+  color: var(--acento);
+}
+.marca-txt.l-hoy b {
+  color: var(--acento);
+}
+/* Vencido, la línea del río deja el azul del agua: gris, como el agua
+   rayada y el número de la tarjeta. */
+.conectores .l-hoy.viejo,
+.marca-linea.l-hoy.viejo,
+.marca-txt.l-hoy.viejo,
+.marca-txt.l-hoy.viejo b {
+  color: var(--tenue);
+}
+.l-vos {
+  color: var(--tierra);
+}
+.marca-linea.l-vos {
+  border-top-style: dotted;
+}
+/* Afuera de la regla no hay altura que marcar: queda sólo la etiqueta. */
+.marca-linea.fuera {
+  display: none;
+}
+/* "vos" va con chip lleno: es tuyo, no un umbral oficial. */
+.chip-vos {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 7px;
+  border-radius: var(--r-full);
+  background: var(--tierra);
+  color: var(--fondo);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+/* ---------- la regla del río: las marcas ----------
+   Un solo componente para el nivel del río, en sus tres medidas (rediseño,
+   «Regla»). Marcas de hidrómetro de 0 a 8 m: cada 10 cm, más largas cada
+   50 cm y más largas todavía cada metro. Son degradados que se repiten, así
+   que sirven a cualquier largo sin una línea de JavaScript: por eso la misma
+   clase anda en la portada (script clásico), en la app (módulos) y en Mi
+   casa. El widget no puede leer este archivo y lleva una copia en su
+   <style>: si cambia una, cambia la otra.
+
+   El elemento mide 1 px más que la escala, y el período es (largo − 1 px)
+   dividido 8, 16 u 80: así la marca de 8 m también entra. Con el período en
+   % puro, la última caía 1 px afuera y no se dibujaba. */
+.marcas-rio {
+  background-image:
+    repeating-linear-gradient(
+      to top,
+      var(--texto) 0 1px,
+      transparent 1px calc((100% - 1px) / 8)
+    ),
+    repeating-linear-gradient(
+      to top,
+      var(--tenue) 0 1px,
+      transparent 1px calc((100% - 1px) / 16)
+    ),
+    repeating-linear-gradient(
+      to top,
+      var(--linea) 0 1px,
+      transparent 1px calc((100% - 1px) / 80)
+    );
+  background-size:
+    14px 100%,
+    9px 100%,
+    5px 100%;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+.marcas-rio.h {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--texto) 0 1px,
+      transparent 1px calc((100% - 1px) / 8)
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--tenue) 0 1px,
+      transparent 1px calc((100% - 1px) / 16)
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--linea) 0 1px,
+      transparent 1px calc((100% - 1px) / 80)
+    );
+  background-size:
+    100% 8px,
+    100% 6px,
+    100% 4px;
+  background-position: left top;
+}
+/* En la pestaña Río, a la derecha de la columna de números. */
+.escala .marcas-rio {
+  position: absolute;
+  right: 0;
+  top: -1px;
+  bottom: 0;
+  width: 14px;
+}
+
+/* Dato vencido: el agua rayada en gris, nunca en --agua, en las cuatro
+   reglas —la de Río, la del hero, la de Mi casa y la mini de la píldora—.
+   Un dato viejo no puede tener la cara de uno de hoy, tampoco en el dibujo. */
+.agua.viejo,
+.rm-agua.viejo,
+.bc-agua.viejo,
+.pr-agua.viejo {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tenue) 0 6px,
+    transparent 6px 12px
+  );
+  opacity: 0.45;
+}
+.tic-num {
+  position: absolute;
+  right: 18px;
+  font-family: var(--mono);
+  font-size: var(--t-tick);
+  font-weight: 500;
+  color: var(--tenue);
+  transform: translateY(50%);
+}
+.origen-dato {
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+}
+
+/* ---------- veredicto ---------- */
+.veredicto {
+  border-radius: var(--r-l);
+  box-shadow: var(--sombra);
+  padding: var(--e-5);
+  margin-bottom: var(--e-4);
+  border: none;
+}
+.veredicto .titu {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: var(--e-2);
+}
+/* La fila del umbral, dentro de la tarjeta de veredicto: la lectura oficial
+   es el número grande de arriba; estas dos celdas responden "¿y para mí?".
+   Van sobre --panel y no sobre otro tinte: la tarjeta ya está tintada por el
+   estado, y tinte sobre tinte no se distingue. El color del estado viaja en
+   el valor de la celda del margen, que es el dato que cambia de significado. */
+.celdas-umbral {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-2);
+  margin: var(--e-3) 0;
+}
+.celdas-umbral .celda {
+  background: var(--panel);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
+  min-width: 0;
+}
+.celdas-umbral .k {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.celdas-umbral .v {
+  display: block;
+  margin-top: var(--e-1);
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-xl);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+}
+.celdas-umbral .t-vos .v {
+  color: var(--tierra);
+}
+.celdas-umbral .t-ok .v {
+  color: var(--ok-texto);
+}
+.celdas-umbral .t-alerta .v {
+  color: var(--alerta-texto);
+}
+.celdas-umbral .t-peligro .v {
+  color: var(--peligro-texto);
+}
+
+.v-ok {
+  background: var(--ok-tinte);
+}
+.v-ok .titu {
+  color: var(--ok-texto);
+}
+.v-alerta {
+  background: var(--alerta-tinte);
+}
+.v-alerta .titu {
+  color: var(--alerta-texto);
+}
+.v-peligro {
+  background: var(--peligro-tinte);
+}
+.v-peligro .titu {
+  color: var(--peligro-texto);
+}
+/* Mientras busca el dato, la tarjeta late suave. Es la diferencia entre
+   "esperá" y "falló". */
+.veredicto.cargando {
+  animation: latido 1.6s ease-in-out infinite;
+}
+@keyframes latido {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.v-neutro {
+  background: var(--panel);
+  box-shadow: var(--sombra);
+}
+/* El dato vencido (más de 48 h): gris de punta a punta, número incluido.
+   Con este número no se decide nada, y no puede tener la cara de uno de
+   hoy. */
+.v-viejo {
+  background: var(--panel-2);
+  border: 1px solid var(--linea);
+  box-shadow: none;
+}
+.v-viejo .titu,
+.v-viejo .dato-rio,
+.celdas-umbral .t-viejo .v {
+  color: var(--tenue);
+}
+
+/* Mientras llega el dato: bloques con el alto de lo que va a ocupar, para
+   que la tarjeta no salte bajo el dedo (el CLS de /app era 0,264). */
+.esqueleto {
+  background: var(--panel-2);
+  border-radius: var(--r-s);
+}
+.esqueleto.e-titu {
+  width: 62%;
+  height: 28px;
+  margin-bottom: var(--e-3);
+}
+.esqueleto.e-dato {
+  width: 46%;
+  height: 56px;
+  margin-bottom: var(--e-3);
+}
+.esqueleto.e-linea {
+  height: 12px;
+  margin-top: var(--e-2);
+}
+.esqueleto.e-linea.corta {
+  width: 70%;
+}
+
+/* El número del río, con la unidad y el lugar en la misma línea. */
+.dato-rio {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--e-2);
+  margin-bottom: var(--e-2);
+}
+.dato-rio .u {
+  font-size: var(--t-xl);
+  font-weight: 700;
+  color: var(--tenue);
+  letter-spacing: 0;
+}
+.dato-rio .eti {
+  margin: 0 0 0 var(--e-1);
+  letter-spacing: 0.09em;
+}
+.mov-rio {
+  margin: 0 0 var(--e-1);
+}
+.mov-rio .sube {
+  color: var(--alerta-texto);
+}
+.mov-rio .baja {
+  color: var(--ok-texto);
+}
+.veredicto .glosa {
+  margin: 0;
+}
+.veredicto .dato + .glosa {
+  margin-top: var(--e-3);
+}
+/* La línea de abajo del veredicto: el texto del estado, separado del número
+   y de la regla por un filete. */
+.veredicto-pie {
+  margin: var(--e-3) 0 0;
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-base);
+}
+
+/* La regla de Mi casa: hoy, la alerta de la ciudad, el récord y vos, en la
+   misma escala que el hidrómetro de la pestaña Río. */
+.barra-casa {
+  position: relative;
+  height: 2.5rem;
+  margin-top: var(--e-3);
+}
+.barra-casa i {
+  position: absolute;
+}
+.bc-pista,
+.bc-agua {
+  left: 0;
+  top: 50%;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: var(--r-full);
+}
+.bc-pista {
+  right: 0;
+  background: var(--linea);
+}
+.bc-agua {
+  background: var(--agua);
+}
+.bc-marca {
+  top: 20%;
+  bottom: 20%;
+  width: 2px;
+  margin-left: -1px;
+}
+.bc-alerta {
+  background: var(--linea-alerta);
+}
+.bc-record {
+  background: var(--tenue);
+}
+.bc-vos {
+  top: 10%;
+  bottom: 10%;
+  width: 14px;
+  margin-left: -7px;
+  border-radius: 6px;
+  background: var(--tierra);
+}
+/* Las marcas de hidrómetro, pegadas debajo de la pista. Un pixel más largas
+   que la pista, para que entre la de 8 m (ver .marcas-rio). */
+.bc-marcas {
+  left: 0;
+  right: -1px;
+  top: calc(50% + 8px);
+  height: 8px;
+}
+.barra-casa-ley {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px var(--e-3);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.barra-casa-ley b,
+.lista-niveles b {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--texto);
+}
+/* Un color por cosa, el mismo en la regla, en Mi casa y en los avisos. */
+b.c-hoy {
+  color: var(--acento);
+}
+b.c-alerta {
+  color: var(--alerta-texto);
+}
+b.c-evac {
+  color: var(--peligro-texto);
+}
+b.c-vos {
+  color: var(--tierra);
+}
+
+/* El renglón de la casa cargada, con «Cambiar». */
+/* ---------- Mi casa, la primera vez ----------
+   Tres pasos (pasoPrimera en cota.js). La sección lleva .primera y .paso-N, y
+   esto decide qué se ve: son los mismos campos del formulario de siempre.
+   Con id adelante para ganarle a .btn, .tarjeta y compañía. */
+#v-cota:not(.primera) .solo-primera,
+#v-cota:not(.paso-3) .solo-paso-3,
+#v-cota.primera .solo-formulario,
+#v-cota.primera #cota-intro,
+#v-cota.paso-1 #paso-altura,
+#v-cota.paso-2 #paso-zona,
+#v-cota.paso-1 #resultado,
+#v-cota.paso-2 #resultado,
+#v-cota.paso-1 #avisos,
+#v-cota.paso-2 #avisos {
+  display: none;
+}
+.primera-cabeza {
+  margin: 0 0 var(--e-4);
+}
+.primera-cabeza .eti {
+  display: block;
+  margin-bottom: var(--e-2);
+}
+/* Tres tramos, uno por paso: se llenan los hechos y el actual. */
+.progreso-pasos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-1);
+}
+.progreso-pasos i {
+  height: 5px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+}
+.progreso-pasos i.hecho {
+  background: var(--acento);
+}
+#paso-zona h2,
+#paso-altura h2 {
+  margin-top: 0;
+}
+/* El foco llega a los títulos por código, al cambiar de paso, para que el
+   lector de pantalla arranque ahí. No es un control: sin anillo. */
+#paso-zona h2:focus,
+#paso-altura h2:focus,
+.primera-cabeza:focus {
+  outline: none;
+}
+/* Las doce zonas, a la vista y de un toque: en un <select> había que abrir
+   la lista para enterarse de cuáles había. */
+.zonas-radio {
+  display: grid;
+  gap: var(--e-1);
+  margin: var(--e-3) 0;
+  padding: 0;
+  border: 0;
+}
+.zona-opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 48px;
+  padding: var(--e-2) var(--e-3);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  font-size: var(--t-base);
+  cursor: pointer;
+}
+.zona-opcion input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--acento);
+}
+.zona-opcion:has(input:checked) {
+  border-color: var(--acento);
+  background: var(--agua-tinte);
+  font-weight: 700;
+}
+.zona-opcion:has(input:focus-visible) {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+.fila-pasos {
+  display: flex;
+  gap: var(--e-2);
+  margin-top: var(--e-4);
+}
+/* .btn trae width:100%: en la fila, «Atrás» se comía el renglón entero. */
+.fila-pasos .btn {
+  flex: 1;
+  width: auto;
+  margin: 0;
+}
+.fila-pasos .btn.sec {
+  flex: 0 0 auto;
+}
+.solo-paso-3 {
+  width: 100%;
+  margin-top: var(--e-3);
+}
+.casa-renglon {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+}
+.casa-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--agua-tinte);
+}
+.casa-icono svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--acento);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.casa-txt {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.casa-txt b {
+  font-size: var(--t-base);
+  color: var(--texto);
+}
+.casa-txt .ojo {
+  margin-top: var(--e-1);
+  color: var(--alerta-texto);
+}
+.casa-renglon button {
+  flex: none;
+  min-height: 2.75rem;
+  padding: 0 var(--e-2);
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--acento);
+  cursor: pointer;
+}
+
+/* Un <details> con forma de tarjeta: el título es el resumen y el chevrón
+   dice que se abre. */
+.plegable > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 2.75rem;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+  cursor: pointer;
+  list-style: none;
+}
+.plegable > summary::-webkit-details-marker {
+  display: none;
+}
+.plegable > summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid var(--tenue);
+  border-bottom: 2px solid var(--tenue);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--mov);
+}
+.plegable[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+.plegable[open] > summary {
+  margin-bottom: var(--e-3);
+}
+
+/* El desglose del cálculo: la única pantalla con la aritmética exacta. */
+.desglose {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: var(--t-s);
+}
+.desglose td {
+  padding: 6px 0;
+  color: var(--tenue);
+  vertical-align: top;
+}
+.desglose td.n {
+  text-align: right;
+  color: var(--texto);
+}
+.desglose .nota {
+  font-size: var(--t-xs);
+}
+.desglose .ojo,
+.desglose .ojo td {
+  color: var(--alerta-texto);
+}
+.desglose tr.total {
+  border-top: 1px solid var(--linea);
+}
+.desglose tr.total td {
+  padding-top: 9px;
+  font-weight: 700;
+  color: var(--texto);
+}
+.desglose tr.total td.n {
+  color: var(--acento);
+}
+
+/* Los tres niveles a los que avisa el teléfono. */
+.lista-niveles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--t-s);
+}
+.lista-niveles li {
+  display: flex;
+  gap: var(--e-2);
+  align-items: baseline;
+}
+.lista-niveles b {
+  min-width: 3rem;
+}
+
+/* ---------- controles ---------- */
+label.campo {
+  display: block;
+  margin-bottom: var(--e-3);
+}
+label.campo > span {
+  font-family: var(--sans);
+  font-size: var(--t-s);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tenue);
+  display: block;
+  margin-bottom: var(--e-1);
+}
+input[type="text"],
+input[type="search"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-4);
+  min-height: 52px;
+  font-family: var(--sans);
+  font-weight: 500;
+}
+input[type="number"] {
+  font-family: var(--mono);
+}
+textarea {
+  font-family: var(--sans);
+  resize: vertical;
+  min-height: 4rem;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--agua);
+}
+/* El buscador de dirección: la lista de calles va pegada al campo, en el
+   flujo y no flotando, para que nunca tape el botón ni quede cortada por el
+   teclado del teléfono. Las sugerencias las arma js/app/calles.js. */
+label.campo-dir {
+  margin-bottom: 0;
+}
+.sug-dir {
+  list-style: none;
+  margin: var(--e-1) 0 0;
+  padding: var(--e-1) 0;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra);
+}
+.sug-dir li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-3);
+  min-height: 44px;
+  padding: var(--e-2) var(--e-4);
+  cursor: pointer;
+  font-weight: 600;
+}
+.sug-dir li small {
+  font-weight: 400;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.sug-dir li:hover,
+.sug-dir li[aria-selected="true"] {
+  background: var(--agua-tinte);
+}
+.pista-dir {
+  margin: var(--e-2) 0 var(--e-3);
+}
+.pista-dir.aviso-dir {
+  color: var(--alerta-texto);
+}
+/* ==========================================================================
+   BOTONES: DOS ESTILOS Y NADA MÁS
+   `.btn`      el sólido. La acción principal, una por pantalla. Negro sobre
+               fondo claro, claro sobre fondo oscuro.
+   `.btn.sec`  el azul del agua. Todo lo demás.
+
+   Había cuatro rellenos —azul, gris, negro y celeste—. El gris y el celeste
+   eran el mismo secundario escrito dos veces, y con el negro haciendo de
+   principal en el sitio y el azul de principal en la app, ninguna pantalla
+   decía cuál era LA acción. Ahora la jerarquía es una sola y es la misma en
+   los dos lados.
+   ========================================================================== */
+.btn {
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
+  border: none;
+  border-radius: var(--r-full);
+  /* La altura mínima se declara, no se deduce del padding: así el objetivo
+     táctil no depende de que nadie toque la escala de espaciados. 48 px es
+     la del diseño y queda arriba de los 44 del mínimo táctil. */
+  min-height: 3rem; /* 48px */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 13px de alto deja el botón en 45px: el mínimo recomendado para un
+     objetivo táctil son 44. Con 12px quedaba en 43. */
+  padding: var(--e-3) var(--e-5);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+  letter-spacing: -0.01em;
+  text-transform: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: var(--e-2);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+/* El secundario se distingue por relleno, no por contorno: un botón fantasma
+   sobre una tarjeta del mismo color sólo se separaba por la sombra.
+   La tinta es --sobre-agua y no --btn-texto: ese último es blanco en tema
+   claro, y blanco sobre #5FC8E8 da 1,92:1. */
+.btn.sec {
+  background: var(--agua);
+  color: var(--sobre-agua);
+  border: none;
+}
+/* Sobre una superficie invertida —oscura en los DOS temas— el sólido no puede
+   seguir al tema: en tema claro sería negro sobre negro. Sigue a la
+   superficie. Es lo que hacía `.btn-claro` escrito a mano en un solo lugar;
+   acá son las mismas dos variables que ya pintan la superficie, así que no se
+   pueden desincronizar ni hay que acordarse de poner una clase extra.
+
+   Sobre oscuro el sólido es AZUL. Se puede porque hoy ninguna de estas seis
+   superficies lleva un `.btn` y un `.btn.sec` al mismo tiempo —la única con
+   dos botones, `.caja-codigo` de /para-medios, lleva sólo el secundario—. Si
+   algún día una lleva los dos, van a salir idénticos y hay que resolverlo
+   ahí: el azul de relleno es uno solo. El botón separa 9,51:1 del fondo y su
+   tinta 9,51:1 del relleno.
+
+   Con el acento pasa lo mismo: en tema claro es #1f7a9e, medido para fondo
+   claro, y los enlaces de la franja oscura de la portada salían a 3,77:1.
+   Sobre estas superficies el acento es el celeste. */
+/* Sobre las superficies invertidas el sólido se invierte: claro sobre oscuro,
+   las mismas dos variables que pintan la superficie. Fue celeste desde el
+   3/9 («sobre fondo oscuro el sólido también es azul»), y así el sólido y
+   el .sec quedaban iguales: dos botones sin jerarquía. El rediseño (§9) lo
+   devolvió a claro, y el .sec sigue siendo el azul del agua. */
+.bloque.oscuro,
+.caja-codigo,
+.landing .franja-oscura,
+.landing .cta,
+.telefonos-emergencia,
+.aviso-emergencia,
+.tarjeta.oscura {
+  --btn-fuerte: var(--texto-invertido);
+  --btn-fuerte-texto: var(--fondo-invertido);
+  --acento: var(--agua-clara);
+}
+/* En oscuro ya son --fondo-invertido; sin el filete se fundían con el fondo.
+   En claro el token es transparente. */
+.bloque.oscuro,
+.caja-codigo,
+.landing .franja-oscura,
+.landing .cta,
+.telefonos-emergencia,
+.aviso-emergencia {
+  border: 1px solid var(--borde-invertido);
+}
+.btn.mini {
+  width: auto;
+  min-height: 2.75rem;
+  padding: 0 var(--e-4);
+  font-size: var(--t-s);
+}
+/* Sin wrap, los tres botones de «Mi casa» se repartían 300 px: cada uno
+   quedaba de 90 px de ancho, el texto en cuatro o cinco renglones y el radio
+   completo de .btn los volvía óvalos. La base de 10rem los apila en el
+   teléfono y los deja lado a lado donde entran. */
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--e-2);
+}
+.fila > * {
+  flex: 1 1 10rem;
+  margin-bottom: var(--e-2);
+}
+
+/* ---------- pronóstico ---------- */
+.dias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--e-1);
+  margin-top: var(--e-1);
+}
+.dia {
+  background: var(--panel-2);
+  border-radius: var(--r-s);
+  padding: var(--e-2) 3px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+.dia.fuerte {
+  border-color: var(--alerta);
+}
+.dia .d {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  text-transform: uppercase;
+}
+.dia .mm {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-base);
+  margin-top: 3px;
+}
+.dia .mm.hay {
+  color: var(--acento);
+}
+.dia .mm.fuerte {
+  color: var(--alerta-texto);
+}
+/* Un número suelto no dice si 12 mm es mucho o poco. La barra da la escala y
+   la línea punteada marca el umbral de 40 mm. */
+.dia .barra {
+  position: relative;
+  height: 34px;
+  margin-top: var(--e-1);
+  background: var(--panel-2);
+  border-radius: var(--r-s);
+  overflow: hidden;
+}
+.dia .barra i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  background: var(--agua);
+}
+.dia.fuerte .barra i {
+  background: var(--alerta);
+}
+.dia .barra u {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed var(--alerta);
+  opacity: 0.55;
+}
+
+/* ---------- listas ---------- */
+/* Explícito: el display:flex de abajo le gana al [hidden] del navegador. Lo
+   usa la casilla de «Mi nivel de aviso» al compartir. */
+.chk[hidden] {
+  display: none;
+}
+.chk {
+  display: flex;
+  gap: var(--e-3);
+  align-items: flex-start;
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  cursor: pointer;
+}
+.chk:last-child {
+  border-bottom: none;
+}
+.chk input {
+  margin-top: 2px;
+  width: 19px;
+  height: 19px;
+  flex: none;
+  accent-color: var(--ok);
+}
+.chk span {
+  flex: 1;
+  font-size: var(--t-base);
+}
+.chk input:checked + span {
+  color: var(--tenue);
+  text-decoration: line-through;
+}
+/* Las listas vienen como <ul> en el HTML para que sean indexables. */
+.lista-plana {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.punto {
+  display: block;
+  padding: var(--e-4) 0;
+  border-bottom: 1px solid var(--linea);
+  color: inherit;
+  text-decoration: none;
+}
+.punto:last-child {
+  border-bottom: none;
+}
+.punto .n {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-m);
+  letter-spacing: -0.01em;
+}
+.punto .d {
+  display: block;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  margin-top: 1px;
+}
+.punto .ir {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--acento);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+/* ---------- avisos ---------- */
+.aviso {
+  border-left: none;
+  background: var(--alerta-tinte);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-m);
+  font-size: var(--t-s);
+  margin-bottom: var(--e-3);
+}
+.aviso.grave {
+  background: var(--peligro-tinte);
+}
+/* Una lista de acciones se lee; el mismo contenido en prosa, no. */
+.pasos {
+  margin: var(--e-1) 0 0;
+  padding-left: var(--e-5);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.pasos li {
+  margin-bottom: var(--e-2);
+  line-height: 1.45;
+}
+.pasos.grave li b {
+  color: var(--peligro-texto);
+  font-family: var(--mono);
+}
+.pasos a {
+  color: var(--acento);
+  font-weight: 700;
+}
+.aviso details summary {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.aviso b {
+  color: var(--alerta-texto);
+}
+.aviso.grave b {
+  color: var(--peligro-texto);
+}
+.tel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  color: inherit;
+  text-decoration: none;
+}
+.tel:last-child {
+  border-bottom: none;
+}
+.tel .q {
+  font-size: var(--t-base);
+}
+.tel .n {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-m);
+  color: var(--acento);
+}
+
+/* ---------- mapa ---------- */
+/* El basemap del IGN es claro y la app es oscura. invert + hue-rotate(180)
+   invierte la luminosidad conservando los tonos: el agua sigue siendo azul y
+   los espacios verdes verdes, pero sobre fondo oscuro. Va sólo sobre el
+   canvas de los tiles; los pines y los controles son DOM aparte y no se
+   tocan. */
+#mapa .maplibregl-canvas {
+  /* saturate() baja el rojizo que deja la inversión sobre el beige urbano
+     del IGN: en una app que usa rojo para peligro, un mapa rojizo
+     confunde. El agua queda igual de reconocible. */
+  filter: var(--filtro-mapa);
+}
+@media (prefers-contrast: more) {
+  #mapa .maplibregl-canvas {
+    filter: none;
+  }
+}
+#mapa {
+  width: 100%;
+  height: 340px;
+  border-radius: var(--r-l);
+  border: 1px solid var(--linea);
+  margin-bottom: var(--e-4);
+  background: var(--panel-2);
+}
+/* MapLibre trae sus controles en blanco. Sobre un mapa que oscurecimos a
+   propósito quedaban como dos parches brillantes. */
+#mapa .maplibregl-ctrl-group {
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  box-shadow: none;
+}
+#mapa .maplibregl-ctrl-group button + button {
+  border-top-color: var(--linea);
+}
+#mapa .maplibregl-ctrl-group button:hover {
+  background: var(--panel-2);
+}
+/* Los íconos son SVG oscuros embebidos: no se recolorean, se invierten. */
+#mapa .maplibregl-ctrl-icon {
+  filter: var(--filtro-iconos-mapa);
+}
+#mapa .maplibregl-ctrl-attrib {
+  background: var(--panel);
+  color: var(--tenue);
+  font-size: var(--t-xs);
+}
+#mapa .maplibregl-ctrl-attrib a {
+  color: var(--acento);
+}
+/* El aviso del modo «marcar mi casa» va SOBRE el mapa, no debajo: la
+   instrucción y el pedido de confirmación tienen que estar donde está el
+   dedo. Deja libre la columna de los botones de zoom, a la derecha. */
+.mapa-aviso {
+  position: absolute;
+  top: var(--e-2);
+  left: var(--e-2);
+  right: 52px;
+  z-index: 5;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-4);
+  font-size: var(--t-s);
+  line-height: 1.4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+/* Cuando el IGN no responde (vigilarFondo en mapa.js). Abajo y no arriba:
+   arriba va el pedido del modo «marcar», y los dos pueden convivir. */
+.mapa-fondo {
+  position: absolute;
+  bottom: 40px;
+  left: var(--e-2);
+  right: var(--e-2);
+  z-index: 5;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-4);
+  font-size: var(--t-s);
+  line-height: 1.4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+.mapa-aviso-botones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2) var(--e-3);
+  margin-top: var(--e-2);
+}
+#mapa.marcando .maplibregl-canvas {
+  cursor: crosshair;
+  /* Al marcar se ve la foto aérea (fondoDeMarcar en mapa.js): invertida
+     para el tema oscuro sería un negativo en el que no se reconoce nada. */
+  filter: none;
+}
+#mapa .maplibregl-ctrl-attrib-button {
+  filter: var(--filtro-iconos-mapa);
+}
+
+.maplibregl-popup-content {
+  background: var(--panel);
+  color: var(--texto);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
+  font-family: var(--sans);
+}
+.maplibregl-popup-content strong {
+  font-family: var(--sans);
+  font-size: var(--t-m);
+  letter-spacing: 0.02em;
+}
+.maplibregl-popup-tip {
+  border-top-color: var(--panel) !important;
+  border-bottom-color: var(--panel) !important;
+}
+.maplibregl-popup-close-button {
+  color: var(--tenue);
+  font-size: var(--t-m);
+}
+.pin {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--agua);
+  border: 2px solid var(--fondo);
+  box-shadow: 0 0 0 1px var(--agua);
+  cursor: pointer;
+}
+.pin.cerca {
+  background: var(--ok);
+  width: 21px;
+  height: 21px;
+  box-shadow:
+    0 0 0 1px var(--ok),
+    0 0 14px var(--ok);
+}
+/* Los tres más cercanos llevan su número, el mismo de las tarjetas. */
+.pin.cerca {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--sobre-solido);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ---------- Dónde ir: los más cercanos ----------
+   Después de «Mostrar el más cercano a mí» (pintarCercanos en puntos.js). */
+#cercanos:empty {
+  display: none;
+}
+.cercanos-titu {
+  margin: var(--e-5) 0 var(--e-1);
+}
+.cercanos {
+  display: grid;
+  gap: var(--e-2);
+  margin: var(--e-3) 0;
+  padding: 0;
+  list-style: none;
+}
+.cercano {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+}
+/* El primero, a lo ancho: es adónde ir, y su «Cómo llegar» va debajo. */
+.cercano.primero {
+  grid-template-columns: auto 1fr;
+  padding: var(--e-4);
+  border-color: var(--ok);
+  background: var(--ok-tinte);
+}
+.cercano.primero .btn {
+  grid-column: 1 / -1;
+  margin: var(--e-1) 0 0;
+}
+.cercano .btn.mini {
+  width: auto;
+  margin: 0;
+}
+.c-txt {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.c-txt b {
+  font-size: var(--t-m);
+}
+.c-txt > span {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.c-txt .c-dist {
+  color: var(--texto);
+}
+.c-txt .c-dist b {
+  font-family: var(--mono);
+  font-size: var(--t-base);
+}
+.punto-num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  vertical-align: 2px;
+}
+.cercano.primero .punto-num {
+  background: var(--ok);
+  color: var(--sobre-solido);
+}
+.punto .punto-num {
+  min-width: 22px;
+  height: 22px;
+  margin-right: var(--e-1);
+}
+.titulo-demas {
+  margin: var(--e-4) 0 0;
+  font-size: var(--t-base);
+}
+.titulo-demas[hidden] {
+  display: none;
+}
+.pin.yo {
+  background: var(--tierra);
+  box-shadow: 0 0 0 1px var(--tierra);
+}
+.punto.destacado {
+  background: var(--ok-tinte);
+  border-radius: var(--r-m);
+  padding-left: var(--e-3);
+  padding-right: var(--e-3);
+  border-bottom-color: transparent;
+}
+
+/* ---------- tendencia ---------- */
+.tend {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+.tend .flecha {
+  font-size: var(--t-xl);
+  line-height: 1;
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.sparkline {
+  width: 100%;
+  height: 46px;
+  margin-top: var(--e-2);
+  display: block;
+}
+
+/* ---------- navegación ---------- */
+.barra-app {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--panel);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: var(--sombra-nav);
+  padding: var(--e-2) var(--e-3) 0;
+  padding-bottom: calc(var(--e-2) + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+.barra-app button {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  border-radius: var(--r-m);
+  padding: var(--e-2) 2px var(--e-3);
+  cursor: pointer;
+  color: var(--tenue);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e-1);
+}
+.barra-app button.on {
+  color: var(--acento);
+}
+.barra-app button.on span {
+  font-weight: 700;
+}
+.barra-app button svg {
+  transition: background var(--mov);
+}
+.barra-app button.on svg {
+  background: var(--agua-tinte);
+}
+.barra-app button svg {
+  width: 44px;
+  height: 26px;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  box-sizing: content-box;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.barra-app button span {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--t-xs);
+  letter-spacing: 0;
+  text-transform: none;
+}
+/* Sin red, con un dato de menos de 48 h (pintarConexion en rio.js). Gris y
+   no ámbar: el ámbar queda para cuando se juntan río y lluvia, y estar sin
+   señal no es un peligro, es un dato sobre el dato. La hora, a la derecha,
+   es la de la medición. */
+#sin-conexion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  font-size: var(--t-s);
+  font-weight: 700;
+  padding: var(--e-3) var(--e-4);
+}
+#sin-conexion b {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  white-space: nowrap;
+}
+#sin-conexion[hidden] {
+  display: none;
+}
+
+/* La franja de la ciudad en la app (pintarFranjaCiudad en rio.js): el mismo
+   componente que la del sitio, más alto y entero tocable, con el 103 a la
+   derecha. Va arriba de la cabecera, así que se lleva el margen de la
+   muesca; la cabecera lo devuelve mientras la franja está. */
+.app .franja-estado .franja {
+  padding-top: env(safe-area-inset-top);
+}
+.app:has(.franja-estado .franja) .top {
+  padding-top: 14px;
+}
+.franja-estado a.franja-103 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  min-height: 48px;
+  margin: 0;
+  padding: 0 var(--e-4);
+  color: var(--sobre-solido);
+  font-size: var(--t-s);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: normal;
+}
+.franja-estado a.franja-103 > span {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.franja-estado a.franja-103 b {
+  font-size: var(--t-l);
+  font-weight: 800;
+}
+
+/* El punto de Río y el número de Mi plan, en la barra de abajo. Van
+   absolutos: el botón es una columna y en el flujo se apilaban con el
+   ícono. El aro del color del fondo los despega del ícono. */
+.barra-app button {
+  position: relative;
+}
+.punto-tab {
+  position: absolute;
+  top: calc(var(--e-2) + 4px);
+  left: calc(50% + 14px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tenue);
+  box-shadow: 0 0 0 2px var(--panel);
+}
+.barra-app button.on .punto-tab {
+  box-shadow: 0 0 0 2px var(--agua-tinte);
+}
+.punto-tab[data-tono="ok"] {
+  background: var(--ok-texto);
+}
+.punto-tab[data-tono="alerta"] {
+  background: var(--alerta-texto);
+}
+.punto-tab[data-tono="peligro"] {
+  background: var(--peligro-texto);
+}
+.punto-tab[data-tono="cargando"] {
+  background: var(--linea);
+}
+.cuenta-tab {
+  position: absolute;
+  top: calc(var(--e-2) - 3px);
+  left: calc(50% + 8px);
+  min-width: 18px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--texto);
+  color: var(--fondo);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+.cuenta-tab[hidden] {
+  display: none;
+}
+/* «Ahora» entra y Mi casa sale de la barra en una emergencia (ahora.js).
+   Explícito: el display:flex del botón le gana al [hidden] del navegador. */
+.barra-app button[hidden] {
+  display: none;
+}
+.barra-app .tab-ahora {
+  color: var(--peligro-texto);
+}
+
+/* ---------- Ahora: el modo emergencia ---------- */
+.ahora-cabeza .eti {
+  display: block;
+  margin-bottom: var(--e-2);
+  color: var(--peligro-texto);
+}
+.ahora-cabeza .titu {
+  margin: 0 0 var(--e-2);
+}
+.ahora-cabeza a.btn-emergencia {
+  color: #fff;
+}
+.ahora-punto,
+.ahora-avisar {
+  display: grid;
+  gap: var(--e-2);
+}
+.ahora-punto .ap-nombre {
+  font-size: var(--t-l);
+}
+.ahora-punto .btn,
+.ahora-avisar .btn {
+  margin: var(--e-1) 0 0;
+}
+.ahora-punto .btn.mini {
+  justify-self: start;
+}
+.ahora-lista-titu {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-3);
+  margin: 0 0 var(--e-2);
+}
+.ahora-lista-titu span {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.ahora-pie {
+  text-align: center;
+}
+
+/* Barra de instalar: se queda hasta que la persona la cierre. Antes se
+   borraba sola a los 20 s y no volvía en toda la sesión. */
+.instalar {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  gap: var(--e-2);
+  align-items: stretch;
+}
+.instalar .btn {
+  margin: 0;
+  flex: 1;
+}
+.instalar .cerrar {
+  flex: none;
+  width: 52px;
+  border: none;
+  border-radius: var(--r-full);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  color: var(--texto);
+  font-size: var(--t-l);
+  cursor: pointer;
+}
+
+/* ---------- hoja de instrucciones ---------- */
+/* Va en <dialog> por lo que trae gratis: foco atrapado, Escape para salir y
+   el resto de la página inerte para un lector de pantalla. Nada de eso sale
+   bien a mano. */
+.hoja {
+  /* El reset de arriba pone margin:0 en todo, y con eso se pierde el
+     margin:auto con el que el navegador centra un <dialog> modal: quedaba
+     pegado arriba a la izquierda. */
+  margin: auto;
+  border: none;
+  background: var(--panel);
+  color: var(--texto);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sombra);
+  padding: var(--e-5);
+  width: min(420px, calc(100vw - 32px));
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.hoja::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+.hoja h2 {
+  margin-top: 0;
+}
+.hoja ol {
+  margin: var(--e-4) 0;
+  padding-left: var(--e-5);
+}
+.hoja ol li {
+  margin-bottom: var(--e-3);
+}
+.hoja .aviso {
+  margin-bottom: var(--e-4);
+}
+/* Sin showModal() el <dialog> queda abierto pero NO modal, y por defecto se
+   posiciona en absoluto: se salía de la pantalla y empujaba el resto de la
+   página. Vuelve al flujo normal. */
+.hoja:not(:modal) {
+  position: static;
+  margin: var(--e-4) auto;
+}
+
+/* ==========================================================================
+   PORTADA Y PÁGINAS DE CONTENIDO
+   La app esconde 3 de sus 4 secciones detrás de pestañas y eso a un buscador
+   le llega como contenido oculto. Estas páginas son texto visible, con el
+   mismo sistema de tokens y sin pestañas.
+   ========================================================================== */
+.ancho {
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: 0 var(--e-5);
+}
+/* Todas las páginas van al mismo ancho: la barra, el cuerpo y el pie arrancan
+   en la misma vertical se venga de donde se venga. Antes el cuerpo de las
+   páginas de contenido iba a una medida más angosta y la marca se corría de
+   lugar entre la portada y el resto.
+
+   Lo que sigue acotado es la LÍNEA, que es lo que de verdad se lee: a 1100 px
+   un párrafo suelto llegaba a 133 caracteres —medido en /legal— y eso no se
+   lee. El límite pasó del contenedor al renglón, que es donde tiene que
+   estar: así una tabla o una rejilla usa todo el ancho y un párrafo no. */
+.bloque p,
+.bloque ul,
+.bloque ol,
+.pg-lead {
+  /* 50ch y no 70: `ch` mide el ancho del cero, y en Plus Jakarta Sans el cero
+     es bastante más ancho que la letra promedio, así que 72ch daban 104
+     caracteres reales. Medido, 50ch quedan en unos 72 por renglón. */
+  max-width: 100%;
+}
+
+/* ---------- cabecera de página ---------- */
+.pg-cabecera {
+  padding: calc(var(--e-7) * 1.5) 0 var(--e-6);
+}
+.pg-cabecera h1 {
+  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  text-wrap: balance;
+  margin: var(--e-4) 0 0;
+}
+.pg-lead {
+  max-width: 40em;
+  margin: var(--e-4) 0 0;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
+  color: var(--tenue);
+}
+.chip-tinte {
+  display: inline-block;
+  margin: 0;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- bloques de contenido ---------- */
+/* Cada sección es una tarjeta, como en el diseño: separa los temas sin
+   necesidad de líneas divisorias. */
+.landing .bloque {
+  background: var(--panel);
+  border-radius: var(--r-l);
+  box-shadow: var(--sombra);
+  padding: var(--e-7);
+  margin-bottom: var(--e-5);
+}
+.bloque > *:last-child {
+  margin-bottom: 0;
+}
+.bloque h2 {
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  letter-spacing: -0.025em;
+  margin: var(--e-2) 0 var(--e-4);
+}
+.bloque .kicker {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+.bloque.oscuro {
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  box-shadow: none;
+}
+.bloque.oscuro .kicker {
+  color: var(--alerta);
+}
+.bloque.oscuro .chico,
+.bloque.oscuro .pasos {
+  color: var(--tenue-invertido);
+}
+.bloque .pasos:last-child,
+.bloque table:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- widget para medios ----------
+   Las dos muestras son el widget de verdad en un iframe, no capturas: si el
+   widget se rompe, se rompe a la vista en su propia página de documentación. */
+.muestras-widget {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-4);
+  margin-top: var(--e-4);
+}
+.muestras-widget iframe {
+  display: block;
+  width: 100%;
+  /* El mismo alto que recomienda el código de más abajo. Sin esto el iframe
+     cae al alto por defecto de 150 px y las muestras salen recortadas justo
+     por el pie, que es donde va el crédito. */
+  height: 225px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+}
+.muestras-widget .chico {
+  margin: var(--e-2) 0 0;
+  text-align: center;
+}
+.caja-codigo {
+  position: relative;
+  border-radius: var(--r-m);
+  background: var(--fondo-invertido);
+  padding: var(--e-5);
+}
+.caja-codigo pre {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  line-height: 1.6;
+  color: var(--texto-invertido);
+  /* El bloque tiene que poder seleccionarse a mano: el botón de copiar es una
+     comodidad, no el único camino. */
+  white-space: pre;
+}
+/* Sólo posición y tamaño: el color lo pone el estilo secundario, que es azul
+   y se lee igual de bien sobre la caja oscura. Tenía un celeste propio de
+   cuando el secundario era gris y sobre negro desaparecía. */
+.caja-codigo .btn {
+  position: absolute;
+  top: var(--e-4);
+  right: var(--e-4);
+  width: auto;
+  min-height: 2.75rem; /* era 38px: no llegaba al mínimo táctil */
+  padding: 0 var(--e-4);
+  font-size: var(--t-s);
+}
+/* Las condiciones de uso, numeradas: son tres y se citan por número cuando
+   alguien pregunta. Tres tarjetas lado a lado, como las demás de a tres. */
+.condiciones-tres {
+  counter-reset: cond;
+  list-style: none;
+  margin: var(--e-4) 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+}
+.condiciones-tres li {
+  counter-increment: cond;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.condiciones-tres li::before {
+  content: counter(cond);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-s);
+  background: var(--agua);
+  color: var(--sobre-agua);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.condiciones-tres b {
+  font-size: var(--t-base);
+  color: var(--texto);
+}
+.muestras-widget figure {
+  margin: 0;
+}
+.medios-tildes {
+  margin-top: var(--e-4);
+}
+.medida-widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-5);
+  margin: var(--e-4) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.medida-widget b {
+  color: var(--texto);
+}
+@media (max-width: 700px) {
+  .condiciones-tres,
+  .muestras-widget {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- charlas ----------
+   Cada charla es una ficha con el sello a la izquierda —TED o TEDx y cuánto
+   dura— y el texto a la derecha. El tinte del sello no decora: agrupa las
+   charlas por tema —responsabilidad, adaptación, agua, datos— en la misma
+   paleta funcional que usa el resto de la app, así que dos fichas del mismo
+   color se leen juntas. */
+/* Grilla de tarjetas con la miniatura arriba. Era una lista con la miniatura
+   al costado y un párrafo de cuatro frases por charla; con una sola línea
+   por charla, la grilla entra y se recorre de un vistazo. */
+.charlas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: var(--e-4);
+}
+.charla {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--e-3);
+  align-items: start;
+  align-content: start;
+  padding: var(--e-5);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  color: var(--texto);
+  text-decoration: none;
+}
+/* La miniatura: el fotograma que publica TED, alojado acá. El `aspect-ratio`
+   con el `width`/`height` del <img> reserva el alto antes de que la imagen
+   baje — es la misma regla que el resto del sitio, no dejar que la página
+   salte bajo el dedo de quien está leyendo. */
+.charla .mini {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-m);
+  overflow: hidden;
+  background: var(--panel-2);
+}
+.charla .mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* La duración va encima de la imagen, como en cualquier lista de videos, con
+   su propio fondo sólido: sobre un fotograma cualquiera no hay contraste que
+   se pueda garantizar. */
+.charla .dur {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(9, 14, 17, 0.82);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  line-height: 1.5;
+}
+/* El tono ya no pinta un sello: pinta el filo de la miniatura. La lista sigue
+   leyéndose como un arco —de la urgencia a los datos abiertos— sin gastar una
+   columna entera en decirlo.
+
+   Va en un ::after y no como `box-shadow: inset` sobre `.mini`: la sombra
+   interior se pinta debajo del contenido, así que la <img> al 100 % la tapaba
+   entera y el filo no se veía. */
+.charla .mini::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.charla.t-peligro .mini {
+  color: var(--peligro-texto);
+}
+.charla.t-alerta .mini {
+  color: var(--alerta-texto);
+}
+.charla.t-agua .mini {
+  color: var(--acento);
+}
+.charla.t-ok .mini {
+  color: var(--ok-texto);
+}
+.charla .cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  min-width: 0;
+}
+.charla .tit {
+  font-weight: 800;
+  font-size: var(--t-l);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.charla .ficha {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.charla .txt {
+  line-height: 1.6;
+  color: var(--tenue);
+}
+
+/* ---------- la lista de puntos de encuentro ----------
+   Treinta renglones de texto corrido no se recorren con el pulgar y menos
+   apurado. Van como tarjetas de dos columnas, con el número en un cuadrado
+   oscuro: el número es lo que se dice por teléfono («andá al 14») y lo que
+   coincide con los pines del mapa de la app. */
+.pg-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-3);
+  margin: var(--e-5) 0 0;
+}
+.pg-acciones .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+/* ---------- los 30 puntos, por zona ---------- */
+/* Son treinta y hay que encontrar UNO, rápido y probablemente nervioso. Por
+   eso van agrupados por zona, con atajos arriba: lo que se busca acá no es
+   leer la lista, es descartar cuatro quintos de golpe y mirar sólo la zona
+   propia. Eran treinta tarjetas sueltas —cinco pantallas de scroll en el
+   teléfono—; ahora cada zona es un solo panel con filas. */
+.atajos-zona {
+  margin: var(--e-6) 0 var(--e-2);
+}
+.atajos-zona .cuenta-zona {
+  margin-left: var(--e-2);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--tenue);
+}
+.zonas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-6);
+  margin-top: var(--e-5);
+}
+.zona-puntos {
+  scroll-margin-top: var(--e-5);
+}
+/* `.landing h2` mide 0-1-1: el selector de acá tiene que medir lo mismo o
+   más, o el margen se queda en el del h2 general. Ya mordió cuatro veces. */
+.zp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin-bottom: var(--e-3);
+}
+.landing .zp-cabeza h2 {
+  margin: 0;
+  font-size: var(--t-xl);
+}
+.zp-cabeza .eti {
+  margin: 0;
+  white-space: nowrap;
+}
+.lista-zona {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--r-l);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.lista-zona li + li {
+  border-top: 1px solid var(--linea);
+}
+/* Lleva también `.punto` para quedar afuera de la regla general de enlaces
+   de las páginas, que mide (0,8,1) y le pintaría el acento a toda la fila. */
+.landing a.fila-punto {
+  border-bottom: none;
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  gap: var(--e-4);
+  align-items: center;
+  padding: var(--e-4) var(--e-5);
+  color: var(--texto);
+  text-decoration: none;
+}
+.fila-punto .np {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-s);
+  /* El mismo par sólido que el botón principal: el de máximo contraste contra
+     la superficie. Con `--fondo-invertido` el chip quedaba en #1b2b33 sobre
+     una tarjeta #17232a y en tema oscuro casi no se veía —el número se leía,
+     la pastilla no—; en claro, en cambio, era negro sobre blanco. Una sola
+     pieza no puede verse fuerte en un tema y desaparecer en el otro. */
+  background: var(--btn-fuerte);
+  color: var(--btn-fuerte-texto);
+  /* En sans y no en mono: el cero de JetBrains lleva punto adentro y a 13 px
+     un "20" se lee "28". Acá el número es cómo se nombra el punto por
+     teléfono, así que no puede prestarse a confusión. */
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: var(--t-base);
+}
+.fila-punto .txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fila-punto .n {
+  font-weight: 700;
+  line-height: 1.3;
+}
+.fila-punto .d {
+  font-size: var(--t-s);
+  color: var(--tenue);
+  line-height: 1.35;
+}
+.fila-punto .ir {
+  margin: 0;
+  font-family: var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--t-s);
+  font-weight: 700;
+  color: var(--acento);
+  white-space: nowrap;
+}
+.puntos-pie {
+  margin-top: var(--e-6);
+}
+/* Cuándo ir y qué llevar, lado a lado. */
+.cuando-que {
+  gap: var(--e-4);
+  margin-top: var(--e-6);
+  align-items: start;
+}
+.cuando-que .bloque {
+  margin: 0;
+}
+.landing .cuando-que h2 {
+  font-size: var(--t-l);
+  margin-top: 0;
+}
+/* Una lista de cosas que se juntan: tilde dibujado en CSS, porque la CSP
+   (img-src 'self') bloquearía un SVG en data:. */
+.tildes {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+.tildes li {
+  position: relative;
+  padding-left: 1.6rem;
+  font-size: var(--t-base);
+}
+.tildes li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.3em;
+  width: 5px;
+  height: 10px;
+  border-right: 2.5px solid var(--acento);
+  border-bottom: 2.5px solid var(--acento);
+  transform: rotate(45deg);
+}
+/* Los tres teléfonos, al final de la lista: es lo que hace falta cuando ya se
+   eligió a dónde ir. */
+.telefonos-emergencia {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-5);
+  margin-top: var(--e-6);
+  padding: var(--e-6);
+  border-radius: var(--r-l);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+}
+.telefonos-emergencia a {
+  color: inherit;
+  text-decoration: none;
+}
+.telefonos-emergencia b {
+  display: block;
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  color: var(--agua-clara);
+  font-variant-numeric: tabular-nums;
+}
+.telefonos-emergencia span {
+  display: block;
+  margin-top: var(--e-1);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+
+/* ---------- /datos: la cuenta ----------
+   La cuenta entera arriba, en la caja oscura: para quien vino a buscar sólo
+   eso. Cada renglón resta algo y el último es el resultado. */
+.formula {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  margin: var(--e-4) 0;
+  font-family: var(--mono);
+  font-size: var(--t-base);
+}
+.formula b {
+  color: var(--agua);
+}
+.formula .f-total {
+  margin-top: var(--e-1);
+  padding-top: var(--e-2);
+  border-top: 1px solid var(--linea-invertida, rgba(233, 238, 240, 0.16));
+  font-weight: 700;
+}
+/* Los atajos a las cinco secciones, con su número: es la misma secuencia
+   que numera los kickers de abajo. */
+.atajos-num {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-top: var(--e-4);
+}
+.landing .atajos-num a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: 2.75rem;
+  padding: 0 var(--e-4) 0 var(--e-2);
+  border-radius: var(--r-full);
+  background: rgba(233, 238, 240, 0.1);
+  color: var(--texto-invertido);
+  font-weight: 600;
+  font-size: var(--t-s);
+  text-decoration: none;
+}
+.atajos-num b {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-full);
+  background: var(--agua);
+  color: var(--sobre-agua);
+  font-size: var(--t-xs);
+}
+
+/* El desvío del satélite contra la escala de la decisión, a la misma
+   escala: la barra larga es el error, la corta todo lo que hay entre la
+   alerta y el récord. */
+.barras-error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin: var(--e-4) 0;
+}
+.be-fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--e-1) var(--e-3);
+  align-items: center;
+}
+.be-k {
+  grid-column: 1 / -1;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.be-pista {
+  height: 14px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.be-pista i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--agua);
+}
+.be-pista i.be-mal {
+  background: var(--peligro);
+}
+.be-v {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-s);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El ejemplo de Colastiné Norte, en tres filas: qué se hace y cuánto queda.
+   El valor a la derecha es lo que se busca recorriendo con el pulgar. */
+.ej-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+.ej-cabeza .eti {
+  margin: 0;
+}
+.ej-filas {
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ej-fila {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: var(--e-4);
+  align-items: start;
+  padding: var(--e-4) 0;
+  border-top: 1px solid var(--linea);
+}
+.landing .ej-fila h3 {
+  margin: 0 0 var(--e-1);
+  font-size: var(--t-m);
+}
+.landing .ej-fila p {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.ej-valor {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-base);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Qué tan firme es: tres tarjetas del mismo peso. */
+.firme-tres,
+.dos-maneras {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-4) 0;
+}
+.firme-caja,
+.dm-caja {
+  border-radius: var(--r-m);
+  padding: var(--e-4) var(--e-5);
+  background: var(--panel-2);
+}
+.firme-caja .eti,
+.dm-caja .eti {
+  margin-bottom: var(--e-2);
+}
+.landing .firme-caja h3,
+.landing .dm-caja h3 {
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-m);
+}
+.landing .firme-caja p,
+.landing .dm-caja p {
+  font-size: var(--t-s);
+  margin: 0 0 var(--e-2);
+}
+.firme-caja .cuenta {
+  margin-bottom: var(--e-3);
+}
+.f-ok .eti {
+  color: var(--ok-texto);
+}
+.f-discusion .eti {
+  color: var(--alerta-texto);
+}
+.f-falta {
+  background: none;
+  border: 1.5px dashed var(--linea);
+}
+.f-falta .eti {
+  color: var(--tenue);
+}
+#abiertas {
+  scroll-margin-top: var(--e-5);
+}
+/* Las dos maneras de inundarse: la que mira la app, la que no y la que
+   resulta de juntarlas. Ámbar sólo la tercera: es el color de «cuando se
+   juntan río y lluvia». */
+.dm-fluvial {
+  background: var(--agua-tinte);
+}
+.dm-fluvial .eti {
+  color: var(--acento);
+}
+.dm-pluvial {
+  background: none;
+  border: 1.5px dashed var(--linea);
+}
+.dm-juntan {
+  background: var(--alerta-tinte);
+}
+.dm-juntan .eti {
+  color: var(--alerta-texto);
+}
+/* Lo que todavía no sabe: el título de cada renglón en su propia línea. */
+.no-sabe {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.no-sabe b {
+  display: block;
+  color: var(--texto-invertido);
+}
+/* El resultado, en la tarjeta oscura: el número que la página vino a dar.
+   Su kicker no va en naranja como el resto de los bloques oscuros: acá no hay
+   nada que advertir, es el resultado de una cuenta. */
+.bloque.oscuro.resultado .kicker {
+  color: var(--tenue-invertido);
+}
+.resultado .dato-grande {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.resultado .cuenta-chica {
+  margin: var(--e-3) 0 var(--e-5);
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.pg-cta {
+  margin: var(--e-6) 0 var(--e-7);
+}
+.pg-cta .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+
+.pagina {
+  padding: var(--e-5) 0 var(--e-7);
+  max-width: 720px;
+  margin: 0 auto;
+}
+body.landing {
+  /* Sin barra de navegación fija abajo, el hueco reservado para ella sobra. */
+  padding-bottom: 0;
+  /* Las páginas se leen sentado y en párrafos largos: un punto más que la
+     app, como en el diseño. */
+  font-size: 1rem;
+}
+.landing section {
+  padding: calc(var(--e-7) * 1.75) 0;
+}
+/* El relleno de la tarjeta, con la especificidad justa para ganarle a
+   `.landing section` — que es la regla que le vaciaba el padding—. El aire
+   ENTRE tarjetas pasa a ser margen, que es lo que de verdad es. */
+.landing section.tarjeta-seccion {
+  padding: calc(var(--e-7) * 1.5);
+  margin-bottom: calc(var(--e-7) * 1.25);
+}
+/* La del mapa se queda sin relleno: se lo lleva entero el lado del texto. */
+.landing section.tarjeta-seccion.con-mapa {
+  padding: 0;
+}
+/* Crece con la pantalla entre 28 y 36 px. En el teléfono manda la regla de
+   abajo de 560 px. */
+.landing h2 {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: var(--e-2) 0 var(--e-5);
+}
+.landing p {
+  margin-bottom: var(--e-4);
+}
+.landing
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel) {
+  color: var(--acento);
+}
+
+/* ---------- marca ---------- */
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-3);
+  color: var(--texto);
+  text-decoration: none;
+}
+.lockup svg {
+  display: block;
+  flex: none;
+}
+.lockup-nombre {
+  font-weight: 800;
+  font-size: var(--t-m);
+  letter-spacing: -0.02em;
+}
+
+/* ---------- navegación del sitio ---------- */
+/* El filete de abajo va de borde a borde de la ventana, no del contenedor:
+   por eso vive en la envoltura, igual que el del pie. */
+.nav-envoltura {
+  border-bottom: 1px solid var(--linea);
+}
+.nav-sitio {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4) 0;
+  flex-wrap: wrap;
+}
+.nav-enlaces {
+  align-items: center;
+  gap: var(--e-5);
+}
+/* Ojo con esto: el display puesto por el autor sobre el hijo le gana al cierre
+   del <details>. Es justo lo que se aprovecha más abajo para el escritorio,
+   así que acá no puede ir de base o el panel queda abierto para siempre. */
+.nav-menu[open] > .nav-enlaces {
+  display: flex;
+}
+/* Con el prefijo y la cadena entera de :not(): la regla general de enlaces de
+   las páginas mide (0,8,1) y, escrita más corta, los pintaba del acento. */
+.nav-enlaces a:not(.btn) {
+  font-weight: 600;
+  font-size: 0.875rem; /* 14px */
+  color: var(--texto);
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* Sólo el color: esta regla le gana a todo, también al menú del teléfono,
+   que pone su propio tamaño. */
+.landing
+  .nav-enlaces
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel) {
+  color: var(--texto);
+}
+.landing
+  .nav-enlaces
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel):hover {
+  color: var(--acento);
+}
+
+/* ---------- menú de teléfono ----------
+   Va con <details> y sin una línea de JavaScript, por lo mismo que el acordeón
+   de preguntas: un menú que depende de JS es un menú que un día no abre. Y de
+   paso entra en la CSP sin excepciones, que es estricta a propósito.
+
+   Antes de esto, abajo de 900 px los enlaces eran display:none a secas y no los
+   reemplazaba nada: en la portada desaparecían las cuatro secciones y en las
+   páginas de contenido, hasta el "volver". El teléfono se quedaba sin
+   navegación.
+
+   En escritorio el <details> no se ve: se esconde el botón y se fuerza el panel
+   a la vista aunque esté cerrado. Los navegadores esconden el contenido de dos
+   maneras distintas —el display del slot, y ::details-content en los más
+   nuevos— así que se desarman las dos. La regla de ::details-content va sola:
+   donde no se entiende, se descarta y alcanza con la otra. */
+.nav-menu {
+  margin-left: auto;
+}
+.nav-menu > summary {
+  display: none;
+  list-style: none;
+  cursor: pointer;
+}
+.nav-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.nav-burger {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  position: relative;
+}
+.nav-burger::before,
+.nav-burger::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.nav-burger::before {
+  top: -6px;
+}
+.nav-burger::after {
+  top: 6px;
+}
+/* Abierto, las tres rayas se cruzan: el mismo control cierra lo que abrió. */
+.nav-menu[open] > summary .nav-burger {
+  background: transparent;
+}
+.nav-menu[open] > summary .nav-burger::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+.nav-menu[open] > summary .nav-burger::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nav-burger,
+  .nav-burger::before,
+  .nav-burger::after {
+    transition:
+      transform var(--mov),
+      top var(--mov),
+      background var(--mov);
+  }
+}
+.chip-borde {
+  padding: 3px 7px;
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.6875rem; /* 11px, como el resto de los rótulos */
+  letter-spacing: 0.09em;
+  color: var(--tenue);
+}
+
+@media (min-width: 901px) {
+  .nav-menu > .nav-enlaces {
+    display: flex !important;
+  }
+  .nav-menu::details-content {
+    content-visibility: visible;
+    display: contents;
+  }
+}
+
+/* ==========================================================================
+   ESTADO EN VIVO
+   Tres piezas de la portada que dicen lo mismo desde tres lugares: la franja
+   sobre la barra, la píldora dentro de la barra y el renglón de frescura del
+   pie. Las tres las pinta js/landing.js desde UN solo objeto —ver el "store"
+   al principio de ese archivo—, así que no se pueden contradecir.
+
+   Los colores salen de los tokens de siempre y no de hexadecimales sueltos:
+   la portada tiene tema claro y oscuro, y un naranja escrito a mano se ve bien
+   en uno y se rompe en el otro. Los únicos dos nuevos son los rellenos
+   sólidos de la franja, que no existían.
+   ========================================================================== */
+
+/* El punto de estado. Es el mismo dibujo en los tres lugares y el color lo
+   manda `data-estado`, que escribe landing.js. Sin dato queda gris: no decimos
+   "todo bien" cuando lo que pasa es que no sabemos. */
+.punto-estado {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tenue);
+}
+.punto-estado[data-estado="ok"] {
+  background: var(--ok-texto);
+}
+/* Superó TU umbral pero no la alerta oficial: es tinta, no naranja. El naranja
+   y el rojo son de los umbrales del INA y no se prestan. */
+.punto-estado[data-estado="propio"] {
+  background: var(--texto);
+}
+.punto-estado[data-estado="alerta"] {
+  background: var(--alerta-texto);
+}
+.punto-estado[data-estado="evacuacion"] {
+  background: var(--evac-solido);
+}
+
+/* ---------- la píldora de la barra ---------- */
+/* Sólo el color va con la cadena de :not() —que repite la de la regla general
+   de enlaces de .landing, (0,8,1), para poder ganarle; es el mismo truco que
+   usa el pie—. El resto se queda en el selector simple a propósito: una regla
+   de (0,7,1) acá le ganaría a las de las media queries de abajo y la píldora
+   no se podría achicar ni esconder en el teléfono. */
+.landing
+  a.pildora-rio:not(.btn):not(.lockup):not(.punto):not(.charla):not(
+    .btn-emergencia
+  ):not(.chip-tel) {
+  color: var(--texto);
+}
+.pildora-rio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: 6px 12px;
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel);
+  color: var(--texto);
+  font-weight: 700;
+  font-size: var(--t-s);
+  text-decoration: none;
+  white-space: nowrap;
+  /* Sin esto el ancho salta cada vez que llega una lectura nueva y la barra
+     entera se corre. Es el mismo motivo por el que el número del hidrómetro
+     va en cifras de ancho fijo. */
+  font-variant-numeric: tabular-nums;
+}
+/* La regla mini (pintarPildora en js/rio-barra.js): la misma escala de 0 a
+   8 m que las otras dos, con el agua y la marca de la alerta de la ciudad. */
+.pr-regla {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.pr-agua {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--agua);
+}
+.pr-alerta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--alerta-solido);
+}
+/* La palabra del estado: lo que antes decía el color del punto. El naranja
+   y el rojo son de los umbrales de la ciudad; «pasó tu nivel de aviso» va en
+   tinta, que es tuyo y no se presta. */
+.pr-estado[data-estado="ok"] {
+  color: var(--ok-texto);
+}
+.pr-estado[data-estado="propio"] {
+  color: var(--texto);
+}
+.pr-estado[data-estado="alerta"] {
+  color: var(--alerta-texto);
+}
+.pr-estado[data-estado="evacuacion"] {
+  color: var(--peligro-texto);
+}
+.pr-estado[data-estado="viejo"] {
+  color: var(--tenue);
+}
+.pr-estado[hidden] {
+  display: none;
+}
+.pildora-rio:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+/* La tendencia sólo se pinta cuando sube: bajar y quedarse quieto no son una
+   señal, y tres colores en una píldora de 13 px no los lee nadie. */
+.pr-tendencia[data-tendencia="sube"] {
+  color: var(--alerta-texto);
+}
+
+/* ---------- la franja sobre la barra ----------
+   El contenedor vive siempre en el HTML —vacío mide cero y no reserva nada—
+   porque un role="status" que aparece recién con el aviso adentro no lo
+   anuncia ningún lector de pantalla. Lo que se crea y se destruye es .franja. */
+.franja-estado:empty {
+  display: none;
+}
+.franja-estado .franja {
+  background: var(--alerta-solido);
+  color: var(--sobre-solido);
+}
+.franja-estado .franja.evacuacion {
+  background: var(--evac-solido);
+}
+/* Alineada al mismo contenedor que la barra y que el pie: .ancho es la única
+   medida del sitio y usarla acá es lo que garantiza que el punto de la franja
+   caiga en la misma vertical que la marca. */
+.franja-estado .ancho {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.franja-estado p {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  /* .landing p lleva 16 px de margen abajo y acá se los come la fila: la
+     franja quedaba 16 px más alta y el enlace desalineado del aviso. */
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.franja-estado .punto-estado {
+  background: var(--sobre-solido);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .franja-estado .punto-estado {
+    animation: latir-franja 1.6s ease-in-out infinite;
+  }
+}
+@keyframes latir-franja {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+/* Sobre el relleno sólido el enlace no puede ser el azul de siempre: va en
+   blanco y subrayado, que es lo único que lo distingue del texto de al lado. */
+.landing
+  .franja-estado
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
+.franja-estado a {
+  margin-left: auto;
+  color: var(--sobre-solido);
+  font-weight: 700;
+  font-size: var(--t-s);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.landing
+  .franja-estado
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel):hover,
+.franja-estado a:hover {
+  color: var(--sobre-solido);
+}
+
+/* ---------- la frescura, en el pie ----------
+   Va con el tipo de elemento adelante para empatarle a `.landing p`, que le
+   mete 16 px de margen abajo: sin eso el renglón queda flotando entre los
+   enlaces del pie en vez de colgar del que lo explica. */
+p.pie-frescura,
+.pie-frescura {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.pie-frescura[hidden] {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  /* En el teléfono la franja pasa a dos renglones: el enlace en la misma línea
+     que el aviso deja el texto en columnas de tres palabras. */
+  .franja-estado .ancho {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--e-2);
+  }
+  .landing
+    .franja-estado
+    a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
+  .franja-estado a {
+    margin-left: 0;
+  }
+}
+@media (max-width: 900px) {
+  /* Abajo de 900 px la barra ya va justa: se caen la palabra "Río" y la
+     tendencia. Quedan la regla mini, el número y la palabra del estado, que
+     es lo que antes contaba el punto de color. La más larga, «evacuación de
+     la ciudad», entra a 390 px (medido). */
+  .pildora-rio {
+    padding: 6px 10px;
+  }
+  .pildora-rio .pr-etiqueta,
+  .pildora-rio .pr-tendencia {
+    display: none;
+  }
+}
+/* La píldora estuvo escondida abajo de 560 px mientras la barra tuvo el botón
+   "Abrir la app": eran cuatro elementos y el cuarto empujaba al botón a un
+   segundo renglón. Sin el botón entra, y el nivel del río en la barra vale
+   bastante más en un teléfono que un botón que la portada repite dos veces
+   más abajo. */
+
+/* ---------- hero ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: calc(var(--e-7) * 2);
+  align-items: center;
+  padding: calc(var(--e-7) * 1.75) 0 calc(var(--e-7) * 2);
+}
+.titulo-hero {
+  font-size: clamp(2.4rem, 4.6vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: balance;
+  /* Sin margen arriba: los 16 px que había eran el hueco que le dejaba a la
+     píldora del hero, que ya no está. El aire de arriba lo pone el padding de
+     la sección, en un solo lugar. */
+  margin: 0;
+}
+.bajada {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
+  color: var(--tenue);
+  max-width: 30em;
+  /* Un titular de 44 px necesita más de 16 px abajo: con menos, el bloque
+     entero se lee como un párrafo con la primera línea en negrita. */
+  margin: var(--e-6) 0 0;
+}
+.acento-hero {
+  color: var(--acento);
+}
+/* Las tres promesas de la app, con un tilde dibujado en CSS: un SVG en
+   data: lo bloquearía la CSP (img-src 'self'). */
+.hero-tildes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.hero-tildes li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.hero-tildes li::before {
+  content: "";
+  width: 5px;
+  height: 10px;
+  margin: -3px 2px 0;
+  border-right: 2.5px solid var(--ok);
+  border-bottom: 2.5px solid var(--ok);
+  transform: rotate(45deg);
+}
+.hero-botones {
+  display: flex;
+  gap: var(--e-3);
+  margin: var(--e-7) 0 var(--e-5);
+  flex-wrap: wrap;
+}
+.hero-botones .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+/* El marco legal del que nace la herramienta. Va separado de la letra chica de
+   arriba a propósito: ésa habla de la app —gratis, sin señal, en tu teléfono—
+   y ésta del mundo. Juntas se leen como una sola lista de viñetas y la ley
+   queda como un argumento de venta más. */
+.marco-legal {
+  margin-top: var(--e-3);
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+  max-width: 46ch;
+}
+
+/* ---------- el mockup con el dato en vivo ---------- */
+.mockup-envoltura {
+  position: relative;
+  /* Es el destino de la píldora de la barra (#abrir). Sin esto el salto deja
+     la tarjeta pegada al borde de arriba y no se ve de dónde vino. */
+  scroll-margin-top: var(--e-5);
+}
+.mockup {
+  background: var(--panel);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.mockup-cabecera {
+  padding: var(--e-5) var(--e-5) var(--e-4);
+}
+.mc-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.mc-fila .eti {
+  margin: 0;
+}
+#nivel-pie .t-viejo,
+#nivel.viejo {
+  color: var(--tenue);
+}
+/* La superficie del agua vencida deja el celeste, como el agua rayada. */
+.rm-linea.viejo {
+  background: var(--tenue);
+}
+#nivel-pie .t-ok {
+  color: var(--ok-texto);
+}
+#nivel-pie .t-alerta {
+  color: var(--alerta-texto);
+}
+#nivel-pie .t-peligro {
+  color: var(--peligro-texto);
+}
+.mockup-numero {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e-2);
+  margin-top: var(--e-2);
+}
+.mockup .dato {
+  font-size: 56px;
+}
+.mockup-m {
+  font-weight: 800;
+  font-size: var(--t-l);
+  color: var(--tenue);
+  padding-bottom: 6px;
+}
+.chip-delta[hidden] {
+  display: none;
+}
+.chip-delta.baja {
+  background: var(--ok-tinte);
+  color: var(--ok-texto);
+}
+.chip-delta {
+  flex: none;
+  white-space: nowrap;
+  padding: 4px 9px;
+  border-radius: var(--r-full);
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+.mockup .chico {
+  margin: var(--e-3) 0 0;
+}
+/* La regla del mockup representa de 0 a 8 m —el récord de 1992 son 7,43—,
+   la misma escala que el hidrómetro de la app; las alturas las fija
+   landing.js sobre esa escala. La numeración va a la izquierda, afuera del
+   tanque.
+
+   Dos lados, dos significados, y no se mezclan: a la DERECHA los umbrales
+   oficiales, que no se mueven nunca, con la etiqueta sobre su línea; a la
+   IZQUIERDA, adentro del agua, dónde está el río —la etiqueta que viaja con
+   la simulación y la de "hoy", clavada en el dato real—. Con todo del mismo
+   lado los chips se montaban apenas el río simulado pasaba la alerta, que es
+   justo cuando hay que leerlos. */
+.regla-mini {
+  display: grid;
+  /* Los números y, a su derecha, los 14 px de marcas. */
+  grid-template-columns: 3.25rem 1fr;
+  margin: 0 var(--e-5) var(--e-4) 0;
+}
+.rm-escala {
+  position: relative;
+}
+.rm-escala .marcas-rio {
+  position: absolute;
+  right: 0;
+  top: -1px;
+  bottom: 0;
+  width: 14px;
+}
+.rm-escala span {
+  position: absolute;
+  right: 20px;
+  transform: translateY(50%);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.rm-tanque {
+  position: relative;
+  /* 280 y no 230: alerta y evacuación están siempre a 40 cm una de otra, que
+     en esta escala son 14 px, y los dos rótulos necesitan ese aire para no
+     pisarse. */
+  height: 280px;
+  border-left: 1px solid var(--linea);
+  border-radius: 0 var(--r-s) 0 0;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.rm-agua {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  background: var(--agua);
+  transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rm-linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  bottom: 0;
+  background: var(--agua-clara);
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Mientras alguien mueve el río —con el control o con el scroll— el agua
+   tiene que seguir el dedo: con la transición de 0,7 s puesta llegaba casi un
+   segundo tarde y el gesto se sentía roto. La clase la pone y la saca
+   landing.js: para el primer llenado y para "Volver a hoy" la transición sí
+   se quiere, porque ahí el movimiento es lo que se está mostrando. */
+.regla-mini.rm-directo .rm-agua,
+.regla-mini.rm-directo .rm-linea,
+.regla-mini.rm-directo .rm-ahora {
+  transition: none;
+}
+/* Explícito y no confiando en el [hidden] del navegador: es display:none pero
+   pierde contra cualquier regla con más especificidad, y en este archivo ya
+   pasó tres veces. */
+.rm-umbral[hidden] {
+  display: none;
+}
+.rm-umbral {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: currentColor;
+}
+.rm-umbral b {
+  position: absolute;
+  right: var(--e-2);
+  bottom: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  white-space: nowrap;
+  /* Chip opaco, igual que la regla grande de la app: con el tinte
+     translúcido de antes el rótulo se desvanecía apenas el agua simulada le
+     pasaba por encima. */
+  background: var(--panel);
+}
+/* Alerta y evacuación están a 14 px una de otra y los rótulos miden 18: el de
+   alerta va DEBAJO de su línea y el de evacuación encima, y dejan de pisarse.
+   El del récord también debajo, porque a 93 % de alto no le queda aire
+   arriba. */
+.rm-alerta b,
+.rm-record b {
+  bottom: auto;
+  top: 5px;
+}
+.rm-alerta {
+  bottom: 66.25%; /* 5,30 de 8 m */
+  color: var(--linea-alerta);
+}
+.rm-alerta b {
+  color: var(--alerta-texto);
+}
+.rm-evac {
+  bottom: 71.25%; /* 5,70 de 8 m */
+  color: var(--linea-evac);
+}
+.rm-evac b {
+  color: var(--peligro-texto);
+}
+/* Cuando el río simulado pasa un umbral, el chip se llena. El color va escrito
+   en cada regla y no como `currentColor`: en el mismo <b> conviven el color
+   del texto y el del relleno, y con currentColor el segundo se quedaba con el
+   valor que acababa de fijar el primero. */
+.rm-alerta.activo b {
+  background: var(--alerta-solido);
+  color: var(--sobre-solido);
+}
+.rm-evac.activo b {
+  background: var(--evac-solido);
+  color: var(--sobre-solido);
+}
+.rm-record.activo b {
+  background: var(--texto);
+  color: var(--panel);
+}
+/* El récord no es un umbral operativo, es una marca histórica: línea de
+   trazos en tono tenue, como en la regla de la app. */
+.rm-record {
+  height: 0;
+  background: none;
+  border-top: 2px dashed currentColor;
+  color: var(--tenue);
+}
+.rm-record b {
+  color: var(--texto);
+}
+/* "Hoy" aparece sólo cuando la simulación ya se despegó del dato real: pegada
+   al agua serían dos rótulos uno encima del otro. Va a la izquierda, adentro
+   del agua, debajo de su línea. */
+.rm-hoy {
+  height: 0;
+  background: none;
+  border-top: 2px dashed var(--sobre-agua);
+  opacity: 0.7;
+}
+.rm-hoy b {
+  left: var(--e-3);
+  right: auto;
+  top: 3px;
+  bottom: auto;
+  background: none;
+  padding: 0;
+  color: var(--sobre-agua);
+}
+/* La etiqueta del nivel va dentro del agua, arriba a la izquierda: es lo que
+   convierte el bloque azul en un dato. Sobre el relleno --agua, el texto va en
+   --sobre-agua, el mismo par que .btn.sec: con --btn-texto era blanco en tema
+   claro, 1,92:1. Con el río muy bajo no entra adentro y sube arriba de la
+   línea. */
+.rm-ahora {
+  position: absolute;
+  left: var(--e-3);
+  bottom: 0;
+  color: var(--sobre-agua);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rm-ahora.afuera {
+  transform: translateY(-30px);
+  color: var(--texto);
+}
+
+/* ---------- mové el río ---------- */
+/* Un <input type=range> nativo, igual que el de /historia: teclado, lector de
+   pantalla y el gesto de arrastre del sistema vienen gratis y funcionan mejor
+   que cualquier cosa que pudiéramos escribir. Nace deshabilitado y lo habilita
+   landing.js cuando llega el dato de hoy: sin nivel real la simulación no
+   tiene desde dónde arrancar. */
+.mockup-sim {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding: var(--e-4) var(--e-5) var(--e-5);
+  border-top: 1px solid var(--linea);
+}
+/* La distancia a la alerta o a la evacuación de la ciudad. Reserva su
+   renglón: el texto cambia con cada milímetro del dedo. */
+.ms-falta {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+.mockup-sim .eti {
+  margin: 0;
+}
+.ms-fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.mockup-sim input[type="range"] {
+  width: 100%;
+  accent-color: var(--acento);
+  height: 28px;
+  margin: 2px 0 0;
+}
+.mockup-sim input[type="range"]:disabled {
+  opacity: 0.45;
+}
+.ms-volver {
+  flex: none;
+  min-height: 2rem;
+  border: none;
+  border-radius: var(--r-full);
+  padding: 0 var(--e-3);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-family: var(--sans);
+  font-size: var(--t-s);
+  font-weight: 700;
+  cursor: pointer;
+}
+.ms-volver[hidden] {
+  display: none;
+}
+/* Dos renglones reservados: el texto cambia en cada milímetro que se mueve el
+   dedo y sin esto la tarjeta se estiraba y se encogía debajo del gesto. */
+.mockup #rm-lectura {
+  min-height: 2.7em;
+  margin: 0;
+}
+#rm-lectura b {
+  color: var(--texto);
+}
+
+/* ---------- franja histórica ---------- */
+/* La franja es oscura en los DOS temas, así que su línea no puede ser --linea
+   (que en claro es tinta sobre claro y acá no se vería). */
+.franja-oscura {
+  --linea-invertida: rgba(233, 238, 240, 0.16);
+}
+/* La nota del Niño y el cierre, lado a lado debajo de los años. */
+.franja-pie {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: var(--e-7);
+  margin-top: var(--e-7);
+  padding-top: var(--e-6);
+  border-top: 1px solid var(--linea-invertida);
+}
+.franja-nota {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.franja-nota b {
+  color: var(--texto-invertido);
+}
+.landing .franja-oscura {
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  border-radius: var(--r-xl);
+  padding: var(--e-7);
+  margin: var(--e-6) 0;
+}
+.franja-oscura .eti {
+  color: var(--tenue-invertido);
+}
+/* Era un <h2> vestido de rótulo mono: el tipo de renglón decorativo que
+   CLAUDE.md prohíbe. Ahora es el título de la sección. */
+.franja-oscura h2 {
+  margin: 0;
+  color: var(--texto-invertido);
+}
+.hitos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--e-7);
+  margin: var(--e-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* La línea sobre cada año los convierte en columnas de una tabla de tiempo:
+   sin ella son cuatro párrafos que casualmente empiezan con un número. */
+.hitos > li {
+  border-top: 1px solid var(--linea-invertida);
+  padding-top: var(--e-4);
+}
+.hitos b {
+  display: block;
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.hitos p {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.franja-cierre {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--t-m);
+}
+
+/* ---------- tres pasos y métricas ---------- */
+.como-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-6);
+}
+.landing .como-cabeza h2 {
+  margin: 0;
+}
+.como-cabeza a {
+  font-weight: 600;
+  font-size: var(--t-s);
+}
+.tres {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-5);
+  margin: var(--e-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* El tercer paso es el resultado: va en la tarjeta sólida, con el número. */
+.tres .tarjeta.oscura p {
+  color: var(--tenue-invertido);
+}
+.tres .tres-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--e-1) var(--e-3);
+  margin: 0 0 var(--e-2);
+}
+.tres-dato b {
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--agua);
+}
+.tres-dato .eti {
+  margin: 0;
+  color: var(--tenue-invertido);
+}
+.tres .tarjeta {
+  margin: 0;
+}
+.tres h3 {
+  margin: var(--e-4) 0 var(--e-2);
+}
+.tres p {
+  margin: 0;
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+.numerito {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-s);
+  /* El azul de marca de relleno, con su tinta: --acento sobre --agua-tinte
+     daba 4,29:1, abajo del 4,5. Y de paso el número queda con la misma cara
+     que los botones. */
+  background: var(--agua);
+  color: var(--sobre-agua);
+  font-weight: 800;
+}
+/* ---------- secciones en tarjeta ----------
+   El contenido a un lado y la evidencia al otro, adentro de una tarjeta que
+   los agrupa. La tarjeta hace dos cosas que la sección plana no hacía: separa
+   el argumento del fondo de la página, y le da al mapa un borde contra el cual
+   terminar — antes tenía su propia caja redondeada adentro de la sección, o
+   sea dos rectángulos concéntricos. */
+.tarjeta-seccion {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--e-7) * 1.5);
+  align-items: center;
+  background: var(--panel);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sombra);
+  /* El padding NO va acá: `.landing section` es (0,1,1) y le gana a esta regla
+     (0,1,0), así que le pisaba el shorthand entero y la tarjeta quedaba con el
+     contenido pegado a los cuatro bordes. Vive abajo, en un selector que le
+     pueda ganar. */
+  overflow: hidden;
+}
+/* Con el mapa a sangre el padding no puede vivir en la tarjeta: se lo queda el
+   lado del texto, y el mapa llega hasta el borde. */
+.tarjeta-seccion.con-mapa {
+  gap: 0;
+  align-items: stretch;
+}
+.tarjeta-seccion.con-mapa .ts-texto {
+  padding: calc(var(--e-7) * 1.5);
+  align-self: center;
+}
+.tarjeta-seccion h2 {
+  margin-top: 0;
+}
+/* «Mira el río»: panel en claro; en oscuro baja a --fondo-invertido con su
+   filete (tokens --sup-lluvia y --borde-invertido). */
+.tarjeta-seccion.rio-lluvia {
+  background: var(--sup-lluvia);
+  border: 1px solid var(--borde-invertido);
+}
+/* ---------- la lluvia ----------
+   Dos tarjetas que separan lo que la app mide de lo que no, y una ámbar para
+   cuando se juntan. Es el único ámbar de la portada que no es un aviso: ése
+   color queda para el río y la lluvia juntos. */
+.rl-tarjetas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.rl-par {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-3);
+}
+.rl-caja {
+  border-radius: var(--r-m);
+  padding: var(--e-4) var(--e-5);
+}
+.rl-caja .eti {
+  margin-bottom: var(--e-2);
+}
+.landing .rl-caja p {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--t-base);
+  line-height: 1.45;
+}
+.rl-mide {
+  background: var(--agua-tinte);
+}
+.rl-mide .eti {
+  color: var(--acento);
+}
+.rl-no-mide {
+  border: 1.5px dashed var(--linea);
+}
+.rl-juntan {
+  background: var(--alerta-tinte);
+}
+.rl-juntan .eti {
+  color: var(--alerta-texto);
+}
+.landing .rl-juntan p {
+  font-weight: 500;
+}
+
+/* ---------- secciones a dos columnas ---------- */
+/* El botón de las tarjetas no ocupa el ancho: es una acción, no un bloque. */
+.tarjeta-seccion .btn {
+  width: auto;
+  padding: 0 var(--e-6);
+}
+#mapa-landing {
+  height: 100%;
+  min-height: 460px;
+}
+/* ---------- los avisos de la app, citados en la portada ----------
+   Esto se llamaba `.cita` y chocaba de frente con la cita textual de las
+   páginas generadas: el mismo nombre, la misma especificidad y mil líneas más
+   abajo, así que ganaba la otra. Estas tarjetas salían en monoespaciada, con
+   fondo gris y 6 px de aire a los costados, contra un borde durazno que sí
+   sobrevivía — y la tercera se veía distinta porque `.cita.neutra`, con un
+   punto más de especificidad, era la única que recuperaba lo suyo.
+
+   Dos componentes que no tienen nada que ver no pueden compartir nombre.
+   `.cita` se queda con lo que de verdad es una cita de un documento; esto pasa
+   a llamarse por lo que es.
+
+   La cara la toman prestada de `.aviso`, que es el componente con el que la
+   app dibuja estos mismos avisos de verdad: mismo tinte, mismo radio, mismo
+   padding y sin borde. La sección afirma que la app avisa lo que no sabe;
+   mostrar esos avisos con otra piel sería ilustrar la afirmación en vez de
+   mostrarla. */
+.avisos-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+/* El encabezado de la columna. Antes cada tarjeta repetía "AVISO EN LA APP",
+   que a la segunda deja de informar. La línea lo ata al grupo sin gastar un
+   renglón de aire; el margen se anula porque acá el espaciado lo pone el gap. */
+.avisos-app > .eti {
+  margin-bottom: 0;
+  padding-bottom: var(--e-2);
+  border-bottom: 1.5px solid var(--linea);
+}
+.aviso-app {
+  background: var(--alerta-tinte);
+  border-radius: var(--r-m);
+  padding: var(--e-4) var(--e-5);
+}
+/* La aclaración del proyecto no es un aviso de la app: sin el tinte de alerta
+   y con una línea simple, para que no compita con los dos de arriba. */
+.aviso-app.neutro {
+  background: transparent;
+  border: 1.5px solid var(--linea);
+}
+/* Margen cero: el aire lo pone el padding de la tarjeta, y `.landing p` mete
+   16 px abajo que acá descuadran la caja. El 600 contra el 500 de la prosa de
+   al lado es lo que separa la evidencia del argumento, sin cambiar el cuerpo:
+   son dos textos del mismo rango, uno cita al otro. */
+.aviso-app p {
+  margin: 0;
+  font-weight: 600;
+}
+
+
+/* ---------- llamada final ---------- */
+/* La tarjeta para medios, debajo de la caja de cierre. Sin botón y sin número
+   de secuencia a propósito: la acción principal de la portada es una sola
+   —abrir la app— y esto se dirige a otro público, el que publica en vez de
+   consultar. Sin ella el único acceso a /para-medios es el pie, donde se
+   pierde. La marca del lado derecho es decoración honesta: no es un dato en
+   vivo, así que no compite con el store de landing.js. */
+.landing section.tarjeta-medios {
+  grid-template-columns: 1fr auto;
+  padding: var(--e-7);
+  margin-bottom: calc(var(--e-7) * 1.25);
+}
+.tarjeta-medios h2 {
+  font-size: var(--t-xl);
+}
+/* Una vista previa del widget, pintada desde el mismo store que el hero: un
+   <iframe> pediría su propio /api/nivel. Reemplaza a la marca gigante
+   desvaída, que era decoración en el lugar donde se podía mostrar el
+   producto. */
+.widget-previa {
+  justify-self: end;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--fondo);
+}
+.wp-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.wp-fila .eti {
+  margin: 0;
+}
+.wp-fila .eti:last-child {
+  white-space: nowrap;
+}
+.wp-numero {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+#wp-nivel {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.wp-m {
+  font-weight: 700;
+  color: var(--tenue);
+}
+/* La píldora de estado, igual que en el widget. */
+.wp-estado {
+  margin-left: auto;
+  align-self: center;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--ok-tinte);
+  color: var(--ok-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  text-align: center;
+}
+.wp-estado.alerta {
+  background: var(--alerta-tinte);
+  color: var(--alerta-texto);
+}
+.wp-estado.evac {
+  background: var(--peligro-tinte);
+  color: var(--peligro-texto);
+}
+.wp-estado.viejo {
+  background: var(--panel-2);
+  color: var(--tenue);
+}
+.wp-estado[hidden] {
+  display: none;
+}
+.wp-fuente b {
+  font-family: var(--mono);
+}
+.wp-alerta {
+  color: var(--alerta-texto);
+}
+.wp-evac {
+  color: var(--peligro-texto);
+}
+.wp-fuente {
+  font-size: 0.6875rem;
+  color: var(--tenue);
+}
+
+.landing .cta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--e-7);
+  align-items: center;
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  border-radius: var(--r-xl);
+  padding: var(--e-7);
+  margin-bottom: var(--e-7);
+}
+.cta h2 {
+  margin: var(--e-4) 0 0;
+}
+.cta p {
+  margin: var(--e-3) 0 0;
+  color: var(--tenue-invertido);
+  max-width: 30em;
+}
+.cta .btn {
+  width: auto;
+  padding: 0 var(--e-7);
+}
+
+/* ---------- pie del sitio ---------- */
+/* La línea que separa el pie va de borde a borde de la ventana, no del
+   contenedor: es el corte entre la página y el pie, y cortada a 1100 px parece
+   el borde de una tarjeta. Por eso el borde vive en la envoltura, que es ancho
+   completo, y el contenido del pie se centra adentro. */
+/* En oscuro, un tono más oscuro que el fondo (--fondo-pie; en claro es
+   transparente): así el pie se separa sin una línea gruesa. Va acá y no en
+   .pie-sitio porque ésta es la que va de borde a borde y abraza también el
+   renglón de cierre. */
+.pie-envoltura {
+  border-top: 1.5px solid var(--linea);
+  background: var(--fondo-pie);
+}
+.pie-sitio {
+  display: grid;
+  /* La marca se lleva la mitad y las dos listas se van a la derecha: con
+     1.4fr el aire se juntaba todo al final, después de la última columna. */
+  /* Cuatro columnas: la marca y tres listas. Antes eran tres y la del medio
+     tenía once enlaces de corrido; separarlas en «La app» y «Transparencia»
+     las deja en cinco y cinco, que se recorren de un vistazo. */
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: var(--e-7);
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: var(--e-7) var(--e-5);
+}
+.pie-sitio > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  align-items: flex-start;
+}
+/* Las tres columnas empiezan con elementos de distinta altura —la marca mide
+   24 px, las etiquetas menos— y los encabezados quedaban desalineados. Se les
+   da a las tres la misma primera fila. */
+.pie-sitio > div > :first-child {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: var(--e-2);
+}
+/* El pie lleva quince enlaces: en color de acento son quince manchas azules y
+   no se lee ninguna columna. Van en el color del texto y se encienden al pasar
+   por encima.
+   La cadena de :not() repite la de la regla general de enlaces de .landing
+   —que es (0,8,1)— para poder ganarle. Sin eso, `color: var(--texto)` de acá
+   no se aplicaba nunca y el pie salía azul. */
+.landing
+  .pie-sitio
+  a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
+.pie-sitio a {
+  font-weight: 600;
+  font-size: var(--t-s);
+  color: var(--texto);
+  text-decoration: none;
+}
+/* El subrayado pasa a estar SIEMPRE, no sólo al pasar por encima: si el hover
+   es nada más una atenuación, un enlace sin subrayar en reposo se queda sin
+   ninguna señal de que es un enlace. */
+.landing .pie-sitio a:hover,
+.pie-sitio a:hover {
+  text-decoration: underline;
+}
+.pie-sitio .chico {
+  max-width: 32ch;
+  margin: var(--e-2) 0 0;
+}
+/* La barra de cierre del pie. Misma medida y mismo padding lateral que
+   .pie-sitio —no hereda: son hermanos dentro de .pie-envoltura—, con una línea
+   fina que la separa de las cuatro columnas. */
+.pie-cierre {
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: var(--e-4) var(--e-5) var(--e-6);
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
+/* Es un <a href="tel:103">. Va también con .pie-sitio adelante para ganarle
+   a `.pie-sitio a`, que lo pintaba del color del texto sobre el fondo
+   invertido. */
+.chip-tel,
+.pie-sitio a.chip-tel,
+.pie-sitio a.chip-tel:hover {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin: var(--e-3) 0 0;
+  padding: 10px 16px;
+  border-radius: var(--r-m);
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+  font-weight: 700;
+  font-size: var(--t-s);
+  text-decoration: none;
+}
+.chip-tel b {
+  color: var(--agua-clara);
+  font-size: var(--t-l);
+}
+
+/* Un <a class="btn"> es un botón, no un enlace: sin esto las reglas de enlace
+   le ganan por especificidad y lo pintan subrayado sobre el relleno. */
+.btn {
+  text-decoration: none;
+}
+.landing a.btn,
+.pagina a.btn {
+  text-decoration: none;
+  color: var(--btn-fuerte-texto);
+}
+/* Cada relleno con su par de texto medido. Sin esto la regla general de
+   enlaces les gana por especificidad y los pinta del color de acento.
+   --sobre-agua y no --btn-texto: el secundario ahora se rellena con el azul
+   de marca, y --btn-texto es blanco en tema claro — 1,92:1 sobre #5FC8E8. */
+.landing a.btn.sec,
+.pagina a.btn.sec {
+  color: var(--sobre-agua);
+}
+
+/* Un h1 que dice sólo la marca no le sirve a quien busca "hasta dónde llega
+   el agua". El complemento existe para el buscador y para un lector de
+   pantalla; no se ve. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- bienvenida ---------- */
+/* Overlay y no vista: la barra de pestañas se queda en cuatro. */
+/* IMPRESCINDIBLE, y no es obvio: el navegador esconde un <dialog> cerrado con
+   `dialog:not([open]) { display: none }`, que es (0,1,1). Un `.bienvenida
+   { display: flex }` a secas es (0,1,0)… pero gana igual, porque el UA
+   stylesheet pierde contra cualquier hoja de autor. Sin esta regla, la
+   bienvenida se ve SIEMPRE. Es el mismo bug de cascada que ya mordió antes. */
+dialog.bienvenida:not([open]) {
+  display: none;
+}
+dialog.bienvenida {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  /* Un <dialog> trae borde, ancho automático y márgenes propios: se anulan
+     para que ocupe la pantalla como lo hacía el <div>. */
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: none;
+  background: var(--fondo);
+  color: var(--texto);
+  display: flex;
+  align-items: center;
+  padding: var(--e-5);
+  overflow-y: auto;
+}
+dialog.bienvenida::backdrop {
+  background: var(--fondo);
+}
+body.con-bienvenida {
+  overflow: hidden;
+}
+.bienvenida-caja {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.bienvenida .lockup {
+  display: flex;
+}
+.bienvenida .dato {
+  margin-top: var(--e-2);
+}
+.bienvenida-botones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin-top: var(--e-6);
+}
+
+/* ---------- ajustes ---------- */
+.acciones-top {
+  display: flex;
+  gap: var(--e-2);
+  align-items: center;
+}
+.fila-ajuste {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4) 0;
+  border-bottom: 1px solid var(--linea);
+  flex-wrap: wrap;
+}
+.fila-ajuste:last-child {
+  border-bottom: none;
+}
+.fila-ajuste > div:first-child {
+  flex: 1;
+  min-width: 12em;
+}
+.fila-ajuste b {
+  display: block;
+}
+.fila-ajuste .chico {
+  display: block;
+  margin-top: 2px;
+}
+.segmentado {
+  display: flex;
+  gap: var(--e-1);
+  background: var(--panel-2);
+  border-radius: var(--r-full);
+  padding: 3px;
+}
+.segmentado button {
+  border: none;
+  background: none;
+  border-radius: var(--r-full);
+  padding: 8px 14px;
+  min-height: 2.75rem; /* era 40px: no llegaba al mínimo táctil */
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  cursor: pointer;
+}
+.segmentado button.on,
+.segmentado button[aria-pressed="true"] {
+  background: var(--panel);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+}
+/* Las tres formas de cargar la altura, en Mi casa. Es el mismo selector de
+   Ajustes y no un tercer botón: marca un estado —de dónde salió la altura—,
+   no dispara una acción principal. Va en grilla para que las tres entren a
+   lo ancho del teléfono, con el ícono arriba del nombre. */
+.segmentado.metodos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--r-m);
+  margin-bottom: var(--e-3);
+}
+/* En las zonas sin plano se esconde (sinPlano en config.js). Explícito: el
+   display:grid de arriba le gana al [hidden] del navegador. */
+.segmentado.metodos[hidden] {
+  display: none;
+}
+.segmentado.metodos button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-1);
+  min-height: 4.5rem;
+  padding: var(--e-2) var(--e-1);
+  border-radius: 13px;
+  line-height: 1.25;
+}
+.segmentado.metodos svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.segmentado.metodos button[aria-pressed="true"] {
+  color: var(--acento);
+}
+
+/* Tamaño de texto: una clase en <html> escala todo junto, incluidos los
+   números de la regla, sin duplicar reglas. */
+html.texto-grande {
+  font-size: 118%;
+}
+
+/* ---------- variantes de la página legal ---------- */
+/* Chips de anclaje: la página es larga y la gente entra buscando una sección
+   concreta, no a leerla entera. */
+.chips-ancla {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-top: var(--e-5);
+}
+.chips-ancla a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--e-4);
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--linea);
+  font-weight: 700;
+  font-size: var(--t-s);
+  color: var(--texto);
+  text-decoration: none;
+}
+/* El ancla no puede quedar debajo del borde superior de la ventana. */
+.bloque[id] {
+  scroll-margin-top: var(--e-5);
+}
+.kicker-alerta {
+  color: var(--alerta-texto) !important;
+}
+
+.rejilla-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+.mini-tarjeta {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4) var(--e-5);
+}
+.mini-tarjeta b {
+  display: block;
+  font-size: var(--t-base);
+}
+.mini-tarjeta p {
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
+/* Las licencias son pares nombre/descripción: en dos columnas se leen de un
+   vistazo, apiladas se leerían como prosa. */
+.filas-licencia > div {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: var(--e-5);
+  padding: var(--e-4) 0;
+  border-bottom: 1px solid var(--linea);
+}
+.filas-licencia > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.filas-licencia b {
+  font-size: var(--t-base);
+}
+.filas-licencia p {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+
+/* Un bloque de contorno, sin relleno: para lo que acompaña pero no es una
+   sección más. */
+.landing .bloque.borde {
+  background: transparent;
+  box-shadow: none;
+  border: 2px solid var(--linea);
+  padding: var(--e-5) var(--e-6);
+}
+
+@media (max-width: 700px) {
+  .rejilla-2 {
+    grid-template-columns: 1fr;
+  }
+  .filas-licencia > div {
+    grid-template-columns: 1fr;
+    gap: var(--e-2);
+  }
+}
+
+/* ---------- acordeón de preguntas ---------- */
+/* Va con <details> y no con JavaScript: una página de ayuda que depende de JS
+   es una página que un día no se abre. Además así el buscador lee todas las
+   respuestas, estén abiertas o cerradas. */
+.faq {
+  border-bottom: 1px solid var(--linea);
+}
+.faq:last-child {
+  border-bottom: none;
+}
+.faq summary {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  min-height: 3.5rem;
+  padding: var(--e-3) 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--t-m);
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::after {
+  content: "+";
+  margin-left: auto;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-s);
+  background: var(--panel-2);
+  color: var(--acento);
+  font-weight: 800;
+  font-size: var(--t-m);
+  text-align: center;
+  line-height: 30px;
+}
+.faq[open] summary::after {
+  content: "−";
+}
+.faq p {
+  margin: 0 0 var(--e-4);
+  color: var(--tenue);
+}
+/* La respuesta corta, la que contesta, en su propio renglón y con el color
+   del texto: el resto es la explicación. */
+.faq .corta {
+  display: block;
+  margin-bottom: var(--e-1);
+  color: var(--texto);
+}
+/* Las preguntas y, al costado, las cuatro ideas que hay que llevarse. */
+.faq-y-corto {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--e-4);
+  align-items: start;
+}
+.faq-y-corto .bloque {
+  margin: 0;
+}
+.en-corto {
+  position: sticky;
+  top: var(--e-5);
+}
+.landing .en-corto h2 {
+  margin-top: 0;
+  font-size: var(--t-l);
+}
+.flechas {
+  margin: 0 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.flechas li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-weight: 600;
+}
+.flechas li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--acento);
+}
+@media (max-width: 900px) {
+  .faq-y-corto {
+    grid-template-columns: 1fr;
+  }
+  .en-corto {
+    position: static;
+  }
+}
+
+/* ---------- tabla de una cuenta ---------- */
+.cuenta {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.cuenta td {
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.cuenta td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  color: var(--texto);
+}
+.cuenta .total td {
+  border-bottom: none;
+  padding-top: var(--e-4);
+  font-weight: 700;
+  color: var(--texto);
+}
+.cuenta .total td:last-child {
+  font-size: var(--t-l);
+  font-weight: 800;
+  color: var(--acento);
+}
+
+/* ---------- pines del mapa de la portada ---------- */
+.pin-landing {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--agua-clara);
+  border: 3px solid var(--fondo-invertido);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.mapa-caido {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mapa-caido::after {
+  content: "El mapa no cargó. La lista completa está más abajo.";
+  padding: var(--e-5);
+  text-align: center;
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+
+/* ---------- angosto ---------- */
+@media (max-width: 900px) {
+  .landing .bloque {
+    padding: var(--e-5);
+  }
+  .pg-cabecera h1 {
+    font-size: var(--t-xxl);
+  }
+  /* Tercera vez que muerde el mismo bug de cascada, así que queda anotado: la
+     caja de cierre se define como `.landing .cta`, y una consulta de medios NO
+     suma especificidad. Escrito `.cta` a secas, este override perdía 0-1-0
+     contra 0-2-0 y la sección se quedaba en dos columnas en el teléfono: el
+     título partido en siete renglones de una palabra al lado de un botón. El
+     selector de acá tiene que ser tan específico como el de la definición. */
+  .hero,
+  .tarjeta-seccion,
+  .landing .cta,
+  .landing section.tarjeta-medios {
+    grid-template-columns: 1fr;
+    gap: var(--e-6);
+  }
+  /* Cuarta vez, y por lo mismo: `.landing section.tarjeta-medios` es (0,2,1) y
+     le gana a `.tarjeta-seccion` de arriba aunque esté dentro de la consulta.
+     Sin nombrarla acá, en el teléfono la tarjeta quedaba en dos columnas con el
+     texto en 162 px al lado de la marca.
+     La vista previa del widget va debajo, a lo ancho. */
+  .widget-previa {
+    justify-self: stretch;
+    max-width: none;
+  }
+  /* En una columna el mapa va debajo del texto y necesita un alto propio: el
+     `height: 100%` del escritorio le sirve para llenar la fila al lado del
+     texto, no para ser una fila. */
+  .tarjeta-seccion.con-mapa {
+    gap: 0;
+  }
+  #mapa-landing {
+    height: 320px;
+    min-height: 0;
+  }
+  /* 48 px de relleno en una tarjeta de 350 px se comen un tercio del ancho. */
+  .landing section.tarjeta-seccion {
+    padding: var(--e-6);
+  }
+  .tarjeta-seccion.con-mapa .ts-texto {
+    padding: var(--e-6);
+  }
+  .hitos,
+  .tres {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--e-5);
+  }
+  .franja-pie {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+  }
+  .pie-sitio {
+    grid-template-columns: 1fr;
+    gap: var(--e-6);
+  }
+  .titulo-hero {
+    font-size: var(--t-xxl);
+  }
+  .bajada {
+    font-size: var(--t-m);
+  }
+  .nav-sitio {
+    position: relative;
+    row-gap: var(--e-3);
+  }
+  .nav-menu > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: -4px 0;
+    border-radius: var(--r-m);
+    color: var(--texto);
+  }
+  .nav-menu > summary:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+  }
+  /* El panel cuelga de la barra en vez de empujar la página: abrir el menú no
+     tiene por qué mover el contenido que la persona estaba mirando. */
+  .nav-menu > .nav-enlaces {
+    position: absolute;
+    top: calc(100% - var(--e-4));
+    right: 0;
+    min-width: 220px;
+    z-index: 5;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--e-2);
+    border-radius: var(--r-m);
+    background: var(--panel);
+    box-shadow: var(--sombra);
+  }
+  .nav-menu > .nav-enlaces a:not(.btn) {
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0 var(--e-4);
+    border-radius: var(--r-s);
+    font-size: var(--t-base);
+  }
+  .landing .franja-oscura,
+  .landing .cta {
+    padding: var(--e-6) var(--e-5);
+  }
+  .landing section {
+    padding: var(--e-6) 0;
+  }
+}
+@media (max-width: 560px) {
+  /* Los hitos y las tres tarjetas son párrafos: en dos columnas de 170 px el
+     texto reflota y no se gana nada, así que van apilados. Las métricas son un
+     número y un renglón corto — ahí dos columnas ahorran media pantalla. */
+  .hitos,
+  .tres,
+  .rl-par {
+    grid-template-columns: 1fr;
+  }
+  /* Cada año en un renglón: el número a la izquierda y la frase al lado. */
+  .hitos > li {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: var(--e-3);
+    align-items: baseline;
+  }
+  .hitos b {
+    font-size: var(--t-xl);
+  }
+  .hitos p {
+    margin: 0;
+  }
+  .nav-sitio {
+    padding: var(--e-4) 0;
+  }
+  /* 420 px de mapa en un teléfono son media pantalla de un elemento que es
+     ilustrativo: la lista completa está a un toque. */
+  #mapa-landing {
+    height: 280px;
+  }
+  .pg-cabecera {
+    padding: var(--e-5) 0 var(--e-4);
+  }
+  .pg-cta .btn {
+    width: 100%;
+  }
+  .nav-sitio {
+    gap: var(--e-3);
+  }
+  .nav-sitio .chip-borde {
+    display: none;
+  }
+  .hero-botones .btn,
+  .tarjeta-seccion .btn,
+  .cta .btn {
+    width: 100%;
+  }
+
+  /* ---------- apretar el aire en el teléfono ----------
+     El escritorio puede gastar 40 px entre secciones porque los ve de reojo;
+     en una pantalla de 844 px ese mismo aire son siete pantallas y media de
+     scroll. Se achica el espaciado y la escala tipográfica, no el contenido:
+     todo lo que se leía se sigue leyendo, con menos dedo. */
+  .landing section {
+    padding: var(--e-5) 0;
+  }
+  .landing h2 {
+    font-size: var(--t-xl);
+    margin: var(--e-2) 0 var(--e-4);
+  }
+  .landing p {
+    margin-bottom: var(--e-3);
+  }
+  .landing .bloque {
+    padding: var(--e-4);
+    margin-bottom: var(--e-4);
+  }
+  .bloque h2 {
+    font-size: var(--t-l);
+    margin: var(--e-2) 0 var(--e-3);
+  }
+  .muestras-widget {
+    grid-template-columns: 1fr;
+  }
+  .caja-codigo .btn {
+    position: static;
+    display: block;
+    margin-bottom: var(--e-4);
+  }
+  .charla .tit {
+    font-size: var(--t-m);
+  }
+  .cuando-que {
+    grid-template-columns: 1fr;
+  }
+  .telefonos-emergencia {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+    padding: var(--e-5);
+  }
+  .firme-tres,
+  .dos-maneras {
+    grid-template-columns: 1fr;
+  }
+  /* En el teléfono el valor del ejemplo baja debajo del texto. */
+  .ej-fila {
+    grid-template-columns: 32px 1fr;
+    gap: var(--e-2) var(--e-3);
+  }
+  .ej-fila .numerito {
+    width: 32px;
+    height: 32px;
+  }
+  .ej-valor {
+    grid-column: 2;
+  }
+  .resultado .dato-grande {
+    font-size: var(--t-xxl);
+  }
+  .landing .franja-oscura,
+  .landing .cta {
+    padding: var(--e-5) var(--e-4);
+  }
+  .hero {
+    padding: var(--e-5) 0 var(--e-6);
+    gap: var(--e-5);
+  }
+  .hero-botones {
+    margin: var(--e-5) 0 var(--e-3);
+  }
+  .hitos,
+  .tres {
+    gap: var(--e-3);
+  }
+  .pie-sitio {
+    gap: var(--e-5);
+    padding-bottom: var(--e-6);
+  }
+  .pg-cta {
+    margin: var(--e-5) 0 var(--e-6);
+  }
+}
+
+/* ---------- impresión ---------- */
+#plan-impreso {
+  display: none;
+}
+@media print {
+  html,
+  body {
+    background: #fff;
+    color: #000;
+    padding: 0;
+  }
+
+  /* ---------- la app ----------
+     Lo único que tiene sentido en papel es el plan, y en texto plano: los
+     campos de formulario se imprimen mal y los textarea se recortan.
+
+     La regla va acotada a `body.app` y no a `body` a secas. Sin eso, como este
+     archivo lo cargan las trece páginas, imprimir /puntos-de-encuentro para
+     pegarlo en la heladera daba una HOJA EN BLANCO: escondía todo y buscaba un
+     #plan-impreso que en el sitio no existe. Justo la página que en su bajada
+     promete funcionar sin conexión. */
+  body.app > *:not(#plan-impreso) {
+    display: none !important;
+  }
+  body.app #plan-impreso {
+    display: block;
+    white-space: pre-wrap;
+    font-family: ui-monospace, monospace;
+    font-size: 11.5pt;
+    line-height: 1.45;
+    color: #000;
+    padding: 0;
+  }
+
+  /* ---------- el sitio ----------
+     Papel es para llevar: se van la navegación, el pie, los botones y todo lo
+     que se toca. Queda el texto, y en /puntos-de-encuentro los 30 lugares con
+     su dirección y los teléfonos. */
+  .franja-estado,
+  .nav-sitio,
+  .pie-envoltura,
+  .pie-cierre,
+  .pg-acciones,
+  .pg-cta,
+  .chips-ancla,
+  .btn,
+  .sugerir {
+    display: none !important;
+  }
+  /* Una sola columna: dos columnas de papel se leen peor y parten las fichas. */
+  .rejilla-2,
+  .tres,
+  .hitos {
+    display: block;
+  }
+  .lista-zona li,
+  .telefonos-emergencia > a,
+  .bloque,
+  .tarjeta {
+    break-inside: avoid;
+  }
+  /* "Abrir en mapas →" no hace nada en una hoja. */
+  .punto .ir {
+    display: none;
+  }
+  .punto {
+    color: #000;
+    text-decoration: none;
+  }
+}
+
+/* ---------- sugerencias ---------- */
+.sugerir {
+  max-width: 640px;
+  margin: var(--e-6) auto 0;
+  padding: 0 var(--e-5);
+}
+.sugerir > summary {
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--t-m);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tenue);
+  padding: var(--e-3) 0;
+  border-top: 1px solid var(--linea);
+}
+.sugerir[open] > summary {
+  color: var(--texto);
+}
+
+.pie {
+  padding: var(--e-6) var(--e-5) var(--e-7);
+  text-align: center;
+  font-size: var(--t-s);
+  color: var(--tenue);
+  border-top: 1px solid var(--linea);
+  margin-top: var(--e-6);
+  line-height: 1.6;
+}
+/* Una herramienta que dice "no tiene vínculo con organismos oficiales"
+   gana en que se vea quién responde por ella. */
+.firma {
+  margin-top: var(--e-4);
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-s);
+}
+.firma b {
+  color: var(--texto);
+  font-weight: 600;
+}
+.pie a {
+  color: var(--acento);
+}
+
+/* ==========================================================================
+   ESTADOS E INTERACCIÓN
+   Había 4 hover y 1 active en toda la app: nada respondía al toque. La
+   diferencia entre "funciona" y "está hecho" suele ser esto.
+   Todo va bajo (hover: hover) para que en el teléfono no queden estados
+   pegados después de tocar.
+   ========================================================================== */
+.btn,
+.tema,
+.punto,
+.tel,
+.chk,
+.barra-app button,
+summary,
+input,
+select,
+textarea {
+  transition:
+    background-color var(--mov),
+    border-color var(--mov),
+    color var(--mov),
+    opacity var(--mov),
+    transform var(--mov);
+}
+
+.btn:active,
+.tema:active {
+  transform: translateY(1px);
+}
+
+/* Las filas de lista son links: tienen que sentirse como tales. */
+.punto,
+.tel {
+  margin: 0 calc(var(--e-2) * -1);
+  padding-left: var(--e-2);
+  padding-right: var(--e-2);
+  border-radius: var(--r-m);
+}
+.punto .ir {
+  transition: transform var(--mov);
+}
+
+/* ---------- el hover es SIEMPRE opacidad ----------
+   Una sola respuesta al puntero en todo el producto: se atenúa. Nada de
+   cambiar el color, aclarar con `brightness` ni mover cosas de lugar. Un
+   hover que recolorea obliga a elegir un segundo color para cada elemento
+   —y a medirle el contraste—, y con veinte elementos eso son veinte
+   decisiones que se desincronizan.
+
+   Dos valores y no uno: sobre un relleno sólido un 28 % de transparencia se
+   ve lavado, y sobre texto un 14 % no se ve. */
+:root {
+  --hover-relleno: 0.86;
+  --hover-texto: 0.72;
+}
+@media (hover: hover) {
+  .btn:hover:not(:disabled),
+  .btn.sec:hover:not(:disabled),
+  .btn-emergencia:hover {
+    opacity: var(--hover-relleno);
+  }
+  .punto:hover,
+  .tel:hover,
+  .chk:hover span,
+  .barra-app button:hover,
+  summary:hover,
+  .tema:hover,
+  .pildora-rio:hover,
+  .chips-ancla a:hover,
+  .enlace-crudo:hover,
+  .charla:hover,
+  .fila-punto:hover,
+  .sugerir > summary:hover,
+  .pie-sitio a:hover,
+  .franja-estado a:hover {
+    opacity: var(--hover-texto);
+  }
+}
+
+/* El foco visible tiene que verse igual en todos lados, no heredar el que
+   trae cada control. */
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--agua);
+  outline-offset: 0;
+}
+
+/* ---- el número grande ----
+   Es el centro de la app: una app de datos se juzga por cómo trata sus
+   números. A 30px una monoespaciada queda suelta; el tracking negativo la
+   compacta y la hace leer como un instrumento. */
+.dato {
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.dato .unidad {
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+.tel .n {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   PANTALLAS ANCHAS — sólo "Dónde ir"
+   El resto de la app se queda igual que en el teléfono a propósito: una
+   columna centrada. La única pantalla que gana de verdad con más ancho es
+   ésta, porque un mapa y su lista se usan juntos.
+   La grilla va en .mapa-y-lista, no en la sección: poniéndola en la sección,
+   los <h2> a ancho completo cortan cada fila y la segunda columna no se forma
+   nunca. Eso fue exactamente lo que salió mal el intento anterior.
+   ========================================================================== */
+@media (min-width: 900px) {
+  #v-donde.on {
+    max-width: 1000px;
+  }
+  .mapa-y-lista {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--e-5);
+    align-items: start;
+  }
+  /* El mapa queda a la vista mientras se recorre la lista. */
+  .col-mapa {
+    position: sticky;
+    top: var(--e-5);
+  }
+  #mapa {
+    height: 440px;
+  }
+}
+
+/* El foco programático de las secciones es para que un lector de pantalla
+   anuncie el cambio, no para dibujar un recuadro alrededor de media página.
+   Sólo se puede enfocar por script (tabindex="-1"), así que sacar el contorno
+   no le quita nada a quien navega con teclado. */
+.vista:focus {
+  outline: none;
+}
+
+/* ==========================================================================
+   TRAZABILIDAD — las fichas de fuente
+   --------------------------------------------------------------------------
+   Aparecen en /datos y al pie de los bloques que muestran un número. La idea
+   es que citar la fuente se sienta parte del dato y no una nota al pie: el
+   nombre del organismo va en el mismo peso que un título chico, y el enlace
+   al dato crudo va al lado del botón, en tono menor, porque sirve a mucha
+   menos gente pero es el que hace auditable la app.
+   ========================================================================== */
+.fuente-ficha {
+  margin-top: var(--e-5);
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+}
+.fuente-que {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.fuente-quien {
+  margin: var(--e-1) 0 0;
+  font-family: var(--sans);
+  font-size: var(--t-m);
+  font-weight: 700;
+}
+.fuente-ficha .chico {
+  margin: var(--e-2) 0 0;
+}
+.fuente-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+  margin: var(--e-4) 0 0;
+}
+.fuente-enlaces .btn {
+  margin: 0;
+  width: auto;
+}
+.enlace-crudo {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* En la bienvenida va en un <button> —abre una vista, no navega— y sin esto
+   salía con el gris y el borde en relieve del navegador. Y en sans: el mono
+   es la voz del instrumento, y esto es una frase para quien no sabe nada. */
+button.enlace-crudo {
+  background: none;
+  border: 0;
+  padding: var(--e-2) 0;
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+/* Los enlaces sueltos dentro de la app —sin clase propia— salían en el azul
+   y el violeta del navegador. :where() deja la regla en (0,1,0), así que
+   cualquier regla de un componente le sigue ganando. */
+.app :where(a:not([class])) {
+  color: var(--acento);
+  text-underline-offset: 2px;
+}
+.fuentes-rejilla {
+  display: grid;
+  gap: var(--e-4);
+  margin-top: var(--e-4);
+}
+/* El sello chico que va debajo de un número dentro de la app. No lleva caja:
+   una caja acá compite con la tarjeta que lo contiene. */
+.sello-fuente {
+  display: block;
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.sello-fuente .k {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: var(--e-1);
+}
+.sello-fuente a {
+  color: var(--acento);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* La ficha de la estación: pares clave/valor que se leen salteando. */
+.ficha-estacion {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: var(--e-5) 0;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+.ficha-estacion > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-4);
+  padding: var(--e-3) var(--e-4);
+  border-bottom: 1px solid var(--linea);
+}
+.ficha-estacion > div:last-child {
+  border-bottom: none;
+}
+.ficha-estacion .k {
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.ficha-estacion .v {
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  text-align: right;
+}
+
+/* ==========================================================================
+   LA CUENTA, EN VERTICAL
+   --------------------------------------------------------------------------
+   Tres sumandos y un total, con el operador entre medio en su propio renglón.
+   Antes esto era prosa con números adentro y no lo seguía nadie: la cuenta
+   escrita como cuenta se entiende sin leer.
+   ========================================================================== */
+.cuenta-vertical {
+  margin: var(--e-5) auto;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  overflow: hidden;
+  max-width: 400px;
+}
+.cv-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-4);
+  padding: var(--e-4);
+}
+.cv-k {
+  font-size: var(--t-base);
+  color: var(--tenue);
+}
+.cv-v {
+  font-family: var(--mono);
+  font-size: var(--t-m);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cv-op {
+  padding: 0 var(--e-4) var(--e-1);
+  font-family: var(--mono);
+  font-size: var(--t-l);
+  color: var(--acento);
+  line-height: 1;
+}
+.cv-total {
+  background: var(--agua-tinte);
+  border-top: 1px solid var(--linea);
+}
+.cv-total .cv-k {
+  color: var(--texto);
+  font-weight: 600;
+}
+.cv-total .cv-v {
+  color: var(--acento);
+  font-size: var(--t-l);
+}
+
+/* El corte del terreno. Ancho completo y alto libre: es un esquema, no un
+   plano, y estirarlo en un teléfono no rompe nada. */
+.corte {
+  display: block;
+  width: 60%;
+  height: auto;
+  margin: var(--e-5) auto;
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-3);
+}
+
+/* Las dos curvas con la casa en el medio. Es la ilustración más barata
+   posible de "estás entre dos líneas" y explica la interpolación sin decir
+   la palabra interpolación. */
+.curvas-dibujo {
+  margin: var(--e-5) 0;
+  padding: var(--e-5) var(--e-4);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  max-width: 400px;
+}
+.cd-linea {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+.cd-linea span {
+  font-family: var(--mono);
+  font-size: var(--t-s);
+  color: var(--tenue);
+  min-width: 58px;
+}
+.cd-linea i {
+  flex: 1;
+  height: 1px;
+  background: var(--tierra);
+  opacity: 0.75;
+}
+.cd-casa {
+  margin: var(--e-3) 0 var(--e-3) 70px;
+  font-size: var(--t-s);
+}
+
+/* Una cita textual de un documento. Va en monoespaciada para que se lea como
+   lo que es: palabras copiadas de otro lado, no nuestras. */
+.cita {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  padding: 2px 6px;
+  border-radius: var(--r-s);
+  background: var(--panel-2);
+}
+
+@media (min-width: 700px) {
+  .fuentes-rejilla {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ficha-estacion {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ficha-estacion > div:nth-last-child(2) {
+    border-bottom: none;
+  }
+}
+
+/* ==========================================================================
+   /historia — cien años del Paraná
+   ========================================================================== */
+.h-franja {
+  margin: var(--e-5) 0 var(--e-3);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-3) var(--e-2);
+}
+/* La franja se estira a lo ancho y se queda baja en el teléfono: lo que
+   importa es la silueta del siglo, no leer año por año. */
+.h-franja-caja {
+  position: relative;
+  padding-left: 20px;
+}
+.h-svg-franja {
+  display: block;
+  width: 100%;
+  height: 170px;
+}
+/* Los rótulos son HTML encima del SVG, no <text> adentro: el dibujo se estira
+   sin conservar proporción y eso aplasta las letras. */
+.h-umbral,
+.h-y {
+  position: absolute;
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  line-height: 1;
+  pointer-events: none;
+}
+/* Los dos umbrales van sobre las barras, así que llevan pastilla: sin fondo,
+   "evacuación 5,7" caía encima de las crecidas del 80 y no se leía ninguno de
+   los dos. Y el de alerta va debajo de su línea porque las dos líneas están a
+   40 cm y los rótulos se montaban. */
+.h-umbral {
+  right: var(--e-1);
+  margin-bottom: 3px;
+  padding: 1px 5px;
+  border-radius: var(--r-s);
+  background: var(--panel);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.h-franja-caja .h-alerta {
+  margin-bottom: 0;
+  transform: translateY(100%);
+}
+.h-umbral.h-alerta {
+  color: var(--alerta-texto);
+}
+.h-umbral.h-peligro {
+  color: var(--peligro-texto);
+}
+.h-y {
+  left: 0;
+  width: 16px;
+  text-align: right;
+  transform: translateY(50%);
+  color: var(--tenue);
+}
+.h-eje {
+  position: relative;
+  height: 16px;
+  margin: var(--e-2) 0 0 20px;
+}
+.h-eje span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  color: var(--tenue);
+  white-space: nowrap;
+}
+/* Los extremos se pegan al borde en vez de salirse de la caja. */
+.h-eje span:first-child {
+  transform: none;
+}
+.h-eje span:last-child {
+  transform: translateX(-100%);
+}
+/* Las barras: el color dice lo más alto que llegó el río ese año. El celeste
+   de los años normales va bajado: son la mayoría y no tienen que competir con
+   los que llegaron a la alerta. */
+.h-barra {
+  cursor: pointer;
+}
+.h-barra.h-b-normal,
+.h-leyenda .h-b-normal {
+  fill: var(--agua);
+  background: var(--agua);
+  opacity: 0.55;
+}
+.h-barra.h-b-alerta,
+.h-leyenda .h-b-alerta {
+  fill: var(--alerta);
+  background: var(--alerta);
+}
+/* --linea-evac y no --peligro: en tema claro --alerta y --peligro están a
+   dos tonos uno del otro y las barras de los dos grupos no se distinguían. */
+.h-barra.h-b-evac,
+.h-leyenda .h-b-evac {
+  fill: var(--linea-evac);
+  background: var(--linea-evac);
+}
+.h-barra:hover {
+  opacity: 1;
+}
+.h-franja {
+  cursor: pointer;
+}
+.h-franja:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+.h-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-5);
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.h-leyenda li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.h-leyenda i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+/* El año elegido: flechas a los costados del año y tres datos. */
+.h-detalle-anio {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4) var(--e-5);
+}
+.h-sel {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+.h-flecha {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel);
+  color: var(--texto);
+  font-size: var(--t-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+.h-flecha:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.h-anio {
+  font-family: var(--sans);
+  font-size: var(--t-xxl);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.h-detalle-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-4) 0 var(--e-3);
+}
+.h-detalle-datos > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.h-detalle-datos .eti {
+  margin: 0;
+}
+.h-detalle-datos b {
+  font-size: var(--t-l);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.h-detalle-datos b.h-t-alerta {
+  color: var(--alerta-texto);
+}
+.h-detalle-datos b.h-t-evac {
+  color: var(--peligro-texto);
+}
+.h-detalle-datos .chico {
+  margin: 0;
+  font-size: var(--t-xs);
+}
+.landing .h-detalle-texto {
+  margin: 0;
+  font-weight: 600;
+}
+/* Las cuatro fichas de arriba: el récord, la bajante, la mediana y los años.
+   Datos en el HTML, no en el JS. */
+.fichas-hist {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-5) 0;
+}
+.fichas-hist > div {
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  padding: var(--e-4);
+}
+.fichas-hist dt {
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.fichas-hist dd {
+  margin: var(--e-1) 0 0;
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.h-detalle summary {
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: var(--t-base);
+}
+/* La tabla scrollea en su propia caja: la página nunca se mueve de costado. */
+.h-tabla-caja {
+  max-height: 420px;
+  overflow: auto;
+  margin-top: var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+}
+.h-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+.h-tabla th,
+.h-tabla td {
+  padding: var(--e-2) var(--e-3);
+  text-align: right;
+  border-bottom: 1px solid var(--linea);
+}
+.h-tabla th:first-child,
+.h-tabla td:first-child {
+  text-align: left;
+}
+.h-tabla thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  color: var(--tenue);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 700px) {
+  .h-svg-franja {
+    height: 230px;
+  }
+}
+@media (max-width: 700px) {
+  .fichas-hist {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* La lista de "esto está a tanto de cada umbral", en la tarjeta En contexto.
+   Tres renglones cortos: el número primero, porque es lo que se busca. */
+.lista-contra {
+  margin: 0;
+}
+.contra-fila {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--e-3);
+  align-items: baseline;
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+}
+.contra-fila dt {
+  font-weight: 800;
+  font-size: var(--t-l);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.contra-fila dt.encima {
+  color: var(--peligro-texto);
+}
+.contra-fila dd {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* Dónde cae hoy entre todos los días medidos. La barra es el mismo dato que
+   la frase de abajo, dibujado: por eso va aria-hidden. */
+.percentil {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  padding-top: var(--e-4);
+}
+.percentil-pista {
+  position: relative;
+  height: 12px;
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+}
+.percentil-pista i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--r-full);
+  background: var(--agua);
+  opacity: 0.45;
+}
+.percentil-pista u {
+  position: absolute;
+  top: -5px;
+  width: 4px;
+  height: 22px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--acento);
+}
+
+/* El sello "plan municipal" en las listas del plan familiar. Marca lo que sale
+   del Plan de Contingencia del municipio y lo separa de lo que agregamos
+   nosotros: mezclarlos sin decirlo sería atribuirnos un respaldo que no
+   tenemos. Va chico y en tono menor — es una nota de origen, no una jerarquía
+   entre los renglones. */
+.sello-oficial {
+  display: inline-block;
+  margin-left: var(--e-2);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  background: var(--agua-tinte);
+  color: var(--acento);
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   RESERVAR EL LUGAR DE LO QUE LLEGA DESPUÉS
+   --------------------------------------------------------------------------
+   Cuatro tarjetas de la pantalla del río se llenan cuando contesta la red, no
+   al pintar: el veredicto, la lluvia, la tendencia del caudal y el bloque de
+   contexto. Hasta que llegan miden poco, y al llenarse empujan hacia abajo
+   todo lo que tienen debajo.
+
+   Medido en /app con caché frío y 4G lento, eso daba CLS 0,264 — el único
+   número de Core Web Vitals que este sitio tenía en rojo (el límite es 0,1).
+   No es sólo una métrica: es la pantalla saltando bajo el dedo de alguien que
+   está tratando de leer el nivel del río.
+
+   Los valores salen de medir la altura final de cada una a 390 px de ancho.
+   Son mínimos, no alturas fijas: si el contenido crece, la tarjeta crece. En
+   pantallas anchas el contenido entra en menos líneas y puede sobrar un poco
+   de aire; se prefiere ese aire antes que el salto. */
+#veredicto-rio {
+  min-height: 225px;
+}
+/* Con la casa cargada el veredicto suma las dos fichas y la glosa: 336 px
+   medidos. La clase la pone rio.js antes de pedir el dato. */
+#v-rio.con-casa #veredicto-rio {
+  min-height: 336px;
+}
+/* El renglón que dice de dónde salió el dato arranca vacío y termina en dos
+   líneas con sus dos enlaces, más el filete de arriba. */
+#origen-dato {
+  min-height: 73px;
+}
+#tendencia {
+  min-height: 250px;
+}
+#contexto-caja {
+  min-height: 390px;
+}
+#lluvia-caja {
+  min-height: 270px;
+}
+@media (min-width: 700px) {
+  /* En pantalla ancha el texto entra en menos renglones: reservar lo mismo
+     dejaría un hueco visible y no hay nada que ganar — el salto se nota
+     mucho menos cuando la tarjeta no ocupa media pantalla. */
+  #veredicto-rio,
+  #v-rio.con-casa #veredicto-rio,
+  #tendencia,
+  #contexto-caja,
+  #lluvia-caja {
+    min-height: 0;
+  }
+}
+
+/* ==========================================================================
+   /contacto
+   ========================================================================== */
+
+/* El aviso de emergencia va antes del título, no después: alguien con agua en
+   la puerta no lee hasta el final de la página. El 103 es un enlace que llama,
+   no un adorno. */
+.aviso-emergencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--e-4);
+  margin: var(--e-5) 0 var(--e-7);
+  padding: var(--e-5);
+  border-radius: var(--r-l);
+  /* Las mismas variables que `.bloque.oscuro`: son las que ya saben invertirse
+     en tema claro y en oscuro. Antes esto usaba `--c-fondo`, que es el fondo
+     CLARO del sitio — el texto quedaba blanco sobre blanco. */
+  background: var(--fondo-invertido);
+  color: var(--texto-invertido);
+}
+.aviso-emergencia p {
+  margin: 0;
+  font-size: var(--t-base);
+  max-width: 46ch;
+}
+.btn-emergencia {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-5);
+  border-radius: var(--r-full);
+  background: var(--peligro-solido);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+}
+/* Dentro de la tarjeta de ayuda los dos controles van en su propio renglón:
+   incrustados en medio de la oración partían la frase ("salí. [103] "). Y el
+   color se re-declara porque `.pasos a` es (0,1,1) y le gana a
+   `.btn-emergencia` (0,1,0): sin esto el 103 salía azul sobre rojo. */
+#ayuda-simple .btn {
+  display: flex;
+  width: fit-content;
+  margin: var(--e-3) 0 0;
+}
+#ayuda-simple a.btn-emergencia {
+  color: #fff;
+}
+/* El 103 de la ayuda va como un renglón entero: «Defensa Civil» a la
+   izquierda y el número grande a la derecha, que es lo que se busca. */
+.btn-emergencia.fila-103 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3.25rem;
+  margin: var(--e-3) 0 0;
+  border-radius: var(--r-m);
+  padding: 0 var(--e-4);
+  font-size: var(--t-base);
+}
+.btn-emergencia.fila-103 b {
+  font-size: var(--t-xl);
+  font-weight: 800;
+}
+
+.btn-emergencia b {
+  font-size: var(--t-l);
+  letter-spacing: 0.02em;
+}
+/* El botón del 103 se suma a la lista de exclusiones de la regla general de
+   enlaces —junto a .btn, .lockup, .punto y .charla—: si no, hereda el color
+   de acento y queda azul sobre rojo, ilegible. */
+
+/* Las pastillas de categoría son radios de verdad. El input queda accesible
+   —no `display:none`, que lo saca del foco— y se dibuja el label. */
+.campo-cat {
+  border: 0;
+  padding: 0;
+  margin: var(--e-5) 0 var(--e-4);
+}
+.campo-cat legend {
+  padding: 0;
+  margin-bottom: var(--e-3);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+.cat-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.cat-chip {
+  display: inline-block;
+  padding: var(--e-3) var(--e-5);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-full);
+  background: var(--panel-2);
+  font-family: var(--sans);
+  font-size: var(--t-base);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+.cat-radio:checked + .cat-chip {
+  background: var(--texto);
+  border-color: var(--texto);
+  color: var(--fondo);
+}
+/* El foco tiene que verse: el input está oculto, así que el anillo lo dibuja
+   la pastilla. Sin esto, quien navega con teclado no sabe dónde está. */
+.cat-radio:focus-visible + .cat-chip {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+#form-contacto textarea,
+#form-contacto input[type="text"] {
+  width: 100%;
+  padding: var(--e-4);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel-2);
+  color: var(--texto);
+  font-family: var(--sans);
+  font-size: var(--t-base);
+}
+#form-contacto textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+#form-contacto .campo {
+  display: block;
+  margin: var(--e-5) 0 var(--e-2);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+}
+#form-contacto .campo i {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--tenue);
+}
+#form-contacto .btn {
+  margin-top: var(--e-5);
+  width: auto;
+}
+.cuenta-texto {
+  margin: var(--e-2) 0 0;
+  color: var(--tenue);
+}
+.estado-mal {
+  color: var(--alerta-texto);
+}
+.estado-bien {
+  color: var(--ok-texto);
+}
+.letra-chica {
+  margin-top: var(--e-5);
+  color: var(--tenue);
+}
+.tarjetas-contacto {
+  margin-top: var(--e-5);
+}
+
+@media (max-width: 640px) {
+  .aviso-emergencia {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tarjetas-contacto {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   PREFERENCIAS DEL SISTEMA — VAN AL FINAL A PROPÓSITO
+   Son overrides: `.tarjeta { border: none }` y compañía están declaradas más
+   arriba con la misma especificidad, así que un bloque puesto antes pierde por
+   orden y no hace nada. Ya pasó: la primera versión de esto quedó a la altura
+   del foco y el borde seguía en 0px con el contraste forzado activo.
+   ========================================================================== */
+
+/* Modo de alto contraste del sistema (Windows, y el "contraste alto" de
+   Android). El navegador reemplaza todos los colores por la paleta del
+   usuario, y los bordes que dibujábamos con `background` desaparecen: sin
+   esto, las tarjetas y los avisos quedan como texto flotando. */
+@media (forced-colors: active) {
+  .tarjeta,
+  .veredicto,
+  .aviso,
+  .celda,
+  .bloque,
+  .aviso-app,
+  .segmentado {
+    border: 1px solid CanvasText;
+  }
+  .btn,
+  .btn.sec {
+    border: 1px solid ButtonText;
+  }
+  /* El agua de la regla y del símbolo es un dato, no una decoración: si el
+     sistema la repinta, la regla deja de decir nada. */
+  .agua,
+  .rm-agua,
+  .lockup svg circle:first-of-type {
+    forced-color-adjust: none;
+  }
+}
+
+/* Con "más contraste" pedido por el sistema, el gris de los textos
+   secundarios es lo primero que se pierde a pleno sol. */
+@media (prefers-contrast: more) {
+  :root,
+  html[data-theme="light"],
+  html[data-theme="dark"] {
+    --tenue: var(--texto);
+    --tenue-invertido: var(--texto-invertido);
+  }
+}
+
+/* ==========================================================================
+   MI PLAN Y DÓNDE IR
+   ========================================================================== */
+
+/* La tarjeta sólida: en claro el negro de siempre, en oscuro un panel con
+   borde (ver --sup-fuerte). */
+.tarjeta.oscura {
+  background: var(--sup-fuerte);
+  color: var(--texto-invertido);
+  border: 1px solid var(--sup-fuerte-borde);
+  box-shadow: none;
+}
+.tarjeta.oscura .chico {
+  color: var(--tenue-invertido);
+}
+/* Los títulos tienen su color fijado en otra regla: sin esto, en la portada
+   el h3 salía negro sobre negro. */
+.tarjeta.oscura h2,
+.tarjeta.oscura h3 {
+  color: var(--texto-invertido);
+}
+
+/* El progreso del plan: cuántas cosas listas, la barra y el detalle por
+   lista. */
+.progreso-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+.pp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  flex-wrap: wrap;
+}
+.pp-num {
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--tenue-invertido);
+}
+.pp-num b {
+  margin-right: var(--e-1);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto-invertido);
+}
+.pp-falta {
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+.pp-falta b,
+.pp-detalle b {
+  color: var(--texto-invertido);
+}
+.pp-pista {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: rgba(233, 238, 240, 0.14);
+  overflow: hidden;
+}
+.pp-pista i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--agua);
+}
+.pp-detalle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-4);
+  font-size: var(--t-xs);
+  color: var(--tenue-invertido);
+}
+
+/* Cada lista en su tarjeta, con el título y la cuenta adentro. */
+.lp-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.lista-plan h2 {
+  margin: 0;
+  font-size: var(--t-m);
+}
+.lp-cabeza + .chico {
+  margin: var(--e-1) 0 var(--e-2);
+}
+
+/* Descargar e Imprimir, lado a lado y debajo del principal. */
+.par-botones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e-2);
+}
+.par-botones .btn {
+  margin: 0;
+}
+
+/* Los cuatro pasos de «Si no sabés nada de esto». Son una secuencia de
+   verdad, por eso van numerados. */
+.pasos-num {
+  margin: var(--e-4) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+}
+.pasos-num li {
+  position: relative;
+  padding-left: 2.5rem;
+  counter-increment: paso;
+  color: var(--tenue-invertido);
+}
+.pasos-num li::before {
+  content: counter(paso);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-s);
+  background: rgba(233, 238, 240, 0.12);
+  color: var(--texto-invertido);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: var(--t-s);
+}
+.pasos-num li:first-child::before {
+  background: var(--agua);
+  color: var(--sobre-agua);
+}
+.pasos-num b {
+  color: var(--texto-invertido);
+}
+.pn-txt {
+  display: block;
+  padding-top: 2px;
+}
+
+.nota-puntos {
+  margin: var(--e-2) 0 var(--e-4);
+}
+.lista-puntos-caja .campo {
+  margin-bottom: var(--e-2);
+}
+
+/* ==========================================================================
+   /legal
+   ========================================================================== */
+/* El resumen arriba: las tres cosas que hay que saber aunque no se lea más. */
+.tarjetas-tres {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-3);
+  margin: var(--e-5) 0;
+}
+/* Con `.landing` adelante: en /sobre las tarjetas son <section>, y
+   `.landing section` (0,1,1) les pisaba el padding con uno sin costados. */
+.landing .tarjetas-tres > * {
+  border-radius: var(--r-m);
+  background: var(--panel);
+  box-shadow: var(--sombra);
+  padding: var(--e-4) var(--e-5);
+}
+.tarjetas-tres b {
+  display: block;
+  font-size: var(--t-m);
+}
+/* En /sobre las tarjetas llevan un título propio. Sin rótulo mono encima:
+   «Qué no es» arriba de «No predice inundaciones» decía lo mismo dos veces. */
+.landing .sobre-tres h2 {
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-l);
+}
+.sobre-tres b {
+  display: inline;
+  font-size: inherit;
+}
+.landing .sobre-tres p {
+  font-size: var(--t-s);
+}
+.fuentes-cortas {
+  margin: 0 0 var(--e-3);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.fuentes-cortas b {
+  color: var(--texto);
+}
+/* La pregunta de /sobre, como frase grande en la caja oscura. */
+.landing .pregunta-grande {
+  margin: 0 0 var(--e-4);
+  font-size: var(--t-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--texto-invertido);
+}
+.landing .tarjetas-tres p {
+  margin: var(--e-1) 0 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* El descargo en filas: el título a la izquierda, el texto a la derecha. */
+.filas-descargo {
+  margin: 0;
+}
+.filas-descargo > div {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  gap: var(--e-2) var(--e-5);
+  padding: var(--e-4) 0;
+  border-top: 1px solid var(--linea);
+}
+.filas-descargo dt {
+  font-weight: 700;
+}
+.filas-descargo dd {
+  margin: 0;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+/* La tabla de privacidad. En el teléfono, cada renglón es una ficha. */
+.tabla-privacidad {
+  width: 100%;
+  margin: var(--e-3) 0 var(--e-4);
+  border-collapse: collapse;
+  font-size: var(--t-s);
+}
+.tabla-privacidad th,
+.tabla-privacidad td {
+  padding: var(--e-3) var(--e-3) var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+  vertical-align: top;
+}
+.tabla-privacidad tbody tr:last-child > * {
+  border-bottom: none;
+}
+.tabla-privacidad thead th {
+  color: var(--tenue);
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.tabla-privacidad tbody th {
+  font-weight: 700;
+  width: 26%;
+}
+.tabla-privacidad td {
+  color: var(--tenue);
+}
+.tabla-privacidad .tp-sale {
+  font-weight: 700;
+  color: var(--texto);
+  white-space: nowrap;
+}
+.tabla-privacidad .tp-nunca {
+  color: var(--ok-texto);
+}
+@media (max-width: 700px) {
+  .tabla-privacidad thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .tabla-privacidad tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--e-1) var(--e-3);
+    padding: var(--e-3) 0;
+    border-bottom: 1px solid var(--linea);
+  }
+  .tabla-privacidad tbody tr:last-child {
+    border-bottom: none;
+  }
+  .tabla-privacidad th,
+  .tabla-privacidad td {
+    padding: 0;
+    border: none;
+    width: auto;
+  }
+  .tabla-privacidad td:last-child {
+    grid-column: 1 / -1;
+  }
+  /* Tan específico como el de escritorio, que si no le gana. */
+  .tabla-privacidad tbody th {
+    width: auto;
+  }
+}
+@media (max-width: 700px) {
+  .tarjetas-tres,
+  .filas-descargo > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* /contacto: la ayuda del tema elegido, pegada a las opciones. */
+.landing .sug-ayuda {
+  margin: calc(var(--e-2) * -1) 0 var(--e-4);
+  color: var(--texto);
+  font-weight: 600;
+}
+.landing .tarjetas-contacto h2 {
+  margin: 0 0 var(--e-2);
+  font-size: var(--t-m);
+}
+
+/* La 404: cinco accesos como renglones con flecha, que se tocan enteros. */
+.accesos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.accesos li + li {
+  border-top: 1px solid var(--linea);
+}
+.landing .accesos a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.accesos a::after {
+  content: "→";
+}

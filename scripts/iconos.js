@@ -110,8 +110,7 @@ try {
 
   // og.png es otra cosa: es la vista previa de WhatsApp, con marca y texto.
   const og = `<!doctype html><meta charset="utf-8"><style>
-  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "public/vendor/fonts/jakarta-800.woff2")}") format("woff2");font-weight:800}
-  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "public/vendor/fonts/jakarta-500.woff2")}") format("woff2");font-weight:500}
+  @font-face{font-family:"Plus Jakarta Sans";src:url("file://${join(RAIZ, "public/vendor/fonts/jakarta.woff2")}") format("woff2");font-weight:500 800}
   html,body{margin:0}
   body{width:1200px;height:630px;background:${OSCURO};color:${TINTA_CLARA};
        font-family:"Plus Jakarta Sans",system-ui,sans-serif;

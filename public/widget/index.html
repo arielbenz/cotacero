@@ -10,30 +10,18 @@
     <meta name="color-scheme" content="light dark" />
     <link
       rel="preload"
-      href="/vendor/fonts/jakarta-800.woff2"
+      href="/vendor/fonts/jakarta.woff2"
       as="font"
       type="font/woff2"
       crossorigin />
     <style>
-      /* El widget no usa app.css: son 60 KB para una tarjeta de 220 px de
-         alto, y esto se embebe en el sitio de otro. Paleta propia, chica, con
+      /* El widget no usa app.css: es la hoja de todo el sitio para una
+         tarjeta de 220 px de alto, y esto se embebe en el sitio de otro. Paleta propia, chica, con
          los mismos valores que la app para que se vean como lo mismo. */
       @font-face {
         font-family: "Plus Jakarta Sans";
-        src: url("/vendor/fonts/jakarta-500.woff2") format("woff2");
-        font-weight: 500;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: "Plus Jakarta Sans";
-        src: url("/vendor/fonts/jakarta-700.woff2") format("woff2");
-        font-weight: 700;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: "Plus Jakarta Sans";
-        src: url("/vendor/fonts/jakarta-800.woff2") format("woff2");
-        font-weight: 800;
+        src: url("/vendor/fonts/jakarta.woff2") format("woff2");
+        font-weight: 500 800;
         font-display: swap;
       }
       :root {

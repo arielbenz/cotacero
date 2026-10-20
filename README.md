@@ -118,6 +118,7 @@ de `api/` de la raíz. `public/datos/index.html` se sirve en `/datos`.
     lib/                       sólo Node, no se publica: ina, push, metricas, paginas,
                                sugerencias, charlas
     scripts/                   el generador, el servidor local y las descargas
+    estilos/                   app.css con comentarios; el generador lo publica sin ellos
     datos-crudos/              análisis y datos de trabajo
 
 **Por qué dos `lib/`.** Cuatro archivos los importan a la vez Node y el
