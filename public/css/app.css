@@ -157,6 +157,16 @@
      como panel con borde. En claro son el negro de siempre. */
   --sup-fuerte: var(--panel);
   --sup-fuerte-borde: var(--linea);
+  /* El sitio en oscuro (rediseño, «SitioOscuro»). Las superficies que en
+     claro son oscuras —la franja de historia, el cierre, la caja de código—
+     en oscuro ya son --fondo-invertido, pero sin borde se fundían con el
+     fondo: llevan un filete de 1 px y ninguna sombra, que en oscuro no se
+     ve. «Mira el río» es panel en claro y baja a --fondo-invertido en
+     oscuro. El pie va un tono más oscuro que el fondo.
+     En claro, los cuatro son neutros: el tema claro no cambia. */
+  --borde-invertido: rgba(233, 238, 240, 0.08);
+  --sup-lluvia: var(--fondo-invertido);
+  --fondo-pie: #0a1114;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
   --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
   --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
@@ -252,6 +262,9 @@
   --c-tenue-invertido: #93a6ad;
   --c-sup-fuerte: #0e1619;
   --c-sup-fuerte-borde: transparent;
+  --c-borde-invertido: transparent;
+  --c-sup-lluvia: var(--panel);
+  --c-fondo-pie: transparent;
   --c-linea-alerta: #cf440d;
   --c-linea-evac: #a5271a;
   --c-sombra:
@@ -301,6 +314,9 @@
     --tenue-invertido: var(--c-tenue-invertido);
     --sup-fuerte: var(--c-sup-fuerte);
     --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+    --borde-invertido: var(--c-borde-invertido);
+    --sup-lluvia: var(--c-sup-lluvia);
+    --fondo-pie: var(--c-fondo-pie);
     --linea-alerta: var(--c-linea-alerta);
     --linea-evac: var(--c-linea-evac);
     --sombra: var(--c-sombra);
@@ -340,6 +356,9 @@ html[data-theme="light"] {
   --tenue-invertido: var(--c-tenue-invertido);
   --sup-fuerte: var(--c-sup-fuerte);
   --sup-fuerte-borde: var(--c-sup-fuerte-borde);
+  --borde-invertido: var(--c-borde-invertido);
+  --sup-lluvia: var(--c-sup-lluvia);
+  --fondo-pie: var(--c-fondo-pie);
   --linea-alerta: var(--c-linea-alerta);
   --linea-evac: var(--c-linea-evac);
   --sombra: var(--c-sombra);
@@ -1487,6 +1506,11 @@ label.campo-dir {
    Con el acento pasa lo mismo: en tema claro es #1f7a9e, medido para fondo
    claro, y los enlaces de la franja oscura de la portada salían a 3,77:1.
    Sobre estas superficies el acento es el celeste. */
+/* Sobre las superficies invertidas el sólido se invierte: claro sobre oscuro,
+   las mismas dos variables que pintan la superficie. Fue celeste desde el
+   3/9 («sobre fondo oscuro el sólido también es azul»), y así el sólido y
+   el .sec quedaban iguales: dos botones sin jerarquía. El rediseño (§9) lo
+   devolvió a claro, y el .sec sigue siendo el azul del agua. */
 .bloque.oscuro,
 .caja-codigo,
 .landing .franja-oscura,
@@ -1494,9 +1518,19 @@ label.campo-dir {
 .telefonos-emergencia,
 .aviso-emergencia,
 .tarjeta.oscura {
-  --btn-fuerte: var(--agua);
-  --btn-fuerte-texto: var(--sobre-agua);
+  --btn-fuerte: var(--texto-invertido);
+  --btn-fuerte-texto: var(--fondo-invertido);
   --acento: var(--agua-clara);
+}
+/* En oscuro ya son --fondo-invertido; sin el filete se fundían con el fondo.
+   En claro el token es transparente. */
+.bloque.oscuro,
+.caja-codigo,
+.landing .franja-oscura,
+.landing .cta,
+.telefonos-emergencia,
+.aviso-emergencia {
+  border: 1px solid var(--borde-invertido);
 }
 .btn.mini {
   width: auto;
@@ -4039,6 +4073,12 @@ p.pie-frescura,
 .tarjeta-seccion h2 {
   margin-top: 0;
 }
+/* «Mira el río»: panel en claro; en oscuro baja a --fondo-invertido con su
+   filete (tokens --sup-lluvia y --borde-invertido). */
+.tarjeta-seccion.rio-lluvia {
+  background: var(--sup-lluvia);
+  border: 1px solid var(--borde-invertido);
+}
 /* ---------- la lluvia ----------
    Dos tarjetas que separan lo que la app mide de lo que no, y una ámbar para
    cuando se juntan. Es el único ámbar de la portada que no es un aviso: ése
@@ -4274,8 +4314,13 @@ p.pie-frescura,
    contenedor: es el corte entre la página y el pie, y cortada a 1100 px parece
    el borde de una tarjeta. Por eso el borde vive en la envoltura, que es ancho
    completo, y el contenido del pie se centra adentro. */
+/* En oscuro, un tono más oscuro que el fondo (--fondo-pie; en claro es
+   transparente): así el pie se separa sin una línea gruesa. Va acá y no en
+   .pie-sitio porque ésta es la que va de borde a borde y abraza también el
+   renglón de cierre. */
 .pie-envoltura {
   border-top: 1.5px solid var(--linea);
+  background: var(--fondo-pie);
 }
 .pie-sitio {
   display: grid;
