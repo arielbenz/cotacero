@@ -20,6 +20,13 @@ let cercanos = [];
 
 const enc = encodeURIComponent;
 
+/* Ni iPhone ni Android: una computadora, o algo que no tiene app de mapas
+   que abra `geo:`. Ahí el enlace va a un mapa web, en otra pestaña: en la
+   misma, la persona perdía la app para mirar un mapa. */
+const enEscritorio = () => !esIOS() && !/Android/i.test(navigator.userAgent);
+export const destinoEnlace = () =>
+  enEscritorio() ? ' target="_blank" rel="noopener"' : "";
+
 /* El enlace a la app de mapas del teléfono. `geo:` abre la que la persona ya
    tenga, sin JavaScript. Safari en iPhone no lo entiende y el toque no hacía
    nada: ahí va Apple Maps, que abre la app de Mapas del sistema. Con `ruta`
@@ -28,6 +35,15 @@ const enc = encodeURIComponent;
 export function enlaceMapa(n, d, ruta = false) {
   const c = coordsPuntos[n];
   const dir = enc(d + ", Santa Fe, Argentina");
+  /* En una computadora `geo:` no lo entiende nadie: el clic no hacía nada
+     (lo contó alguien desde el escritorio). Ahí va OpenStreetMap, que es de
+     donde sale el mapa base y no suma a Google; con `ruta`, la ruta a pie. */
+  if (enEscritorio()) {
+    if (!c) return `https://www.openstreetmap.org/search?query=${dir}`;
+    return ruta
+      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=%3B${c[1]}%2C${c[0]}#map=16/${c[1]}/${c[0]}`
+      : `https://www.openstreetmap.org/?mlat=${c[1]}&mlon=${c[0]}#map=17/${c[1]}/${c[0]}`;
+  }
   if (esIOS()) {
     if (ruta)
       return c
@@ -72,7 +88,7 @@ export function pintarCercanos(orden) {
           (i === 0
             ? `<span class="c-dist"><b>${distancia(o.km)}</b> en línea recta · ≈ ${aPie(o.km)} min a pie</span>`
             : "") +
-          `</span><a class="btn${i ? " sec mini" : ""}" href="${atr(enlaceMapa(o.nombre, o.dir, true))}">Cómo llegar</a></li>`,
+          `</span><a class="btn${i ? " sec mini" : ""}" href="${atr(enlaceMapa(o.nombre, o.dir, true))}"${destinoEnlace()}>Cómo llegar</a></li>`,
       )
       .join("") +
     "</ol>" +
@@ -130,7 +146,7 @@ export function pintarPuntos(filtro = "", destacar = null) {
       const num = desde
         ? `<span class="punto-num" aria-hidden="true">${desde + i}</span> `
         : "";
-      return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"
+      return `<a class="punto ${destacar === n ? "destacado" : ""}" href="${href}"${destinoEnlace()}
 data-accion="ver-en-mapa" data-nombre="${atr(n)}">
 <div class="n">${num}${n}${destacar === n ? ' <span style="color:var(--ok-texto);font-size: var(--t-xs)">· el más cercano</span>' : ""}</div>
 <div class="d">${d}${km}</div>

@@ -19,7 +19,7 @@ import { PUNTOS, estado, guardado } from "./estado.js";
 import { atr, m } from "./formato.js";
 import { coordsPuntos, distanciaKm, miPos } from "./mapa.js";
 import { ALERTA, EVACUACION } from "./oficiales.js";
-import { enlaceMapa } from "./puntos.js";
+import { destinoEnlace, enlaceMapa } from "./puntos.js";
 import { esManual, textoGrave } from "./rio.js";
 import { irA, tomarPedidoAhora } from "./vista.js";
 
@@ -160,7 +160,7 @@ export function pintarAhora() {
       ? `<b class="ap-nombre">${atr(p.texto)}</b>` +
         (p.dir
           ? `<span class="chico">${atr(p.dir)}${p.km != null ? " · " + distancia(p.km) + " en línea recta" : ""}</span>` +
-            `<a class="btn" href="${atr(p.href)}">Cómo llegar</a>`
+            `<a class="btn" href="${atr(p.href)}"${destinoEnlace()}>Cómo llegar</a>`
           : `<span class="chico">Así lo anotaste en tu plan.</span>`)
       : `<b class="ap-nombre">Todavía no elegiste uno</b>` +
         `<span class="chico">Fijate cuál te queda más cerca y anotalo en Mi plan.</span>`) +
