@@ -723,6 +723,8 @@
             Mostrar el más cercano a mí
           </button>
           <p class="chico" id="estado-mapa" role="status"></p>
+          <!-- Los tres más cercanos: los pinta puntos.js -->
+          <div id="cercanos" role="status"></div>
           <p class="aviso nota-puntos">
             Los puntos abren cuando el municipio los activa.
             <b>Antes de salir, llamá al <a href="tel:103">103</a>.</b>
@@ -740,6 +742,9 @@
                 placeholder="Ej: Guadalupe, Blas Parera"
                 data-input="filtrar-puntos"
             /></label>
+            <h3 id="titulo-demas" class="titulo-demas" hidden>
+              Los demás, por distancia
+            </h3>
             <ul class="lista-plana" id="lista-puntos">
               <li data-lon="-60.72546604" data-lat="-31.5965">
                 <a
