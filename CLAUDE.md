@@ -610,7 +610,7 @@ instalarse_.
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
 | `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 106 KB | todo el que entra al sitio |
-| `DEL_APP`  | los 22 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
+| `DEL_APP`  | los 23 módulos, `curvas.json`, las tipografías, los íconos             | 284 KB | sólo quien abre `/app`     |
 
 La segunda **no se pide en `install`**. La pide la app con un
 `postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la

@@ -58,6 +58,7 @@ import {
   compartirPlan,
   exportarPlan,
   imprimirPlan,
+  marcarCasilla,
   pintarListas,
   prepararImpresion,
 } from "./plan.js";
@@ -213,6 +214,11 @@ const ACCIONES = {
   exportar: () => exportarPlan(),
   compartir: () => compartirPlan(),
   ubicarme: () => ubicarmeEnMapa(),
+  // «Otro más cerca», desde la pestaña «Ahora»: Dónde ir, ya ubicando.
+  "ahora-cerca": () => {
+    irA("donde");
+    ubicarmeEnMapa();
+  },
   imprimir: () => imprimirPlan(),
   tema: () => alternarTema(),
   "ver-todos": () => alternarTodosLosPuntos(),
@@ -265,6 +271,8 @@ const ENTRADAS = {
   "filtrar-puntos": () => filtrarPuntos(),
   "km-manual": (el) => fijarKmManual(el.value),
   "zona-radio": (el) => elegirZona(el.value),
+  // Las casillas de «Ahora» son las del plan: tildar acá tilda allá.
+  "casilla-ahora": (el) => marcarCasilla(el.dataset.k, el.checked),
   "sugerir-calle": () => sugerirCalle(),
 };
 

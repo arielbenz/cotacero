@@ -192,6 +192,15 @@ scroll.
 Cuatro pestañas —Río, Mi casa, Mi plan, Dónde ir— y Ajustes desde el engranaje
 de la cabecera, para que la barra de emergencia se quede en cuatro.
 
+**En alerta o evacuación de la ciudad, con dato vigente, la primera pasa a ser
+«Ahora»** (`js/app/ahora.js`) y Mi casa sale de la barra, con un enlace al pie.
+Lleva el verbo y el 103, el punto de encuentro del plan (si coincide con uno de
+los 30, con «Cómo llegar»), una lista corta —lo que falta de la mochila, o
+`SALIDA` en evacuación— con las mismas casillas del plan, y un mensaje ya
+escrito para WhatsApp, sin número: se elige a quién. Las notificaciones de
+alerta y evacuación abren ahí. Con el dato vencido o el nivel cargado a mano,
+nunca.
+
 - **Río.** La lectura oficial en grande; debajo, tu nivel de aviso y el margen
   de hoy. La regla marca alerta, evacuación y el récord de 1992: sin él, 5,70
   parece el techo del mundo.
@@ -234,7 +243,9 @@ La misma situación se cuenta en tres lugares: el veredicto de la pantalla del
 río (`rio.js`, `pintarVeredictoRio`), el de Mi casa (`cota.js`, `calcular`) y
 la notificación (`sw.js`, `armarAviso`). No comparten código —`sw.js` es un
 script clásico— así que las frases están copiadas a mano y **esta tabla es la
-fuente**: si tocás una, revisá las tres.
+fuente**: si tocás una, revisá las tres. La pestaña «Ahora» no es una cuarta
+copia: los estados 3 y 4 los toma de `textoGrave()` en `rio.js`, el mismo que
+usa la tarjeta de Río.
 
 En los estados graves el texto **empieza con el verbo** de lo que hay que
 hacer y **lleva el 103**.

@@ -2192,6 +2192,59 @@ label.campo-dir {
 .cuenta-tab[hidden] {
   display: none;
 }
+/* «Ahora» entra y Mi casa sale de la barra en una emergencia (ahora.js).
+   Explícito: el display:flex del botón le gana al [hidden] del navegador. */
+.barra-app button[hidden] {
+  display: none;
+}
+.barra-app .tab-ahora {
+  color: var(--peligro-texto);
+}
+
+/* ---------- Ahora: el modo emergencia ---------- */
+.ahora-cabeza .eti {
+  display: block;
+  margin-bottom: var(--e-2);
+  color: var(--peligro-texto);
+}
+.ahora-cabeza .titu {
+  margin: 0 0 var(--e-2);
+}
+.ahora-cabeza a.btn-emergencia {
+  color: #fff;
+}
+.ahora-punto,
+.ahora-avisar {
+  display: grid;
+  gap: var(--e-2);
+}
+.ahora-punto .ap-nombre {
+  font-size: var(--t-l);
+}
+.ahora-punto .btn,
+.ahora-avisar .btn {
+  margin: var(--e-1) 0 0;
+}
+.ahora-punto .btn.mini {
+  justify-self: start;
+}
+.ahora-lista-titu {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-3);
+  margin: 0 0 var(--e-2);
+}
+.ahora-lista-titu span {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.ahora-pie {
+  text-align: center;
+}
 
 /* Barra de instalar: se queda hasta que la persona la cierre. Antes se
    borraba sola a los 20 s y no volvía en toda la sesión. */

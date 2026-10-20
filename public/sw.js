@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v101";
+const VERSION = "cota-cero-v102";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -109,6 +109,7 @@ const DEL_APP = [
   "/app",
   "/lib/fuentes.js",
   "/js/app/principal.js",
+  "/js/app/ahora.js",
   "/js/app/avisos.js",
   "/js/app/bienvenida.js",
   "/js/app/calles.js",
@@ -466,7 +467,7 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
         `Si Defensa Civil dice que salgas, salí. El río pasó los ${nm(EVACUACION, 2)} m. ` +
         "No cruces agua que corre: con 30 cm te arrastra. Ayuda: 103.",
       urgente: true,
-      ir: "/app?ir=donde",
+      ir: "/app?ir=ahora",
     };
   if (nivel >= ALERTA)
     return {
@@ -476,7 +477,7 @@ function armarAviso(nivel, umbral, cerca, oficiales) {
         `El río pasó los ${nm(ALERTA, 2)} m: afuera del terraplén ya empiezan a sacar gente. ` +
         "Dudas: 103.",
       urgente: true,
-      ir: "/app?ir=donde",
+      ir: "/app?ir=ahora",
     };
   if (umbral != null) {
     const falta = umbral - nivel;

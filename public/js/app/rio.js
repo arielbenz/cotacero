@@ -6,6 +6,7 @@
    histórico, que sale de la serie del INA y no de una categoría inventada
    por nosotros. */
 
+import { pintarAhora } from "./ahora.js";
 import { guardarUmbral, pintarAvisos } from "./avisos.js";
 import { pintarBienvenida } from "./bienvenida.js";
 import {
@@ -528,6 +529,7 @@ function pintarVeredictoRio() {
       "nuevo en un rato.</p>";
     pintarFranjaCiudad(null);
     pintarPuntoRio("v-neutro");
+    pintarAhora();
     return;
   }
   let cls, titu, txt;
@@ -538,22 +540,11 @@ function pintarVeredictoRio() {
      los dos estados más graves de la escala eran los que menos instrucción
      daban. Los 5,30 y 5,70 salen de las constantes, no escritos a mano.
      Ver README §"Los ocho estados y cómo se dicen". */
-  if (r >= EVACUACION) {
+  const grave = textoGrave(r);
+  if (grave) {
     cls = "v-peligro";
-    titu = "Evacuación en la ciudad";
-    txt =
-      "<b>Si Defensa Civil dice que salgas, salí.</b> El río pasó los " +
-      m(EVACUACION) +
-      ". Si necesitás ayuda para salir, llamá al 103. No cruces agua que " +
-      "corre: con 30 cm —menos que una rodilla— te arrastra.";
-  } else if (r >= ALERTA) {
-    cls = "v-peligro";
-    titu = "Alerta en la ciudad";
-    txt =
-      "<b>Armá la mochila y avisale a tu familia.</b> El río pasó los " +
-      m(ALERTA) +
-      ". En los barrios de afuera del terraplén (el anillo de defensas) ya " +
-      "empiezan a sacar gente. Si te dicen que salgas, salí. Dudas: 103.";
+    titu = grave.titu;
+    txt = "<b>" + grave.verbo + "</b> " + grave.resto;
   } else if (r >= 4.3) {
     cls = "v-alerta";
     titu = "Atención";
@@ -717,11 +708,41 @@ function pintarVeredictoRio() {
     ${txt ? `<p class="chico" style="margin:0 0 10px">${txt}</p>` : ""}${glosa}${plan}`;
   pintarFranjaCiudad(viejo || esManual() ? null : r);
   pintarPuntoRio(cls);
+  pintarAhora();
 }
 
 /* El nivel lo cargó la persona: para probar un escenario o porque el INA no
    contestó. Sirve para la cuenta, no para anunciar el estado de la ciudad. */
-const esManual = () => (estado.rioOrigen || "").includes("a mano");
+export const esManual = () => (estado.rioOrigen || "").includes("a mano");
+
+/* Los dos estados graves de la ciudad, en un solo lugar: los usan la tarjeta
+   de esta pestaña y la de «Ahora» (ahora.js). Empiezan con el verbo de lo
+   que hay que hacer y llevan el 103. Son dos de los ocho estados del README
+   («Los ocho estados y cómo se dicen»): sw.js y cota.js tienen su copia. */
+export function textoGrave(r) {
+  if (r == null) return null;
+  if (r >= EVACUACION)
+    return {
+      titu: "Evacuación en la ciudad",
+      verbo: "Si Defensa Civil dice que salgas, salí.",
+      resto:
+        "El río pasó los " +
+        m(EVACUACION) +
+        ". Si necesitás ayuda para salir, llamá al 103. No cruces agua que " +
+        "corre: con 30 cm —menos que una rodilla— te arrastra.",
+    };
+  if (r >= ALERTA)
+    return {
+      titu: "Alerta en la ciudad",
+      verbo: "Armá la mochila y avisale a tu familia.",
+      resto:
+        "El río pasó los " +
+        m(ALERTA) +
+        ". En los barrios de afuera del terraplén (el anillo de defensas) ya " +
+        "empiezan a sacar gente. Si te dicen que salgas, salí. Dudas: 103.",
+    };
+  return null;
+}
 
 /* ---------------- la franja de la ciudad ----------------
    Alerta y evacuación de la ciudad, en una franja sólida arriba de todo y en

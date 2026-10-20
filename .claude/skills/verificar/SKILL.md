@@ -28,7 +28,7 @@ Las tres últimas líneas tienen que decir:
 
 ```
 portada, app y widget: coinciden con lib/paginas.js
-service worker: precachea los 22 módulos de la app
+service worker: precachea los 23 módulos de la app
 service worker: precachea las 10 páginas generadas
 ```
 
