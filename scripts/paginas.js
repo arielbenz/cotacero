@@ -267,6 +267,10 @@ function pagina({
     throw new Error(
       "pagina(): no existe la clave «" + clave + "» en lib/paginas.js",
     );
+  /* Sin migaja, JSON.stringify borra `name: undefined` en silencio y la
+     BreadcrumbList sale inválida: Search Console la marcó en /guia. */
+  if (!migaja)
+    throw new Error("pagina(): falta la migaja de «" + clave + "»");
   const { ruta, titulo, descripcion } = meta;
   const url = SITIO + ruta;
   const estructurados = [
@@ -1257,6 +1261,7 @@ const TELEFONOS_GUIA = [
 
 const htmlGuia = pagina({
   clave: "guia",
+  migaja: "Guía de emergencia",
   css: "/css/guia.css",
   h1: "Guía de emergencia por crecida",
   lead:
