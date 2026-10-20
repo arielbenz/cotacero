@@ -401,9 +401,15 @@
       <h2>Compartir</h2>
       <div class="tarjeta">
         <p class="chico" style="margin: 0 0 12px">
-          Genera una imagen con el nivel de hoy y tu nivel de aviso, para mandar por
-          WhatsApp. Se arma en tu teléfono: no se sube nada.
+          Genera una imagen con el nivel de hoy, para mandar por WhatsApp. Se
+          arma en tu teléfono: no se sube nada.
         </p>
+        <!-- Apagada por defecto: es un dato tuyo. Ver compartir.js -->
+        <label class="chk" id="compartir-vos-fila" hidden
+          ><input type="checkbox" id="compartir-vos" /><span
+            >Incluir mi nivel de aviso en la imagen</span
+          ></label
+        >
         <button class="btn sec" type="button" data-accion="compartir-imagen">
           Crear la imagen
         </button>

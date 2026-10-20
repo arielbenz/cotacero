@@ -15,6 +15,7 @@ import {
   MOCHILA,
   VENCE_HORAS,
 } from "./config.js";
+import { pintarCompartir } from "./compartir.js";
 import { calcular, cotaEnHidrometro } from "./cota.js";
 import { curvas } from "./elevacion.js";
 import { estado, guardado } from "./estado.js";
@@ -461,6 +462,7 @@ export function pintarRio() {
   pintarVeredictoRio();
   pintarConexion();
   pintarCtaCota();
+  pintarCompartir();
   guardarUmbral();
   ofrecerConResultado();
   pintarAvisos();

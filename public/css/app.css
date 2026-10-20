@@ -1584,6 +1584,11 @@ label.campo-dir {
 }
 
 /* ---------- listas ---------- */
+/* Explícito: el display:flex de abajo le gana al [hidden] del navegador. Lo
+   usa la casilla de «Mi nivel de aviso» al compartir. */
+.chk[hidden] {
+  display: none;
+}
 .chk {
   display: flex;
   gap: var(--e-3);
