@@ -1514,8 +1514,12 @@ const htmlHistoria = pagina({
     description:
       "Serie diaria de altura hidrométrica del Puerto de Santa Fe (río Paraná), publicada por el Instituto Nacional del Agua.",
     inLanguage: "es-AR",
+    /* Organization y no GovernmentOrganization: Google sólo acepta Person u
+       Organization en `creator` y no reconoce los subtipos. Sin `license`
+       a propósito: el INA no publica una para esta serie, y declarar una
+       sería inventar un dato. Search Console lo marca como leve. */
     creator: {
-      "@type": "GovernmentOrganization",
+      "@type": "Organization",
       name: ORGANISMOS.ina.nombre,
       url: ORGANISMOS.ina.url,
     },
