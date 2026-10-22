@@ -23,7 +23,7 @@ const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
 
 // OJO: subir la versión en cada deploy. Todo lo que va por caché primero
 // (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v105";
+const VERSION = "cota-cero-v106";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -150,6 +150,9 @@ const DEL_APP = [
   // Las curvas de nivel son el cálculo central de la app: sin esto no hay
   // cota, y justo el día que importa puede no haber señal.
   "/datos-abiertos/curvas.json",
+  // Lo mismo para Rincón y Arroyo Leyes, donde las curvas no llegan: los
+  // puntos con cota de la costa (elevacion.js). 24 KB comprimidos.
+  "/datos-abiertos/cotas-costa.json",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",

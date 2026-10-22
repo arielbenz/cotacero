@@ -24,6 +24,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local | **no**    | **discutido — ver abajo** | no                     |
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso      | **no**    | **discutido — ver abajo** | no                     |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)  | no        | sí                        | no                     |
+| Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)    | no        | sí                        | no                     |
 | Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
 | Niveles observados por zona    | `js/app/config.js` (`ZONAS`)   | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
@@ -566,9 +567,26 @@ margen en Rincón.** Estimando cada punto con sus cuatro vecinos:
 
 En la costa el terreno cambia más de un punto al otro —terraplenes, cunetas,
 lotes rellenados—, y con `ERROR_DEM` = 0,5 uno de cada ocho quedaría del lado
-optimista. **Decisión: no entran a la app todavía.** Usarlos pide decidir antes
-el margen para esa zona, y esa es una decisión sobre los números, no un detalle
-de implementación. Rincón y Arroyo Leyes siguen con `sinPlano`.
+optimista.
+
+    margen    0,5     0,75    1,0     1,25    1,5
+    ciudad    4,7 %   2,5 %   1,2 %   0,8 %   0,6 %
+    costa    12,5 %   7,9 %   4,6 %   2,9 %   2,0 %
+
+**Decisión (22/10/2026): entran, con su propio margen, `ERROR_PUNTOS` = 1,0 m.**
+Con 1,0 la costa queda en 4,6 %, lo mismo que la ciudad con 0,5: el mismo
+riesgo para todos, no el mismo número. Se usan **sólo fuera del área de las
+curvas** —donde hay curvas mandan las curvas y `ERROR_DEM` no se toca—, con
+los cuatro puntos más cercanos (IDW) y hasta 150 m del más cercano; más lejos
+no hay dato. Archivo: `datos-abiertos/cotas-costa.json`, 2.765 puntos, lo
+emite `node scripts/cotas-costa.js`. Rincón y Arroyo Leyes dejan de ser
+`sinPlano`; Calchines sigue.
+
+Un dato en contra, para que esté a la vista: junto a la marca del IGN
+PF5N(55) (14,557, chapa sobre pilar al costado de la Ruta 1) el cálculo da
+15,56, justo un metro arriba. Es la marca contaminada de la pregunta 25, pero
+cae en el borde del margen, no adentro. Si aparece una marca al nivel del
+terreno en Rincón, es la primera comparación que hay que hacer.
 
 ---
 

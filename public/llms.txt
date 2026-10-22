@@ -36,11 +36,15 @@ lo más importante que hay que conservar.
   oficiales del Plan de Contingencia municipal, con coordenadas.
 - [Curvas de nivel](https://cotacerosf.com/datos-abiertos/curvas.json): las del
   municipio, que es de donde sale la altura de cada terreno.
+- [Puntos con cota de la costa](https://cotacerosf.com/datos-abiertos/cotas-costa.json):
+  los de la Provincia para San José del Rincón y Arroyo Leyes, donde las
+  curvas no llegan.
 
 ## Fuentes
 
 - El nivel del río: Instituto Nacional del Agua — https://alerta.ina.gob.ar/a5/diario/reporte_diario
 - La altura de tu terreno: Municipalidad de Santa Fe — https://geo.santafeciudad.gov.ar/
+- La altura de tu terreno en Rincón y Arroyo Leyes: Infraestructura de Datos Espaciales de Santa Fe — https://www.santafe.gov.ar/idesf/catalogo/srv/spa/metadata.show?id=552&currTab=simple
 - Puntos de encuentro y qué hacer: Dirección de Gestión de Riesgos — https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/plan-de-contingencia/
 - Cien años de mediciones: Instituto Nacional del Agua — https://alerta.ina.gob.ar/a5/obs/puntual/series/30
 - El sistema de alturas: Instituto Geográfico Nacional — https://www.ign.gob.ar/NuestrasActividades/Geodesia/Nivelacion/Escalas

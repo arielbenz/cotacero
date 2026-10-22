@@ -833,9 +833,17 @@ const htmlDatos = pagina({
         </div>
         <p>
           Si tu casa cae entre dos, la app estima su altura y <b>descuenta
-          medio metro</b>, por las dudas. Donde no hay curvas —cubren la ciudad,
-          no toda el área metropolitana— te pide la cota a mano, en vez de caer
-          a una fuente peor.
+          medio metro</b>, por las dudas.
+        </p>
+        <p>
+          Las curvas terminan en el límite de la ciudad. En <b>San José del
+          Rincón y Arroyo Leyes</b> la altura sale de los <b>puntos con cota</b>
+          que midió la Provincia en 2005, en la misma campaña de la que salieron
+          las curvas: la app toma los cuatro más cercanos a tu casa. Ahí el
+          terreno cambia mucho de un lugar a otro —terraplenes, cunetas,
+          rellenos—, así que descuenta <b>un metro</b> en vez de medio. Donde no
+          hay ni curvas ni puntos te pide la cota a mano, en vez de caer a una
+          fuente peor.
         </p>
         <p class="chico">
           Es una estimación, no una medición de tu terreno: la curva pasa cerca,
@@ -1089,6 +1097,7 @@ ${[
 ${[
   "nivelRio",
   "topografia",
+  "topografiaCosta",
   "emergencias",
   "altimetria",
   "historia",
@@ -1158,7 +1167,7 @@ const PREGUNTAS = [
   [
     "¿Qué hago si mi dirección queda fuera de la zona con curvas?",
     "Escribí la altura a mano.",
-    "La app te lo dice y te la pide, en vez de usar una fuente peor. Las curvas municipales cubren la ciudad, no toda el área metropolitana.",
+    "La app te lo dice y te la pide, en vez de usar una fuente peor. Las curvas municipales cubren la ciudad, y los puntos medidos por la Provincia, San José del Rincón y Arroyo Leyes; más allá no tenemos con qué calcularla.",
   ],
   [
     "¿Funciona sin conexión?",
@@ -2034,6 +2043,12 @@ const LICENCIAS = [
     "Municipalidad de Santa Fe",
     'Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.',
   ],
+  /* La capa no declara licencia. Se atribuye y se enlaza la ficha, igual que
+     con la serie del INA: declarar una sería inventar un dato. */
+  [
+    "Provincia de Santa Fe — IDESF",
+    'Puntos con cota de San José del Rincón, Colastiné y La Guardia (Secretaría de Aguas, relevamiento de 2005), con los que la app calcula la altura en Rincón y Arroyo Leyes. Del servicio de mapas público de la <a href="https://www.santafe.gov.ar/idesf/" target="_blank" rel="noopener">IDESF</a>; la ficha no declara licencia.',
+  ],
   [
     "INA",
     'Alturas hidrométricas diarias del Paraná, del <a href="' +
@@ -2500,7 +2515,10 @@ const llms =
   `- [Los 30 puntos de encuentro](${SITIO}/datos-abiertos/puntos.json): los\n` +
   `  oficiales del Plan de Contingencia municipal, con coordenadas.\n` +
   `- [Curvas de nivel](${SITIO}/datos-abiertos/curvas.json): las del\n` +
-  `  municipio, que es de donde sale la altura de cada terreno.\n\n` +
+  `  municipio, que es de donde sale la altura de cada terreno.\n` +
+  `- [Puntos con cota de la costa](${SITIO}/datos-abiertos/cotas-costa.json):\n` +
+  `  los de la Provincia para San José del Rincón y Arroyo Leyes, donde las\n` +
+  `  curvas no llegan.\n\n` +
   `## Fuentes\n\n` +
   Object.values(FUENTES)
     .map((f) => `- ${f.titulo}: ${ORGANISMOS[f.organismo].nombre} — ${f.url}`)
@@ -2568,6 +2586,10 @@ const catalogo = {
       [
         "/datos-abiertos/curvas.json",
         "Curvas de nivel de la Municipalidad, cada 50 cm en metros IGN",
+      ],
+      [
+        "/datos-abiertos/cotas-costa.json",
+        "Puntos con cota de Rincón y Arroyo Leyes (Provincia, 2005), en metros IGN",
       ],
     ].map(([ruta, titulo]) => ({
       anchor: SITIO + ruta,

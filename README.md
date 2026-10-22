@@ -19,8 +19,9 @@ Tres documentos, tres trabajos:
 
 Para un terreno dado se despeja al revés: qué lectura del hidrómetro pone el
 agua a la altura de ese terreno. Lo hace una sola función,
-`cotaEnHidrometro()`, que por defecto descuenta `ERROR_DEM` (0,5 m) para
-quedarse en el escenario pesimista.
+`cotaEnHidrometro()`, que por defecto descuenta el margen de la fuente para
+quedarse en el escenario pesimista: `ERROR_DEM` (0,5 m) con las curvas de la
+ciudad, `ERROR_PUNTOS` (1,0 m) con los puntos de Rincón y Arroyo Leyes.
 
 **Las constantes están en discusión y no se tocaron.** El INA publica hoy
 `cero_ign = 8,378` (relevamiento de 2016, SRVN16), y las curvas del municipio
@@ -209,8 +210,11 @@ nunca.
   tocando el mapa (con confirmación). Al marcar, el fondo pasa a la foto
   aérea del IGN (vuelos de 2013 y 2014) con los nombres de las calles: el
   argenmap no dibuja edificios. La fecha se dice en pantalla, porque una casa
-  más nueva sale como baldío. En Rincón, Arroyo Leyes y Calchines las
-  curvas no llegan (`sinPlano` en `ZONAS`): ahí las tres se esconden y la app
+  más nueva sale como baldío. En Rincón y Arroyo Leyes las curvas no llegan
+  y la altura sale de los puntos con cota de la Provincia
+  (`datos-abiertos/cotas-costa.json`), con un metro de margen en vez de medio.
+  En Calchines no hay ni una cosa ni la otra (`sinPlano` en `ZONAS`): ahí las
+  tres se esconden y la app
   pide la altura a mano de entrada, en vez de mandar de un camino al otro.
   Para quien ya la cargó, el resultado va
   primero y los pasos se pliegan. Debajo, si la zona tiene defensa y a qué

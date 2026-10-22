@@ -16,6 +16,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/paginas.js           # regenera las páginas de contenido y public/css/app.css
     node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
+    node scripts/cotas-costa.js       # baja los puntos con cota de Rincón y Leyes -> public/datos-abiertos/cotas-costa.json
     node scripts/calles.js            # baja el callejero de Georef -> public/datos-abiertos/calles.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
     node scripts/guia-pdf.js          # imprime /guia a public/guia.pdf (Chrome headless)
@@ -475,8 +476,8 @@ dice cada vez.
 
 ### Los números tienen dueño
 
-`CERO_IGN` (8,20), `PENDIENTE` (0,045) y `ERROR_DEM` (0,5) están **en discusión
-técnica abierta**. `AUDITORIA.md` explica de dónde salió cada uno, qué evidencia
+`CERO_IGN` (8,20), `PENDIENTE` (0,045), `ERROR_DEM` (0,5) y `ERROR_PUNTOS` (1,0)
+están **en discusión técnica abierta**. `AUDITORIA.md` explica de dónde salió cada uno, qué evidencia
 hay en contra y por qué no se tocaron. **No cambiarlos sin leer ese archivo.**
 Cambiar una constante para que el resultado parezca más seguro es precisamente
 lo que el proyecto no hace.
@@ -576,7 +577,9 @@ teléfono de emergencia, no una acción de la interfaz.
 ### Escenario pesimista, en un solo lugar
 
 `cotaEnHidrometro()` es la **única** función que traduce cota a umbral, y por
-defecto descuenta `ERROR_DEM`. No recalcular esa cuenta en otro lado: cuando se
+defecto descuenta el margen de la fuente: `margenCota()`, que da `ERROR_DEM`
+para las curvas y `ERROR_PUNTOS` para los puntos de la costa, según
+`estado.cotaFuente`. No recalcular esa cuenta en otro lado: cuando se
 hizo, la regla mostraba el escenario optimista y el veredicto el pesimista, con
 hasta 3 m de diferencia para lo mismo en la misma pantalla.
 
@@ -628,7 +631,7 @@ instalarse_.
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
 | `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 87 KB  | todo el que entra al sitio |
-| `DEL_APP`  | los 23 módulos, `curvas.json`, las dos tipografías, los íconos         | 200 KB | sólo quien abre `/app`     |
+| `DEL_APP`  | los 23 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 224 KB | sólo quien abre `/app`     |
 
 Medido con gzip en octubre de 2026, después de sacarle los comentarios a
 `app.css` y de dejar las tipografías en un archivo por familia.
@@ -663,5 +666,6 @@ la tipografía del sistema. Es legible, y no vale bajar dos veces 59 KB.
 
 `/api/` **nunca** se cachea: es preferible fallar y mostrar el último valor
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
-fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central.
+fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central,
+y `cotas-costa.json` por lo mismo en Rincón y Arroyo Leyes.
 El HTML, los módulos y `app.css` van por red primero; el resto por caché primero.

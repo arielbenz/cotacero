@@ -32,6 +32,10 @@ export const FUENTES_APP = {
     quien: "Curvas de nivel · " + ORGANISMOS[FUENTES.topografia.organismo].nombre,
     url: FUENTES.topografia.url,
   },
+  topografiaCosta: {
+    quien: "Puntos con cota · Provincia de Santa Fe (IDESF)",
+    url: FUENTES.topografiaCosta.url,
+  },
   emergencias: {
     quien: ORGANISMOS[FUENTES.emergencias.organismo].corto,
     url: FUENTES.emergencias.url,

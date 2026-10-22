@@ -150,6 +150,11 @@ function iniciar() {
       guardado.get("cc_cota_origen") ||
       (estado.cotaEsEstimada ? "gps" : "mano");
     estado.cotaDetalle = guardado.get("cc_cota_detalle") || "";
+    // Lo guardado antes del 22/10/2026 no tiene la clave, y entonces salió
+    // de las curvas: eran la única fuente.
+    estado.cotaFuente = estado.cotaEsEstimada
+      ? guardado.get("cc_cota_fuente") || "curvas"
+      : "";
     pintarOrigenCota();
   }
 

@@ -116,6 +116,26 @@ export const FUENTES = {
       "&srsName=EPSG:4326",
     rango: "oficial",
   },
+  /* Fuera de la ciudad las curvas no llegan. Son los puntos de la misma
+     campaña de 2005, que la Provincia publica sólo como mapa: se bajan con
+     GetFeatureInfo (scripts/cotas-costa.js), y `verificar` es eso mismo
+     alrededor de la plaza de Rincón. */
+  topografiaCosta: {
+    titulo: "La altura de tu terreno en Rincón y Arroyo Leyes",
+    organismo: "idesf",
+    detalle:
+      "Puntos con cota de San José del Rincón, Colastiné y La Guardia, " +
+      "relevamiento de 2005 (Secretaría de Aguas, convenio CFI-INA).",
+    url:
+      "https://www.santafe.gov.ar/idesf/catalogo/srv/spa/metadata.show" +
+      "?id=552&currTab=simple",
+    verificar:
+      "https://aswe.santafe.gov.ar/idesf/wms?SERVICE=WMS&VERSION=1.1.1" +
+      "&REQUEST=GetFeatureInfo&LAYERS=MACotas&QUERY_LAYERS=MACotas&STYLES=" +
+      "&SRS=EPSG:4326&BBOX=-60.572,-31.610,-60.564,-31.602&WIDTH=5&HEIGHT=5" +
+      "&X=2&Y=2&INFO_FORMAT=application/vnd.ogc.gml&FEATURE_COUNT=50",
+    rango: "oficial",
+  },
   emergencias: {
     titulo: "Puntos de encuentro y qué hacer",
     organismo: "gestionRiesgos",
