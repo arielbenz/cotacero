@@ -21,6 +21,30 @@ a mano y por separado.
 - `analisis-correlaciones-<fecha>.mjs` — cierra con las correlaciones.
 - `salida-tarea1-<fecha>.txt` — la salida completa de los tres.
 
+### 22/10/2026: la medición limpia, contra la red municipal
+
+- `muni-puntos_fijos-<fecha>.json`, `muni-puntos_fijos_cn-<fecha>.json` —
+  Red de Puntos Fijos de la Municipalidad (`geoservicios.santafeciudad.gov.ar`,
+  workspace `publico`, WFS). 267 + 157 marcas con cota.
+- `ign-nivelacion_*-costa-<fecha>.json` — la Red de Nivelación del IGN en un
+  recuadro que llega a Rincón y Arroyo Leyes, para cruzarla con la municipal y
+  para controlar curvas de la costa si algún día llegan.
+- `analisis-puntos-fijos-<fecha>.mjs` — importa `public/js/app/elevacion.js`
+  y compara contra las 330 marcas que están en el piso; salida en
+  `salida-puntos-fijos-<fecha>.txt`.
+- `idesf-MACurvaNivel-metadatos-<fecha>.xml` — la ficha ISO de la capa
+  provincial de la que salen las curvas: año, origen y cobertura.
+
+- `idesf-macotas-<fecha>.mjs` — baja `MACotas` (10.526 puntos con cota, la
+  costa entera hasta Arroyo Leyes) y `MAPuntosFijos` de la IDESF con
+  `GetFeatureInfo` en GML: el WFS de ese servidor está apagado. Escribe
+  `idesf-MACotas-<fecha>.json` e `idesf-MAPuntosFijos-<fecha>.json`.
+- `analisis-macotas-<fecha>.mjs` — si esos puntos sirven donde no llegan las
+  curvas; salida en `salida-macotas-<fecha>.txt`.
+
+(`analisis-residuos-2026-09-08.mjs` importa `js/app/elevacion.js`, de antes
+de que el sitio pasara a `public/`. Para repetirlo hay que corregir la ruta.)
+
 ## Tarea 2 — los km sobre el cauce (SIN TERMINAR: la validación no pasa)
 
 - `ign-lineas_de_aguas_continentales_*-<fecha>.json` — red hidrográfica del IGN.

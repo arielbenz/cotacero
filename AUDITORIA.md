@@ -23,7 +23,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Aguas bajas 2,00 m             | `public/lib/fuentes.js`               | INA                      | sí        | idem                      | sí (no se usa todavía) |
 | **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local | **no**    | **discutido — ver abajo** | no                     |
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso      | **no**    | **discutido — ver abajo** | no                     |
-| Margen de cota ±0,5 m          | `js/app/config.js`             | convención cartográfica  | no        | sí                        | no                     |
+| Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)  | no        | sí                        | no                     |
 | Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
 | Niveles observados por zona    | `js/app/config.js` (`ZONAS`)   | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
@@ -169,6 +169,40 @@ Sirvió igual para saber qué haría falta: **una comparación capaz de resolver
 18 cm necesita puntos al nivel del terreno y del orden de 200**, o directamente
 la respuesta de quien produjo las curvas.
 
+### Segundo intento, con la red municipal (22/10/2026): resuelve, pero no separa
+
+Los 200 puntos aparecieron. La Municipalidad publica su **Red de Puntos Fijos**
+en `geoservicios.santafeciudad.gov.ar/geoserver/publico`: `puntos_fijos` (267)
+y `puntos_fijos_cn` (157, Colastiné Norte, en esquinas). Sacando las marcas que
+no están en el piso —estaciones de bombeo, puentes, chapas—, quedan 330 con
+cota de curvas. Detalle en §4.
+
+**La red municipal está en el mismo sistema que la del IGN.** El punto 0,
+Plaza España, es la misma marca que el NODAL 141 del IGN: 16,477 en las dos.
+La Rotonda Distrito Suroeste difiere en 6 cm de la PF2N(54), a 11 m.
+
+**Y las curvas quedan por debajo de esa red**, con un error estándar que ahora
+sí alcanza:
+
+    todos                   330 puntos   −0,45 m   (EEM 0,030)
+    red general             176          −0,32 m   (EEM 0,044)
+    Colastiné Norte (CN)    154          −0,60 m   (EEM 0,036)
+
+El signo es el que daría que las curvas estén en el sistema viejo y la red en
+el nuevo (8,378 − 8,20 = 0,178: en el nuevo, el mismo punto se lee más alto).
+**Pero el tamaño no cierra y no se puede separar de otras dos causas:**
+
+- **Relleno posterior a 2005.** Las curvas son de 2005 (§7, pregunta 8).
+  Colastiné Norte, que es justo donde más se rellenó y se construyó desde
+  entonces, da el doble que la red general.
+- **Dónde está la marca.** Una esquina tiene la cota del cordón o de la
+  calzada, que en un barrio con calles levantadas no es la del terreno.
+
+**Decisión: `CERO_IGN` sigue en 8,20.** Este resultado no dice que sea 8,378:
+dice que las curvas dan el terreno unos 30-60 cm más bajo que lo que mide hoy
+la red municipal, que es el lado seguro. Para cerrar los 18 cm sigue haciendo
+falta lo mismo: la respuesta de quien hizo las curvas (§7, pregunta 7).
+
 ---
 
 ## 2. La pendiente: 0,045 m/km
@@ -259,12 +293,36 @@ conservador. El margen no debería ser una constante: debería salir de la
 separación local entre las dos curvas que se usaron para interpolar.
 
 La comparación contra el IGN (§1) da un desvío de 1,33 m, bastante peor que
-±0,5, pero está contaminada por el tipo de marca. **No hay todavía una medición
-limpia del error real.**
+±0,5, pero está contaminada por el tipo de marca.
 
-**Decisión: se mantiene 0,5 y se declara en `/datos` que es una convención y no
-una medición.** No se sube: subirlo sin medirlo sería cambiar la fórmula para
-que parezca más segura, que es exactamente lo que no hay que hacer.
+### Medido contra la Red de Puntos Fijos municipal (22/10/2026)
+
+330 marcas al nivel de la calle, con la cota que interpola `elevacionDe()`
+—el módulo de producción, importado— contra la medida.
+`datos-crudos/analisis-puntos-fijos-2026-10-22.mjs`, salida al lado.
+
+    diferencia (curvas − medida)    mediana |dif| 0,42 m    p90 1,10 m    máx 2,92 m
+    sesgo                           −0,45 m: las curvas dan el terreno MÁS BAJO
+
+El sesgo trabaja a favor: el nivel de aviso sale más bajo y la app avisa
+antes. Lo que importa es el error del otro lado, la curva más alta que el
+terreno, que es el que haría avisar tarde y el que `ERROR_DEM` existe para
+cubrir:
+
+    curvas más altas que la medida, aun descontando los 0,5 m ....  6 de 330
+      Ingreso a Demetrio Gómez  +2,92     Bajada Distéfano     +2,25
+      Anfiteatro Parque Sur     +1,44     C.A.R.D.             +1,43
+      Polideportivo Alto Verde  +0,68     Barrio El Pozo       +0,59
+
+Son puntos sueltos con nombre propio —una bajada, el ingreso a un barrio, un
+anfiteatro—, no un barrio entero. Lo probable es un pozo o una rampa que una
+curva cada 50 cm no dibuja, pero **no se verificó en el lugar**. Es el caso
+que `/datos` ya advierte: la curva pasa cerca de tu casa, no por tu puerta.
+
+**Decisión: se mantiene 0,5.** Medido, cubre al 98 % de los puntos del lado
+que importa, y el sesgo de las curvas ya agrega margen. Subirlo no se
+justifica con esto: haría avisar antes en todos lados por seis puntos
+sueltos. En `/datos` deja de decirse «no es una medición».
 
 ---
 
@@ -348,9 +406,24 @@ poder copiarse y mandarse.
    municipal propia?
 8. ¿De qué año es el relevamiento y con qué equidistancia se trazaron? Hay 21
    de 169 tramos fuera de la malla de 50 cm.
+   *22/10/2026: respondida en parte, por la Provincia.* La IDESF publica las
+   mismas curvas como `MACurvaNivel` («Curvas de Nivel – Secretaría de
+   Aguas»): superpuestas a `curvas.json` coinciden línea por línea y valor por
+   valor. Sus metadatos (`datos-crudos/idesf-MACurvaNivel-metadatos-2026-10-22.xml`)
+   dicen: creadas el 19/12/2005, «elaboradas manualmente en base a las curvas
+   de nivel elaboradas en el proyecto de Área de Riesgo Hídrico del año 1992 y
+   ajustadas con la información topográfica realizada en el año 2005», con
+   fotografías aéreas, por convenio entre el CFI y el INA. **Trazadas a mano**:
+   eso explica los tramos fuera de malla. El sistema de alturas tampoco lo
+   declaran.
 9. ¿Está disponible la **Red de Puntos Fijos Planialtimétricos**? No aparece en
    el GeoServer público y es el dato que permitiría medir el error real de la
    cota interpolada.
+   *22/10/2026: sí está*, en el otro GeoServer
+   (`geoservicios.santafeciudad.gov.ar/geoserver/publico`): `puntos_fijos` y
+   `puntos_fijos_cn`. Se usó para medir el error (§4) y para ubicar la red en
+   el sistema del IGN (§1). El enlace a la monografía de cada punto (SIDOM)
+   contesta «No se encontró un documento con el Id indicado».
 10. ¿Se publica la traza de defensas, terraplenes, compuertas y estaciones de
     bombeo? Es lo que más cambia el resultado y la app hoy no lo sabe.
     *16/10/2026: confirmado en negativo.* Ninguna de las 62 capas de
@@ -446,6 +519,57 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     tolerancia con que se cosen las confluencias. Sin un eje, los km de cada
     zona no se pueden cerrar — y a 4,5 cm/km, ese rango son 50 cm de umbral.
 
+### A la Provincia — IDESF y Recursos Hídricos (22/10/2026)
+
+24. **¿Se pueden bajar como vector `MACurvaNivel` y `MACotas`?** Las dos son
+    de la Secretaría de Aguas. La primera cubre lo que las curvas municipales
+    no: San José del Rincón y Arroyo Leyes (según sus metadatos y lo que
+    dibuja el WMS). La segunda tiene puntos de cota, con dos decimales, a lo
+    largo de casi todas las calles de Rincón y de la Ruta 1. (`cotas_catastro`,
+    «Cotas SCIT», en esa zona sólo llega al extremo oeste.) Hoy no hay cómo: el servidor
+    (`aswe.santafe.gov.ar/idesf/wms`) responde «WFS request not enabled», el
+    GML de `GetFeatureInfo` trae sólo el recuadro de cada curva, el enlace de
+    descarga de los metadatos apunta a la red interna (`10.1.4.17`) y
+    `/idesf/descargas` pide iniciar sesión. Probado desde una conexión común
+    y desde una VPN, mismo resultado. Calcar las imágenes del WMS no es una
+    opción: sería fabricar el dato.
+    *22/10/2026, más tarde: los puntos sí, las curvas no.* `MACotas` es la
+    ficha 552 del catálogo, «Puntos con cota de S.J. del Rincón, Colastiné y
+    La Guardia», con la nivelación atada a la marca del IGM PF 5-N(133). Son
+    puntos, y en un punto el recuadro que devuelve `GetFeatureInfo` en GML es
+    la coordenada misma: tres pedidos traen **10.526 puntos con cota**, de la
+    ciudad hasta pasando Arroyo Leyes, Santo Tomé incluido
+    (`datos-crudos/idesf-macotas-2026-10-22.mjs`). Con `MACurvaNivel` no
+    funciona: en una línea el recuadro es sólo el recuadro.
+25. Si llegan, hay contra qué controlarlas: el IGN tiene marcas de nivelación
+    en la costa, PF5N(55) a unos 300 m de una dirección de Rincón que la app
+    hoy no puede calcular, y PF6N(55) y PF7N(55) hacia Arroyo Leyes
+    (`datos-crudos/ign-nivelacion_*-costa-2026-10-22.json`).
+    *22/10/2026: se controlaron, y esas marcas no sirven para esto.* Son
+    chapas sobre pilares al costado de la Ruta 1, y a menos de 100 m de cada
+    una `MACotas` varía hasta 2 m, de la corona de la ruta a la cuneta. Es la
+    misma contaminación por tipo de marca de §1.
+
+**Lo que dicen los 10.526 puntos** (`analisis-macotas-2026-10-22.mjs`, salida
+al lado):
+
+    MACotas − punto fijo municipal, red general   68 puntos   −0,26 m
+    MACotas − punto fijo municipal, Colastiné N.   28          −0,64 m
+    curvas.json − MACotas                        2.398          +0,08 m  (mediana |dif| 0,18)
+
+Son el mismo relevamiento que las curvas: coherentes entre sí y con el mismo
+sesgo contra la red municipal (§1). **Pero no alcanzan para usar el mismo
+margen en Rincón.** Estimando cada punto con sus cuatro vecinos:
+
+    ciudad y Colastiné       mediana |e| 0,11 m   p90 0,47 m   más de +0,5 m: 4,7 %
+    Rincón y Arroyo Leyes    mediana |e| 0,21 m   p90 0,93 m   más de +0,5 m: 12,5 %
+
+En la costa el terreno cambia más de un punto al otro —terraplenes, cunetas,
+lotes rellenados—, y con `ERROR_DEM` = 0,5 uno de cada ocho quedaría del lado
+optimista. **Decisión: no entran a la app todavía.** Usarlos pide decidir antes
+el margen para esa zona, y esa es una decisión sobre los números, no un detalle
+de implementación. Rincón y Arroyo Leyes siguen con `sinPlano`.
+
 ---
 
 ## 8. Lo que NO se cambió, a propósito
@@ -454,8 +578,9 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
   meter un sesgo invisible.
 - **`PENDIENTE` sigue en 0,045.** No hay evidencia para otro valor, y menos
   para valores distintos por tramo.
-- **`ERROR_DEM` sigue en 0,5.** No hay una medición limpia del error real.
-  Lo que sí se midió el 8/9/2026 es que **no debería ser una constante**: el
+- **`ERROR_DEM` sigue en 0,5.** El 22/10/2026 se midió contra 330 puntos
+  fijos municipales: cubre al 98 % del lado que importa (§4).
+  Lo que se midió el 8/9/2026 es que **no debería ser una constante**: el
   salto entre las dos curvas que la app usa para interpolar va de 0,10 a 6,20 m
   según el lugar (mediana 0,50, p75 1,20, p90 2,20, en 2.025 puntos de malla
   sobre la cobertura). En el 25,4 % del área el intervalo real es el doble o

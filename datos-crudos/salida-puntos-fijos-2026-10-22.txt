@@ -1,0 +1,18 @@
+puntos con cota: 346 · estructuras afuera: 13
+
+todos                  n=330  sesgo -0.45 (EEM 0.030, desvío 0.54)  |dif| mediana 0.42 p90 1.10 máx 2.92
+red general            n=176  sesgo -0.32 (EEM 0.044, desvío 0.59)  |dif| mediana 0.35 p90 0.99 máx 2.92
+Colastiné Norte (CN)   n=154  sesgo -0.60 (EEM 0.036, desvío 0.45)  |dif| mediana 0.51 p90 1.16 máx 2.44
+
+optimistas aun descontando ERROR_DEM (dif > +0.5): 6 de 330
+  123    INGRESO A DEMETRIO GOMEZ                 medida 14.04  curvas 16.96  +2.92
+  111    BAJADA DISTEFANO                         medida 15.15  curvas 17.40  +2.25
+  20     ANFITEATRO PARQUE SUR                    medida 15.40  curvas 16.85  +1.44
+  19     C.A.R.D.                                 medida 14.54  curvas 15.98  +1.43
+  124    POLIDEPORTIVO ALTO VERDE                 medida 16.39  curvas 17.07  +0.68
+  32     BARRIO EL POZO                           medida 16.64  curvas 17.23  +0.59
+
+red municipal contra IGN, marcas a menos de 50 m:
+  PF2N(54)     15.860  ↔  255  ROTONDA DISTRITO SUROESTE    15.804  a 11 m  dif -0.056
+  PF3N(55)     14.215  ↔  100  KM 1 RUTA PROV . Nº 1 (chana 16.667  a 40 m  dif 2.452
+  NODAL 141    16.477  ↔  0    PLAZA ESPAÑA                 16.477  a 7 m  dif 0.000

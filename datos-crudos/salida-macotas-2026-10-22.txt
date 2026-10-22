@@ -1,0 +1,12 @@
+puntos válidos: 10521
+
+1. MACotas − punto fijo municipal (el punto de MACotas más cercano, a < 20 m)
+  puntos_fijos                       n=  68  media -0.26 (EEM 0.038)  mediana|e| 0.28  p90 0.54  > +0,5: 1.5 %
+  puntos_fijos_cn                    n=  28  media -0.64 (EEM 0.109)  mediana|e| 0.59  p90 0.92  > +0,5: 0.0 %
+
+2. curvas.json − MACotas, donde hay una curva a < 60 m
+  curvas − MACotas                   n=2398  media +0.08 (EEM 0.020)  mediana|e| 0.18  p90 0.80  > +0,5: 8.5 %
+
+3. Validación cruzada: cada punto estimado con sus 4 vecinos (IDW), estimado − real
+  ciudad y Colastiné (lon ≤ −60,59)  n= 510  media -0.01 (EEM 0.016)  mediana|e| 0.11  p90 0.47  > +0,5: 4.7 %
+  Rincón y Arroyo Leyes (lon > −60,59) n= 593  media +0.04 (EEM 0.035)  mediana|e| 0.21  p90 0.93  > +0,5: 12.5 %
