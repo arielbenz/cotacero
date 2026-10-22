@@ -265,7 +265,13 @@ circular en los dos sentidos: la pendiente se despejó de un número que se
 calculó con esa pendiente. Lo que vale de la nota es otra cosa: que el 4,5
 cm/km lo atribuye a «hidrólogos» —es decir, no lo inventamos nosotros, pero
 nadie firmó— y que la defensa de Arroyo Leyes está a cota 17 IGN. Lo que
-cambia: `/datos` y el README ya no presentan 1992 como validación. Lo que
+cambia: `/datos` y el README ya no presentan 1992 como validación. *(22/10/2026:
+eso no se había aplicado del todo. `/datos` seguía con «Se comprobó: Arroyo
+Leyes, registrado, 16,70», `/legal` con «se contrastó con un solo caso, la
+crecida de 1992» y la cabecera de `principal.js` con «una sola validación
+independiente». Corregidos: «Se comprobó» pasó a ser la altura del terreno
+contra los puntos fijos de §4, y 1992 se explica en «En discusión» como la
+misma cuenta.)* Lo que
 falta: **una** cota medida en 1992 o 2016 en cualquier punto río arriba del
 Puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
 

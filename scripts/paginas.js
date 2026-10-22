@@ -669,8 +669,8 @@ ${selloFuente("emergencias")}
    UN SOLO EJEMPLO EN TODA LA PÁGINA: Colastiné Norte, cota 15,80 m IGN, a
    11 km del puerto. Antes había dos juegos de números —uno acá con Arroyo
    Leyes a 24 km y otro en /mi-cota con Colastiné a 11— y quien leía las dos
-   páginas no podía rehacer ninguna cuenta. Arroyo Leyes quedó reservado para
-   lo único que le es propio: la comprobación de 1992. */
+   páginas no podía rehacer ninguna cuenta. Arroyo Leyes aparece sólo en «Qué
+   tan firme es esto», para explicar por qué 1992 no comprueba la pendiente. */
 
 /* El corte del terreno. Es la explicación que más nos costó escribir en
    palabras y la que sale sola en un dibujo: el río sube, la superficie del
@@ -980,24 +980,33 @@ ${[
          después lo que falta, con el MISMO peso: tres tarjetas iguales. No se
          sacó ni se suavizó una sola admisión. El razonamiento largo del 8,20
          va plegado y no borrado: la app enlaza acá («por qué usamos 8,20») y
-         tiene que encontrar la respuesta entera. */
+         tiene que encontrar la respuesta entera.
+
+         «Se comprobó» decía «la crecida de 1992: Arroyo Leyes, registrado,
+         16,70 IGN; el modelo da 16,71». No estaba registrado: la nota de El
+         Litoral que lo publica (13/7/2026) dice que «se estima», y lo calcula
+         con la misma pendiente que usa la app. Coincidir con eso no prueba
+         nada (AUDITORIA.md §3). Lo que sí se comprobó contra algo
+         independiente es la altura del terreno: los 330 puntos fijos de §4,
+         los mismos números que la sección 2 de esta página. */
       html: `        <p>Preferimos publicar nuestros supuestos antes de que los encuentre otro.</p>
         <div class="firme-tres">
           <div class="firme-caja f-ok">
             <span class="eti">Se comprobó</span>
-            <h3>La crecida de ${RECORD_ANIO}</h3>
+            <h3>La altura del terreno</h3>
             <table class="cuenta">
-              <tr><td>Puerto, junio de ${RECORD_ANIO}</td><td>${RECORD_M} m</td></tr>
-              <tr><td>Arroyo Leyes, registrado</td><td>16,70 IGN</td></tr>
-              <tr class="total"><td>Lo que da este modelo</td><td>16,71 IGN</td></tr>
+              <tr><td>Puntos medidos por la Municipalidad</td><td>330</td></tr>
+              <tr><td>La mitad, a menos de</td><td>42 cm</td></tr>
+              <tr><td>9 de cada 10, a menos de</td><td>1,10 m</td></tr>
+              <tr class="total"><td>El margen de medio metro alcanza en</td><td>98 de 100</td></tr>
             </table>
-            <p class="chico">Un centímetro. Pero es <b>un punto, de una crecida, de un año</b>: no demuestra que el modelo valga en todos lados.</p>
+            <p class="chico">Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del <b>terreno</b>; la del <b>agua</b> río arriba del Puerto no se pudo comprobar con ninguna medición.</p>
           </div>
           <div class="firme-caja f-discusion" id="abiertas">
             <span class="eti">En discusión</span>
             <h3>Dos números sin cerrar</h3>
             <p><b>El cero: 8,20 o 8,378.</b> 8,20 es el de la normativa de Rincón; el INA publica 8,378 desde 2016. Pueden ser el mismo punto en dos sistemas de alturas.</p>
-            <p><b>La pendiente: 0,045 m/km.</b> Da bien en ${RECORD_ANIO}, pero es una sola observación y usamos un solo valor para todas las zonas.</p>
+            <p><b>La pendiente: 0,045 m/km.</b> No hay una medición que la respalde, y usamos un solo valor para todas las zonas. La cifra de ${RECORD_ANIO} que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.</p>
             <details class="h-detalle">
               <summary>Por qué no cambiamos ninguno</summary>
               <p class="chico">
@@ -1022,6 +1031,14 @@ ${[
                 reglamento simplifica, o la pendiente real en ese tramo es otra:
                 depende del tramo, del caudal y de la condición hidráulica del
                 momento.
+              </p>
+              <p class="chico">
+                <b>Y por qué ${RECORD_ANIO} no la confirma.</b> La nota de prensa
+                que publica la cota de Arroyo Leyes en ${RECORD_ANIO} —16,70
+                IGN— dice que «se estima», y la saca de ${RECORD_M} m en el
+                Puerto más 24 km a 4,5 cm por km. Es la misma cuenta que hace
+                la app. Para cerrarla hace falta una sola cota del agua
+                <b>medida</b> río arriba del Puerto, en ${RECORD_ANIO} o en 2016.
               </p>
             </details>
           </div>
@@ -2116,7 +2133,7 @@ const DESCARGO = [
   ],
   [
     "Los niveles de aviso son aproximados",
-    "Salen de un modelo simple, con ±0,5 m de error en la altura del terreno. No conoce defensas, bombeo, desagües ni lluvia: el agua puede llegar antes o después de lo estimado. Se contrastó con un solo caso, la crecida de 1992, y no lo validaron especialistas ni organismos competentes.",
+    "Salen de un modelo simple, que descuenta medio metro a la altura del terreno en la ciudad y un metro en Rincón y Arroyo Leyes. No conoce defensas, bombeo, desagües ni lluvia: el agua puede llegar antes o después de lo estimado. La altura del terreno se contrastó con puntos medidos por la Municipalidad; la relación entre el río y el terreno no se pudo contrastar con ninguna medición, y no lo validaron especialistas ni organismos competentes.",
   ],
   [
     "Nada de esto es una orden",

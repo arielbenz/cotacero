@@ -97,14 +97,15 @@ import { irA, ver } from "./vista.js";
    Entonces:   cota del agua (IGN) = lectura del hidrómetro + 8,20
    El río tiene pendiente natural: aguas arriba el mismo evento da cota más alta.
    Pendiente ~0,045 m por km.
-   Verificación con la crecida de junio 1992:
-     puerto 7,43 m -> 15,62 IGN.  Arroyo Leyes, 24 km arriba:
-     15,62 + (0,045 x 24) = 16,70 IGN  <- coincide con el valor publicado.
-   Es UNA sola validación independiente. Coincide bien, pero coincidir con una
-   única crecida histórica no convierte esto en un modelo predictivo: falta la
-   revisión de especialistas y organismos competentes (Dirección de Gestión de
-   Riesgos, INA, FICH-UNL). Hasta entonces, lo que la app calcula son niveles
-   de referencia estimados.
+   La pendiente NO está validada. Durante un tiempo se la dio por comprobada
+   con 1992: puerto 7,43 m -> 15,62 IGN, y en Arroyo Leyes, 24 km arriba,
+   15,62 + (0,045 x 24) = 16,70 IGN, «el valor publicado». Pero ese 16,70 la
+   prensa lo ESTIMA con esta misma cuenta (AUDITORIA.md §3): es circular. Lo
+   que sí se midió es la altura del terreno, contra 330 puntos fijos (§4).
+   Falta una cota del agua medida río arriba del Puerto, y la revisión de
+   especialistas y organismos competentes (Dirección de Gestión de Riesgos,
+   INA, FICH-UNL). Hasta entonces, lo que la app calcula son niveles de
+   referencia estimados.
    Niveles oficiales en el puerto: alerta 5,30 m / evacuación 5,70 m.
 
    TRES CONCEPTOS, TRES NOMBRES — nunca intercambiarlos en la interfaz:
