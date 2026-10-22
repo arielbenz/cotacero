@@ -35,6 +35,10 @@ export const ESCALA_MAX = 8;
    costó 2 cm de media y 42 cm en el peor de los 30 puntos de encuentro, o sea
    que cabe dentro del mismo medio metro.
 
+   Medido el 22/10/2026 contra 330 puntos fijos de la red municipal: cubre al
+   98 % del lado que importa (la curva más alta que el terreno). Los seis que
+   se escapan son puntos sueltos con nombre, no un barrio. AUDITORIA.md §4.
+
    Historia, para que no vuelva: acá había 3,0 "de estimación satelital", sin
    medir. Cuando se midió contra 36 puntos de nivelación del IGN, el error de
    esa fuente resultó ser 7,5 m de desvío — más que todo el rango de decisión

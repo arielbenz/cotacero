@@ -16,8 +16,12 @@
 // entre 8,20 y el 8,378 que publica el INA.
 //
 // Y no son exactamente "cada 50 cm": 21 de los 169 tramos caen fuera de esa
-// malla, y entre 20,7 y 22,5 m no hay ninguna curva. El margen fijo de 0,5 m
-// que usa la app (ERROR_DEM) es una convención, no una medición.
+// malla, y entre 20,7 y 22,5 m no hay ninguna curva. Es que se trazaron a
+// mano: son el recorte de la ciudad de la capa provincial `MACurvaNivel` de
+// la IDESF, de 2005, sobre un relevamiento de 1992 (AUDITORIA.md §7, 8). Esa
+// capa sí llega a Rincón y Arroyo Leyes, pero no se publica como vector.
+// El margen fijo de 0,5 m (ERROR_DEM) se midió contra 330 puntos fijos
+// municipales: AUDITORIA.md §4.
 //
 // Reemplaza al modelo satelital de Open-Meteo, que medía techos y arbolado en
 // vez del piso: comparado con estas curvas sobreestimaba 2,15 m de media, y

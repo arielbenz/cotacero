@@ -842,6 +842,24 @@ const htmlDatos = pagina({
           no por tu puerta.
         </p>
 
+        <h3>Cuánto se equivocan las curvas</h3>
+        ${
+          /* AUDITORIA.md §4: 330 puntos fijos de la red municipal, sin las
+             marcas sobre estructuras, contra elevacionDe(). Si se repite la
+             corrida, los cuatro números de acá salen de esa salida. */ ""
+        }<p>
+          Las comparamos con <b>330 puntos que la Municipalidad midió en la
+          calle</b>. La mitad cae a menos de 42 cm de lo medido, y 9 de cada 10
+          a menos de 1,10 m. Casi siempre del lado seguro: las curvas dan el
+          terreno <b>más bajo</b> de lo que es, y entonces la app avisa antes.
+        </p>
+        <p class="chico">
+          Para el otro lado fallan en puntos sueltos —una bajada, el ingreso a
+          un barrio, un anfiteatro—: en 6 de los 330 el terreno quedó más bajo
+          que lo que dicen las curvas, aun descontando el medio metro. Las
+          curvas son de 2005 y se trazaron a mano sobre un relevamiento de 1992.
+        </p>
+
         <h3>Por qué no un satélite</h3>
         <p>
           Los modelos satelitales miden <b>techos y copas de árboles</b>, no el
@@ -1049,7 +1067,7 @@ ${[
       html: `        <ul class="no-sabe">
           <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero correcto es 8,20 o 8,378.</li>
           <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
-          <li><b>Cuánto error tiene la cota interpolada.</b> El ±0,5 m es la convención cartográfica, no una medición.</li>
+          <li><b>Cuánto se equivoca la cota en tu cuadra.</b> Medido contra 330 puntos del municipio, el medio metro alcanza en 98 de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.</li>
           <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>
           <li><b>En qué estado está la defensa de tu zona.</b> Cambia el resultado más que cualquiera de las constantes.</li>
           <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar antes por el desagüe que por el río.</li>
@@ -1135,7 +1153,7 @@ const PREGUNTAS = [
   [
     "¿De dónde sale la altura de mi terreno?",
     "De las curvas de nivel de la Municipalidad de Santa Fe.",
-    "Están trazadas cada 50 cm, en metros IGN: por eso el margen de ±0,5 m. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
+    "Están trazadas cada 50 cm, en metros IGN: por eso el margen de ±0,5 m, que medido contra 330 puntos del municipio alcanza en 98 de cada 100. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
   ],
   [
     "¿Qué hago si mi dirección queda fuera de la zona con curvas?",
