@@ -52,6 +52,7 @@ import {
   marcarDeNuevo,
   ubicarPuntos,
   ubicarmeEnMapa,
+  vivoEnVecina,
 } from "./mapa.js";
 import { contarVisita } from "./metricas.js";
 import {
@@ -209,6 +210,8 @@ const ACCIONES = {
   "primera-atras": () => primeraAtras(),
   "primera-ver": () => primeraVer(),
   "buscar-dir": () => buscarDireccion(),
+  // La dirección cayó en una vecina sin plano y la persona confirma (mapa.js).
+  "zona-vecina": (el) => vivoEnVecina(el.dataset.zona),
   // Una sugerencia del buscador de dirección (js/app/calles.js).
   "elegir-calle": (el) => elegirCalle(el.dataset.calle || ""),
   exportar: () => exportarPlan(),
