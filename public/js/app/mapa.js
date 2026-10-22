@@ -5,7 +5,8 @@
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
 import { aTitulo, cargarCalles, cerrarSugerencias } from "./calles.js";
-import { BOTON_MARCAR, fijarCotaEstimada } from "./cota.js";
+import { ZONAS } from "./config.js";
+import { BOTON_MARCAR, elegirZona, fijarCotaEstimada } from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
 import { m } from "./formato.js";
@@ -108,6 +109,27 @@ const VIEWBOX_SF = "-60.90,-31.35,-60.45,-31.85";
 const enElMunicipio = (a) =>
   Boolean(a) && (a.municipality === "Santa Fe Capital" || a.city === "Santa Fe");
 
+/* Las vecinas que las curvas no cubren (`sinPlano` en ZONAS) y que caen
+   dentro del viewbox. Quien vive ahí y no eligió su zona escribía la
+   dirección, leía «no se encontró» —como si la hubiera escrito mal— y el mapa
+   le contestaba «fuera del plano»: tres sugerencias de Rincón en dos días.
+   OpenStreetMap la encuentra; lo que falta es el plano, y hay que decirlo.
+   Nominatim pone a Rincón en `municipality` y a Arroyo Leyes en `village`, y
+   un mismo resultado puede traer las dos: el campo más chico va primero.
+   Calchines queda fuera del viewbox, así que acá no aparece. */
+const VECINAS_SIN_PLANO = [
+  { zona: "leyes", re: /arroyo leyes/i },
+  { zona: "rincon", re: /san jos[eé] del rinc[oó]n/i },
+];
+function vecinaSinPlano(a) {
+  if (!a) return null;
+  for (const campo of [a.village, a.town, a.city, a.municipality]) {
+    const v = campo && VECINAS_SIN_PLANO.find((x) => x.re.test(campo));
+    if (v) return v.zona;
+  }
+  return null;
+}
+
 async function nominatim(texto) {
   const j = await traerJson(
     "https://nominatim.openstreetmap.org/search?" +
@@ -129,7 +151,12 @@ async function nominatim(texto) {
       enElMunicipio(x.address) &&
       !["city", "state", "country", "municipality"].includes(x.addresstype),
   );
-  if (!f) return null;
+  // Acá sí sirve cualquier tipo, hasta el centroide: no se busca una cota,
+  // se busca en qué localidad cae.
+  if (!f) {
+    const vecina = j.map((x) => vecinaSinPlano(x.address)).find(Boolean);
+    return vecina ? { vecina } : null;
+  }
   const c = [parseFloat(f.lon), parseFloat(f.lat)];
   if (!isFinite(c[0]) || !isFinite(c[1])) return null;
   // "house"/"building"/"place" es la altura exacta; "road" es un punto
@@ -140,6 +167,20 @@ async function nominatim(texto) {
     nombre: f.display_name || "",
     exacta: ["house", "building", "place"].includes(f.addresstype),
   };
+}
+
+/* «Sí, vivo ahí»: se muda a la zona y queda el aviso de `sinPlano`, que dice
+   cuál es la única salida. El botón que se tocó desaparece con el mensaje, así
+   que el foco va al aviso y no se pierde en el <body>. */
+export function vivoEnVecina(id) {
+  elegirZona(id);
+  document.getElementById("estado-cota").textContent = "";
+  const aviso = document.getElementById("sin-plano");
+  if (aviso && !aviso.hidden) {
+    aviso.setAttribute("tabindex", "-1");
+    aLaVista(aviso);
+    aviso.focus({ preventScroll: true });
+  }
 }
 
 export function abrirBuscadorDireccion() {
@@ -175,6 +216,23 @@ export async function buscarDireccion() {
     if (!r) r = await nominatim(q);
     const sinBarrio = q.replace(PREFIJO_BARRIO, "$1").trim();
     if (!r && sinBarrio && sinBarrio !== q) r = await nominatim(sinBarrio);
+    if (r && r.vecina) {
+      /* No se cambia la zona solo: Rincón tiene calles con el mismo nombre
+         que la ciudad, y si OpenStreetMap no conoce la casa de Santa Fe
+         puede encontrar la homónima. Lo confirma la persona. */
+      const z = ZONAS.find((x) => x.id === r.vecina);
+      e.innerHTML =
+        "<b>Esa dirección queda en " +
+        z.n +
+        ".</b> Las curvas de nivel de la Municipalidad de Santa Fe no llegan " +
+        "hasta ahí, así que no podemos sacar la altura de ese terreno. " +
+        '<button class="enlace-crudo" type="button" data-accion="zona-vecina" data-zona="' +
+        z.id +
+        '">Sí, vivo en ' +
+        z.n +
+        "</button>. Si vivís en la ciudad de Santa Fe, probá con calle y número.";
+      return;
+    }
     if (!r) {
       // Hay calles nuevas que ningún callejero tiene todavía —pasó con
       // «Avenida de los Ombúes»—: ahí ningún intento más la va a encontrar,
