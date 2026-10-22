@@ -101,6 +101,9 @@ export let estado = {
   // es la altura del lugar donde estabas parado, que puede no ser tu casa.
   cotaOrigen: "",
   cotaDetalle: "", // la dirección encontrada, o la precisión del GPS
+  // "curvas" | "puntos": de qué fuente salió una altura estimada. Decide el
+  // margen (margenCota en cota.js). Vacío si se cargó a mano.
+  cotaFuente: "",
   zona: "centro",
   kmManual: null,
   lluvia: null,

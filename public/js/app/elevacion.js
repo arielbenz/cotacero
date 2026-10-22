@@ -1,8 +1,9 @@
-/* js/app/elevacion.js — la cota del terreno, de las curvas del municipio.
+/* js/app/elevacion.js — la cota del terreno, de las curvas del municipio y,
+   fuera de la ciudad, de los puntos con cota de la costa.
    La distancia va medida punto-a-segmento y no al vértice más cercano: con
    vértices, simplificar la geometría movía el resultado 1,85 m.
-   Fuera de la cobertura devuelve null y la app pide la cota a mano, en vez de
-   caer a una fuente peor. */
+   Fuera de las dos coberturas devuelve null y la app pide la cota a mano, en
+   vez de caer a una fuente peor. */
 
 /* ---------- elevación del terreno ----------
    Sale de las curvas de nivel de la Municipalidad de Santa Fe (Secretaría de
@@ -41,8 +42,69 @@ function distanciaASegmento(px, py, ax, ay, bx, by) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-/* Devuelve { cota, distancia } o null si el punto cae fuera de la zona
-   cubierta. Preferimos no dar un número antes que dar uno inventado. */
+/* ---------- fuera de la ciudad: los puntos de la costa ----------
+   Las curvas terminan en el límite del municipio. San José del Rincón y
+   Arroyo Leyes tienen los puntos con cota de la misma campaña de 2005 (IDESF,
+   capa MACotas; ver scripts/cotas-costa.js). Se baja sólo si hace falta: quien
+   vive en la ciudad nunca lo pide. */
+let costaCache = null;
+
+async function costa() {
+  if (costaCache) return costaCache;
+  const r = await fetch("/datos-abiertos/cotas-costa.json");
+  if (!r.ok) throw new Error("no se pudieron cargar las cotas de la costa");
+  costaCache = await r.json();
+  return costaCache;
+}
+
+/* Más lejos que esto del punto medido más cercano, no hay dato: es otro
+   terreno. La mitad de los puntos tiene un vecino a menos de 36 m y nueve de
+   cada diez a menos de 76 (AUDITORIA.md §7, pregunta 24). */
+const PUNTOS_MAX_M = 150;
+
+/* Cuatro vecinos, pesados por la inversa del cuadrado de la distancia. Es lo
+   que se validó: estimando cada punto con sus cuatro vecinos, en Rincón y
+   Arroyo Leyes la mediana del error es 0,21 m y el p90 0,93 m. Por eso el
+   margen de esta fuente es ERROR_PUNTOS y no ERROR_DEM. */
+async function elevacionCosta(lat, lon) {
+  let d;
+  try {
+    d = await costa();
+  } catch (e) {
+    return null;
+  }
+  const [oe, os, on, ono] = d.area;
+  if (lon < oe || lon > on || lat < os || lat > ono) return null;
+  const ml = mPorGradoLon(lat);
+  const p = d.puntos;
+  const cerca = [];
+  for (let i = 0; i < p.length; i += 3) {
+    const dist = Math.hypot(
+      (p[i] - lon) * ml,
+      (p[i + 1] - lat) * M_POR_GRADO_LAT,
+    );
+    if (dist > PUNTOS_MAX_M) continue;
+    cerca.push([dist, p[i + 2]]);
+  }
+  if (!cerca.length) return null;
+  cerca.sort((a, b) => a[0] - b[0]);
+  const cuatro = cerca.slice(0, 4);
+  // Encima de un punto medido, ése es el dato: la inversa de cero no existe.
+  if (cuatro[0][0] < 0.5)
+    return { cota: cuatro[0][1], distancia: cuatro[0][0], fuente: "puntos" };
+  let suma = 0,
+    pesos = 0;
+  for (const [dist, z] of cuatro) {
+    suma += z / dist ** 2;
+    pesos += 1 / dist ** 2;
+  }
+  return { cota: suma / pesos, distancia: cuatro[0][0], fuente: "puntos" };
+}
+
+/* Devuelve { cota, distancia, fuente } o null si el punto cae fuera de la
+   zona cubierta. Preferimos no dar un número antes que dar uno inventado.
+   `fuente` es "curvas" o "puntos", y decide el margen: ver margenCota() en
+   cota.js. */
 export async function elevacionDe(lat, lon) {
   let d;
   try {
@@ -51,7 +113,8 @@ export async function elevacionDe(lat, lon) {
     return null;
   }
   const [oe, os, on, ono] = [d.area[0], d.area[1], d.area[2], d.area[3]];
-  if (lon < oe || lon > on || lat < os || lat > ono) return null;
+  if (lon < oe || lon > on || lat < os || lat > ono)
+    return elevacionCosta(lat, lon);
 
   const ml = mPorGradoLon(lat);
   const px = lon * ml,
@@ -80,8 +143,8 @@ export async function elevacionDe(lat, lon) {
   for (const [z2, d2] of orden.slice(1)) {
     if (z2 !== z1) {
       const t = d1 + d2 === 0 ? 0 : d1 / (d1 + d2);
-      return { cota: z1 + (z2 - z1) * t, distancia: d1 };
+      return { cota: z1 + (z2 - z1) * t, distancia: d1, fuente: "curvas" };
     }
   }
-  return { cota: z1, distancia: d1 };
+  return { cota: z1, distancia: d1, fuente: "curvas" };
 }

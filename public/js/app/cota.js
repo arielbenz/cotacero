@@ -7,6 +7,7 @@
 import {
   CERO_IGN,
   ERROR_DEM,
+  ERROR_PUNTOS,
   ESCALA_MAX,
   ESCALA_MIN,
   KM_PUBLICADO,
@@ -32,12 +33,14 @@ import { aLaVista, ocupar } from "./vista.js";
 /* Guardar una altura estimada: lo hacían por su cuenta el GPS, la búsqueda por
    dirección y ahora el mapa, con el mismo bloque de siete líneas copiado. Tres
    copias del mismo guardado es una que se olvida de un campo.
-   `distancia` sólo la trae el camino del GPS y el del mapa. */
-export function fijarCotaEstimada(alt, origen, detalle, distancia) {
+   `distancia` sólo la trae el camino del GPS y el del mapa. `fuente` es la
+   que devolvió elevacionDe(): "curvas" o "puntos". */
+export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente) {
   estado.cota = alt;
   estado.cotaEsEstimada = true;
   estado.cotaOrigen = origen;
   estado.cotaDetalle = detalle || "";
+  estado.cotaFuente = fuente || "curvas";
   if (distancia != null) estado.cotaDistancia = distancia;
   const campo = document.getElementById("in-cota");
   if (campo) campo.value = enCampo(alt);
@@ -45,6 +48,7 @@ export function fijarCotaEstimada(alt, origen, detalle, distancia) {
   guardado.set("cc_cota_est", "1");
   guardado.set("cc_cota_origen", origen);
   guardado.set("cc_cota_detalle", estado.cotaDetalle);
+  guardado.set("cc_cota_fuente", estado.cotaFuente);
   pintarOrigenCota();
   calcular();
   pintarRio();
@@ -63,10 +67,19 @@ export const BOTON_MARCAR =
   '<button class="enlace-crudo" type="button" data-accion="cota-mapa">' +
   "marcá tu casa en el mapa</button>";
 
+/* Cuánto se le descuenta a la altura antes de traducirla. Cero si la cargó
+   la persona; si salió de un plano, el margen de ESA fuente: las curvas de la
+   ciudad y los puntos de la costa no se equivocan lo mismo (config.js). Una
+   sola función para que la regla, el veredicto, el desglose y el plan
+   impreso no puedan usar márgenes distintos. */
+export function margenCota() {
+  if (!estado.cotaEsEstimada) return 0;
+  return estado.cotaFuente === "puntos" ? ERROR_PUNTOS : ERROR_DEM;
+}
+
 export function cotaEnHidrometro({ crudo = false } = {}) {
   if (estado.cota == null || kmDeZona() === null) return null;
-  const cota =
-    !crudo && estado.cotaEsEstimada ? estado.cota - ERROR_DEM : estado.cota;
+  const cota = crudo ? estado.cota : estado.cota - margenCota();
   return cota - CERO_IGN - PENDIENTE * kmDeZona();
 }
 
@@ -159,7 +172,13 @@ export function pintarOrigenCota() {
     /* De dónde salió la altura, en el mismo renglón donde se la muestra. La
        cota que la persona carga a mano es suya, no nuestra: ahí no
        corresponde atribuir nada. */
-    (estado.cotaEsEstimada ? selloFuente(FUENTES_APP.topografia) : "");
+    (estado.cotaEsEstimada
+      ? selloFuente(
+          estado.cotaFuente === "puntos"
+            ? FUENTES_APP.topografiaCosta
+            : FUENTES_APP.topografia,
+        )
+      : "");
 }
 
 export function marcarCotaManual() {
@@ -180,10 +199,12 @@ export function marcarCotaManual() {
   estado.cotaEsEstimada = false;
   estado.cotaOrigen = isNaN(v) ? "" : "mano";
   estado.cotaDetalle = "";
+  estado.cotaFuente = "";
   guardado.set("cc_cota", isNaN(v) ? "" : String(v));
   guardado.set("cc_cota_est", "0");
   guardado.set("cc_cota_origen", estado.cotaOrigen);
   guardado.set("cc_cota_detalle", "");
+  guardado.set("cc_cota_fuente", "");
   pintarOrigenCota();
   calcular();
   pintarRio();
@@ -217,7 +238,7 @@ export async function estimarCota() {
             ", buscá la dirección, o escribí la altura a mano.";
           return;
         }
-        e.textContent = "Buscando entre las curvas de nivel…";
+        e.textContent = "Buscando la altura de ese terreno…";
         try {
           const r = await elevacionDe(la, lo);
           if (!r) throw new Error("fuera de cobertura");
@@ -227,11 +248,13 @@ export async function estimarCota() {
             "gps",
             typeof prec === "number" ? "±" + Math.round(prec) + " m" : "",
             r.distancia,
+            r.fuente,
           );
         } catch (err) {
           e.innerHTML =
-            "<b>No tenemos la altura de ese punto.</b> El plano del municipio " +
-            "cubre la ciudad, no toda el área metropolitana. " +
+            "<b>No tenemos la altura de ese punto.</b> Los planos que usamos " +
+            "cubren la ciudad, Rincón y Arroyo Leyes, no toda el área " +
+            "metropolitana. " +
             "Si tenés la altura en la escritura o en un plano, escribila arriba." +
             SALIDA_SIN_DATO;
         }
@@ -333,8 +356,9 @@ function pintarSinPlano(z) {
   aviso.innerHTML =
     "<b>Para " +
     z.n +
-    " no tenemos el plano de alturas.</b> Las curvas de nivel que publica " +
-    "la Municipalidad de Santa Fe no llegan hasta ahí, así que ni tu " +
+    " no tenemos el plano de alturas.</b> Ni las curvas de nivel de la " +
+    "Municipalidad ni los puntos medidos por la Provincia llegan hasta " +
+    "ahí, así que ni tu " +
     "ubicación, ni la dirección, ni el mapa pueden darnos la altura de tu " +
     "terreno. Si la sabés, escribila acá abajo: en la escritura o en un " +
     "plano figura como «cota IGN», y también te la puede dar tu municipio " +
@@ -402,9 +426,9 @@ export function calcular() {
   // Con la cota interpolada razonamos siempre con el escenario
   // pesimista, y sale de cotaEnHidrometro() para que la regla, el
   // veredicto y el plan exportado no puedan volver a divergir.
-  const cotaPeor = estado.cotaEsEstimada
-    ? estado.cota - ERROR_DEM
-    : estado.cota;
+  const margen = margenCota();
+  const cotaPeor = estado.cota - margen;
+  const deCosta = estado.cotaFuente === "puntos";
   const criticoPeor = cotaEnHidrometro();
 
   const r = estado.rio;
@@ -545,8 +569,12 @@ export function calcular() {
   <td class="n"><b>${m(estado.cota)} sobre el mar</b></td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr class="ojo"><td>Margen de seguridad (el plano tiene líneas cada 50 cm)</td>
-  <td class="n">− ${nm(ERROR_DEM, 2)} m</td></tr>
+        ? `<tr class="ojo"><td>Margen de seguridad (${
+            deCosta
+              ? "puntos medidos cada unos 40 m, en un terreno que cambia mucho"
+              : "el plano tiene líneas cada 50 cm"
+          })</td>
+  <td class="n">− ${nm(margen, 2)} m</td></tr>
     <tr><td>Altura usada (la más baja, por seguridad)</td>
   <td class="n"><b>${m(cotaPeor)} IGN</b></td></tr>`
         : ""
@@ -579,13 +607,29 @@ export function calcular() {
   <td class="n">${m(ref)}</td></tr>
     </table>
     <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
-la cota del terreno viene de curvas cada 0,5 m, y más decimales serían una
-precisión que el dato no tiene.</p>`;
+la cota del terreno viene de ${
+    deCosta ? "puntos medidos cada unos 40 m" : "curvas cada 0,5 m"
+  }, y más decimales serían una precisión que el dato no tiene.</p>`;
 
   /* Era una caja ámbar aparte, debajo del resultado. Es parte de cómo sale el
      número, así que va acá; la frase de «pasa cerca de tu casa, no por tu
      puerta» quedó fija en el paso 2, donde se carga la altura. */
-  if (estado.cotaEsEstimada)
+  /* En la costa la frase es otra porque el dato es otro: puntos sueltos de
+     la Provincia, no las curvas del municipio, y con el doble de margen. Ver
+     ERROR_PUNTOS en config.js. */
+  if (estado.cotaEsEstimada && deCosta)
+    html +=
+      '<p class="chico" style="margin:10px 0 0"><b>Altura calculada con los ' +
+      "puntos medidos más cercanos</b>, de un relevamiento de la Provincia " +
+      "de 2005." +
+      (estado.cotaDistancia != null
+        ? " El más cercano a ese lugar está a " +
+          Math.round(estado.cotaDistancia) +
+          " m."
+        : "") +
+      " En la costa el terreno cambia mucho de un lugar a otro —terraplenes, " +
+      "cunetas, rellenos—, así que la cuenta usa un metro menos.</p>";
+  else if (estado.cotaEsEstimada)
     html +=
       '<p class="chico" style="margin:10px 0 0"><b>Altura calculada entre dos ' +
       "líneas del plano</b>, que tiene una cada 50 cm." +

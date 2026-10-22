@@ -3,8 +3,8 @@
    POSICIÓN en la lista (`cc_mo3`, `cc_pv5`…): reordenar un renglón le mueve
    el tilde a todo el que ya venía llenando el plan. */
 
-import { ERROR_DEM, MOCHILA, PREVIA, ZONAS } from "./config.js";
-import { cotaEnHidrometro, origenCota } from "./cota.js";
+import { MOCHILA, PREVIA, ZONAS } from "./config.js";
+import { cotaEnHidrometro, margenCota, origenCota } from "./cota.js";
 import { TELEFONOS, estado, guardado } from "./estado.js";
 import { m, mU, nm } from "./formato.js";
 import { faltanMochila, pintarRio } from "./rio.js";
@@ -173,7 +173,7 @@ function textoPlan() {
       "Si el río llega ahí, el agua puede llegar a tu terreno.\n" +
       (estado.cotaEsEstimada
         ? "La altura del terreno va " +
-          nm(ERROR_DEM, 2) +
+          nm(margenCota(), 2) +
           " m más abajo, por seguridad.\n"
         : "") +
       "Es un cálculo aproximado, no una orden: la evacuación la indica Defensa Civil (103).\n\n";

@@ -6,7 +6,12 @@
 
 import { aTitulo, cargarCalles, cerrarSugerencias } from "./calles.js";
 import { ZONAS } from "./config.js";
-import { BOTON_MARCAR, elegirZona, fijarCotaEstimada } from "./cota.js";
+import {
+  BOTON_MARCAR,
+  elegirZona,
+  fijarCotaEstimada,
+  pintarOrigenCota,
+} from "./cota.js";
 import { curvas, elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, guardado } from "./estado.js";
 import { m } from "./formato.js";
@@ -70,19 +75,50 @@ async function traerJson(url, ms) {
   }
 }
 
-/* Devuelve { c: [lon, lat], nombre, exacta } o null. `exacta` es la altura
-   —interpolada dentro de la cuadra, que para curvas cada 50 cm alcanza— y no
-   la calle entera. Se filtra por localidad censal y no por departamento:
-   con «La Capital» Georef también se va a la calle homónima de Santo Tomé.
-   Sin altura no contesta nada útil —la ubicación es un punto cualquiera de la
-   calle—, así que se descarta y sigue Nominatim. */
-async function georef(texto) {
+/* Las vecinas que la app calcula con los puntos de la costa (elevacion.js) y
+   que caen dentro del viewbox. Antes del 22/10/2026 no tenían plano: quien
+   vivía ahí leía «no se encontró» —como si hubiera escrito mal— y el mapa le
+   contestaba «fuera del plano». Tres sugerencias de Rincón en dos días.
+   `re` las reconoce en lo que devuelve Nominatim, que pone a Rincón en
+   `municipality` y a Arroyo Leyes en `village` —y un mismo resultado puede
+   traer las dos: el campo más chico va primero—. `georef` es su localidad
+   censal: Georef tiene el callejero de Rincón (217 calles) y no el de Arroyo
+   Leyes. Calchines queda fuera del viewbox, así que acá no aparece. */
+const VECINAS = [
+  { zona: "leyes", re: /arroyo leyes/i, georef: null },
+  {
+    zona: "rincon",
+    re: /san jos[eé] del rinc[oó]n/i,
+    georef: "San José del Rincón",
+  },
+];
+function vecinaDe(a) {
+  if (!a) return null;
+  for (const campo of [a.village, a.town, a.city, a.municipality]) {
+    const v = campo && VECINAS.find((x) => x.re.test(campo));
+    if (v) return v.zona;
+  }
+  return null;
+}
+const vecinaElegida = () => VECINAS.find((v) => v.zona === estado.zona);
+
+/* Devuelve { c: [lon, lat], nombre, exacta, vecina } o null. `exacta` es la
+   altura —interpolada dentro de la cuadra, que para curvas cada 50 cm
+   alcanza— y no la calle entera. Se filtra por localidad censal y no por
+   departamento: con «La Capital» Georef también se va a la calle homónima de
+   Santo Tomé. La localidad es la de la zona elegida: con Rincón elegido,
+   «Dorrego 2414» es la de Rincón. Sin altura no contesta nada útil —la
+   ubicación es un punto cualquiera de la calle—, así que se descarta y sigue
+   Nominatim. `v` es la vecina donde buscar, o null para la ciudad. */
+async function georef(texto, v) {
+  if (v && !v.georef) return null;
+  const localidad = v ? v.georef : "Santa Fe";
   const j = await traerJson(
     "https://apis.datos.gob.ar/georef/api/direcciones?" +
       new URLSearchParams({
         direccion: texto,
         provincia: "Santa Fe",
-        localidad_censal: "Santa Fe",
+        localidad_censal: localidad,
         max: "1",
       }),
     8000,
@@ -93,8 +129,9 @@ async function georef(texto) {
   if (!isFinite(c[0]) || !isFinite(c[1])) return null;
   return {
     c,
-    nombre: aTitulo(f.calle.nombre + " " + f.altura.valor) + ", Santa Fe",
+    nombre: aTitulo(f.calle.nombre + " " + f.altura.valor) + ", " + localidad,
     exacta: true,
+    vecina: v ? v.zona : null,
   };
 }
 
@@ -104,37 +141,21 @@ async function georef(texto) {
    mismas calles con las mismas alturas. Por eso se piden varios resultados
    con `addressdetails` y se toma el primero que OpenStreetMap ubica dentro
    del municipio: la relación «Santa Fe Capital», que llevan todos los puntos
-   de la ciudad —Alto Verde y Colastiné incluidos— y ninguno de los vecinos. */
+   de la ciudad —Alto Verde y Colastiné incluidos— y ninguno de los vecinos.
+   Además de la ciudad se aceptan Rincón y Arroyo Leyes (VECINAS), que tienen
+   los puntos de la costa; Santo Tomé y Candioti siguen afuera. */
 const VIEWBOX_SF = "-60.90,-31.35,-60.45,-31.85";
 const enElMunicipio = (a) =>
   Boolean(a) && (a.municipality === "Santa Fe Capital" || a.city === "Santa Fe");
 
-/* Las vecinas que las curvas no cubren (`sinPlano` en ZONAS) y que caen
-   dentro del viewbox. Quien vive ahí y no eligió su zona escribía la
-   dirección, leía «no se encontró» —como si la hubiera escrito mal— y el mapa
-   le contestaba «fuera del plano»: tres sugerencias de Rincón en dos días.
-   OpenStreetMap la encuentra; lo que falta es el plano, y hay que decirlo.
-   Nominatim pone a Rincón en `municipality` y a Arroyo Leyes en `village`, y
-   un mismo resultado puede traer las dos: el campo más chico va primero.
-   Calchines queda fuera del viewbox, así que acá no aparece. */
-const VECINAS_SIN_PLANO = [
-  { zona: "leyes", re: /arroyo leyes/i },
-  { zona: "rincon", re: /san jos[eé] del rinc[oó]n/i },
-];
-function vecinaSinPlano(a) {
-  if (!a) return null;
-  for (const campo of [a.village, a.town, a.city, a.municipality]) {
-    const v = campo && VECINAS_SIN_PLANO.find((x) => x.re.test(campo));
-    if (v) return v.zona;
-  }
-  return null;
-}
-
-async function nominatim(texto) {
+async function nominatim(texto, v) {
+  const z = v && ZONAS.find((x) => x.id === v.zona);
   const j = await traerJson(
     "https://nominatim.openstreetmap.org/search?" +
       new URLSearchParams({
-        q: texto + ", Santa Fe, Argentina",
+        // Con una vecina elegida se nombra la localidad: si no, «Dorrego
+        // 2414» sale primero la de la ciudad.
+        q: texto + (z ? ", " + z.n : "") + ", Santa Fe, Argentina",
         format: "jsonv2",
         limit: "5",
         viewbox: VIEWBOX_SF,
@@ -144,19 +165,22 @@ async function nominatim(texto) {
     10000,
   );
   if (!Array.isArray(j)) return null;
-  // Un resultado de tipo "city"/"state" es el centroide de la ciudad, no la
-  // dirección: como cota no dice nada.
-  const f = j.find(
+  // Un resultado de tipo "city"/"state"/"village" es el centroide de la
+  // localidad, no la dirección: como cota no dice nada.
+  const util = j.filter(
     (x) =>
-      enElMunicipio(x.address) &&
-      !["city", "state", "country", "municipality"].includes(x.addresstype),
+      (enElMunicipio(x.address) || vecinaDe(x.address)) &&
+      !["city", "town", "village", "state", "country", "municipality"].includes(
+        x.addresstype,
+      ),
   );
-  // Acá sí sirve cualquier tipo, hasta el centroide: no se busca una cota,
-  // se busca en qué localidad cae.
-  if (!f) {
-    const vecina = j.map((x) => vecinaSinPlano(x.address)).find(Boolean);
-    return vecina ? { vecina } : null;
-  }
+  // Primero la localidad de la zona elegida; si no, la ciudad; si no, una
+  // vecina. Así una calle homónima no le gana a la de quien busca.
+  const f =
+    (v && util.find((x) => vecinaDe(x.address) === v.zona)) ||
+    util.find((x) => enElMunicipio(x.address)) ||
+    util[0];
+  if (!f) return null;
   const c = [parseFloat(f.lon), parseFloat(f.lat)];
   if (!isFinite(c[0]) || !isFinite(c[1])) return null;
   // "house"/"building"/"place" es la altura exacta; "road" es un punto
@@ -166,21 +190,50 @@ async function nominatim(texto) {
     c,
     nombre: f.display_name || "",
     exacta: ["house", "building", "place"].includes(f.addresstype),
+    vecina: enElMunicipio(f.address) ? null : vecinaDe(f.address),
   };
 }
 
-/* «Sí, vivo ahí»: se muda a la zona y queda el aviso de `sinPlano`, que dice
-   cuál es la única salida. El botón que se tocó desaparece con el mensaje, así
-   que el foco va al aviso y no se pierde en el <body>. */
+/* «Pasar a esa zona», cuando la dirección cayó en una vecina que no es la
+   zona elegida. La altura ya está bien; lo que cambia es la distancia río
+   arriba, y con ella el nivel de aviso. El renglón de estado se reescribe sin
+   el botón, así que el foco va ahí y no se pierde en el <body>. */
 export function vivoEnVecina(id) {
   elegirZona(id);
-  document.getElementById("estado-cota").textContent = "";
-  const aviso = document.getElementById("sin-plano");
-  if (aviso && !aviso.hidden) {
-    aviso.setAttribute("tabindex", "-1");
-    aLaVista(aviso);
-    aviso.focus({ preventScroll: true });
+  pintarOrigenCota();
+  const e = document.getElementById("estado-cota");
+  e.setAttribute("tabindex", "-1");
+  aLaVista(e);
+  e.focus({ preventScroll: true });
+}
+
+/* Si la dirección no queda en la zona elegida, decirlo: la zona pone los km
+   río arriba, y Rincón con la zona del centro da un nivel de aviso 72 cm más
+   alto que el real. No se cambia sola —Rincón tiene calles homónimas de la
+   ciudad—: lo confirma la persona. */
+function avisoDeZona(r) {
+  const elegida = vecinaElegida();
+  if (r.vecina && r.vecina !== estado.zona) {
+    const z = ZONAS.find((x) => x.id === r.vecina);
+    return (
+      ' <b style="color:var(--alerta-texto)">Esa dirección queda en ' +
+      z.n +
+      "</b>, y tu zona dice otra cosa: la distancia río arriba cambia el " +
+      'resultado. <button class="enlace-crudo" type="button" ' +
+      'data-accion="zona-vecina" data-zona="' +
+      z.id +
+      '">Pasar a ' +
+      z.n +
+      "</button>."
+    );
   }
+  if (!r.vecina && elegida)
+    return (
+      ' <b style="color:var(--alerta-texto)">Esa dirección queda en la ciudad ' +
+      "de Santa Fe</b>, no en tu zona. Si no es tu casa, escribí también la " +
+      "localidad."
+    );
+  return "";
 }
 
 export function abrirBuscadorDireccion() {
@@ -212,26 +265,18 @@ export async function buscarDireccion() {
     aLaVista(e);
     // Georef sólo con una altura: sin número lo que escribió es un barrio,
     // una plaza o una calle entera, y eso lo sabe Nominatim.
-    var r = /\d/.test(q) ? await georef(q) : null;
-    if (!r) r = await nominatim(q);
+    const conNumero = /\d/.test(q);
     const sinBarrio = q.replace(PREFIJO_BARRIO, "$1").trim();
-    if (!r && sinBarrio && sinBarrio !== q) r = await nominatim(sinBarrio);
-    if (r && r.vecina) {
-      /* No se cambia la zona solo: Rincón tiene calles con el mismo nombre
-         que la ciudad, y si OpenStreetMap no conoce la casa de Santa Fe
-         puede encontrar la homónima. Lo confirma la persona. */
-      const z = ZONAS.find((x) => x.id === r.vecina);
-      e.innerHTML =
-        "<b>Esa dirección queda en " +
-        z.n +
-        ".</b> Las curvas de nivel de la Municipalidad de Santa Fe no llegan " +
-        "hasta ahí, así que no podemos sacar la altura de ese terreno. " +
-        '<button class="enlace-crudo" type="button" data-accion="zona-vecina" data-zona="' +
-        z.id +
-        '">Sí, vivo en ' +
-        z.n +
-        "</button>. Si vivís en la ciudad de Santa Fe, probá con calle y número.";
-      return;
+    /* Primero en la localidad de la zona elegida; si ahí no aparece, en la
+       ciudad. Quien eligió Rincón y escribe una dirección del centro la
+       encuentra igual, y avisoDeZona() le dice dónde quedó. */
+    const elegida = vecinaElegida();
+    var r = null;
+    for (const v of elegida ? [elegida, null] : [null]) {
+      r = conNumero ? await georef(q, v) : null;
+      if (!r) r = await nominatim(q, v);
+      if (!r && sinBarrio && sinBarrio !== q) r = await nominatim(sinBarrio, v);
+      if (r) break;
     }
     if (!r) {
       // Hay calles nuevas que ningún callejero tiene todavía —pasó con
@@ -244,17 +289,16 @@ export async function buscarDireccion() {
         ".";
       return;
     }
-    e.textContent = "Buscando entre las curvas de nivel…";
+    e.textContent = "Buscando la altura de ese terreno…";
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
       e.innerHTML =
-        "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> El " +
-        "plano de alturas del municipio cubre la ciudad, no toda el área " +
-        "metropolitana.";
+        "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> " +
+        "Los planos que usamos cubren la ciudad, Rincón y Arroyo Leyes, no " +
+        "toda el área metropolitana.";
       return;
     }
     var alt = Math.round(res.cota * 100) / 100;
-    estado.cotaDistancia = res.distancia;
   } finally {
     liberar();
   }
@@ -264,11 +308,14 @@ export async function buscarDireccion() {
     alt,
     "direccion",
     r.nombre.split(",").slice(0, 4).join(",").trim(),
+    res.distancia,
+    res.fuente,
   );
   if (!r.exacta)
     e.innerHTML +=
       ' <b style="color:var(--alerta-texto)">Ubicó la calle, no el número exacto</b>, ' +
       "así que puede estar a varias cuadras. Si no es tu casa, escribí la altura a mano.";
+  e.innerHTML += avisoDeZona(r);
 }
 
 /* Baja MapLibre bajo demanda. Una sola vez, aunque se pida de nuevo.
@@ -727,8 +774,8 @@ async function alTocar(e) {
   const r = await elevacionDe(e.lngLat.lat, e.lngLat.lng);
   if (!r) {
     pedirToque(
-      "Ese punto queda fuera del plano de alturas del municipio, que cubre " +
-        "la ciudad y no toda el área metropolitana. Probá con otro.",
+      "Ese punto queda fuera de los planos de alturas, que cubren la ciudad, " +
+        "Rincón y Arroyo Leyes, no toda el área metropolitana. Probá con otro.",
     );
     mapa.once("click", alTocar);
     return;
@@ -791,6 +838,7 @@ export function confirmarMarca() {
     "mapa",
     "punto marcado a mano en el mapa",
     r.distancia,
+    r.fuente,
   );
   irA("cota");
 }
