@@ -89,16 +89,19 @@ window.addEventListener("popstate", (ev) => {
 
 /* Un botón que dispara algo lento tiene que decirlo él mismo. Antes quedaba
    idéntico y la única señal era un renglón gris más abajo que, con el teclado
-   abierto en el teléfono, ni se ve. Devuelve la función que lo libera. */
+   abierto en el teléfono, ni se ve. Devuelve la función que lo libera.
+   Se guarda el marcado, no el texto: con textContent, «Mi ubicación» volvía
+   sin el ícono después de la primera vez. innerHTML y no replaceChildren(),
+   que los Android viejos no tienen; el botón es marcado nuestro. */
 export function ocupar(selector, texto) {
   const b = document.querySelector(selector);
   if (!b) return () => {};
-  const original = b.textContent;
+  const original = b.innerHTML;
   b.disabled = true;
   b.textContent = texto;
   return () => {
     b.disabled = false;
-    b.textContent = original;
+    b.innerHTML = original;
   };
 }
 
