@@ -9,12 +9,11 @@ import {
   CERO_IGN,
   ESCALA_MAX,
   ESCALA_MIN,
-  KM_PUBLICADO,
   PENDIENTE,
   PRECISION_MAX,
-  ZONAS,
 } from "./config.js";
-import { curvas, elevacionDe } from "./elevacion.js";
+import { COBERTURA, KM_PUBLICADO, ZONAS } from "./zonas.js";
+import { elevacionDe, fuenteAltura } from "./elevacion.js";
 import { estado, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
@@ -35,7 +34,7 @@ import { aLaVista, ocupar } from "./vista.js";
    dirección y ahora el mapa, con el mismo bloque de siete líneas copiado. Tres
    copias del mismo guardado es una que se olvida de un campo.
    `distancia` sólo la trae el camino del GPS y el del mapa. `fuente` es la
-   que devolvió elevacionDe(): "curvas" o "puntos". */
+   que devolvió elevacionDe(): el id de una de FUENTES_ALTURA. */
 export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente) {
   estado.cota = alt;
   estado.cotaEsEstimada = true;
@@ -179,11 +178,7 @@ export function pintarOrigenCota() {
        cota que la persona carga a mano es suya, no nuestra: ahí no
        corresponde atribuir nada. */
     (estado.cotaEsEstimada
-      ? selloFuente(
-          estado.cotaFuente === "puntos"
-            ? FUENTES_APP.topografiaCosta
-            : FUENTES_APP.topografia,
-        )
+      ? selloFuente(FUENTES_APP[fuenteAltura(estado.cotaFuente).sello])
       : "");
 }
 
@@ -259,8 +254,9 @@ export async function estimarCota() {
         } catch (err) {
           e.innerHTML =
             "<b>No tenemos la altura de ese punto.</b> Los planos que usamos " +
-            "cubren la ciudad, Rincón y Arroyo Leyes, no toda el área " +
-            "metropolitana. " +
+            "cubren " +
+            COBERTURA +
+            ", no toda el área metropolitana. " +
             "Si tenés la altura en la escritura o en un plano, escribila arriba." +
             SALIDA_SIN_DATO;
         }
@@ -434,7 +430,7 @@ export function calcular() {
   // veredicto y el plan exportado no puedan volver a divergir.
   const margen = margenCota();
   const cotaPeor = estado.cota - margen;
-  const deCosta = estado.cotaFuente === "puntos";
+  const fuente = fuenteAltura(estado.cotaFuente);
   const criticoPeor = cotaEnHidrometro();
 
   const r = estado.rio;
@@ -576,11 +572,7 @@ export function calcular() {
   <td class="n"><b>${m(estado.cota)} sobre el mar</b></td></tr>
     ${
       estado.cotaEsEstimada
-        ? `<tr class="ojo"><td>Margen de seguridad (${
-            deCosta
-              ? "puntos medidos cada unos 40 m, en un terreno que cambia mucho"
-              : "el plano tiene líneas cada 50 cm"
-          })</td>
+        ? `<tr class="ojo"><td>Margen de seguridad (${fuente.dice.porQueMargen})</td>
   <td class="n">− ${nm(margen, 2)} m</td></tr>
     <tr><td>Altura usada (la más baja, por seguridad)</td>
   <td class="n"><b>${m(cotaPeor)} IGN</b></td></tr>`
@@ -614,38 +606,20 @@ export function calcular() {
   <td class="n">${m(ref)}</td></tr>
     </table>
     <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
-la cota del terreno viene de ${
-    deCosta ? "puntos medidos cada unos 40 m" : "curvas cada 0,5 m"
-  }, y más decimales serían una precisión que el dato no tiene.</p>`;
+la cota del terreno viene de ${fuente.dice.deDonde}, y más decimales serían una
+precisión que el dato no tiene.</p>`;
 
   /* Era una caja ámbar aparte, debajo del resultado. Es parte de cómo sale el
      número, así que va acá; la frase de «pasa cerca de tu casa, no por tu
      puerta» quedó fija en el paso 2, donde se carga la altura. */
-  /* En la costa la frase es otra porque el dato es otro: puntos sueltos de
-     la Provincia, no las curvas del municipio, y con el doble de margen. Ver
-     ERROR_PUNTOS en config.js. */
-  if (estado.cotaEsEstimada && deCosta)
+  /* Cómo se explica la altura depende de la fuente: puntos sueltos de la
+     Provincia en la costa, curvas del municipio en la ciudad. Cada una trae
+     su párrafo en FUENTES_ALTURA (elevacion.js). */
+  if (estado.cotaEsEstimada)
     html +=
-      '<p class="chico" style="margin:10px 0 0"><b>Altura calculada con los ' +
-      "puntos medidos más cercanos</b>, de un relevamiento de la Provincia " +
-      "de 2005." +
-      (estado.cotaDistancia != null
-        ? " El más cercano a ese lugar está a " +
-          Math.round(estado.cotaDistancia) +
-          " m."
-        : "") +
-      " En la costa el terreno cambia mucho de un lugar a otro —terraplenes, " +
-      "cunetas, rellenos—, así que la cuenta usa un metro menos.</p>";
-  else if (estado.cotaEsEstimada)
-    html +=
-      '<p class="chico" style="margin:10px 0 0"><b>Altura calculada entre dos ' +
-      "líneas del plano</b>, que tiene una cada 50 cm." +
-      (estado.cotaDistancia != null
-        ? " La más cercana a ese punto está a " +
-          Math.round(estado.cotaDistancia) +
-          " m."
-        : "") +
-      " Por eso la cuenta usa medio metro menos.</p>";
+      '<p class="chico" style="margin:10px 0 0">' +
+      fuente.dice.explicacion(estado.cotaDistancia) +
+      "</p>";
 
   if (r != null) {
     const falta = ref - r;

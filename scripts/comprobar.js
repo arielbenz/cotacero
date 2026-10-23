@@ -45,7 +45,9 @@ globalThis.fetch = async (url) => {
 const comun = await import("/lib/comun.js");
 const config = await import("/js/app/config.js");
 const modelo = await import("/js/app/modelo.js");
-const { elevacionDe } = await import("/js/app/elevacion.js");
+const { elevacionDe, FUENTES_ALTURA } = await import("/js/app/elevacion.js");
+const zonas = await import("/js/app/zonas.js");
+const { FUENTES_APP } = await import("/js/app/fuentes.js");
 
 let fallas = 0;
 function caso(nombre, obtenido, esperado, tolerancia = 0) {
@@ -192,24 +194,88 @@ for (const [n, lat, lon, cota, fuente] of alturas) {
 caso("isla frente a Rincón: sin dato", await elevacionDe(-31.62, -60.53), null);
 caso("Santa Rosa de Calchines: sin dato", await elevacionDe(-31.43, -60.33), null);
 
+console.log("Cada fuente de altura trae todo lo suyo");
+for (const f of FUENTES_ALTURA) {
+  const { existsSync } = await import("node:fs");
+  caso(`«${f.id}»: margen propio`, typeof f.margen === "number" && f.margen > 0, true);
+  caso(`«${f.id}»: su sello existe en FUENTES_APP`, Boolean(FUENTES_APP[f.sello]), true);
+  caso(`«${f.id}»: su archivo está en public/`, existsSync(join(PUBLICO, f.archivo)), true);
+  caso(
+    `«${f.id}»: cómo se dice en pantalla`,
+    typeof f.dice?.porQueMargen === "string" &&
+      typeof f.dice?.deDonde === "string" &&
+      typeof f.dice?.explicacion(42) === "string",
+    true,
+  );
+}
+caso("curvas con ERROR_DEM", FUENTES_ALTURA.find((f) => f.id === "curvas").margen, config.ERROR_DEM);
+caso("puntos con ERROR_PUNTOS", FUENTES_ALTURA.find((f) => f.id === "puntos").margen, config.ERROR_PUNTOS);
+
 console.log("ZONAS");
 {
-  const ids = config.ZONAS.map((z) => z.id);
+  for (const v of zonas.VECINAS) {
+    caso(`vecina «${v.id}»: cómo se la reconoce`, v.localidad.re instanceof RegExp && v.localidad.re.test(v.n), true);
+    caso(`vecina «${v.id}»: está en la frase de cobertura`, zonas.COBERTURA.includes(v.n), true);
+    caso(`vecina «${v.id}»: no es «sin plano»`, !v.sinPlano, true);
+  }
+  const ids = zonas.ZONAS.map((z) => z.id);
   caso("ids sin repetir", ids.length === new Set(ids).size, true);
   caso(
     "KM_PUBLICADO nombra zonas que existen",
-    [...config.KM_PUBLICADO].every((id) => ids.includes(id)),
+    [...zonas.KM_PUBLICADO].every((id) => ids.includes(id)),
     true,
   );
   caso(
     "toda zona tiene km, salvo «otro»",
-    config.ZONAS.filter((z) => z.id !== "otro").every((z) => typeof z.km === "number" && z.km >= 0),
+    zonas.ZONAS.filter((z) => z.id !== "otro").every((z) => typeof z.km === "number" && z.km >= 0),
     true,
   );
-  const sinFuente = config.ZONAS.flatMap((z) =>
+  const sinFuente = zonas.ZONAS.flatMap((z) =>
     (z.observado || []).filter((o) => !o.fuente || typeof o.nivel !== "number").map(() => z.id),
   );
   caso("cada «observado» tiene nivel y fuente (AUDITORIA §9)", sinFuente, []);
+}
+
+console.log("Cada import de la app existe en su módulo");
+{
+  /* node --check no lo ve y el navegador sí: un import de un nombre que el
+     módulo ya no exporta tira el grafo entero de /app, con un SyntaxError en
+     consola y la pantalla en blanco. Pasó al sacar curvas() de elevacion.js. */
+  const { readdirSync } = await import("node:fs");
+  const exportsDe = new Map();
+  const leerExports = (archivo) => {
+    if (exportsDe.has(archivo)) return exportsDe.get(archivo);
+    const fuente = readFileSync(archivo, "utf8");
+    const nombres = new Set();
+    for (const [, n] of fuente.matchAll(/^export\s+(?:async\s+)?(?:function\*?|class)\s+([\w$]+)/gm))
+      nombres.add(n);
+    // `export let a = 1, b = {}, c;` declara tres: se vacía lo que va entre
+    // llaves, corchetes y paréntesis, y quedan los nombres antes de cada = o ,.
+    for (const [, decl] of fuente.matchAll(/^export\s+(?:const|let|var)\s+([^;]+);/gm)) {
+      let plano = decl;
+      for (let i = 0; i < 5; i++) plano = plano.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)/g, "");
+      for (const [, n] of plano.matchAll(/(?:^|,)\s*([\w$]+)\s*(?==|,|$)/g)) nombres.add(n);
+    }
+    for (const [, lista] of fuente.matchAll(/^export\s*\{([^}]*)\}/gm))
+      for (const parte of lista.split(","))
+        if (parte.trim()) nombres.add(parte.trim().split(/\s+as\s+/).pop());
+    exportsDe.set(archivo, nombres);
+    return nombres;
+  };
+  const dirApp = join(PUBLICO, "js", "app");
+  const rotos = [];
+  for (const f of readdirSync(dirApp).filter((x) => x.endsWith(".js"))) {
+    const fuente = readFileSync(join(dirApp, f), "utf8");
+    for (const [, lista, desde] of fuente.matchAll(/import\s*\{([^}]*)\}\s*from\s*"([^"]+)"/g)) {
+      const destino = desde.startsWith("/") ? join(PUBLICO, desde) : join(dirApp, desde);
+      const hay = leerExports(destino);
+      for (const parte of lista.split(",")) {
+        const nombre = parte.trim().split(/\s+as\s+/)[0];
+        if (nombre && !hay.has(nombre)) rotos.push(`${f}: «${nombre}» no está en ${desde}`);
+      }
+    }
+  }
+  caso("ningún import apunta a un nombre que no existe", rotos, []);
 }
 
 console.log(fallas ? `\n${fallas} caso(s) fallaron.` : "\nTodo en orden.");
