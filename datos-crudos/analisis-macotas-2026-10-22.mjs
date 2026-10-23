@@ -9,9 +9,9 @@
 import { readFileSync } from "node:fs";
 const HOY = process.argv[2];
 
-const curvasJson = readFileSync("public/datos-abiertos/curvas.json", "utf8");
-globalThis.fetch = async () => ({ ok: true, json: async () => JSON.parse(curvasJson) });
-const { elevacionDe } = await import(process.cwd() + "/public/js/app/elevacion.js");
+// El módulo de la app, con las rutas y el fetch de scripts/app-en-node.js.
+await import(process.cwd() + "/scripts/app-en-node.js");
+const { elevacionDe } = await import("/js/app/elevacion.js");
 
 // z ≤ 1 son vacíos del origen, no cotas: son 5 de 10.526.
 const P = JSON.parse(readFileSync(`datos-crudos/idesf-MACotas-${HOY}.json`, "utf8"))
@@ -47,7 +47,7 @@ for (const capa of ["puntos_fijos", "puntos_fijos_cn"]) {
 
 console.log("\n2. curvas.json − MACotas, donde hay una curva a < 60 m");
 const v2 = [];
-for (const p of P) { const e = await elevacionDe(p.lat, p.lon); if (e && e.distancia < 60) v2.push(e.cota - p.z); }
+for (const p of P) { const e = await elevacionDe(p.lat, p.lon); if (e && e.fuente === "curvas" && e.distancia < 60) v2.push(e.cota - p.z); }
 resumen("curvas − MACotas", v2);
 
 console.log("\n3. Validación cruzada: cada punto estimado con sus 4 vecinos (IDW), estimado − real");

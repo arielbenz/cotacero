@@ -126,7 +126,7 @@ primero (íconos, tipografías) queda congelado.
     api/                las funciones de Vercel (se publican como funciones, no
                         como archivos)
     lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
-                        sugerencias, charlas
+                        sugerencias, charlas, y mediciones.json
     scripts/            Node: el generador, el servidor local, las descargas
     estilos/            app.css CON comentarios: la fuente de public/css/app.css
     datos-crudos/       análisis y datos de trabajo; no se publican
@@ -252,6 +252,8 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Las fuentes de altura, su margen y cómo se dicen | `FUENTES_ALTURA` en `js/app/elevacion.js`     | `elevacionDe()`, `margenDe()` en `modelo.js`, el desglose y el sello de `cota.js`; `scripts/comprobar.js` verifica que cada una traiga margen, sello, archivo y textos |
 | Las localidades vecinas y la frase de cobertura | `VECINAS` y `COBERTURA` en `js/app/zonas.js` (de `ZONAS[].localidad`) | la búsqueda de `mapa.js` (Georef y Nominatim) y los mensajes de «no tenemos la altura de ese punto» |
 | Defensa y niveles observados por zona         | `ZONAS` en `js/app/zonas.js`                       | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
+| La medición del error de las curvas (330 puntos, mediana, p90, cuántos alcanza el margen) | `lib/mediciones.json`, que escribe `datos-crudos/analisis-puntos-fijos-<fecha>.mjs` | `scripts/paginas.js` para `/datos` y `/preguntas`; repetir la medición y regenerar actualiza el sitio |
+| Cargar la app desde Node (rutas del navegador y `fetch` de archivos del sitio) | `scripts/app-en-node.js` | `scripts/comprobar.js` y los análisis de `datos-crudos/`, que importan el código de producción en vez de copiarlo |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
 | Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |

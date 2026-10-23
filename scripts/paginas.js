@@ -16,6 +16,7 @@
 // Sin dependencias, como el resto del proyecto.
 
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,6 +28,7 @@ import {
   ENDPOINTS,
 } from "../public/lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN, enSitemap } from "../lib/paginas.js";
+import { mCm, nm } from "../public/lib/comun.js";
 import { MOCHILA, PREVIA } from "../public/lib/listas.js";
 import { CHARLAS } from "../lib/charlas.js";
 import {
@@ -43,6 +45,30 @@ const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
    queda para git, que corre sobre el repo entero. */
 const PUBLICO = join(RAIZ, "public");
 const SITIO = "https://cotacerosf.com";
+
+/* La medición del error de las curvas contra los puntos fijos municipales.
+   Estaba escrita a mano —«330 puntos», «42 cm», «1,10 m», «98 de 100»— en
+   cinco lugares de este archivo; la escribe el análisis
+   (datos-crudos/analisis-puntos-fijos-<fecha>.mjs) en lib/mediciones.json y
+   se lee de ahí. Sin el archivo no se genera: un número de seguridad no se
+   reemplaza por uno de memoria. AUDITORIA.md §4. */
+const MEDICION = (() => {
+  const c = JSON.parse(
+    readFileSync(join(RAIZ, "lib", "mediciones.json"), "utf8"),
+  ).curvas;
+  return {
+    n: c.n,
+    mitad: mCm(c.mediana_m),
+    nueveDeDiez: nm(c.p90_m, 2) + " m",
+    alcanza: Math.round(((c.n - c.optimistas) / c.n) * 100),
+    optimistas: c.optimistas,
+  };
+})();
+
+/* Cuántas curvas publica la Municipalidad: se cuentan, no se escriben. */
+const N_CURVAS = JSON.parse(
+  readFileSync(join(PUBLICO, "datos-abiertos", "curvas.json"), "utf8"),
+).curvas.length;
 
 /* La serie histórica del INA, para que las páginas puedan citar el récord y
    la cantidad de días medidos sin que nadie los escriba a mano. La genera
@@ -127,10 +153,9 @@ const esc = (t) =>
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
   );
 
-/* Números con coma decimal, como se escriben acá. Las páginas los tenían
-   escritos a mano —"5,30", "8,20"— y eso es justamente lo que se
-   desincroniza cuando una constante cambia. */
-const nm = (v, dec = 1) => Number(v).toFixed(dec).replace(".", ",");
+/* Números con coma decimal: `nm` y `mCm` se importan de public/lib/comun.js,
+   arriba. Acá había una copia de `nm`, idéntica, que se podía desincronizar
+   del formato de la app como cualquier otra. */
 
 /* La fecha de "última actualización del sitio" sale del último commit, no del
    día en que se corre este script. Es la misma razón por la que el sitemap no
@@ -823,7 +848,7 @@ const htmlDatos = pagina({
       titulo: "La cota sale de las curvas de nivel del municipio",
       html: `        <p>
           La <b>cota</b> es la altura de un terreno sobre el mar, en el sistema
-          oficial argentino (IGN). La Municipalidad publica <b>169 curvas de
+          oficial argentino (IGN). La Municipalidad publica <b>${N_CURVAS} curvas de
           nivel</b>, cada 50 cm: si caminás sobre una, no subís ni bajás.
         </p>
         <div class="curvas-dibujo" aria-hidden="true">
@@ -856,14 +881,14 @@ const htmlDatos = pagina({
              marcas sobre estructuras, contra elevacionDe(). Si se repite la
              corrida, los cuatro números de acá salen de esa salida. */ ""
         }<p>
-          Las comparamos con <b>330 puntos que la Municipalidad midió en la
-          calle</b>. La mitad cae a menos de 42 cm de lo medido, y 9 de cada 10
-          a menos de 1,10 m. Casi siempre del lado seguro: las curvas dan el
+          Las comparamos con <b>${MEDICION.n} puntos que la Municipalidad midió en la
+          calle</b>. La mitad cae a menos de ${MEDICION.mitad} de lo medido, y 9 de cada 10
+          a menos de ${MEDICION.nueveDeDiez}. Casi siempre del lado seguro: las curvas dan el
           terreno <b>más bajo</b> de lo que es, y entonces la app avisa antes.
         </p>
         <p class="chico">
           Para el otro lado fallan en puntos sueltos —una bajada, el ingreso a
-          un barrio, un anfiteatro—: en 6 de los 330 el terreno quedó más bajo
+          un barrio, un anfiteatro—: en ${MEDICION.optimistas} de los ${MEDICION.n} el terreno quedó más bajo
           que lo que dicen las curvas, aun descontando el medio metro. Las
           curvas son de 2005 y se trazaron a mano sobre un relevamiento de 1992.
         </p>
@@ -995,10 +1020,10 @@ ${[
             <span class="eti">Se comprobó</span>
             <h3>La altura del terreno</h3>
             <table class="cuenta">
-              <tr><td>Puntos medidos por la Municipalidad</td><td>330</td></tr>
-              <tr><td>La mitad, a menos de</td><td>42 cm</td></tr>
-              <tr><td>9 de cada 10, a menos de</td><td>1,10 m</td></tr>
-              <tr class="total"><td>El margen de medio metro alcanza en</td><td>98 de 100</td></tr>
+              <tr><td>Puntos medidos por la Municipalidad</td><td>${MEDICION.n}</td></tr>
+              <tr><td>La mitad, a menos de</td><td>${MEDICION.mitad}</td></tr>
+              <tr><td>9 de cada 10, a menos de</td><td>${MEDICION.nueveDeDiez}</td></tr>
+              <tr class="total"><td>El margen de medio metro alcanza en</td><td>${MEDICION.alcanza} de 100</td></tr>
             </table>
             <p class="chico">Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del <b>terreno</b>; la del <b>agua</b> río arriba del Puerto no se pudo comprobar con ninguna medición.</p>
           </div>
@@ -1092,7 +1117,7 @@ ${[
       html: `        <ul class="no-sabe">
           <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero correcto es 8,20 o 8,378.</li>
           <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
-          <li><b>Cuánto se equivoca la cota en tu cuadra.</b> Medido contra 330 puntos del municipio, el medio metro alcanza en 98 de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.</li>
+          <li><b>Cuánto se equivoca la cota en tu cuadra.</b> Medido contra ${MEDICION.n} puntos del municipio, el medio metro alcanza en ${MEDICION.alcanza} de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.</li>
           <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>
           <li><b>En qué estado está la defensa de tu zona.</b> Cambia el resultado más que cualquiera de las constantes.</li>
           <li><b>Nada sobre la lluvia sobre tu barrio.</b> El agua puede llegar antes por el desagüe que por el río.</li>
@@ -1179,7 +1204,7 @@ const PREGUNTAS = [
   [
     "¿De dónde sale la altura de mi terreno?",
     "De las curvas de nivel de la Municipalidad de Santa Fe.",
-    "Están trazadas cada 50 cm, en metros IGN: por eso el margen de ±0,5 m, que medido contra 330 puntos del municipio alcanza en 98 de cada 100. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.",
+    `Están trazadas cada 50 cm, en metros IGN: por eso el margen de ±0,5 m, que medido contra ${MEDICION.n} puntos del municipio alcanza en ${MEDICION.alcanza} de cada 100. También podés escribirla vos, que figura en planos de mensura y escrituras. No se usa elevación satelital: se midió contra puntos de campo del IGN y su error superaba la escala entera de la decisión.`,
   ],
   [
     "¿Qué hago si mi dirección queda fuera de la zona con curvas?",

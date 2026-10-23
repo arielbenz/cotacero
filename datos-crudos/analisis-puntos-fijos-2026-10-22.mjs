@@ -7,17 +7,12 @@
 import { readFileSync } from "node:fs";
 const HOY = process.argv[2];
 
-/* Se importa el MÓDULO DE LA APP, no una reimplementación. Sólo se le presta
-   un fetch que lee el archivo del disco en vez de la red. */
-const curvasJson = readFileSync("public/datos-abiertos/curvas.json", "utf8");
-globalThis.fetch = async (u) =>
-  String(u).includes("curvas.json")
-    ? { ok: true, json: async () => JSON.parse(curvasJson) }
-    : { ok: false };
-const { elevacionDe } = await import(
-  process.cwd() + "/public/js/app/elevacion.js"
-);
-const ERROR_DEM = 0.5;
+/* Se importa el MÓDULO DE LA APP, no una reimplementación: app-en-node.js
+   le resuelve las rutas del navegador y le presta un fetch que lee del disco.
+   ERROR_DEM también sale de la app, no de una copia. */
+await import(process.cwd() + "/scripts/app-en-node.js");
+const { elevacionDe } = await import("/js/app/elevacion.js");
+const { ERROR_DEM } = await import("/js/app/config.js");
 
 /* Fuera: marcas que no están en el piso. Una chapa en una estación de bombeo,
    un puente o un distribuidor tienen la cota de la estructura, y las curvas
@@ -44,7 +39,10 @@ const res = [];
 for (const p of puntos) {
   if (ESTRUCTURA.test(p.u)) continue;
   const e = await elevacionDe(p.lat, p.lon);
-  if (!e) continue;
+  // Mide las CURVAS. Desde que la app suma los puntos de la costa, dos marcas
+  // de Colastiné Norte fuera del área de las curvas salían de esa otra fuente
+  // y entraban en esta cuenta sin que nadie lo decidiera.
+  if (!e || e.fuente !== "curvas") continue;
   res.push({ ...p, interp: e.cota, dist: e.distancia, dif: e.cota - p.cota });
 }
 
@@ -71,6 +69,33 @@ const opt = res.filter((x) => x.dif > ERROR_DEM).sort((a, b) => b.dif - a.dif);
 console.log(`\noptimistas aun descontando ERROR_DEM (dif > +${ERROR_DEM}): ${opt.length} de ${res.length}`);
 for (const x of opt)
   console.log(`  ${String(x.n).padEnd(6)} ${x.u.slice(0, 40).padEnd(40)} medida ${x.cota.toFixed(2)}  curvas ${x.interp.toFixed(2)}  +${x.dif.toFixed(2)}`);
+
+/* El resumen que publica el sitio. /datos, /preguntas y la tarjeta «Se
+   comprobó» leen lib/mediciones.json en vez de llevar los números escritos a
+   mano: si esta medición se repite, el sitio se actualiza al regenerar. */
+{
+  const { writeFileSync, existsSync } = await import("node:fs");
+  const RUTA = "lib/mediciones.json";
+  const previo = existsSync(RUTA) ? JSON.parse(readFileSync(RUTA, "utf8")) : {};
+  const abs = res.map((x) => Math.abs(x.dif)).sort((a, b) => a - b);
+  const q = (p) => abs[Math.min(abs.length - 1, Math.floor(p * abs.length))];
+  const r2 = (v) => Math.round(v * 100) / 100;
+  previo.curvas = {
+    medido: HOY,
+    contra: "puntos fijos de la red municipal, sin las marcas sobre estructuras",
+    script: "datos-crudos/analisis-puntos-fijos-" + HOY + ".mjs",
+    auditoria: "AUDITORIA.md §4",
+    n: res.length,
+    mediana_m: r2(q(0.5)),
+    p90_m: r2(q(0.9)),
+    max_m: r2(abs[abs.length - 1]),
+    sesgo_m: r2(res.reduce((a, x) => a + x.dif, 0) / res.length),
+    margen_m: ERROR_DEM,
+    optimistas: opt.length,
+  };
+  writeFileSync(RUTA, JSON.stringify(previo, null, 2) + "\n");
+  console.log("\nescrito: " + RUTA);
+}
 
 /* En qué sistema está la red municipal: se la cruza con la Red de Nivelación
    del IGN donde las dos tienen una marca a menos de 50 m. */
