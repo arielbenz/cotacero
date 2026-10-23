@@ -18,17 +18,23 @@ Tres documentos, tres trabajos:
     corrección río arriba = 0,045 m por km
 
 Para un terreno dado se despeja al revés: qué lectura del hidrómetro pone el
-agua a la altura de ese terreno. Lo hace una sola función,
-`cotaEnHidrometro()`, que por defecto descuenta el margen de la fuente para
-quedarse en el escenario pesimista: `ERROR_DEM` (0,5 m) con las curvas de la
-ciudad, `ERROR_PUNTOS` (1,0 m) con los puntos de Rincón y Arroyo Leyes.
+agua a la altura de ese terreno. La cuenta vive en `js/app/modelo.js`
+(`umbralDe`, `margenDe`), pura —sin estado ni DOM— para poder probarla desde
+Node, y la app entra siempre por una sola puerta, `cotaEnHidrometro()`. Por
+defecto descuenta el margen de la fuente para quedarse en el escenario
+pesimista: `ERROR_DEM` (0,5 m) con las curvas de la ciudad, `ERROR_PUNTOS`
+(1,0 m) con los puntos de Rincón y Arroyo Leyes.
 
 **Las constantes están en discusión y no se tocaron.** El INA publica hoy
 `cero_ign = 8,378` (relevamiento de 2016, SRVN16), y las curvas del municipio
 no declaran su sistema de alturas: mover el cero metería un sesgo de 18 cm sin
 que nadie lo note. La pendiente se despejó del mismo caso de 1992 con el que
-después se la «validaba», así que esa coincidencia de un centímetro no prueba
-nada. Todo está en `AUDITORIA.md` §3, y explicado para cualquiera en `/datos`.
+después se la «validaba»: el 16,70 de Arroyo Leyes en 1992 que circula en la
+prensa se estimó con esa misma pendiente, así que coincidir con él no prueba
+nada. Lo que sí se midió contra algo independiente es la altura del terreno:
+contra 330 puntos fijos de la Municipalidad, el margen de medio metro alcanza
+en 98 de cada 100. Todo está en `AUDITORIA.md` §1, §3 y §4, y explicado para
+cualquiera en `/datos`.
 
 Hasta que lo revisen organismos competentes (Gestión de Riesgos del municipio,
 INA, FICH-UNL), lo que la app calcula son niveles de referencia estimados, y
@@ -47,13 +53,21 @@ que está prohibido decir, está en CLAUDE.md.
 | Nivel del río       | API del SIyAH del INA, estación 30 (SAFE, Prefectura Naval) | `lib/ina.js` → `/api/nivel`, en cada consulta |
 | Alerta y evacuación | la misma estación del INA                                   | vienen junto con el nivel                     |
 | Cota del terreno    | curvas de nivel del municipio (`sitmax:curvas_nivel`)       | `datos-abiertos/curvas.json`, se lee local    |
+| Cota en la costa    | puntos con cota de la Provincia (IDESF, capa `MACotas`)     | `datos-abiertos/cotas-costa.json`, local      |
 | Serie desde 1925    | INA, serie 30                                               | `datos-abiertos/historia.json`, resumida      |
 | Puntos de encuentro | GeoServer municipal (`puntos_de_encuentro`)                 | escritos en `app/index.html`                  |
 | Callejero           | Georef (API de direcciones del Estado nacional)             | `datos-abiertos/calles.json`, se lee local    |
 | Mapa base           | tiles del IGN (TMS)                                         | en vivo; MapLibre self-hosteado en `vendor/`  |
+| Lluvia y caudal     | Open-Meteo (lluvia; caudal de GloFAS, Copernicus)           | en vivo, con las coordenadas fijas del centro |
 
 Ninguna pide clave ni tiene cuota. Es deliberado: un proveedor con cuota se
 cae justo cuando la app se comparte durante una crecida.
+
+**Cada servicio de otro origen está en `lib/proveedores.js`**, con su host,
+para qué se usa y qué le hace falta en la CSP. El generador falla si uno no
+está en la CSP de `vercel.json`, si `/legal` no lo nombra o si en el código
+aparece un host sin clasificar. Así salió que `/legal` nunca había nombrado a
+Open-Meteo.
 
 **El nivel tiene dos puertas.** Primero la API REST del SIyAH
 (`alerta.ina.gob.ar/a5`), que trae además los umbrales oficiales y el
@@ -68,11 +82,27 @@ argentina.gob.ar (`/pub/datos`) no anda; ver `AUDITORIA.md` §6.
 Copernicus GLO-90 vía Open-Meteo, que mide techos y arbolado: contra 36 puntos
 de nivelación del IGN tenía un desvío de 7,5 m, y dentro de la ciudad
 sobreestimaba 2,15 m de media. Todo el rango de decisión —de 5,30 a 7,43, el
-récord de 1992— son 2,13 m. Las curvas son 169, cada ~50 cm, en metros IGN.
-Dos trampas del origen que resuelve `scripts/curvas.js`: 25 curvas traen
-`Z = 0` y la cota verdadera está en el atributo `layer`, que además mezcla
-`17,2` y `17.2`. La distancia se mide punto-a-segmento, no al vértice. Fuera
-de la cobertura la app dice que no tiene el dato y pide la cota a mano.
+récord de 1992— son 2,13 m. Las curvas son 169, cada ~50 cm, en metros IGN,
+trazadas a mano en 2005 sobre un relevamiento de 1992 (son el recorte de la
+ciudad de una capa provincial, `AUDITORIA.md` §7). Dos trampas del origen que
+resuelve `scripts/curvas.js`: 25 curvas traen `Z = 0` y la cota verdadera
+está en el atributo `layer`, que además mezcla `17,2` y `17.2`. La distancia
+se mide punto-a-segmento, no al vértice.
+
+**Fuera de la ciudad, puntos.** Las curvas terminan en el límite del
+municipio. Para San José del Rincón y Arroyo Leyes la app usa los puntos con
+cota de la misma campaña de 2005, que la Provincia publica sólo como mapa: los
+baja `node scripts/cotas-costa.js` con `GetFeatureInfo`, porque el WFS de la
+IDESF está apagado. La altura sale de los cuatro puntos más cercanos, hasta
+150 m. Ahí el terreno cambia más de un punto al otro, y con medio metro de
+margen uno de cada ocho quedaba del lado optimista: por eso el margen es un
+metro.
+
+**Las fuentes de altura son una lista** (`FUENTES_ALTURA` en
+`js/app/elevacion.js`): cada una con su archivo, su cuenta, su margen, su
+sello y cómo se la nombra en pantalla. La primera cuya área contiene el punto
+es la que contesta. Fuera de todas, la app dice que no tiene el dato y pide la
+cota a mano.
 
 **Los puntos de encuentro no se geocodifican.** Se probó y seis quedaban a más
 de 90 km y diez en la calle homónima de otro municipio. Para actualizarlos:
@@ -81,9 +111,11 @@ de 90 km y diez en la calle homónima de otro municipio. Para actualizarlos:
       ?service=WFS&version=1.0.0&request=GetFeature
       &typeName=publico:puntos_de_encuentro&outputFormat=application/json
 
-Ese host está detrás de Cloudflare y suele dar 403 fuera de un navegador; el
-que responde es `geoserver.santafeciudad.gov.ar/geoserver/sitmax`. El listado
-de prensa tenía 29; el oficial tiene 30 (faltaba la Vecinal Pro Mejoras Alto
+Ese host está detrás de Cloudflare: hay que pedirlo con un `User-Agent` de
+navegador. En septiembre de 2026 dio 403 un par de días; desde el 16/10
+contesta. Ahí también está la Red de Puntos Fijos con la que se midió el error
+de las curvas (`publico:puntos_fijos`). El listado de prensa tenía 29 puntos
+de encuentro; el oficial tiene 30 (faltaba la Vecinal Pro Mejoras Alto
 Verde).
 
 **La búsqueda de dirección va en cascada:** Georef primero, porque normaliza lo
@@ -92,6 +124,12 @@ municipio. Medido el 17/10/2026 con 30 direcciones: Nominatim solo ubicaba 15
 (y mandaba 3 a Santo Tomé o Candioti); Georef, 25. Las sugerencias del campo
 se filtran en el teléfono contra `calles.json`, sin mandar nada hasta que la
 persona aprieta Buscar.
+
+Con Rincón o Arroyo Leyes elegidos, se busca primero en esa localidad —Georef
+tiene el callejero de Rincón— y, si no aparece, en la ciudad. Si la dirección
+cae en otra zona que la elegida, la app lo dice y ofrece cambiarla: la zona
+pone los km río arriba, y el resultado cambia. Cómo se reconoce cada
+localidad está en `ZONAS` (`js/app/zonas.js`).
 
 ## Estructura
 
@@ -103,7 +141,7 @@ de `api/` de la raíz. `public/datos/index.html` se sirve en `/datos`.
       index.html               la portada, a mano
       app/index.html           la app, a mano — y la lista de los 30 puntos
       widget/                  el widget que embeben los medios, a mano
-      datos/ historia/ …       diez páginas que emite scripts/paginas.js
+      datos/ historia/ …       diez páginas y la 404, que emite scripts/paginas.js
       sw.js                    service worker (en la raíz del sitio: su alcance es su ruta)
       js/app/                  la app, en módulos ES (principal.js es la entrada)
       js/                      los scripts clásicos del sitio: landing, rio-barra, historia,
@@ -111,14 +149,15 @@ de `api/` de la raíz. `public/datos/index.html` se sirve en `/datos`.
       lib/                     lo que usan Node Y el navegador: comun, comun-clasico,
                                fuentes, listas
       css/ img/ vendor/        estilos, íconos, MapLibre
-      datos-abiertos/          curvas, historia, calles y puntos, en JSON
+      datos-abiertos/          curvas, cotas-costa, historia, calles y puntos, en JSON
       guia.pdf                 la hoja para imprimir (artefacto, no fuente)
 
     api/                       funciones de Vercel: nivel, suscribir, desuscribir,
                                sugerencias, visita, metricas, probar-aviso, cron/avisar
     lib/                       sólo Node, no se publica: ina, push, metricas, paginas,
-                               sugerencias, charlas
-    scripts/                   el generador, el servidor local y las descargas
+                               sugerencias, charlas, proveedores, mediciones.json
+    scripts/                   el generador (paginas.js + paginas/), comprobar.js, el
+                               servidor local, las descargas y la marca
     estilos/                   app.css con comentarios; el generador lo publica sin ellos
     datos-crudos/              análisis y datos de trabajo
 
@@ -132,16 +171,37 @@ desincroniza.
 `/legal`, `/charlas`, `/sobre`, `/contacto`, `/para-medios`,
 `/puntos-de-encuentro` y `/guia` las emite `node scripts/paginas.js`. Existen
 porque la app esconde tres de sus cuatro secciones detrás de pestañas, y un
-buscador no pondera bien el contenido oculto. El generador también escribe el
-pie de la portada, `sitemap.xml`, `llms.txt`, el catálogo de la API y el gemelo
-clásico de `comun.js`, y **falla** si la portada, la app o el precache del
-service worker no coinciden con lo que espera.
+buscador no pondera bien el contenido oculto.
+
+El generador está partido en `scripts/paginas/`: `base.js` con lo compartido,
+un archivo por página y `emitir.js`, que escribe todo. Cada página se anota
+sola al armarse y se escribe en la ruta que le da `lib/paginas.js`. Además
+escribe el pie de la portada, `sitemap.xml`, `llms.txt`, el catálogo de la
+API, el gemelo clásico de `comun.js`, `public/css/app.css` sin comentarios, la
+lista de módulos del precache y la `VERSION` del service worker —un resumen
+del contenido precacheado, que cambia sola—. Los números de la medición del
+error los lee de `lib/mediciones.json`, que escribe el análisis.
+
+Y **falla** si algo no cierra: la portada, la app o el widget no dicen lo
+mismo que `lib/paginas.js`; el precache nombra un archivo que no existe o le
+falta una página; una página no tiene enlace en el pie o cabecera de
+revalidación; un proveedor no está en la CSP o en `/legal`; o una de las 29
+copias de la marca no tiene el dibujo de `scripts/marca.js`.
+
+**`node scripts/comprobar.js` cuida el cálculo.** No es un framework de
+tests: una lista de casos con valores ya verificados en el navegador —el
+formato de los números, el gemelo clásico, la cuenta del modelo, de dónde sale
+la altura, las reglas de los estados, que cada import de la app exista, que la
+`VERSION` esté al día— que sale con error si alguno cambia. Carga el código de
+la app desde Node con `scripts/app-en-node.js`, el mismo que usan los análisis
+de `datos-crudos/`.
 
 **Cuatro mundos que no se importan entre sí:** los módulos de la app, los
 scripts clásicos del sitio, el service worker y Node. Lo que hace falta en más
 de uno vive en `public/lib/comun.js` (umbrales de respaldo, filtro de
-plausibilidad, vencimiento, formato de números); los clásicos y el service
-worker leen su gemelo `comun-clasico.js`. Antes los umbrales estaban escritos a
+plausibilidad, vencimiento, formato de números, los textos de los estados y la
+notificación); los clásicos y el service worker leen su gemelo
+`comun-clasico.js`. Antes los umbrales estaban escritos a
 mano en ocho archivos, y una copia vieja hace que ese consumidor avise tarde.
 
 ## Correr en local
@@ -208,7 +268,8 @@ nunca.
   de hoy. La regla marca alerta, evacuación y el récord de 1992: sin él, 5,70
   parece el techo del mundo.
 - **Mi casa.** Tres formas de cargar la altura del terreno: dirección, GPS o
-  tocando el mapa (con confirmación). Al marcar, el fondo pasa a la foto
+  tocando el mapa (con confirmación). La altura guarda de qué fuente salió
+  (`cc_cota_fuente`), porque de eso depende el margen. Al marcar, el fondo pasa a la foto
   aérea del IGN (vuelos de 2013 y 2014) con los nombres de las calles: el
   argenmap no dibuja edificios. La fecha se dice en pantalla, porque una casa
   más nueva sale como baldío. En Rincón y Arroyo Leyes las curvas no llegan
@@ -274,6 +335,11 @@ Los cuerpos de las notificaciones no pasan de **180 caracteres**: Android corta
 ahí, y la línea que se cortaba era la del 103. `node scripts/comprobar.js`
 verifica las tres reglas —el verbo primero, el 103 y los 180 caracteres— con
 los números más largos posibles.
+
+Las comparaciones contra tu nivel de aviso van en centímetros enteros
+(`faltaCm`): en coma flotante, con el río justo en tu nivel de aviso la
+pantalla decía «faltan unos 0 cm», y a 20 cm justos la notificación decía
+«andá armando» en vez de «terminá».
 
 Debajo de la alerta, la pantalla tiene dos estados más que no son
 notificaciones: «Atención», desde un metro antes de la alerta de la ciudad
@@ -386,6 +452,14 @@ escribir código.
 - **Medir los km río arriba de cada zona sobre el cauce.** Salvo Arroyo Leyes
   (24 km, publicado) son estimaciones propias, y a 4,5 cm por km equivocarse
   5 km son 22 cm. La app ya lo aclara en pantalla.
-- **El margen de la cota (±0,5 m) no debería ser fijo.** 21 de las 169 curvas
-  caen fuera de la malla de 50 cm, y entre 20,7 y 22,5 m no hay ninguna: el
-  margen tendría que salir de la separación local entre las curvas usadas.
+- **El margen de la cota (±0,5 m) no debería ser fijo.** Medido contra 330
+  puntos fijos alcanza en 98 de cada 100, pero 21 de las 169 curvas caen fuera
+  de la malla de 50 cm, y entre 20,7 y 22,5 m no hay ninguna: el margen
+  tendría que salir de la separación local entre las curvas usadas.
+- **Las curvas de Rincón y Arroyo Leyes.** Existen en la IDESF (capa
+  `MACurvaNivel`, el mismo relevamiento que las de la ciudad) pero no se
+  pueden bajar como vector: hay que pedirlas. Con ellas, la costa dejaría de
+  depender de puntos sueltos y de su metro de margen.
+- **Una marca de nivelación al ras del suelo en Rincón**, para contrastar los
+  puntos de la costa. Las del IGN sobre la Ruta 1 son chapas sobre pilares, y
+  junto a la PF5N(55) el cálculo queda justo en el borde del margen.

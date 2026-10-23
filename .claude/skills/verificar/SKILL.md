@@ -39,24 +39,31 @@ Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js` o algo de
 o `estilos/app.css` (de ahí sale `public/css/app.css`).
 Ante la duda, correrlo: es barato.
 
-Las tres últimas líneas tienen que decir:
+Las últimas líneas tienen que decir:
 
 ```
 portada, app y widget: coinciden con lib/paginas.js
 service worker: precachea los N módulos de la app
 service worker: precachea las 10 páginas generadas
+proveedores: 9 en la CSP y en /legal; M hosts del código clasificados
+la marca: 29 copias, todas con el dibujo de scripts/marca.js
+service worker: VERSION … 
 ```
 
-N es la cantidad de archivos que haya en `public/js/app/`: el generador los
-cuenta, no hace falta saberlo de memoria.
+N y M los cuenta el generador: no hace falta saberlos de memoria. La última
+dice «VERSION al día» si nada precacheado cambió, o la versión nueva si
+cambió algo: en ese caso `sw.js` queda modificado, y va en el commit.
 
-Si falla, falla ruidoso y dice por qué. Un módulo nuevo en `js/app/` va al
-precache de `sw.js`, o el generador revienta (y si no reventara, la app se
-quedaría sin modo sin conexión, en silencio).
+Si falla, falla ruidoso y dice por qué. Un módulo nuevo en `js/app/` entra
+solo al precache de `sw.js` (lo escribe el generador entre los marcadores
+`MODULOS`); una página nueva tiene que tener enlace en el pie y cabecera de
+revalidación en `vercel.json`; un host nuevo en el código tiene que estar en
+`lib/proveedores.js`, y si es proveedor, en la CSP y en `/legal`.
 
 ## 3. La guía en PDF
 
-Si se tocó `scripts/paginas.js` o `public/css/guia.css`:
+Si se tocó algo de `scripts/paginas/` (sobre todo `guia.js` o `base.js`),
+`public/lib/listas.js` o `public/css/guia.css`:
 
 ```bash
 node scripts/guia-pdf.js
