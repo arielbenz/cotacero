@@ -32,7 +32,8 @@ ver si era a propósito (y entonces el caso se actualiza con el valor nuevo
 
 ## 2b. El generador
 
-Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js`,
+Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js` o algo de
+`scripts/paginas/`,
 `public/app/index.html`, `public/index.html`, `public/lib/fuentes.js`, `public/lib/comun.js`,
 `lib/paginas.js`, `public/lib/listas.js`, `lib/charlas.js`, `lib/sugerencias.js`
 o `estilos/app.css` (de ahí sale `public/css/app.css`).

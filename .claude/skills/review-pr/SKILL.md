@@ -77,7 +77,7 @@ que se juzga desde `--stat` y se abre sólo si un hallazgo depende de eso:
 ```
 
 Las páginas generadas (`datos/`, `historia/`, `legal/`…, `404.html`,
-`sitemap.xml`, `llms.txt`) se revisan en `scripts/paginas.js`, que es la
+`sitemap.xml`, `llms.txt`) se revisan en `scripts/paginas/`, que es la
 fuente: en el HTML emitido sólo se mira que coincida con el generador
 (Paso 3).
 
@@ -220,7 +220,7 @@ y, si no se usó el navegador, cómo se ve.
 
 - **Cada regla de `CLAUDE.md` que aplique a lo que cambió.** Listar sólo las
   que el cambio rompe. Las que más se rompen:
-  - Una página generada editada a mano en vez de en `scripts/paginas.js`.
+  - Una página generada editada a mano en vez de en su archivo de `scripts/paginas/`.
   - `public/lib/comun.js` tocado sin regenerar `public/lib/comun-clasico.js`.
   - Un módulo nuevo en `js/app/` sin su lugar en el precache de `sw.js`.
   - Un cambio en el generador o en `css/guia.css` sin volver a correr

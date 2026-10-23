@@ -51,7 +51,7 @@ let promesaMapa = null,
    clave, no uno. Los dos reciben una consulta por búsqueda que inicia la
    persona, nunca un barrido; la política de uso de Nominatim lo pide así.
    Cambiar de proveedor toca también connect-src en vercel.json, el párrafo
-   de /legal que los nombra y LICENCIAS en scripts/paginas.js. */
+   de /legal que los nombra y LICENCIAS en scripts/paginas/legal.js. */
 
 /* Un fetch con tope de tiempo. Sin él, un proveedor colgado deja el botón en
    «Buscando…» para siempre, y acá hay un segundo esperando turno.

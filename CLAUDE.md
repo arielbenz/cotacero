@@ -49,7 +49,8 @@ Sin framework de tests, la verificación es esta y en este orden:
 2. `node scripts/comprobar.js` si tocaste algo del cálculo: `config.js`,
    `modelo.js`, `elevacion.js`, `public/lib/comun.js` o los datos de
    `datos-abiertos/`.
-3. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
+3. `node scripts/paginas.js` si tocaste `scripts/paginas.js` o algo de
+   `scripts/paginas/`, `public/app/index.html`,
    `public/lib/fuentes.js`, **`public/lib/comun.js` o `estilos/app.css`** —de los
    dos últimos sale un archivo generado, ver abajo—.
 4. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
@@ -241,7 +242,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | --------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                                              |
 | Organismos, URLs, la estación del INA         | `public/lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
-| El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
+| El pie del sitio                              | función `pie()` en `scripts/paginas/base.js`       | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                                          |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                                              |
 | Umbrales de respaldo (5,30 / 5,70)            | `public/lib/comun.js`                                     | `public/lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
@@ -259,7 +260,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
-`scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
+`scripts/marca.js`, en `scripts/paginas/base.js` (`marcaSvg()`) y en el HTML de la
 portada y la app. Si se cambia el dibujo, se cambia en los cuatro.
 
 `js/app/fuentes.js` **importa `public/lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
@@ -275,8 +276,17 @@ HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
 Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
 `index.html` entre los marcadores `<!-- PIE:inicio -->` / `<!-- PIE:fin -->`.
 
-Una ruta nueva toca cinco lugares: `scripts/paginas.js`, la lista de escritura
-al final del mismo archivo, `vercel.json` (cabecera de revalidación),
+**El generador está partido en `scripts/paginas/`** (octubre de 2026; eran
+2.776 líneas en un archivo): `base.js` tiene lo que comparten todas —rutas,
+datos que se leen una vez, `pagina()`, `bloque()`, `pie()`, `marcaSvg()`—,
+hay un archivo por página (`datos.js`, `legal.js`, `guia.js`…) y `emitir.js`
+escribe todo y al final verifica la portada, la app y el precache.
+`scripts/paginas.js` sólo lo arranca. Las páginas importan de `base.js` y
+nunca entre sí ni de `emitir.js`: así no hay ciclos. La partición se verificó
+con el sitio generado idéntico, byte por byte.
+
+Una ruta nueva toca cinco lugares: su archivo en `scripts/paginas/`, la lista
+de escritura de `emitir.js`, `vercel.json` (cabecera de revalidación),
 `sitemap.xml` y el `PIE`.
 
 **Una ruta que se retira toca los mismos, más dos: un `redirects` en
@@ -352,9 +362,9 @@ las páginas generadas, emite `sitemap.xml` con las indexables, y **verifica**
 que la portada, la app y el widget —que son HTML a mano— digan lo mismo. Si no
 coinciden, falla al generar.
 
-Agregar una página son cinco lugares: `lib/paginas.js`, `scripts/paginas.js`,
-la lista de escritura al final de ese archivo, `vercel.json` y el `PIE`. El
-sitemap ya no: sale solo.
+Agregar una página son cinco lugares: `lib/paginas.js`, su archivo en
+`scripts/paginas/`, la lista de escritura de `emitir.js`, `vercel.json` y el
+`PIE`. El sitemap ya no: sale solo.
 
 **Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
 `llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que
@@ -427,7 +437,7 @@ Nominatim (`nominatim.openstreetmap.org`), los dos sin clave. Cada host está
 en el `connect-src` de `vercel.json` —si falta, el navegador bloquea el pedido
 y la app dice «no se encontró» como si fuera culpa de la dirección—, en el
 párrafo de `/legal` que dice adónde va lo que escribís y en `LICENCIAS` de
-`scripts/paginas.js`. Nominatim se filtra por municipio con `addressdetails`
+`scripts/paginas/legal.js`. Nominatim se filtra por municipio con `addressdetails`
 porque el `viewbox` deja adentro Santo Tomé, Rincón y Candioti, que tienen
 las mismas calles con las mismas alturas; sacar ese filtro vuelve a mandar
 «Rivadavia 2800» a Santo Tomé.
