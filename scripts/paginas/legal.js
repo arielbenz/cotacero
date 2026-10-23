@@ -22,6 +22,10 @@ const LICENCIAS = [
     'Mapa base (capa argenmap), la foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
   ],
   [
+    "Open-Meteo",
+    'El pronóstico de lluvia y la tendencia del caudal del Paraná, de <a href="https://open-meteo.com/" target="_blank" rel="noopener">open-meteo.com</a>, bajo licencia CC BY 4.0. El caudal sale del modelo GloFAS del servicio Copernicus de la Unión Europea.',
+  ],
+  [
     "Municipalidad de Santa Fe",
     'Curvas de nivel (Secretaría de Recursos Hídricos) y capa de puntos de encuentro, de sus geoservicios públicos vía el <a href="https://geoportal.santafeciudad.gov.ar/" target="_blank" rel="noopener">GeoPortal</a>.',
   ],
@@ -83,6 +87,15 @@ const PRIVACIDAD = [
     "Ver el mapa",
     "Al abrirlo",
     "El fondo del mapa y la foto aérea con la que marcás tu casa los pide tu teléfono al Instituto Geográfico Nacional, que recibe tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.",
+  ],
+  /* Faltaba, desde que existen el pronóstico y la tendencia: la app le
+     pide los dos a Open-Meteo y /legal no lo nombraba. Lo encontró la
+     verificación de lib/proveedores.js. Las coordenadas son las del centro,
+     fijas: no la ubicación de nadie. */
+  [
+    "Lluvia y caudal",
+    "Al abrir la app",
+    "El pronóstico de lluvia y la tendencia del caudal del Paraná los pide tu teléfono a Open-Meteo, para el centro de Santa Fe, con coordenadas fijas: no manda tu ubicación ni tu casa, sólo tu IP, como cualquier pedido web.",
   ],
   [
     "Estadísticas del sitio",

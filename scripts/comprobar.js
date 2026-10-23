@@ -219,6 +219,16 @@ console.log("ZONAS");
   caso("cada «observado» tiene nivel y fuente (AUDITORIA §9)", sinFuente, []);
 }
 
+console.log("La VERSION del service worker está al día");
+{
+  /* La escribe el generador como resumen de todo lo precacheado. Si alguien
+     cambia un ícono, una tipografía o las curvas y no regenera, el teléfono
+     de la gente se queda con lo viejo: se avisa acá. */
+  const { versionDelSw, RENGLON_VERSION } = await import("./version-sw.js");
+  const escrita = readFileSync(join(PUBLICO, "sw.js"), "utf8").match(RENGLON_VERSION)[1];
+  caso(`VERSION ${escrita} (si falla: node scripts/paginas.js)`, escrita, versionDelSw(PUBLICO));
+}
+
 console.log("Cada import de la app existe en su módulo");
 {
   /* node --check no lo ve y el navegador sí: un import de un nombre que el

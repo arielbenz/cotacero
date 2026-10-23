@@ -6,18 +6,20 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { ORGANISMOS, FUENTES } from "../../public/lib/fuentes.js";
 import { PAGINAS, enSitemap } from "../../lib/paginas.js";
-import { PUBLICO, RAIZ, SITIO, pie, puntos } from "./base.js";
-import { htmlPuntos } from "./puntos.js";
-import { htmlDatos } from "./datos.js";
-import { htmlPreguntas } from "./preguntas.js";
-import { htmlCharlas } from "./charlas.js";
-import { htmlGuia } from "./guia.js";
-import { htmlHistoria } from "./historia.js";
-import { htmlContacto } from "./contacto.js";
-import { htmlSobre } from "./sobre.js";
-import { htmlNoEncontrada } from "./no-encontrada.js";
-import { htmlMedios } from "./medios.js";
-import { htmlLegal } from "./legal.js";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { GENERADAS, PUBLICO, RAIZ, SITIO, pie, puntos } from "./base.js";
+import { ENLACES, PROVEEDORES } from "../../lib/proveedores.js";
+import { RENGLON_VERSION, versionDelSw } from "../version-sw.js";
+
+/* Las páginas se cargan solas: cada archivo de esta carpeta que no sea
+   base.js ni emitir.js es una página, y al cargarse se anota en GENERADAS
+   (base.js). Una página nueva es un archivo nuevo acá y su renglón en
+   lib/paginas.js: no hay una lista de imports ni de escritura que tocar. */
+const CARPETA = dirname(fileURLToPath(import.meta.url));
+for (const f of (await readdir(CARPETA)).sort())
+  if (f.endsWith(".js") && f !== "base.js" && f !== "emitir.js")
+    await import("./" + f);
 
 /* ---------- public/lib/comun-clasico.js ----------
    El gemelo clásico de public/lib/comun.js, para los dos contextos que no pueden
@@ -150,22 +152,30 @@ if (despues !== antes) {
   console.log("index.html: el pie ya estaba al día");
 }
 
-/* La 404 va a la raíz como 404.html: es donde la busca Vercel. */
-await writeFile(join(PUBLICO, "404.html"), htmlNoEncontrada);
-console.log("escrito: /404.html");
-
-for (const [ruta, html] of [
-  ["puntos-de-encuentro", htmlPuntos],
-  ["datos", htmlDatos],
-  ["sobre", htmlSobre],
-  ["contacto", htmlContacto],
-  ["historia", htmlHistoria],
-  ["preguntas", htmlPreguntas],
-  ["legal", htmlLegal],
-  ["guia", htmlGuia],
-  ["charlas", htmlCharlas],
-  ["para-medios", htmlMedios],
-]) {
+/* Cada página en la ruta que le da lib/paginas.js. La 404 va a la raíz como
+   404.html, que es donde la busca Vercel. */
+const claves = new Set(GENERADAS.map((g) => g.clave));
+const sinArchivo = Object.entries(PAGINAS)
+  .filter(([k, p]) => p.generada && !claves.has(k))
+  .map(([k]) => k);
+if (sinArchivo.length)
+  throw new Error(
+    "lib/paginas.js marca como generadas páginas que ninguna arma: " +
+      sinArchivo.join(", ") +
+      "\nFalta su archivo en scripts/paginas/, o sobra el renglón.",
+  );
+for (const { clave, html } of GENERADAS) {
+  const p = PAGINAS[clave];
+  if (!p || !p.generada)
+    throw new Error(
+      `scripts/paginas/: una página arma «${clave}», que no está en lib/paginas.js como generada.`,
+    );
+  if (p.ruta === "/404") {
+    await writeFile(join(PUBLICO, "404.html"), html);
+    console.log("escrito: /404.html");
+    continue;
+  }
+  const ruta = p.ruta.replace(/^\//, "");
   await mkdir(join(PUBLICO, ruta), { recursive: true });
   await writeFile(join(PUBLICO, ruta, "index.html"), html);
   console.log(
@@ -459,6 +469,33 @@ for (const clave of ["inicio", "app", "widget"]) {
 }
 console.log("portada, app y widget: coinciden con lib/paginas.js");
 
+/* ---------- la lista de módulos de sw.js ----------
+   La escribe este script entre los marcadores MODULOS:inicio / MODULOS:fin:
+   uno por archivo de public/js/app/, principal.js primero. Antes se agregaban
+   a mano y el chequeo de abajo avisaba del olvido; ahora no hay olvido. */
+{
+  const rutaSw = join(PUBLICO, "sw.js");
+  const texto = await readFile(rutaSw, "utf8");
+  const ini = texto.indexOf("  // MODULOS:inicio");
+  const fin = texto.indexOf("  // MODULOS:fin");
+  if (ini < 0 || fin < ini)
+    throw new Error("sw.js: faltan los marcadores MODULOS:inicio / MODULOS:fin.");
+  const archivos = (await readdir(join(PUBLICO, "js", "app")))
+    .filter((f) => f.endsWith(".js"))
+    .sort((x, y) =>
+      x === "principal.js" ? -1 : y === "principal.js" ? 1 : x < y ? -1 : 1,
+    );
+  const desde = texto.indexOf("\n", ini) + 1;
+  const nuevo =
+    texto.slice(0, desde) +
+    archivos.map((f) => `  "/js/app/${f}",\n`).join("") +
+    texto.slice(fin);
+  if (nuevo !== texto) {
+    await writeFile(rutaSw, nuevo);
+    console.log("actualizado: la lista de módulos de sw.js");
+  }
+}
+
 /* La app son módulos ES y el service worker los precachea uno por uno: si
    alguien agrega un módulo y se olvida de la lista de sw.js, /app deja de
    abrir sin conexión — y el modo de falla es mudo, aparece recién el día que
@@ -532,3 +569,95 @@ console.log(
     rutasGeneradas.length +
     " páginas generadas",
 );
+
+/* ---------- lo que una página nueva necesita además de su archivo ----------
+   Una ruta nueva tocaba cinco lugares y nada avisaba si faltaba uno. Ahora el
+   archivo de la página y su renglón en lib/paginas.js alcanzan para que se
+   escriba, entre al sitemap y al precache verificado; lo que sigue a mano —un
+   enlace en el pie, la cabecera de revalidación— se comprueba acá. */
+{
+  const rutas = GENERADAS.map((g) => PAGINAS[g.clave].ruta).filter((r) => r !== "/404");
+  const enPie = pie();
+  const sinPie = rutas.filter((r) => !enPie.includes(`href="${r}"`));
+  if (sinPie.length)
+    throw new Error(
+      "El pie no enlaza estas páginas: " + sinPie.join(", ") +
+        "\nUna página que no se enlaza desde ningún lado no la encuentra nadie. Ver pie() en base.js.",
+    );
+  const vercel = JSON.parse(await readFile(join(RAIZ, "vercel.json"), "utf8"));
+  const conRevalidacion = new Set(
+    vercel.headers
+      .filter((h) => h.headers.some((x) => x.key === "Cache-Control"))
+      .map((h) => h.source),
+  );
+  const sinRevalidar = rutas.filter((r) => !conRevalidacion.has(r));
+  if (sinRevalidar.length)
+    throw new Error(
+      "vercel.json no fija Cache-Control para: " + sinRevalidar.join(", ") +
+        "\nSin eso la CDN puede servir la versión vieja de la página.",
+    );
+
+  /* Los proveedores de otro origen (lib/proveedores.js): cada uno en su CSP
+     y nombrado en /legal, y ningún host nuevo en el código sin clasificar. */
+  // La CSP general: hay más de una regla para "/(.*)", y la del widget aparte.
+  const csp = vercel.headers
+    .filter((h) => h.source === "/(.*)")
+    .flatMap((h) => h.headers)
+    .find((x) => x.key === "Content-Security-Policy").value;
+  const directivas = Object.fromEntries(
+    csp.split(";").map((d) => d.trim().split(/\s+/)).map(([k, ...v]) => [k, v]),
+  );
+  const legal = GENERADAS.find((g) => g.clave === "legal").html;
+  const problemas = [];
+  for (const p of PROVEEDORES) {
+    for (const d of p.csp)
+      if (!(directivas[d] || []).includes("https://" + p.host))
+        problemas.push(`${p.host}: falta en ${d} de la CSP (vercel.json)`);
+    if (!legal.includes(p.quien))
+      problemas.push(`${p.host}: /legal no nombra a «${p.quien}» (${p.para})`);
+  }
+  const cubre = (patron, host) =>
+    patron.startsWith("*.") ? host.endsWith(patron.slice(1)) : patron === host;
+  const conocidos = [...PROVEEDORES.map((p) => p.host), ...ENLACES, "cotacerosf.com"];
+  const enCodigo = new Set();
+  const recorrer = async (dir) => {
+    for (const e of await readdir(dir, { withFileTypes: true })) {
+      const ruta = join(dir, e.name);
+      if (e.isDirectory()) await recorrer(ruta);
+      else if (e.name.endsWith(".js")) {
+        const sinComentarios = (await readFile(ruta, "utf8"))
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/^\s*\/\/.*$/gm, "");
+        for (const [, host] of sinComentarios.matchAll(/https:\/\/([a-z0-9.-]+\.[a-z]{2,})/gi))
+          enCodigo.add(host.toLowerCase());
+      }
+    }
+  };
+  await recorrer(join(PUBLICO, "js"));
+  for (const host of enCodigo)
+    if (!conocidos.some((k) => cubre(k, host)))
+      problemas.push(
+        `${host}: aparece en public/js y no está en lib/proveedores.js. ` +
+          "Si el navegador le pide algo, es un proveedor (CSP y /legal); si sólo se enlaza, va en ENLACES.",
+      );
+  if (problemas.length)
+    throw new Error("Proveedores de otro origen:\n  " + problemas.join("\n  "));
+  console.log(
+    "proveedores: " + PROVEEDORES.length + " en la CSP y en /legal; " +
+      enCodigo.size + " hosts del código clasificados",
+  );
+}
+
+/* ---------- la VERSION del service worker ----------
+   Al final, cuando ya está escrito todo lo que precachea: es un resumen de
+   ese contenido (scripts/version-sw.js). */
+{
+  const rutaSw = join(PUBLICO, "sw.js");
+  const texto = await readFile(rutaSw, "utf8");
+  const version = versionDelSw(PUBLICO);
+  const nuevo = texto.replace(RENGLON_VERSION, `const VERSION = "${version}";`);
+  if (nuevo !== texto) {
+    await writeFile(rutaSw, nuevo);
+    console.log("service worker: VERSION " + version);
+  } else console.log("service worker: VERSION al día (" + version + ")");
+}

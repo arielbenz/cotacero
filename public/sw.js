@@ -21,9 +21,12 @@
 importScripts("/lib/comun-clasico.js");
 const { umbralesDe, avisoDe } = self.CC_COMUN;
 
-// OJO: subir la versión en cada deploy. Todo lo que va por caché primero
-// (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v106";
+// La versión la escribe scripts/paginas/emitir.js: es un resumen del
+// contenido de todo lo que se precachea y de este archivo. Cambia sola cuando
+// cambia cualquiera de ellos —antes había que acordarse de subirla en cada
+// deploy, y si no, íconos y tipografías quedaban congelados—.
+// scripts/comprobar.js avisa si quedó vieja.
+const VERSION = "cota-cero-c02cf128be";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -108,6 +111,7 @@ const CRITICOS = [
 const DEL_APP = [
   "/app",
   "/lib/fuentes.js",
+  // MODULOS:inicio — uno por archivo de js/app/; los escribe scripts/paginas/emitir.js
   "/js/app/principal.js",
   "/js/app/ahora.js",
   "/js/app/avisos.js",
@@ -132,6 +136,7 @@ const DEL_APP = [
   "/js/app/tema.js",
   "/js/app/vista.js",
   "/js/app/zonas.js",
+  // MODULOS:fin
   /* Las listas de la mochila y del checklist previo viven en lib/ para que
      también las lea el generador de la guía impresa. La app las importa desde
      config.js, así que sin esto /app no abre sin conexión. */
