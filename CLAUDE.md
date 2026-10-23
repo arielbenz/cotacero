@@ -252,7 +252,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
-| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `public/lib/comun.js`; ver el comentario en `sw.js` |
+| Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
 `scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
@@ -510,8 +510,8 @@ agua entra por abajo mucho antes de pasar por arriba.
 ### Falsa precisión
 
 El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
-~0,5 m. Un decimal y tilde de aproximación (`mU()` en `js/app/formato.js`, `unDec()`
-en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
+~0,5 m. Un decimal y tilde de aproximación (`mU()` en `public/lib/comun.js`, que
+usan la app, el sitio y `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
 ### El mono en mayúsculas etiqueta una cosa

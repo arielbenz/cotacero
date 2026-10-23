@@ -28,6 +28,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
 | Niveles observados por zona    | `js/app/config.js` (`ZONAS`)   | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
+| «Atención» 1 m antes de alerta | `public/lib/comun.js`          | criterio propio          | no        | sí                        | no                     |
 | Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                | sí        | sí                        | no                     |
 | 30 cm / 60 cm de corriente     | HTML de la app                 | seguridad vial estándar  | sí        | no                        | no                     |
 | Escala 0 a 8 m                 | `js/app/config.js`             | decisión de diseño       | n/a       | —                         | no                     |

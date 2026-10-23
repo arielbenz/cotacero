@@ -11,6 +11,7 @@ import { cotaEnHidrometro } from "./cota.js";
 import { estado } from "./estado.js";
 import { m, mCm, mU } from "./formato.js";
 import { ALERTA, EVACUACION } from "./oficiales.js";
+import { ATENCION_ANTES_M, ESTADOS, faltaCm } from "/lib/comun.js";
 import { ocupar } from "./vista.js";
 
 const ANCHO = 1080;
@@ -64,33 +65,33 @@ function estadoImagen(r, viejo) {
     };
   if (r >= EVACUACION)
     return {
-      nombre: "Evacuación en la ciudad",
+      nombre: ESTADOS.evacuacion.titulo,
       color: C.evac,
       frase: [
-        ["Si Defensa Civil dice que salgas, salí.", B],
+        [ESTADOS.evacuacion.verbo, B],
         [" El río pasó los " + m(EVACUACION) + ".", N],
       ],
     };
   if (r >= ALERTA)
     return {
-      nombre: "Alerta en la ciudad",
+      nombre: ESTADOS.alerta.titulo,
       color: C.alerta,
       frase: [
-        ["Armá la mochila y avisale a tu familia.", B],
+        [ESTADOS.alerta.verbo, B],
         [" El río pasó los " + m(ALERTA) + ".", N],
       ],
     };
-  if (r >= 4.3)
+  if (r >= ALERTA - ATENCION_ANTES_M)
     return {
-      nombre: "Atención",
+      nombre: ESTADOS.atencion.titulo,
       color: C.atencion,
       frase: [
-        ["Armá la mochila hoy.", B],
+        [ESTADOS.atencion.verbo, B],
         [" Faltan " + mCm(ALERTA - r) + " para la alerta de la ciudad.", N],
       ],
     };
   return {
-    nombre: "Río normal",
+    nombre: ESTADOS.normal.titulo,
     color: C.ok,
     frase: [
       ["Faltan ", N],
@@ -348,7 +349,7 @@ async function armarImagen(conVos) {
         g.font = SANS(500, 26);
         g.fillStyle = C.tenue;
         g.fillText(
-          !viejo && r >= u
+          !viejo && faltaCm(r, u) <= 0
             ? "El río ya lo pasó. Es un cálculo aproximado."
             : "Es un cálculo aproximado, no una predicción.",
           MARGEN_X,

@@ -11,7 +11,8 @@
    de una de ahora es peor que ninguna (la misma regla que la franja). Con el
    nivel cargado a mano, tampoco: una simulación no abre el modo emergencia.
 
-   Los textos del estado NO se escriben acá: salen de textoGrave() en rio.js,
+   Los textos del estado NO se escriben acá: salen de textoGrave() —rio.js le
+   pasa los umbrales; los textos viven en lib/comun.js—,
    el mismo que usa la tarjeta de la pestaña Río. */
 
 import { MOCHILA, SALIDA } from "./config.js";

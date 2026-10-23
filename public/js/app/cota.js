@@ -19,6 +19,7 @@ import { estado, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { margenDe, umbralDe } from "./modelo.js";
+import { ESTADOS, faltaCm } from "/lib/comun.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
 import { aniosQueLlegaron, pintarRio } from "./rio.js";
 import { aLaVista, ocupar } from "./vista.js";
@@ -448,12 +449,13 @@ export function calcular() {
      verbo y lleva el 103; "Margen ajustado/amplio" eran vocabulario contable.
      Ninguno arranca con «Tu nivel de aviso es ≈ X»: el número está en grande
      justo arriba, y repetirlo era lo primero que se leía. */
-  if (r != null && r >= ref) {
+  if (r != null && faltaCm(r, ref) <= 0) {
     cls = "v-peligro";
-    titu = "El río pasó tu nivel de aviso";
+    titu = ESTADOS.superado.titulo;
     txt =
-      "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
-      "Defensa Civil (103).</b> Con el río en " +
+      "<b>" +
+      ESTADOS.superado.verbo +
+      " Seguí a Defensa Civil (103).</b> Con el río en " +
       m(r) +
       ", el agua puede llegar a tu terreno aunque todavía no la veas.";
     /* Los dos números conviven, y cómo se dicen importa. La alerta de la

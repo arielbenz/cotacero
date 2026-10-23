@@ -91,7 +91,51 @@ console.log("El gemelo clásico dice lo mismo");
     caso("VENCE_HORAS", cc.VENCE_HORAS, comun.VENCE_HORAS);
     for (const v of [5.6049, 7.43, 0.42])
       caso(`mU(${v})`, cc.mU(v), comun.mU(v));
+    // El service worker arma la notificación con el gemelo, no con el original.
+    for (const args of [[7.43, 7.04, true, null], [5.1, 5.25, true, null], [3.12, null, false, null]])
+      caso(`avisoDe(${args.join(", ")})`, { ...cc.avisoDe(...args) }, comun.avisoDe(...args));
   }
+}
+
+console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
+{
+  const R = comun.UMBRALES_RESPALDO;
+  const e = (nivel, umbral) => comun.estadoDe(nivel, umbral, R.alerta, R.evacuacion);
+  caso("sin dato del río", e(null, 5), "sinDato");
+  caso("tu nivel de aviso manda sobre la ciudad", e(6.0, 5.8), "superado");
+  // 13,9 − 0,5 − 8,2 da 5,200000000000001: con el río en 5,20, ya lo alcanzó.
+  caso("río justo en tu nivel de aviso, con coma flotante", e(5.2, 13.9 - 0.5 - 8.2), "superado");
+  caso("evacuación sobre alerta", e(5.8, 7), "evacuacion");
+  caso("alerta", e(5.4, 7), "alerta");
+  caso("a 20 cm: cerca", e(4.5, 4.7), "cerca");
+  caso("a 50 cm: acercándose", e(4.3, 4.8), "acercandose");
+  caso("lejos: subió", e(3, 6), "subio");
+  caso("sin casa cargada", e(3, null), "subioSinCasa");
+  caso("«Atención» sigue a un metro de la alerta", R.alerta - comun.ATENCION_ANTES_M, 4.3, 1e-9);
+
+  /* Las notificaciones, con los números más largos posibles: el cuerpo no
+     pasa de 180 caracteres, y los graves empiezan con el verbo y llevan el 103. */
+  const avisos = [
+    ["superado", comun.avisoDe(7.43, 7.04, true, null), comun.ESTADOS.superado.verbo],
+    ["evacuación", comun.avisoDe(7.43, null, false, null), comun.ESTADOS.evacuacion.verbo],
+    ["alerta", comun.avisoDe(5.69, null, false, null), comun.ESTADOS.alerta.verbo],
+    ["cerca", comun.avisoDe(5.1, 5.25, true, null), null],
+    ["acercándose", comun.avisoDe(4.8, 5.25, true, null), null],
+    ["subió", comun.avisoDe(3.12, 5.25, false, null), null],
+    ["sin casa", comun.avisoDe(3.12, null, false, null), null],
+    ["sin dato", comun.avisoDe(null, 5.25, true, null), null],
+  ];
+  for (const [n, a, verbo] of avisos) {
+    caso(`aviso «${n}»: ≤ 180 caracteres (${a.cuerpo.length})`, a.cuerpo.length <= 180, true);
+    if (verbo) {
+      caso(`aviso «${n}»: empieza con el verbo`, a.cuerpo.startsWith(verbo), true);
+      caso(`aviso «${n}»: lleva el 103`, a.cuerpo.includes("103"), true);
+    }
+  }
+  caso("sin aviso anticipado pedido, a 20 cm es «subió»", comun.avisoDe(5.1, 5.25, false, null).urgente, false);
+  const g = comun.textoGrave(5.8, R.alerta, R.evacuacion);
+  caso("pantalla, evacuación: el verbo y el 103", g.verbo === comun.ESTADOS.evacuacion.verbo && g.resto.includes("103"), true);
+  caso("pantalla, debajo de la alerta: nada grave", comun.textoGrave(5.2, R.alerta, R.evacuacion), null);
 }
 
 console.log("La cuenta del modelo");

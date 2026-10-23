@@ -244,13 +244,16 @@ de emergencia y los 30 puntos. Es ES5 a propósito.
 
 ## Los ocho estados y cómo se dicen
 
-La misma situación se cuenta en tres lugares: el veredicto de la pantalla del
-río (`rio.js`, `pintarVeredictoRio`), el de Mi casa (`cota.js`, `calcular`) y
-la notificación (`sw.js`, `armarAviso`). No comparten código —`sw.js` es un
-script clásico— así que las frases están copiadas a mano y **esta tabla es la
-fuente**: si tocás una, revisá las tres. La pestaña «Ahora» no es una cuarta
-copia: los estados 3 y 4 los toma de `textoGrave()` en `rio.js`, el mismo que
-usa la tarjeta de Río.
+La misma situación se cuenta en la notificación, en la pantalla del río, en
+Mi casa, en la pestaña «Ahora» y en la imagen para compartir. Estaban copiadas
+a mano en cinco archivos —y la pantalla ya decía «Terminá la mochila» a los
+50 cm, cuando la notificación decía «Andá armando»—. Desde octubre de 2026
+viven **una sola vez en `public/lib/comun.js`**: `ESTADOS` (título y verbo de
+cada uno), `estadoDe()` (qué estado corresponde), `textoGrave()` (los dos
+graves de la ciudad, como los dice la pantalla) y `avisoDe()` (la
+notificación, que antes era `armarAviso` en `sw.js`). El service worker los
+recibe por el gemelo `comun-clasico.js`. Esta tabla los describe; la fuente es
+ese archivo.
 
 En los estados graves el texto **empieza con el verbo** de lo que hay que
 hacer y **lleva el 103**.
@@ -267,7 +270,13 @@ hacer y **lleva el 103**.
 | 8   | Subió, sin nivel cargado      | El río subió a X m                      | Cargá tu casa en la app y te avisamos cuando el río importe para vos |
 
 Los cuerpos de las notificaciones no pasan de **180 caracteres**: Android corta
-ahí, y la línea que se cortaba era la del 103.
+ahí, y la línea que se cortaba era la del 103. `node scripts/comprobar.js`
+verifica las tres reglas —el verbo primero, el 103 y los 180 caracteres— con
+los números más largos posibles.
+
+Debajo de la alerta, la pantalla tiene dos estados más que no son
+notificaciones: «Atención», desde un metro antes de la alerta de la ciudad
+(`ATENCION_ANTES_M`, criterio propio), y «Río normal».
 
 ## Cien años del Paraná
 
