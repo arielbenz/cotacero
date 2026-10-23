@@ -244,6 +244,11 @@ ${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${e
    la descripción y si la página se indexa. Antes cada llamada repetía esos
    cuatro datos y el sitemap se editaba aparte — tres lugares para el mismo
    dato es como se desincronizan. */
+/* Cada página que arma pagina() queda anotada acá, con su clave de
+   lib/paginas.js. emitir.js la escribe en la ruta del registro: no hay una
+   lista de escritura aparte que se pueda olvidar. */
+const GENERADAS = [];
+
 function pagina({
   clave,
   migaja,
@@ -287,7 +292,7 @@ function pagina({
     },
     ...(jsonld ? [jsonld] : []),
   ];
-  return `<!doctype html>
+  const html = `<!doctype html>
 <!-- Generado por scripts/paginas.js — no editar a mano -->
 <html lang="es-AR">
   <head>
@@ -436,9 +441,12 @@ ${pie()}
   </body>
 </html>
 `;
+  GENERADAS.push({ clave, html });
+  return html;
 }
 
 export {
+  GENERADAS,
   FECHA_SITIO,
   MEDICION,
   N_CURVAS,

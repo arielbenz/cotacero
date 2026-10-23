@@ -128,7 +128,9 @@ Sólo chequeos que leen el árbol y **no escriben nada que git siga**. Guardar
    Las tres últimas líneas tienen que decir que portada, app y widget
    coinciden con `lib/paginas.js` y que el precache tiene todos los módulos
    de `public/js/app/` y las 10 páginas. Correr también
-   `node scripts/comprobar.js`: tiene que terminar en `Todo en orden.` Si `git status` muestra cambios, el cambio commiteó páginas
+   `node scripts/comprobar.js`: tiene que terminar en `Todo en orden.` Si
+   falla «VERSION … está al día», el cambio tocó algo precacheado sin
+   regenerar. Si `git status` muestra cambios, el cambio commiteó páginas
    que no salen de su generador: mirar el diff. Si es sólo la fecha del pie
    («Última actualización del sitio»), es que se generaron antes del último
    commit.
@@ -235,8 +237,7 @@ y, si no se usó el navegador, cómo se ve.
   - Un `onclick` en el HTML, o un `const` suelto en un clásico que va en
     todas las páginas.
   - Una clase nueva que ya nombraba otra cosa en `estilos/app.css`.
-- **Lo que ningún chequeo ve:** `VERSION` de `sw.js` sin subir en un cambio
-  que se va a publicar; un `observado` sin su renglón en `AUDITORIA.md` §9;
+- **Lo que ningún chequeo ve:** un `observado` sin su renglón en `AUDITORIA.md` §9;
   un `min-height` de reserva de CLS que ya no coincide con lo que mide la
   tarjeta.
 - Código muerto, CSS sin uso, envoltorios de un solo llamador

@@ -141,7 +141,9 @@ Los estados graves se prueban cargando el río a mano: `#in-rio` +
 
 ## Antes de publicar (no en cada cambio)
 
-- Subir `VERSION` en `sw.js`, o lo que va por caché primero queda congelado.
+- Correr `node scripts/paginas.js`: escribe la `VERSION` de `sw.js` como
+  resumen de lo precacheado. Ya no se sube a mano; `comprobar.js` avisa si
+  quedó vieja.
 - `rediseno/` está en `.gitignore`: no se publica.
 
 ## Qué reportar

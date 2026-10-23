@@ -153,10 +153,11 @@ Sirve `public/`, ejecuta las funciones de `api/` y aplica las cabeceras de
 producción. `/api/nivel` consulta al INA de verdad; las funciones que
 necesitan Redis devuelven 503, igual que en producción sin configurar.
 
-No hay `package.json`, ni build, ni tests: la verificación de cada cambio
-está en CLAUDE.md. Mientras desarrollás, tildá **«Update on reload»** en
-DevTools → Application → Service Workers, o vas a mirar código viejo. Y subí
-`VERSION` en `sw.js` en cada deploy.
+No hay `package.json`, ni build, ni framework de tests: la verificación de
+cada cambio está en CLAUDE.md, y `node scripts/comprobar.js` corre los casos
+del cálculo. Mientras desarrollás, tildá **«Update on reload»** en DevTools →
+Application → Service Workers, o vas a mirar código viejo. La `VERSION` de
+`sw.js` la escribe `node scripts/paginas.js`: regenerá antes de publicar.
 
 ## La portada
 
