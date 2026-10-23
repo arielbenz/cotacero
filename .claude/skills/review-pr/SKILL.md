@@ -126,8 +126,9 @@ Sólo chequeos que leen el árbol y **no escriben nada que git siga**. Guardar
    ```
 
    Las tres últimas líneas tienen que decir que portada, app y widget
-   coinciden con `lib/paginas.js` y que el precache tiene los 23 módulos y las
-   10 páginas. Si `git status` muestra cambios, el cambio commiteó páginas
+   coinciden con `lib/paginas.js` y que el precache tiene todos los módulos
+   de `public/js/app/` y las 10 páginas. Correr también
+   `node scripts/comprobar.js`: tiene que terminar en `Todo en orden.` Si `git status` muestra cambios, el cambio commiteó páginas
    que no salen de su generador: mirar el diff. Si es sólo la fecha del pie
    («Última actualización del sitio»), es que se generaron antes del último
    commit.

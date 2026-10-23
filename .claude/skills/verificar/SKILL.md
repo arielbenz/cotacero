@@ -17,7 +17,20 @@ algo que el anterior no ve.
 for f in $(git diff --name-only -- '*.js'); do node --check "$f" || echo "FALLA $f"; done
 ```
 
-## 2. El generador
+## 2. El cálculo
+
+Si se tocó `public/js/app/config.js`, `modelo.js`, `elevacion.js`,
+`public/lib/comun.js` o algo de `public/datos-abiertos/`:
+
+```bash
+node scripts/comprobar.js
+```
+
+Tiene que terminar en `Todo en orden.` Si un caso falla, el número cambió:
+ver si era a propósito (y entonces el caso se actualiza con el valor nuevo
+**comprobado en el navegador**) o si se rompió algo.
+
+## 2b. El generador
 
 Correr `node scripts/paginas.js` si se tocó `scripts/paginas.js`,
 `public/app/index.html`, `public/index.html`, `public/lib/fuentes.js`, `public/lib/comun.js`,
@@ -29,9 +42,12 @@ Las tres últimas líneas tienen que decir:
 
 ```
 portada, app y widget: coinciden con lib/paginas.js
-service worker: precachea los 23 módulos de la app
+service worker: precachea los N módulos de la app
 service worker: precachea las 10 páginas generadas
 ```
+
+N es la cantidad de archivos que haya en `public/js/app/`: el generador los
+cuenta, no hace falta saberlo de memoria.
 
 Si falla, falla ruidoso y dice por qué. Un módulo nuevo en `js/app/` va al
 precache de `sw.js`, o el generador revienta (y si no reventara, la app se
