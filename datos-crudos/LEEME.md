@@ -42,8 +42,15 @@ a mano y por separado.
 - `analisis-macotas-<fecha>.mjs` — si esos puntos sirven donde no llegan las
   curvas; salida en `salida-macotas-<fecha>.txt`.
 
-(`analisis-residuos-2026-09-08.mjs` importa `js/app/elevacion.js`, de antes
-de que el sitio pasara a `public/`. Para repetirlo hay que corregir la ruta.)
+Los análisis importan el código de la app con `scripts/app-en-node.js`, que
+resuelve las rutas del navegador contra `public/` y presta un `fetch` que lee
+del disco. Los que miden las curvas filtran por `fuente === "curvas"`: desde el
+22/10/2026 la app también calcula con los puntos de la costa, y una marca fuera
+del área de las curvas no tiene que entrar en esa cuenta.
+
+`analisis-puntos-fijos-<fecha>.mjs` escribe además `lib/mediciones.json`, que
+es de donde el sitio saca los números de la medición: correrlo de nuevo y
+regenerar las páginas actualiza `/datos` y `/preguntas`.
 
 ## Tarea 2 — los km sobre el cauce (SIN TERMINAR: la validación no pasa)
 

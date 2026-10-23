@@ -16,31 +16,14 @@
 //     puntos en la costa, nada donde no hay dato;
 //   - que ZONAS sea consistente consigo misma.
 //
-// Los módulos de la app importan con rutas del navegador («/lib/comun.js»).
-// Un hook de resolución las manda a public/, que es lo que hace el servidor.
+// Los módulos de la app importan con rutas del navegador («/lib/comun.js») y
+// bajan sus datos con fetch: app-en-node.js resuelve las dos cosas contra
+// public/, que es lo que hace el servidor.
 
-import { registerHooks } from "node:module";
+import { PUBLICO } from "./app-en-node.js";
 import { readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { join } from "node:path";
 import vm from "node:vm";
-
-const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PUBLICO = join(RAIZ, "public");
-
-registerHooks({
-  resolve(especificador, contexto, siguiente) {
-    if (especificador.startsWith("/"))
-      return siguiente(pathToFileURL(join(PUBLICO, especificador)).href, contexto);
-    return siguiente(especificador, contexto);
-  },
-});
-
-// elevacion.js baja sus datos con fetch: se le presta uno que lee del disco.
-globalThis.fetch = async (url) => {
-  const ruta = join(PUBLICO, String(url));
-  return { ok: true, json: async () => JSON.parse(readFileSync(ruta, "utf8")) };
-};
 
 const comun = await import("/lib/comun.js");
 const config = await import("/js/app/config.js");
