@@ -14,27 +14,27 @@ prensa como mejor fuente sin que acá diga que es así.
 
 ## Resumen: el estado de cada número
 
-| Número                         | Dónde vive                     | Fuente                   | ¿Oficial? | ¿Puede cambiar?           | ¿Viene de una API?     |
-| ------------------------------ | ------------------------------ | ------------------------ | --------- | ------------------------- | ---------------------- |
-| Nivel del río                  | `lib/ina.js`                   | INA, serie 30            | sí        | todos los días            | **sí, ahora**          |
-| Alerta 5,30 m                  | estación INA                   | INA                      | sí        | si el INA la corrige      | **sí, ahora**          |
-| Evacuación 5,70 m              | estación INA                   | INA                      | sí        | idem                      | **sí, ahora**          |
-| Récord 7,43 m (1992)           | `datos-abiertos/historia.json` | INA, serie 30            | sí        | si hay una crecida mayor  | sí, al generar         |
-| Aguas bajas 2,00 m             | `public/lib/fuentes.js`               | INA                      | sí        | idem                      | sí (no se usa todavía) |
-| **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local | **no**    | **discutido — ver abajo** | no                     |
-| **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso      | **no**    | **discutido — ver abajo** | no                     |
-| Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)  | no        | sí                        | no                     |
-| Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)    | no        | sí                        | no                     |
-| Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
-| Niveles observados por zona    | `js/app/zonas.js` (`ZONAS`)    | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
-| Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
-| «Atención» 1 m antes de alerta | `public/lib/comun.js`          | criterio propio          | no        | sí                        | no                     |
-| Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                | sí        | sí                        | no                     |
-| 30 cm / 60 cm de corriente     | HTML de la app                 | seguridad vial estándar  | sí        | no                        | no                     |
-| Escala 0 a 8 m                 | `js/app/config.js`             | decisión de diseño       | n/a       | —                         | no                     |
-| GPS máx. ±100 m                | `js/app/config.js`             | criterio propio          | n/a       | —                         | no                     |
-| Dato vencido a 48 h            | `js/app/config.js`             | criterio propio          | n/a       | —                         | no                     |
-| Aviso a +15 cm                 | `api/cron/avisar.js`           | criterio propio          | n/a       | —                         | no                     |
+| Número                         | Dónde vive                     | Fuente                    | ¿Oficial? | ¿Puede cambiar?           | ¿Viene de una API?     |
+| ------------------------------ | ------------------------------ | ------------------------- | --------- | ------------------------- | ---------------------- |
+| Nivel del río                  | `lib/ina.js`                   | INA, serie 30             | sí        | todos los días            | **sí, ahora**          |
+| Alerta 5,30 m                  | estación INA                   | INA                       | sí        | si el INA la corrige      | **sí, ahora**          |
+| Evacuación 5,70 m              | estación INA                   | INA                       | sí        | idem                      | **sí, ahora**          |
+| Récord 7,43 m (1992)           | `datos-abiertos/historia.json` | INA, serie 30             | sí        | si hay una crecida mayor  | sí, al generar         |
+| Aguas bajas 2,00 m             | `public/lib/fuentes.js`        | INA                       | sí        | idem                      | sí (no se usa todavía) |
+| **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local  | **no**    | **discutido — ver abajo** | no                     |
+| **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso       | **no**    | **discutido — ver abajo** | no                     |
+| Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)   | no        | sí                        | no                     |
+| Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)     | no        | sí                        | no                     |
+| Km río arriba por zona         | `js/app/zonas.js`              | 1 publicado, 9 propios    | parcial   | sí                        | no                     |
+| Niveles observados por zona    | `js/app/zonas.js` (`ZONAS`)    | municipio en prensa, 2016 | **no**    | sí — ver §9               | no                     |
+| Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio           | no        | sí                        | no                     |
+| «Atención» 1 m antes de alerta | `public/lib/comun.js`          | criterio propio           | no        | sí                        | no                     |
+| Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                 | sí        | sí                        | no                     |
+| 30 cm / 60 cm de corriente     | HTML de la app                 | seguridad vial estándar   | sí        | no                        | no                     |
+| Escala 0 a 8 m                 | `js/app/config.js`             | decisión de diseño        | n/a       | —                         | no                     |
+| GPS máx. ±100 m                | `js/app/config.js`             | criterio propio           | n/a       | —                         | no                     |
+| Dato vencido a 48 h            | `js/app/config.js`             | criterio propio           | n/a       | —                         | no                     |
+| Aviso a +15 cm                 | `api/cron/avisar.js`           | criterio propio           | n/a       | —                         | no                     |
 
 Lo que cambió en esta iteración: **cuatro números dejaron de estar escritos a
 mano.** Alerta, evacuación y aguas bajas los publica ahora la estación del INA
@@ -266,13 +266,13 @@ circular en los dos sentidos: la pendiente se despejó de un número que se
 calculó con esa pendiente. Lo que vale de la nota es otra cosa: que el 4,5
 cm/km lo atribuye a «hidrólogos» —es decir, no lo inventamos nosotros, pero
 nadie firmó— y que la defensa de Arroyo Leyes está a cota 17 IGN. Lo que
-cambia: `/datos` y el README ya no presentan 1992 como validación. *(22/10/2026:
+cambia: `/datos` y el README ya no presentan 1992 como validación. _(22/10/2026:
 eso no se había aplicado del todo. `/datos` seguía con «Se comprobó: Arroyo
 Leyes, registrado, 16,70», `/legal` con «se contrastó con un solo caso, la
 crecida de 1992» y la cabecera de `principal.js` con «una sola validación
 independiente». Corregidos: «Se comprobó» pasó a ser la altura del terreno
 contra los puntos fijos de §4, y 1992 se explica en «En discusión» como la
-misma cuenta.)* Lo que
+misma cuenta.)_ Lo que
 falta: **una** cota medida en 1992 o 2016 en cualquier punto río arriba del
 Puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
 
@@ -307,7 +307,10 @@ La comparación contra el IGN (§1) da un desvío de 1,33 m, bastante peor que
 
 330 marcas al nivel de la calle, con la cota que interpola `elevacionDe()`
 —el módulo de producción, importado— contra la medida.
-`datos-crudos/analisis-puntos-fijos-2026-10-22.mjs`, salida al lado.
+`datos-crudos/analisis-puntos-fijos-2026-10-22.mjs`, salida al lado. El mismo
+script escribe el resumen en `lib/mediciones.json`, y de ahí salen los números
+que muestran `/datos` y `/preguntas`: si la medición se repite, el sitio se
+actualiza al regenerar.
 
     diferencia (curvas − medida)    mediana |dif| 0,42 m    p90 1,10 m    máx 2,92 m
     sesgo                           −0,45 m: las curvas dan el terreno MÁS BAJO
@@ -414,7 +417,7 @@ poder copiarse y mandarse.
    municipal propia?
 8. ¿De qué año es el relevamiento y con qué equidistancia se trazaron? Hay 21
    de 169 tramos fuera de la malla de 50 cm.
-   *22/10/2026: respondida en parte, por la Provincia.* La IDESF publica las
+   _22/10/2026: respondida en parte, por la Provincia._ La IDESF publica las
    mismas curvas como `MACurvaNivel` («Curvas de Nivel – Secretaría de
    Aguas»): superpuestas a `curvas.json` coinciden línea por línea y valor por
    valor. Sus metadatos (`datos-crudos/idesf-MACurvaNivel-metadatos-2026-10-22.xml`)
@@ -427,14 +430,14 @@ poder copiarse y mandarse.
 9. ¿Está disponible la **Red de Puntos Fijos Planialtimétricos**? No aparece en
    el GeoServer público y es el dato que permitiría medir el error real de la
    cota interpolada.
-   *22/10/2026: sí está*, en el otro GeoServer
+   _22/10/2026: sí está_, en el otro GeoServer
    (`geoservicios.santafeciudad.gov.ar/geoserver/publico`): `puntos_fijos` y
    `puntos_fijos_cn`. Se usó para medir el error (§4) y para ubicar la red en
    el sistema del IGN (§1). El enlace a la monografía de cada punto (SIDOM)
    contesta «No se encontró un documento con el Id indicado».
 10. ¿Se publica la traza de defensas, terraplenes, compuertas y estaciones de
     bombeo? Es lo que más cambia el resultado y la app hoy no lo sabe.
-    *16/10/2026: confirmado en negativo.* Ninguna de las 62 capas de
+    _16/10/2026: confirmado en negativo._ Ninguna de las 62 capas de
     `geoservicios.santafeciudad.gov.ar/geoserver/publico` ni las de `sitmax`
     es de defensas. Sí existe `publico:reservorios` (32 polígonos), que no
     teníamos anotada.
@@ -498,7 +501,7 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
 20. **¿Cuál es la leyenda de `sitmax:zona_seguridad_hidrica`?** La capa publica
     19 polígonos con un único atributo, `id`. Sin saber qué significa cada zona
     no se puede usar ni citar.
-    *16/10/2026: respondida en parte, y no es lo que parecía.* Es el distrito
+    _16/10/2026: respondida en parte, y no es lo que parecía._ Es el distrito
     **ZSH («zona de seguridad hídrica») del Reglamento de Ordenamiento Urbano
     (Ord. 11748/11)**: suelo donde «sólo admite usos agrícolas, recreativos o
     deportivos con autorización del DEM». Es zonificación de uso del suelo,
@@ -514,8 +517,8 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     **403 detrás de Cloudflare**, con y sin `User-Agent` de navegador. ¿Hay una
     forma estable de consumir el WFS, o conviene coordinar una descarga
     periódica? Es la fuente de las curvas: si se cae, no hay cómo regenerarlas.
-    *16/10/2026: los dos GeoServer contestaron 200 al `GetCapabilities` y al
-    `GetFeature` con un `User-Agent` de navegador. El 403 fue transitorio.*
+    _16/10/2026: los dos GeoServer contestaron 200 al `GetCapabilities` y al
+    `GetFeature` con un `User-Agent` de navegador. El 403 fue transitorio._
 
 **A quien tenga la traza del río (IGN, Prefectura, Hidrovía):**
 
@@ -541,7 +544,7 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     `/idesf/descargas` pide iniciar sesión. Probado desde una conexión común
     y desde una VPN, mismo resultado. Calcar las imágenes del WMS no es una
     opción: sería fabricar el dato.
-    *22/10/2026, más tarde: los puntos sí, las curvas no.* `MACotas` es la
+    _22/10/2026, más tarde: los puntos sí, las curvas no._ `MACotas` es la
     ficha 552 del catálogo, «Puntos con cota de S.J. del Rincón, Colastiné y
     La Guardia», con la nivelación atada a la marca del IGM PF 5-N(133). Son
     puntos, y en un punto el recuadro que devuelve `GetFeatureInfo` en GML es
@@ -553,7 +556,7 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     en la costa, PF5N(55) a unos 300 m de una dirección de Rincón que la app
     hoy no puede calcular, y PF6N(55) y PF7N(55) hacia Arroyo Leyes
     (`datos-crudos/ign-nivelacion_*-costa-2026-10-22.json`).
-    *22/10/2026: se controlaron, y esas marcas no sirven para esto.* Son
+    _22/10/2026: se controlaron, y esas marcas no sirven para esto._ Son
     chapas sobre pilares al costado de la Ruta 1, y a menos de 100 m de cada
     una `MACotas` varía hasta 2 m, de la corona de la ruta a la cuneta. Es la
     misma contaminación por tipo de marca de §1.
@@ -630,16 +633,17 @@ estaba bien —agua libre contra terreno, con el margen pesimista— y lo que
 faltaba era decir qué hay entre el río y la casa.
 
 **Lo que se agregó a la app:** `defensa` y `observado` por zona en
-`js/app/config.js`, mostrados en «Mi casa» al lado del cálculo y en el plan
+`ZONAS` —entonces en `js/app/config.js`, desde el 23/10/2026 en
+`js/app/zonas.js`—, mostrados en «Mi casa» al lado del cálculo y en el plan
 impreso. **Lo que NO se hizo:** usar la cota de coronamiento como umbral.
 
 ### Por qué la coronación no sirve de umbral
 
-| Defensa | Coronación | En la regla del Puerto | Fuente |
-| --- | --- | --- | --- |
-| Anillo oeste de la ciudad (tramos 1 y 2, 1994-98) | 17,50 m IGM | ≈ 9,3 m | IAI, «La crecida extraordinaria del río Salado…» (PDF, p. 12) |
-| Costa este (Colastiné, Rincón, Arroyo Leyes) | 17 IGN | ≈ 8,8 m + pendiente | Botterón en El Litoral, 13/7/2026 |
-| Defensa oeste de Rincón Norte y Arroyo Leyes | 17 IGN + muro 0,50 | — | **no construida**: licitada dos veces, nunca adjudicada; sept. 2026 no es prioridad provincial |
+| Defensa                                           | Coronación         | En la regla del Puerto | Fuente                                                                                         |
+| ------------------------------------------------- | ------------------ | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| Anillo oeste de la ciudad (tramos 1 y 2, 1994-98) | 17,50 m IGM        | ≈ 9,3 m                | IAI, «La crecida extraordinaria del río Salado…» (PDF, p. 12)                                  |
+| Costa este (Colastiné, Rincón, Arroyo Leyes)      | 17 IGN             | ≈ 8,8 m + pendiente    | Botterón en El Litoral, 13/7/2026                                                              |
+| Defensa oeste de Rincón Norte y Arroyo Leyes      | 17 IGN + muro 0,50 | —                      | **no construida**: licitada dos veces, nunca adjudicada; sept. 2026 no es prioridad provincial |
 
 El récord es 7,43. Ninguna defensa de la ciudad fue sobrepasada; en 2003 el
 agua entró por un tramo no construido de la defensa oeste. Lo que sí está
@@ -658,21 +662,21 @@ sin fecha para Colastiné Sur. Lo de 2016: El Litoral (1/1/2016, 6,38 m; nota
 de la filtración en Colastiné Sur, 6,40 m), Pausa (4/1/2016, 6,59 m) y el parte
 provincial del 4/1/2016 (6,53 m). Máximo de 2016: 6,61 m (Prefectura).
 
-| Zona | Nivel | Qué pasó / qué dice el municipio | Fuente |
-| --- | --- | --- | --- |
-| Colastiné Sur, casas junto al club Caza y Pesca (afuera de la defensa) | 4,70 | entra agua | AIRE 2023 |
-| La Vuelta del Paraguayo | 5,30 | empieza la evacuación; escuela e iglesia aguantan hasta 5,70; a 6,00 completa | AIRE 2023 |
-| Alto Verde → La Boca | 5,30 | se corta el camino; en 2023 se defendió hasta 5,60 | AIRE 2023 |
-| Rincón, Los Espinillos | 5,30 | filtraciones bajo el terraplén | AIRE 2023 |
-| Colastiné Sur, todo el barrio | 5,70 | el INA recomendó evacuar | estudio INA vía AIRE 2023 |
-| Colastiné Sur | ≈ 6,00 | «el terraplén y la napa filtran agua y todo el barrio se encharca» | El Litoral, «puntos vulnerables», sin fecha |
-| Colastiné Norte y Rincón, bajo cota 14,50 IGN | 6,00 + lluvia | riesgo por napa alta | AIRE 2023 |
-| Colastiné Sur | 6,38–6,40 | 130 familias evacuadas; filtró en el ex camping | El Litoral, ene. 2016 |
-| La Vuelta del Paraguayo | 6,38 | 38 familias en refugios | El Litoral, 1/1/2016 |
-| Frente del riacho Santa Fe (Alto Verde) | 6,38 | 24 familias en refugios | El Litoral, 1/1/2016 |
-| Arroyo Leyes, barrios del oeste | 6,53 | 125–200 evacuados | Provincia / Pausa, 4/1/2016 |
-| Santa Rosa de Calchines | 6,53 | 350–412 evacuados | Provincia / Pausa, 4/1/2016 |
-| Colastiné Norte, La Guardia | 6,61 | no figuran entre los evacuados; el Garello aguantó | El Litoral, Pausa, ene. 2016 |
+| Zona                                                                   | Nivel         | Qué pasó / qué dice el municipio                                              | Fuente                                      |
+| ---------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------------- | ------------------------------------------- |
+| Colastiné Sur, casas junto al club Caza y Pesca (afuera de la defensa) | 4,70          | entra agua                                                                    | AIRE 2023                                   |
+| La Vuelta del Paraguayo                                                | 5,30          | empieza la evacuación; escuela e iglesia aguantan hasta 5,70; a 6,00 completa | AIRE 2023                                   |
+| Alto Verde → La Boca                                                   | 5,30          | se corta el camino; en 2023 se defendió hasta 5,60                            | AIRE 2023                                   |
+| Rincón, Los Espinillos                                                 | 5,30          | filtraciones bajo el terraplén                                                | AIRE 2023                                   |
+| Colastiné Sur, todo el barrio                                          | 5,70          | el INA recomendó evacuar                                                      | estudio INA vía AIRE 2023                   |
+| Colastiné Sur                                                          | ≈ 6,00        | «el terraplén y la napa filtran agua y todo el barrio se encharca»            | El Litoral, «puntos vulnerables», sin fecha |
+| Colastiné Norte y Rincón, bajo cota 14,50 IGN                          | 6,00 + lluvia | riesgo por napa alta                                                          | AIRE 2023                                   |
+| Colastiné Sur                                                          | 6,38–6,40     | 130 familias evacuadas; filtró en el ex camping                               | El Litoral, ene. 2016                       |
+| La Vuelta del Paraguayo                                                | 6,38          | 38 familias en refugios                                                       | El Litoral, 1/1/2016                        |
+| Frente del riacho Santa Fe (Alto Verde)                                | 6,38          | 24 familias en refugios                                                       | El Litoral, 1/1/2016                        |
+| Arroyo Leyes, barrios del oeste                                        | 6,53          | 125–200 evacuados                                                             | Provincia / Pausa, 4/1/2016                 |
+| Santa Rosa de Calchines                                                | 6,53          | 350–412 evacuados                                                             | Provincia / Pausa, 4/1/2016                 |
+| Colastiné Norte, La Guardia                                            | 6,61          | no figuran entre los evacuados; el Garello aguantó                            | El Litoral, Pausa, ene. 2016                |
 
 **Chequeo contra el modelo.** Una casa a cota 14,50 IGN en Colastiné Norte
 (11 km) recibe de la app ≈ 5,3 (14,50 − 8,20 − 0,495 − 0,5); el municipio dice
@@ -696,8 +700,7 @@ municipio dice riesgo.
   sector. El INA y el municipio dijeron en noviembre de 2023 que evaluarían
   rever 5,30 / 5,70 para la ciudad defendida; no hay decisión. Si la hubiera,
   la app la adopta sola: los umbrales vienen de la estación del INA.
-- **Las 1.300 familias.** El relevamiento municipal (Eduardo Rudi, junio de
-  2026) las ubica en Vuelta del Paraguayo, Bajada Distéfano, Los Alisos,
+- **Las 1.300 familias.** El relevamiento municipal (Eduardo Rudi, junio de 2026) las ubica en Vuelta del Paraguayo, Bajada Distéfano, Los Alisos,
   Colastiné Sur bajo, RN 168 y La Boca; no publica la cifra por sector.
 
 ### Las dos zonas que se agregaron, y con qué

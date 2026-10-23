@@ -122,7 +122,9 @@ regenerar, la versión queda vieja y eso queda congelado en los teléfonos.
       index.html          la portada, HTML a mano
       app/ widget/        HTML a mano
       datos/ historia/ …  las páginas que emite scripts/paginas.js
-      js/app/             la app, en módulos ES (principal.js es la entrada)
+      js/app/             la app, en módulos ES (principal.js es la entrada;
+                          config, modelo, zonas y elevacion son puros: no
+                          tocan el DOM y se cargan desde Node)
       js/ css/ img/       lo que baja el navegador
       lib/                lo que usan Node Y el navegador: comun, comun-clasico,
                           fuentes, listas
@@ -133,7 +135,10 @@ regenerar, la versión queda vieja y eso queda congelado en los teléfonos.
                         como archivos)
     lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
                         sugerencias, charlas, proveedores, y mediciones.json
-    scripts/            Node: el generador, el servidor local, las descargas
+    scripts/            Node: el generador (paginas.js, que arranca
+                        paginas/), comprobar.js y app-en-node.js,
+                        version-sw.js, marca.js, el servidor local y las
+                        descargas
     estilos/            app.css CON comentarios: la fuente de public/css/app.css
     datos-crudos/       análisis y datos de trabajo; no se publican
 
@@ -200,8 +205,9 @@ umbrales oficiales llegaron a estar escritos a mano en **ocho** archivos. Son
 un número de seguridad: una copia vieja hace que ese consumidor avise tarde.
 
 **`public/lib/comun.js` es la única fuente** de los umbrales de respaldo, el filtro de
-plausibilidad (`umbralesDe`), `VENCE_HORAS` y el formato de los números
-(`nm`, `m`, `mU`, `mCm`). Los módulos y Node lo importan. Los otros dos leen
+plausibilidad (`umbralesDe`), `VENCE_HORAS`, el formato de los números
+(`nm`, `m`, `mU`, `mCm`) y los textos de los estados (`ESTADOS`, `estadoDe`,
+`faltaCm`, `textoGrave`, `avisoDe`). Los módulos y Node lo importan. Los otros dos leen
 **`public/lib/comun-clasico.js`**, que **lo emite `scripts/paginas.js`** sacándole los
 `export` y envolviéndolo en una IIFE que publica un solo nombre, `CC_COMUN`.
 
@@ -243,28 +249,28 @@ primero si el archivo es variable. Si lo es, alcanza con uno.
 Estas cosas viven en **un solo lugar** y se leen desde los demás. Duplicarlas
 es el error que este proyecto ya cometió y corrigió más de una vez:
 
-| Qué                                           | Dónde vive                                         | Quién lo lee                                                                                                                                                                           |
-| --------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                                              |
-| Organismos, URLs, la estación del INA         | `public/lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
-| El pie del sitio                              | función `pie()` en `scripts/paginas/base.js`       | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
-| Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                                          |
-| Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                                              |
-| Umbrales de respaldo (5,30 / 5,70)            | `public/lib/comun.js`                                     | `public/lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
-| El filtro de plausibilidad de umbrales        | `public/lib/comun.js` (`umbralesDe`)                      | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                                                                                                                         |
-| Cómo se escribe un número (la coma, `mU`)     | `public/lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                                  |
-| Cuándo vence un dato (48 h)                   | `public/lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                                            |
-| Mochila y checklist previo                    | `public/lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                                                                                                                       |
-| Las fuentes de altura, su margen y cómo se dicen | `FUENTES_ALTURA` en `js/app/elevacion.js`     | `elevacionDe()`, `margenDe()` en `modelo.js`, el desglose y el sello de `cota.js`; `scripts/comprobar.js` verifica que cada una traiga margen, sello, archivo y textos |
-| Las localidades vecinas y la frase de cobertura | `VECINAS` y `COBERTURA` en `js/app/zonas.js` (de `ZONAS[].localidad`) | la búsqueda de `mapa.js` (Georef y Nominatim) y los mensajes de «no tenemos la altura de ese punto» |
-| Defensa y niveles observados por zona         | `ZONAS` en `js/app/zonas.js`                       | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
-| La medición del error de las curvas (330 puntos, mediana, p90, cuántos alcanza el margen) | `lib/mediciones.json`, que escribe `datos-crudos/analisis-puntos-fijos-<fecha>.mjs` | `scripts/paginas.js` para `/datos` y `/preguntas`; repetir la medición y regenerar actualiza el sitio |
-| Cargar la app desde Node (rutas del navegador y `fetch` de archivos del sitio) | `scripts/app-en-node.js` | `scripts/comprobar.js` y los análisis de `datos-crudos/`, que importan el código de producción en vez de copiarlo |
-| Los servicios de otro origen (host, uso, CSP) | `lib/proveedores.js`                               | `scripts/paginas/emitir.js`, que verifica la CSP de `vercel.json`, que `/legal` los nombre y que el código no use otros |
-| La versión del service worker                 | se calcula: `scripts/version-sw.js`                 | `emitir.js` la escribe en `sw.js`; `comprobar.js` avisa si quedó vieja |
-| Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
-| El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
-| Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |
+| Qué                                                                                       | Dónde vive                                                                          | Quién lo lee                                                                                                                                                           |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Los 30 puntos de encuentro                                                                | `app/index.html` (atributos `data-lon`/`data-lat`)                                  | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                              |
+| Organismos, URLs, la estación del INA                                                     | `public/lib/fuentes.js`                                                             | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                     |
+| El pie del sitio                                                                          | función `pie()` en `scripts/paginas/base.js`                                        | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                        |
+| Las categorías del formulario                                                             | `lib/sugerencias.js`                                                                | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                          |
+| Título, descripción, canónica e indexabilidad                                             | `lib/paginas.js`                                                                    | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                              |
+| Umbrales de respaldo (5,30 / 5,70)                                                        | `public/lib/comun.js`                                                               | `public/lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                   |
+| El filtro de plausibilidad de umbrales                                                    | `public/lib/comun.js` (`umbralesDe`)                                                | `rio.js`, `rio-barra.js`, `widget.js`, `sw.js`                                                                                                                         |
+| Cómo se escribe un número (la coma, `mU`)                                                 | `public/lib/comun.js`                                                               | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                  |
+| Cuándo vence un dato (48 h)                                                               | `public/lib/comun.js` (`VENCE_HORAS`)                                               | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                            |
+| Mochila y checklist previo                                                                | `public/lib/listas.js`                                                              | `js/app/config.js` (re-export) y la guía de `scripts/paginas/guia.js`                                                                                                  |
+| Las fuentes de altura, su margen y cómo se dicen                                          | `FUENTES_ALTURA` en `js/app/elevacion.js`                                           | `elevacionDe()`, `margenDe()` en `modelo.js`, el desglose y el sello de `cota.js`; `scripts/comprobar.js` verifica que cada una traiga margen, sello, archivo y textos |
+| Las localidades vecinas y la frase de cobertura                                           | `VECINAS` y `COBERTURA` en `js/app/zonas.js` (de `ZONAS[].localidad`)               | la búsqueda de `mapa.js` (Georef y Nominatim) y los mensajes de «no tenemos la altura de ese punto»                                                                    |
+| Defensa y niveles observados por zona                                                     | `ZONAS` en `js/app/zonas.js`                                                        | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                         |
+| La medición del error de las curvas (330 puntos, mediana, p90, cuántos alcanza el margen) | `lib/mediciones.json`, que escribe `datos-crudos/analisis-puntos-fijos-<fecha>.mjs` | `scripts/paginas.js` para `/datos` y `/preguntas`; repetir la medición y regenerar actualiza el sitio                                                                  |
+| Cargar la app desde Node (rutas del navegador y `fetch` de archivos del sitio)            | `scripts/app-en-node.js`                                                            | `scripts/comprobar.js` y los análisis de `datos-crudos/`, que importan el código de producción en vez de copiarlo                                                      |
+| Los servicios de otro origen (host, uso, CSP)                                             | `lib/proveedores.js`                                                                | `scripts/paginas/emitir.js`, que verifica la CSP de `vercel.json`, que `/legal` los nombre y que el código no use otros                                                |
+| La versión del service worker                                                             | se calcula: `scripts/version-sw.js`                                                 | `emitir.js` la escribe en `sw.js`; `comprobar.js` avisa si quedó vieja                                                                                                 |
+| Récord histórico y serie                                                                  | `datos-abiertos/historia.json`                                                      | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                |
+| El nivel del río en la portada                                                            | objeto `rio` en `js/landing.js`                                                     | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                  |
+| Los textos de los ocho estados                                                            | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`)              | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres                        |
 
 **La marca vive en `scripts/marca.js`.** De ahí la arman los íconos PNG
 (`iconos.js`) y las páginas generadas (`marcaSvg()` en `base.js`). El HTML a
@@ -326,7 +332,7 @@ regla va acá, no en el JSON. Los dos que estaban escritos ahí:
 
 **La barra es la misma en todas las páginas, con el dato incluido.** La
 píldora del nivel y la franja de alerta las pinta `js/rio-barra.js`, que va en
-la portada **y** en las nueve generadas. Se separó de `landing.js` por peso:
+la portada **y** en las diez generadas. Se separó de `landing.js` por peso:
 ése son 30 KB con el mockup y MapLibre, y mandarlos a `/legal` para pintar una
 píldora era pagar 30 KB por 7. **`rio-barra.js` va envuelto en una IIFE y expone
 un solo nombre, `window.CC`.** No es estilo: los `<script>` clásicos comparten
@@ -366,7 +372,7 @@ cuelga todo lo demás. Consecuencias que conviene tener presentes:
   lectura: nadie más puede asignarlos, y el resto los ve actualizados por el
   enlace vivo del import.
 - **Un módulo nuevo entra solo al precache de `sw.js`.** `node
-  scripts/paginas.js` reescribe la lista entre los marcadores `MODULOS:inicio`
+scripts/paginas.js` reescribe la lista entre los marcadores `MODULOS:inicio`
   y `MODULOS:fin`, uno por archivo de `js/app/`. Antes se agregaba a mano, y
   un olvido dejaba a `/app` sin modo sin conexión en silencio. Lo que sigue
   siendo a mano es correr el generador.
@@ -384,7 +390,8 @@ Agregar una página: ver «Páginas generadas: no editarlas», más arriba.
 **Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
 `llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que
 emite `scripts/paginas.js`— y cabeceras `Link` en `vercel.json`. El catálogo
-lista `/api/nivel` y los tres JSON abiertos, nada más: el resto de `api/` son
+lista `/api/nivel` y los cuatro JSON abiertos —historia, puntos, curvas y
+cotas de la costa—, nada más: el resto de `api/` son
 POST de la app y publicarlos sería invitar a que alguien los llame sin motivo.
 No hay `service-desc` porque eso pide un OpenAPI, y un OpenAPI sería una **sexta
 copia** de la forma de la respuesta de `/api/nivel`.
@@ -410,7 +417,8 @@ que tuviera cacheado. Los emite `node scripts/iconos.js`.
 en las trece páginas: el archivo estaba bien y el marcado seguía anunciando el
 tamaño por el que Google lo descartaba. Si volvés a cambiar el tamaño del
 `.ico`, ese atributo se cambia en `index.html`, `app/index.html` y
-`scripts/paginas.js` — las páginas generadas salen del último.
+`scripts/paginas/base.js` (`pagina()`) — las páginas generadas salen del
+último.
 
 **El `.ico` se sirve como `image/x-icon`, fijado en `vercel.json`.** Por
 extensión Vercel lo daría como `image/vnd.microsoft.icon`, que es el tipo
@@ -466,7 +474,12 @@ párrafo de `/legal` que dice adónde va lo que escribís y en `LICENCIAS` de
 `scripts/paginas/legal.js`. Nominatim se filtra por municipio con `addressdetails`
 porque el `viewbox` deja adentro Santo Tomé, Rincón y Candioti, que tienen
 las mismas calles con las mismas alturas; sacar ese filtro vuelve a mandar
-«Rivadavia 2800» a Santo Tomé.
+«Rivadavia 2800» a Santo Tomé. Además de la ciudad se aceptan las `VECINAS`
+de `zonas.js` —Rincón y Arroyo Leyes, que la app calcula con los puntos de la
+costa—: con una de ellas elegida, la búsqueda va primero a esa localidad (en
+Georef, a su `localidad.georef`) y después a la ciudad, y si la dirección cae
+en otra zona que la elegida, la app lo dice y ofrece cambiarla. Santo Tomé y
+Candioti siguen afuera.
 
 **Las sugerencias del buscador no consultan a nadie.** `js/app/calles.js`
 filtra en el teléfono contra `datos-abiertos/calles.json`, el callejero de
@@ -498,7 +511,8 @@ cada una tiene UNA sola forma de decirse:
 
 1. **nivel del río** — la lectura del hidrómetro (dato del INA).
    En pantalla: «el río está en 4,86 m», «la regla del río (hidrómetro)».
-2. **cota del terreno** — la elevación IGN (curvas del municipio).
+2. **cota del terreno** — la elevación IGN (curvas del municipio; en Rincón
+   y Arroyo Leyes, puntos con cota de la Provincia).
    En pantalla: «la altura de tu terreno», «16,4 m sobre el mar». «Cota IGN»
    sólo entre paréntesis, porque así figura en la escritura y en los planos.
 3. **umbral hidráulico estimado** — la lectura del hidrómetro a partir de la
@@ -592,7 +606,7 @@ en blanco**, sin ningún error.
 **Los comentarios HTML son cortos a propósito.** Viajan al navegador en cada
 visita: llegaron a ser 32 KB en todo el sitio. El razonamiento largo va en
 `README.md`, en `CLAUDE.md`, o —en las páginas generadas— como comentario de
-JavaScript dentro de `scripts/paginas.js`, que no se emite. En el HTML queda
+JavaScript en su archivo de `scripts/paginas/`, que no se emite. En el HTML queda
 una marca de dos o tres palabras que dice adónde ir a buscarlo.
 
 ### `irA("donde")` arma el mapa por su cuenta
@@ -687,11 +701,12 @@ instalarse_.
 
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
-| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 87 KB  | todo el que entra al sitio |
-| `DEL_APP`  | los 24 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 224 KB | sólo quien abre `/app`     |
+| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 94 KB  | todo el que entra al sitio |
+| `DEL_APP`  | los 24 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 229 KB | sólo quien abre `/app`     |
 
-Medido con gzip en octubre de 2026, después de sacarle los comentarios a
-`app.css` y de dejar las tipografías en un archivo por familia.
+Medido con gzip el 23/10/2026, con los módulos nuevos (`modelo`, `zonas`) y
+`cotas-costa.json`. La medición anterior —87 y 224 KB— fue la de sacarle los
+comentarios a `app.css` y dejar las tipografías en un archivo por familia.
 
 La segunda **no se pide en `install`**. La pide la app con un
 `postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la
