@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { ORGANISMOS, FUENTES } from "../../public/lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN } from "../../lib/paginas.js";
 import { mCm, nm } from "../../public/lib/comun.js";
+import { marca } from "../marca.js";
 
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -151,17 +152,20 @@ function fechaDelSitio() {
 }
 const FECHA_SITIO = fechaDelSitio();
 
-/* La marca. El mismo dibujo que scripts/marca.js y que el HTML de la portada
-   y la app; el id del clipPath cambia por documento para que dos copias en la
-   misma página no compartan recorte. */
-const marcaSvg = (
-  id,
-) => `<svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
-            <defs><clipPath id="${id}"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
-            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#${id})"/>
-            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
-            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-          </svg>`;
+/* La marca, de scripts/marca.js: el único lugar donde está el dibujo. Acá va
+   decorativa —al lado del nombre, que ya se lee— y con los colores del tema.
+   El id del clipPath cambia por documento para que dos copias en la misma
+   página no compartan recorte. */
+const marcaSvg = (id) =>
+  marca({
+    id,
+    tam: 30,
+    trazo: "currentColor",
+    agua: "var(--agua)",
+    etiqueta: "",
+    sangria: "            ",
+    cierre: "          ",
+  });
 
 /* El pie, escrito una sola vez. Lo usan las páginas generadas y también la
    portada: al final de este script se reemplaza el bloque entre los

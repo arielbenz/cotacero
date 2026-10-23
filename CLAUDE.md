@@ -266,9 +266,13 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
 | Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |
 
-La marca es la excepción consciente: el SVG está escrito a mano en
-`scripts/marca.js`, en `scripts/paginas/base.js` (`marcaSvg()`) y en el HTML de la
-portada y la app. Si se cambia el dibujo, se cambia en los cuatro.
+**La marca vive en `scripts/marca.js`.** De ahí la arman los íconos PNG
+(`iconos.js`) y las páginas generadas (`marcaSvg()` en `base.js`). El HTML a
+mano —dos en la portada, dos en la app, una en el widget— lleva sus copias con
+su tamaño y su color, y `node scripts/paginas.js` **compara la geometría de las
+29** contra `marca.js` y falla si alguna difiere o si un `id` de clipPath se
+repite en una página. Si se cambia el dibujo: se cambia en `marca.js`, se
+regenera, y el generador dice qué copias a mano quedaron viejas.
 
 `js/app/fuentes.js` **importa `public/lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
 que el navegador carga como cualquier módulo porque es puro dato). Antes era
