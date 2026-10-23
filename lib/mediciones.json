@@ -1,0 +1,15 @@
+{
+  "curvas": {
+    "medido": "2026-10-22",
+    "contra": "puntos fijos de la red municipal, sin las marcas sobre estructuras",
+    "script": "datos-crudos/analisis-puntos-fijos-2026-10-22.mjs",
+    "auditoria": "AUDITORIA.md §4",
+    "n": 330,
+    "mediana_m": 0.42,
+    "p90_m": 1.1,
+    "max_m": 2.92,
+    "sesgo_m": -0.45,
+    "margen_m": 0.5,
+    "optimistas": 6
+  }
+}

@@ -18,7 +18,6 @@ import {
 } from "./config.js";
 import { pintarCompartir } from "./compartir.js";
 import { calcular, cotaEnHidrometro } from "./cota.js";
-import { curvas } from "./elevacion.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";
@@ -33,7 +32,13 @@ import {
 } from "./oficiales.js";
 /* El filtro de plausibilidad, compartido con el sitio, el widget y el
    service worker: era el mismo `if` escrito en cinco archivos. */
-import { umbralesDe } from "/lib/comun.js";
+import {
+  ATENCION_ANTES_M,
+  ESTADOS,
+  faltaCm,
+  textoGrave as textoGraveComun,
+  umbralesDe,
+} from "/lib/comun.js";
 
 // Lo sella cargarRio() y lo lee refrescarSiHaceFalta(). Va acá y no al
 // lado del listener para no asignarlo antes de su propia declaración.
@@ -545,16 +550,18 @@ function pintarVeredictoRio() {
     cls = "v-peligro";
     titu = grave.titu;
     txt = "<b>" + grave.verbo + "</b> " + grave.resto;
-  } else if (r >= 4.3) {
+  } else if (r >= ALERTA - ATENCION_ANTES_M) {
     cls = "v-alerta";
-    titu = "Atención";
+    titu = ESTADOS.atencion.titulo;
     txt =
-      "<b>Armá la mochila hoy.</b> Faltan " +
+      "<b>" +
+      ESTADOS.atencion.verbo +
+      "</b> Faltan " +
       mCm(ALERTA - r) +
       " para la alerta de la ciudad.";
   } else {
     cls = "v-ok";
-    titu = "Río normal";
+    titu = ESTADOS.normal.titulo;
     txt =
       "Faltan " +
       mCm(ALERTA - r) +
@@ -631,7 +638,7 @@ function pintarVeredictoRio() {
     glosa = GLOSA;
   } else if (u != null) {
     const margen = u - r;
-    const superado = margen <= 0;
+    const superado = faltaCm(r, u) <= 0;
     // El estado del margen manda sobre el color de la tarjeta: si el río pasó
     // tu umbral, que la ciudad esté en "nivel normal" es un detalle.
     if (superado) cls = "v-peligro";
@@ -669,8 +676,9 @@ function pintarVeredictoRio() {
        agrega algo: la instrucción de los estados cercanos, o el ritmo. */
     if (superado)
       txt =
-        "<b>Mové a las personas, los remedios y los documentos. Seguí a " +
-        "Defensa Civil (103).</b> El río está en " +
+        "<b>" +
+        ESTADOS.superado.verbo +
+        " Seguí a Defensa Civil (103).</b> El río está en " +
         m(r) +
         " y tu nivel de aviso es " +
         mU(u) +
@@ -678,15 +686,19 @@ function pintarVeredictoRio() {
         "No cruces agua que corre: con 30 cm —menos que una rodilla— te arrastra.";
     else if (graveCiudad) txt += ritmo;
     else if (margen <= 0.5)
+      /* Los mismos dos escalones que la notificación: a 20 cm, terminá; a
+         50, andá armando. La pantalla decía «terminá» desde los 50. */
       txt =
-        "<b>Terminá la mochila y avisale a tu familia.</b> Faltan unos " +
+        "<b>" +
+        (faltaCm(r, u) <= 20 ? ESTADOS.cerca.verbo : ESTADOS.acercandose.verbo) +
+        "</b> Faltan unos " +
         mCm(margen) +
         " para tu nivel de aviso." +
         ritmo;
     else if (instruccionCiudad) txt += ritmo;
     else txt = ritmo.trim();
     glosa = GLOSA;
-    if (superado) titu = "El río pasó tu nivel de aviso";
+    if (superado) titu = ESTADOS.superado.titulo;
     else if (margen <= 0.5) titu = "Cerca de tu nivel de aviso";
   }
   // Con el río en alerta la app tenía todo para decir "te faltan 7 cosas de
@@ -719,29 +731,10 @@ export const esManual = () => (estado.rioOrigen || "").includes("a mano");
    de esta pestaña y la de «Ahora» (ahora.js). Empiezan con el verbo de lo
    que hay que hacer y llevan el 103. Son dos de los ocho estados del README
    («Los ocho estados y cómo se dicen»): sw.js y cota.js tienen su copia. */
+/* Los textos viven en lib/comun.js, compartidos con la notificación; acá
+   sólo se le pasan los umbrales de la estación. */
 export function textoGrave(r) {
-  if (r == null) return null;
-  if (r >= EVACUACION)
-    return {
-      titu: "Evacuación en la ciudad",
-      verbo: "Si Defensa Civil dice que salgas, salí.",
-      resto:
-        "El río pasó los " +
-        m(EVACUACION) +
-        ". Si necesitás ayuda para salir, llamá al 103. No cruces agua que " +
-        "corre: con 30 cm —menos que una rodilla— te arrastra.",
-    };
-  if (r >= ALERTA)
-    return {
-      titu: "Alerta en la ciudad",
-      verbo: "Armá la mochila y avisale a tu familia.",
-      resto:
-        "El río pasó los " +
-        m(ALERTA) +
-        ". En los barrios de afuera del terraplén (el anillo de defensas) ya " +
-        "empiezan a sacar gente. Si te dicen que salgas, salí. Dudas: 103.",
-    };
-  return null;
+  return textoGraveComun(r, ALERTA, EVACUACION);
 }
 
 /* ---------------- la franja de la ciudad ----------------

@@ -12,6 +12,8 @@ optimistas aun descontando ERROR_DEM (dif > +0.5): 6 de 330
   124    POLIDEPORTIVO ALTO VERDE                 medida 16.39  curvas 17.07  +0.68
   32     BARRIO EL POZO                           medida 16.64  curvas 17.23  +0.59
 
+escrito: lib/mediciones.json
+
 red municipal contra IGN, marcas a menos de 50 m:
   PF2N(54)     15.860  ↔  255  ROTONDA DISTRITO SUROESTE    15.804  a 11 m  dif -0.056
   PF3N(55)     14.215  ↔  100  KM 1 RUTA PROV . Nº 1 (chana 16.667  a 40 m  dif 2.452

@@ -19,11 +19,14 @@
    y el formato de los números dejan de estar copiados acá adentro.
    lib/comun-clasico.js lo emite scripts/paginas.js desde lib/comun.js. */
 importScripts("/lib/comun-clasico.js");
-const { UMBRALES_RESPALDO, umbralesDe, nm, mU, mCm } = self.CC_COMUN;
+const { umbralesDe, avisoDe } = self.CC_COMUN;
 
-// OJO: subir la versión en cada deploy. Todo lo que va por caché primero
-// (íconos, tipografías) queda congelado hasta que este número cambie.
-const VERSION = "cota-cero-v106";
+// La versión la escribe scripts/paginas/emitir.js: es un resumen del
+// contenido de todo lo que se precachea y de este archivo. Cambia sola cuando
+// cambia cualquiera de ellos —antes había que acordarse de subirla en cada
+// deploy, y si no, íconos y tipografías quedaban congelados—.
+// scripts/comprobar.js avisa si quedó vieja.
+const VERSION = "cota-cero-c02cf128be";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -108,6 +111,7 @@ const CRITICOS = [
 const DEL_APP = [
   "/app",
   "/lib/fuentes.js",
+  // MODULOS:inicio — uno por archivo de js/app/; los escribe scripts/paginas/emitir.js
   "/js/app/principal.js",
   "/js/app/ahora.js",
   "/js/app/avisos.js",
@@ -131,6 +135,8 @@ const DEL_APP = [
   "/js/app/rio.js",
   "/js/app/tema.js",
   "/js/app/vista.js",
+  "/js/app/zonas.js",
+  // MODULOS:fin
   /* Las listas de la mochila y del checklist previo viven en lib/ para que
      también las lea el generador de la guía impresa. La app las importa desde
      config.js, así que sin esto /app no abre sin conexión. */
@@ -437,82 +443,8 @@ async function leerUmbral() {
    —cada uno interpola el nivel, el umbral y los oficiales, y el de la pantalla
    además lleva marcado— y mudarlos mal es peor que tenerlos copiados. Queda
    como el próximo paso obvio. */
-function armarAviso(nivel, umbral, cerca, oficiales) {
-  const ALERTA = (oficiales && oficiales.alerta) || UMBRALES_RESPALDO.alerta;
-  const EVACUACION =
-    (oficiales && oficiales.evacuacion) || UMBRALES_RESPALDO.evacuacion;
-  if (nivel == null)
-    return {
-      titulo: "Cambió el nivel del río",
-      cuerpo: "Abrí Cota Cero para ver cuánto mide hoy.",
-      urgente: false,
-      ir: "/app",
-    };
-  if (umbral != null && nivel >= umbral)
-    return {
-      titulo: "El río pasó tu nivel de aviso",
-      /* El más importante de los ocho, y el que más se pasaba de largo: a 203
-         caracteres Android lo cortaba justo antes del 103. Se va la
-         explicación —"el agua puede llegar aunque no la veas" ya está en la
-         pantalla— y queda la acción, el dato y el teléfono. */
-      cuerpo:
-        "Mové a las personas, los remedios y los documentos. " +
-        `El río está en ${nm(nivel, 2)} m y tu nivel de aviso es ${mU(umbral)}. ` +
-        "Si Defensa Civil dice que salgas, salí. 103.",
-      urgente: true,
-      ir: "/app?ir=plan",
-    };
-  if (nivel >= EVACUACION)
-    return {
-      titulo: `Evacuación en la ciudad: ${nm(nivel, 2)} m`,
-      cuerpo:
-        `Si Defensa Civil dice que salgas, salí. El río pasó los ${nm(EVACUACION, 2)} m. ` +
-        "No cruces agua que corre: con 30 cm te arrastra. Ayuda: 103.",
-      urgente: true,
-      ir: "/app?ir=ahora",
-    };
-  if (nivel >= ALERTA)
-    return {
-      titulo: `Alerta en la ciudad: ${nm(nivel, 2)} m`,
-      cuerpo:
-        "Armá la mochila y avisale a tu familia. " +
-        `El río pasó los ${nm(ALERTA, 2)} m: afuera del terraplén ya empiezan a sacar gente. ` +
-        "Dudas: 103.",
-      urgente: true,
-      ir: "/app?ir=ahora",
-    };
-  if (umbral != null) {
-    const falta = umbral - nivel;
-    // Aviso anticipado, sólo si lo pidió: a 20 cm es urgente, a 50 no.
-    if (cerca && falta <= 0.2)
-      return {
-        titulo: `Faltan unos ${mCm(falta)} para tu nivel de aviso`,
-        cuerpo: `El río está en ${nm(nivel, 2)} m; tu nivel de aviso es ${mU(umbral)}. Terminá la mochila y avisale a tu familia.`,
-        urgente: true,
-        ir: "/app?ir=plan",
-      };
-    if (cerca && falta <= 0.5)
-      return {
-        titulo: `Faltan unos ${mCm(falta)} para tu nivel de aviso`,
-        cuerpo: `El río está en ${nm(nivel, 2)} m. Andá armando la mochila.`,
-        urgente: false,
-        ir: "/app?ir=plan",
-      };
-    return {
-      titulo: `El río subió a ${nm(nivel, 2)} m`,
-      cuerpo: `Faltan unos ${mCm(falta)} para tu nivel de aviso (${mU(umbral)}). Por ahora, seguí mirando.`,
-      urgente: false,
-      ir: "/app",
-    };
-  }
-  return {
-    titulo: `El río subió a ${nm(nivel, 2)} m`,
-    cuerpo:
-      "Cargá tu casa en la app y te avisamos cuando el río importe para vos.",
-    urgente: false,
-    ir: "/app?ir=cota",
-  };
-}
+/* La notificación la arma avisoDe(), de lib/comun.js: los textos de los
+   ocho estados viven ahí, una sola vez para el aviso y para la pantalla. */
 
 self.addEventListener("push", (e) => {
   e.waitUntil(
@@ -533,7 +465,7 @@ self.addEventListener("push", (e) => {
       } catch (err) {
         /* sin red: avisamos igual, en genérico */
       }
-      const a = armarAviso(
+      const a = avisoDe(
         nivel,
         await leerUmbral(),
         await leerAvisarCerca(),

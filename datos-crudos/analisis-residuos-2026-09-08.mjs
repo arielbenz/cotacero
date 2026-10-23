@@ -1,14 +1,11 @@
 import { readFileSync } from "node:fs";
 const HOY = process.argv[2];
 
-/* Se importa el MÓDULO DE LA APP, no una reimplementación. Sólo se le presta
-   un fetch que lee el archivo del disco en vez de la red. */
-const curvasJson = readFileSync("public/datos-abiertos/curvas.json", "utf8");
-globalThis.fetch = async (u) =>
-  String(u).includes("curvas.json")
-    ? { ok: true, json: async () => JSON.parse(curvasJson) }
-    : { ok: false };
-const { elevacionDe } = await import(process.cwd() + "/js/app/elevacion.js");
+/* Se importa el MÓDULO DE LA APP, no una reimplementación, con las rutas y
+   el fetch de scripts/app-en-node.js. (Hasta el 23/10/2026 importaba
+   js/app/elevacion.js, de antes de que el sitio pasara a public/.) */
+await import(process.cwd() + "/scripts/app-en-node.js");
+const { elevacionDe } = await import("/js/app/elevacion.js");
 
 const capas = ["nivelacion_alta_precision", "nivelacion_precision"];
 const puntos = [];
@@ -26,7 +23,8 @@ console.log("  redes:", [...new Set(puntos.map(p => p.red))].join(" · "));
 const res = [];
 for (const p of puntos) {
   const e = await elevacionDe(p.lat, p.lon);
-  if (e == null) { p.fuera = true; continue; }
+  // Mide las curvas: fuera de su área, la app ahora usa otra fuente.
+  if (e == null || e.fuente !== "curvas") { p.fuera = true; continue; }
   p.interp = e.cota; p.dist = e.distancia;
   p.residuo = e.cota - p.cota;
   res.push(p);

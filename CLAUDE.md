@@ -49,7 +49,8 @@ Sin framework de tests, la verificación es esta y en este orden:
 2. `node scripts/comprobar.js` si tocaste algo del cálculo: `config.js`,
    `modelo.js`, `elevacion.js`, `public/lib/comun.js` o los datos de
    `datos-abiertos/`.
-3. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
+3. `node scripts/paginas.js` si tocaste `scripts/paginas.js` o algo de
+   `scripts/paginas/`, `public/app/index.html`,
    `public/lib/fuentes.js`, **`public/lib/comun.js` o `estilos/app.css`** —de los
    dos últimos sale un archivo generado, ver abajo—.
 4. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
@@ -105,8 +106,13 @@ plata, y esa hoja se reparte en centros vecinales.
 Las dos listas de la guía —mochila y previa— salen de `public/lib/listas.js`, las
 mismas que usa la app. No hay una segunda copia que se pueda desincronizar.
 
-**Subir `VERSION` en `sw.js` en cada deploy**, o todo lo que va por caché
-primero (íconos, tipografías) queda congelado.
+**`VERSION` en `sw.js` ya no se sube a mano** (octubre de 2026): la escribe
+`node scripts/paginas.js` como resumen del contenido de todo lo que se
+precachea y del propio `sw.js` (`scripts/version-sw.js`). Cambia sola cuando
+cambia cualquiera de ellos. Lo que sí hay que hacer es **regenerar antes de
+publicar**: si un ícono, una tipografía o un JSON precacheado cambian sin
+regenerar, la versión queda vieja y eso queda congelado en los teléfonos.
+`node scripts/comprobar.js` lo avisa.
 
 ## Arquitectura
 
@@ -126,7 +132,7 @@ primero (íconos, tipografías) queda congelado.
     api/                las funciones de Vercel (se publican como funciones, no
                         como archivos)
     lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
-                        sugerencias, charlas
+                        sugerencias, charlas, proveedores, y mediciones.json
     scripts/            Node: el generador, el servidor local, las descargas
     estilos/            app.css CON comentarios: la fuente de public/css/app.css
     datos-crudos/       análisis y datos de trabajo; no se publican
@@ -241,7 +247,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | --------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Los 30 puntos de encuentro                    | `app/index.html` (atributos `data-lon`/`data-lat`) | `js/app/estado.js` y `scripts/paginas.js`                                                                                                                                              |
 | Organismos, URLs, la estación del INA         | `public/lib/fuentes.js`                                   | `lib/ina.js`, `scripts/paginas.js`                                                                                                                                                     |
-| El pie del sitio                              | función `pie()` en `scripts/paginas.js`            | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
+| El pie del sitio                              | función `pie()` en `scripts/paginas/base.js`       | las páginas generadas **y** `index.html` (con `frescura: true`)                                                                                                                        |
 | Las categorías del formulario                 | `lib/sugerencias.js`                               | `api/sugerencias.js`, `api/metricas.js`, `/contacto` y la app                                                                                                                          |
 | Título, descripción, canónica e indexabilidad | `lib/paginas.js`                                   | el `<head>` de las generadas, `sitemap.xml`, y se **verifica** contra la portada y la app                                                                                              |
 | Umbrales de respaldo (5,30 / 5,70)            | `public/lib/comun.js`                                     | `public/lib/fuentes.js`, `oficiales.js`, `rio-barra.js`, `landing.js`, `widget.js`, `sw.js`, el cron                                                                                          |
@@ -249,13 +255,19 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Cómo se escribe un número (la coma, `mU`)     | `public/lib/comun.js`                                     | `js/app/formato.js` (re-export), los clásicos y `sw.js` por el gemelo                                                                                                                  |
 | Cuándo vence un dato (48 h)                   | `public/lib/comun.js` (`VENCE_HORAS`)                     | `js/app/config.js` (re-export), `rio-barra.js`, `widget.js`                                                                                                                            |
 | Mochila y checklist previo                    | `public/lib/listas.js`                                    | `js/app/config.js` (re-export) y la guía de `scripts/paginas.js`                                                                                                                       |
-| Defensa y niveles observados por zona         | `ZONAS` en `js/app/config.js`                      | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
+| Las fuentes de altura, su margen y cómo se dicen | `FUENTES_ALTURA` en `js/app/elevacion.js`     | `elevacionDe()`, `margenDe()` en `modelo.js`, el desglose y el sello de `cota.js`; `scripts/comprobar.js` verifica que cada una traiga margen, sello, archivo y textos |
+| Las localidades vecinas y la frase de cobertura | `VECINAS` y `COBERTURA` en `js/app/zonas.js` (de `ZONAS[].localidad`) | la búsqueda de `mapa.js` (Georef y Nominatim) y los mensajes de «no tenemos la altura de ese punto» |
+| Defensa y niveles observados por zona         | `ZONAS` en `js/app/zonas.js`                       | `js/app/cota.js` (tarjeta de «Mi casa») y `js/app/plan.js` (plan impreso); la fuente de cada renglón está en `AUDITORIA.md` §9                                                         |
+| La medición del error de las curvas (330 puntos, mediana, p90, cuántos alcanza el margen) | `lib/mediciones.json`, que escribe `datos-crudos/analisis-puntos-fijos-<fecha>.mjs` | `scripts/paginas.js` para `/datos` y `/preguntas`; repetir la medición y regenerar actualiza el sitio |
+| Cargar la app desde Node (rutas del navegador y `fetch` de archivos del sitio) | `scripts/app-en-node.js` | `scripts/comprobar.js` y los análisis de `datos-crudos/`, que importan el código de producción en vez de copiarlo |
+| Los servicios de otro origen (host, uso, CSP) | `lib/proveedores.js`                               | `scripts/paginas/emitir.js`, que verifica la CSP de `vercel.json`, que `/legal` los nombre y que el código no use otros |
+| La versión del service worker                 | se calcula: `scripts/version-sw.js`                 | `emitir.js` la escribe en `sw.js`; `comprobar.js` avisa si quedó vieja |
 | Récord histórico y serie                      | `datos-abiertos/historia.json`                     | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                                |
 | El nivel del río en la portada                | objeto `rio` en `js/landing.js`                    | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                                  |
-| Los textos de los ocho estados                | README, «Los ocho estados y cómo se dicen»         | `sw.js armarAviso`, `rio.js pintarVeredictoRio`, `cota.js calcular` — copiados a mano: al tocar uno, revisar los tres. Se podrían mudar a `public/lib/comun.js`; ver el comentario en `sw.js` |
+| Los textos de los ocho estados                | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`) | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres |
 
 La marca es la excepción consciente: el SVG está escrito a mano en
-`scripts/marca.js`, en `scripts/paginas.js` (`marcaSvg()`) y en el HTML de la
+`scripts/marca.js`, en `scripts/paginas/base.js` (`marcaSvg()`) y en el HTML de la
 portada y la app. Si se cambia el dibujo, se cambia en los cuatro.
 
 `js/app/fuentes.js` **importa `public/lib/fuentes.js` de verdad** (`/lib/fuentes.js`,
@@ -271,9 +283,23 @@ HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
 Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
 `index.html` entre los marcadores `<!-- PIE:inicio -->` / `<!-- PIE:fin -->`.
 
-Una ruta nueva toca cinco lugares: `scripts/paginas.js`, la lista de escritura
-al final del mismo archivo, `vercel.json` (cabecera de revalidación),
-`sitemap.xml` y el `PIE`.
+**El generador está partido en `scripts/paginas/`** (octubre de 2026; eran
+2.776 líneas en un archivo): `base.js` tiene lo que comparten todas —rutas,
+datos que se leen una vez, `pagina()`, `bloque()`, `pie()`, `marcaSvg()`—,
+hay un archivo por página (`datos.js`, `legal.js`, `guia.js`…) y `emitir.js`
+escribe todo y al final verifica la portada, la app y el precache.
+`scripts/paginas.js` sólo lo arranca. Las páginas importan de `base.js` y
+nunca entre sí ni de `emitir.js`: así no hay ciclos. La partición se verificó
+con el sitio generado idéntico, byte por byte.
+
+Una ruta nueva es **su archivo en `scripts/paginas/` y su renglón en
+`lib/paginas.js`**: `emitir.js` carga sola cada página de la carpeta, cada una
+se anota al llamar a `pagina()` y se escribe en la ruta del registro; el
+sitemap y el precache verificado salen solos. Quedan dos cosas a mano que el
+generador **comprueba y falla si faltan**: el enlace en `pie()` de `base.js`
+y la cabecera de revalidación en `vercel.json`. Y una tercera que no puede
+comprobar: agregarla a `ESENCIALES` en `sw.js` si tiene que andar sin señal
+—esa sí avisa, porque verifica que todas las generadas estén—.
 
 **Una ruta que se retira toca los mismos, más dos: un `redirects` en
 `vercel.json` hacia la que la reemplaza** —si no, una URL indexada pasa a
@@ -335,10 +361,11 @@ cuelga todo lo demás. Consecuencias que conviene tener presentes:
   `fijarRecord()`** (`js/app/oficiales.js`). Un import de ESM es de sólo
   lectura: nadie más puede asignarlos, y el resto los ve actualizados por el
   enlace vivo del import.
-- **Un módulo nuevo hay que agregarlo al precache de `sw.js`.** Si no, `/app`
-  deja de abrir sin conexión y el fallo es mudo. `scripts/paginas.js` compara
-  las dos listas y revienta si no coinciden, así que el olvido se ve en el
-  acto.
+- **Un módulo nuevo entra solo al precache de `sw.js`.** `node
+  scripts/paginas.js` reescribe la lista entre los marcadores `MODULOS:inicio`
+  y `MODULOS:fin`, uno por archivo de `js/app/`. Antes se agregaba a mano, y
+  un olvido dejaba a `/app` sin modo sin conexión en silencio. Lo que sigue
+  siendo a mano es correr el generador.
 
 ### SEO: los metadatos salen de `lib/paginas.js`
 
@@ -348,9 +375,7 @@ las páginas generadas, emite `sitemap.xml` con las indexables, y **verifica**
 que la portada, la app y el widget —que son HTML a mano— digan lo mismo. Si no
 coinciden, falla al generar.
 
-Agregar una página son cinco lugares: `lib/paginas.js`, `scripts/paginas.js`,
-la lista de escritura al final de ese archivo, `vercel.json` y el `PIE`. El
-sitemap ya no: sale solo.
+Agregar una página: ver «Páginas generadas: no editarlas», más arriba.
 
 **Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
 `llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que
@@ -416,14 +441,25 @@ una entrada en `ACCIONES` (clics, vía `data-accion`) o en `ENTRADAS`
 
 `style-src` sí lleva `'unsafe-inline'`, a propósito.
 
-### La búsqueda de dirección son dos proveedores, y tocar uno toca cuatro archivos
+### Los proveedores de otro origen están en `lib/proveedores.js`
+
+Cada servicio al que el navegador le pide algo —Georef, Nominatim, los dos
+hosts del IGN, los dos de Open-Meteo, Google Analytics— está ahí con su host,
+para qué se usa y qué directivas de la CSP necesita. `node scripts/paginas.js`
+**falla** si uno falta en la CSP de `vercel.json`, si `/legal` no lo nombra, o
+si en `public/js` aparece un host que no está ni ahí ni en `ENLACES` (los que
+sólo se abren como enlace). Así salió que `/legal` nunca había nombrado a
+Open-Meteo. La CSP no se genera —`vercel.json` no admite comentarios y
+conviene leerlo entero—: se comprueba.
+
+### La búsqueda de dirección son dos proveedores
 
 `js/app/mapa.js` consulta primero a Georef (`apis.datos.gob.ar`) y detrás a
 Nominatim (`nominatim.openstreetmap.org`), los dos sin clave. Cada host está
 en el `connect-src` de `vercel.json` —si falta, el navegador bloquea el pedido
 y la app dice «no se encontró» como si fuera culpa de la dirección—, en el
 párrafo de `/legal` que dice adónde va lo que escribís y en `LICENCIAS` de
-`scripts/paginas.js`. Nominatim se filtra por municipio con `addressdetails`
+`scripts/paginas/legal.js`. Nominatim se filtra por municipio con `addressdetails`
 porque el `viewbox` deja adentro Santo Tomé, Rincón y Candioti, que tienen
 las mismas calles con las mismas alturas; sacar ese filtro vuelve a mandar
 «Rivadavia 2800» a Santo Tomé.
@@ -510,8 +546,8 @@ agua entra por abajo mucho antes de pasar por arriba.
 ### Falsa precisión
 
 El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
-~0,5 m. Un decimal y tilde de aproximación (`mU()` en `js/app/formato.js`, `unDec()`
-en `sw.js`). La única excepción es el desglose del cálculo, que conserva la
+~0,5 m. Un decimal y tilde de aproximación (`mU()` en `public/lib/comun.js`, que
+usan la app, el sitio y `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
 ### El mono en mayúsculas etiqueta una cosa

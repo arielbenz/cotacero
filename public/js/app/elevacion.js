@@ -1,30 +1,19 @@
-/* js/app/elevacion.js — la cota del terreno, de las curvas del municipio y,
-   fuera de la ciudad, de los puntos con cota de la costa.
-   La distancia va medida punto-a-segmento y no al vértice más cercano: con
-   vértices, simplificar la geometría movía el resultado 1,85 m.
-   Fuera de las dos coberturas devuelve null y la app pide la cota a mano, en
-   vez de caer a una fuente peor. */
+/* js/app/elevacion.js — la cota del terreno, de las fuentes de altura.
+   Hoy son dos: las curvas del municipio en la ciudad y los puntos con cota de
+   la Provincia en la costa. Fuera de todas devuelve null y la app pide la cota
+   a mano, en vez de caer a una fuente peor.
 
-/* ---------- elevación del terreno ----------
-   Sale de las curvas de nivel de la Municipalidad de Santa Fe (Secretaría de
-   Recursos Hídricos), cada 50 cm y en metros IGN: el mismo sistema que el
-   cero del hidrómetro. Ver scripts/curvas.js.
+   Puro: sólo fetch, ni estado ni DOM. scripts/comprobar.js lo carga desde
+   Node con un fetch que lee del disco. */
 
-   Antes esto consultaba un modelo satelital. Medido contra estas curvas
+import { ERROR_DEM, ERROR_PUNTOS } from "./config.js";
+
+/* ---------- por qué no un satélite ----------
+   Antes esto consultaba un modelo satelital. Medido contra las curvas
    sobreestimaba 2,15 m de media, porque mide techos y arbolado en vez del
    piso; y contra los puntos de nivelación del IGN tenía 7,5 m de desvío. Con
    un rango de decisión de 2 m entre la alerta y el récord de 1992, ese dato
    no informaba nada. */
-
-let curvasCache = null;
-
-export async function curvas() {
-  if (curvasCache) return curvasCache;
-  const r = await fetch("/datos-abiertos/curvas.json");
-  if (!r.ok) throw new Error("no se pudieron cargar las curvas");
-  curvasCache = await r.json();
-  return curvasCache;
-}
 
 const M_POR_GRADO_LAT = 110900;
 
@@ -42,80 +31,11 @@ function distanciaASegmento(px, py, ax, ay, bx, by) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-/* ---------- fuera de la ciudad: los puntos de la costa ----------
-   Las curvas terminan en el límite del municipio. San José del Rincón y
-   Arroyo Leyes tienen los puntos con cota de la misma campaña de 2005 (IDESF,
-   capa MACotas; ver scripts/cotas-costa.js). Se baja sólo si hace falta: quien
-   vive en la ciudad nunca lo pide. */
-let costaCache = null;
-
-async function costa() {
-  if (costaCache) return costaCache;
-  const r = await fetch("/datos-abiertos/cotas-costa.json");
-  if (!r.ok) throw new Error("no se pudieron cargar las cotas de la costa");
-  costaCache = await r.json();
-  return costaCache;
-}
-
-/* Más lejos que esto del punto medido más cercano, no hay dato: es otro
-   terreno. La mitad de los puntos tiene un vecino a menos de 36 m y nueve de
-   cada diez a menos de 76 (AUDITORIA.md §7, pregunta 24). */
-const PUNTOS_MAX_M = 150;
-
-/* Cuatro vecinos, pesados por la inversa del cuadrado de la distancia. Es lo
-   que se validó: estimando cada punto con sus cuatro vecinos, en Rincón y
-   Arroyo Leyes la mediana del error es 0,21 m y el p90 0,93 m. Por eso el
-   margen de esta fuente es ERROR_PUNTOS y no ERROR_DEM. */
-async function elevacionCosta(lat, lon) {
-  let d;
-  try {
-    d = await costa();
-  } catch (e) {
-    return null;
-  }
-  const [oe, os, on, ono] = d.area;
-  if (lon < oe || lon > on || lat < os || lat > ono) return null;
-  const ml = mPorGradoLon(lat);
-  const p = d.puntos;
-  const cerca = [];
-  for (let i = 0; i < p.length; i += 3) {
-    const dist = Math.hypot(
-      (p[i] - lon) * ml,
-      (p[i + 1] - lat) * M_POR_GRADO_LAT,
-    );
-    if (dist > PUNTOS_MAX_M) continue;
-    cerca.push([dist, p[i + 2]]);
-  }
-  if (!cerca.length) return null;
-  cerca.sort((a, b) => a[0] - b[0]);
-  const cuatro = cerca.slice(0, 4);
-  // Encima de un punto medido, ése es el dato: la inversa de cero no existe.
-  if (cuatro[0][0] < 0.5)
-    return { cota: cuatro[0][1], distancia: cuatro[0][0], fuente: "puntos" };
-  let suma = 0,
-    pesos = 0;
-  for (const [dist, z] of cuatro) {
-    suma += z / dist ** 2;
-    pesos += 1 / dist ** 2;
-  }
-  return { cota: suma / pesos, distancia: cuatro[0][0], fuente: "puntos" };
-}
-
-/* Devuelve { cota, distancia, fuente } o null si el punto cae fuera de la
-   zona cubierta. Preferimos no dar un número antes que dar uno inventado.
-   `fuente` es "curvas" o "puntos", y decide el margen: ver margenCota() en
-   cota.js. */
-export async function elevacionDe(lat, lon) {
-  let d;
-  try {
-    d = await curvas();
-  } catch (e) {
-    return null;
-  }
-  const [oe, os, on, ono] = [d.area[0], d.area[1], d.area[2], d.area[3]];
-  if (lon < oe || lon > on || lat < os || lat > ono)
-    return elevacionCosta(lat, lon);
-
+/* ---------- las curvas del municipio ----------
+   Secretaría de Recursos Hídricos, cada 50 cm y en metros IGN: el mismo
+   sistema que el cero del hidrómetro (ver scripts/curvas.js). Se interpola
+   entre las dos curvas de cota DISTINTA más cercanas. */
+function entreCurvas(d, lat, lon) {
   const ml = mPorGradoLon(lat);
   const px = lon * ml,
     py = lat * M_POR_GRADO_LAT;
@@ -139,12 +59,150 @@ export async function elevacionDe(lat, lon) {
   const orden = [...cercania.entries()].sort((a, b) => a[1] - b[1]);
   if (!orden.length) return null;
   const [z1, d1] = orden[0];
-  // Se interpola entre las dos curvas de cota DISTINTA más cercanas.
   for (const [z2, d2] of orden.slice(1)) {
     if (z2 !== z1) {
       const t = d1 + d2 === 0 ? 0 : d1 / (d1 + d2);
-      return { cota: z1 + (z2 - z1) * t, distancia: d1, fuente: "curvas" };
+      return { cota: z1 + (z2 - z1) * t, distancia: d1 };
     }
   }
-  return { cota: z1, distancia: d1, fuente: "curvas" };
+  return { cota: z1, distancia: d1 };
+}
+
+/* ---------- los puntos de la costa ----------
+   Las curvas terminan en el límite del municipio. San José del Rincón y
+   Arroyo Leyes tienen los puntos con cota de la misma campaña de 2005 (IDESF,
+   capa MACotas; ver scripts/cotas-costa.js).
+
+   Más lejos que PUNTOS_MAX_M del punto medido más cercano no hay dato: es
+   otro terreno. La mitad de los puntos tiene un vecino a menos de 36 m y
+   nueve de cada diez a menos de 76 (AUDITORIA.md §7, pregunta 24). */
+const PUNTOS_MAX_M = 150;
+
+/* Cuatro vecinos, pesados por la inversa del cuadrado de la distancia. Es lo
+   que se validó: estimando cada punto con sus cuatro vecinos, en Rincón y
+   Arroyo Leyes la mediana del error es 0,21 m y el p90 0,93 m. Por eso el
+   margen de esta fuente es ERROR_PUNTOS y no ERROR_DEM. */
+function conPuntos(d, lat, lon) {
+  const ml = mPorGradoLon(lat);
+  const p = d.puntos;
+  const cerca = [];
+  for (let i = 0; i < p.length; i += 3) {
+    const dist = Math.hypot(
+      (p[i] - lon) * ml,
+      (p[i + 1] - lat) * M_POR_GRADO_LAT,
+    );
+    if (dist > PUNTOS_MAX_M) continue;
+    cerca.push([dist, p[i + 2]]);
+  }
+  if (!cerca.length) return null;
+  cerca.sort((a, b) => a[0] - b[0]);
+  const cuatro = cerca.slice(0, 4);
+  // Encima de un punto medido, ése es el dato: la inversa de cero no existe.
+  if (cuatro[0][0] < 0.5) return { cota: cuatro[0][1], distancia: cuatro[0][0] };
+  let suma = 0,
+    pesos = 0;
+  for (const [dist, z] of cuatro) {
+    suma += z / dist ** 2;
+    pesos += 1 / dist ** 2;
+  }
+  return { cota: suma / pesos, distancia: cuatro[0][0] };
+}
+
+/* ---------- las fuentes, en orden ----------
+   La primera cuya área contiene el punto es la que contesta, aunque conteste
+   null: donde hay curvas mandan las curvas. Cada archivo se baja recién
+   cuando hace falta —quien vive en la ciudad nunca pide el de la costa—.
+
+   Cada fuente trae todo lo suyo, en un solo renglón: el archivo, la cuenta,
+   el MARGEN —la constante de config.js, que sigue teniendo dueño en
+   AUDITORIA.md—, el sello que la atribuye (una clave de FUENTES_APP) y cómo
+   se la nombra en pantalla. Antes el margen se elegía comparando el texto
+   "puntos" en un lado y los textos con un if en otro. Agregar una fuente es
+   agregar un renglón acá; scripts/comprobar.js verifica que traiga todo. */
+export const FUENTES_ALTURA = [
+  {
+    id: "curvas",
+    archivo: "/datos-abiertos/curvas.json",
+    calcular: entreCurvas,
+    margen: ERROR_DEM,
+    sello: "topografia",
+    dice: {
+      // «Margen de seguridad (…)», en el desglose.
+      porQueMargen: "el plano tiene líneas cada 50 cm",
+      // «la cota del terreno viene de …», al pie del desglose.
+      deDonde: "curvas cada 0,5 m",
+      // El párrafo que explica la altura estimada.
+      explicacion: (distancia) =>
+        "<b>Altura calculada entre dos líneas del plano</b>, que tiene una " +
+        "cada 50 cm." +
+        (distancia != null
+          ? " La más cercana a ese punto está a " + Math.round(distancia) + " m."
+          : "") +
+        " Por eso la cuenta usa medio metro menos.",
+    },
+  },
+  {
+    id: "puntos",
+    archivo: "/datos-abiertos/cotas-costa.json",
+    calcular: conPuntos,
+    margen: ERROR_PUNTOS,
+    sello: "topografiaCosta",
+    dice: {
+      porQueMargen: "puntos medidos cada unos 40 m, en un terreno que cambia mucho",
+      deDonde: "puntos medidos cada unos 40 m",
+      explicacion: (distancia) =>
+        "<b>Altura calculada con los puntos medidos más cercanos</b>, de un " +
+        "relevamiento de la Provincia de 2005." +
+        (distancia != null
+          ? " El más cercano a ese lugar está a " + Math.round(distancia) + " m."
+          : "") +
+        " En la costa el terreno cambia mucho de un lugar a otro —terraplenes, " +
+        "cunetas, rellenos—, así que la cuenta usa un metro menos.",
+    },
+  },
+];
+
+/* La fuente por su id. Lo guardado antes del 22/10/2026 no tiene fuente, y
+   entonces salió de las curvas: eran la única. */
+export const fuenteAltura = (id) =>
+  FUENTES_ALTURA.find((f) => f.id === id) || FUENTES_ALTURA[0];
+
+const cargadas = new Map();
+
+function cargar(f) {
+  if (!cargadas.has(f.id))
+    cargadas.set(
+      f.id,
+      fetch(f.archivo).then((r) => {
+        if (!r.ok) throw new Error("no se pudo cargar " + f.archivo);
+        return r.json();
+      }),
+    );
+  // Si falló, se olvida: el próximo intento vuelve a pedirlo.
+  return cargadas.get(f.id).catch((e) => {
+    cargadas.delete(f.id);
+    throw e;
+  });
+}
+
+const dentro = ([oe, os, on, ono], lat, lon) =>
+  lon >= oe && lon <= on && lat >= os && lat <= ono;
+
+/* Devuelve { cota, distancia, fuente } o null si el punto cae fuera de las
+   zonas cubiertas. Preferimos no dar un número antes que dar uno inventado.
+   `fuente` es el id de FUENTES_ALTURA y decide el margen: ver margenDe() en
+   modelo.js. */
+export async function elevacionDe(lat, lon) {
+  for (const f of FUENTES_ALTURA) {
+    let d;
+    try {
+      d = await cargar(f);
+    } catch (e) {
+      continue;
+    }
+    if (!dentro(d.area, lat, lon)) continue;
+    const r = f.calcular(d, lat, lon);
+    return r && { ...r, fuente: f.id };
+  }
+  return null;
 }

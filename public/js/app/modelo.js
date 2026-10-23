@@ -9,14 +9,15 @@
    cuenta con los datos de la sesión. Nadie más la hace. Ver CLAUDE.md,
    «Escenario pesimista, en un solo lugar». */
 
-import { CERO_IGN, ERROR_DEM, ERROR_PUNTOS, PENDIENTE } from "./config.js";
+import { CERO_IGN, PENDIENTE } from "./config.js";
+import { fuenteAltura } from "./elevacion.js";
 
 /* Cuánto se le descuenta a la altura antes de traducirla. Cero si la cargó
    la persona; si salió de un plano, el margen de ESA fuente: las curvas de la
-   ciudad y los puntos de la costa no se equivocan lo mismo (config.js). */
+   ciudad y los puntos de la costa no se equivocan lo mismo. Cada fuente trae
+   el suyo en FUENTES_ALTURA (elevacion.js). */
 export function margenDe({ estimada, fuente }) {
-  if (!estimada) return 0;
-  return fuente === "puntos" ? ERROR_PUNTOS : ERROR_DEM;
+  return estimada ? fuenteAltura(fuente).margen : 0;
 }
 
 /* El nivel del río a partir del cual el agua alcanzaría esa cota. Por
