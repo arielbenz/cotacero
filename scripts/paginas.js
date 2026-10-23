@@ -1950,17 +1950,24 @@ const htmlNoEncontrada = pagina({
    La página que explica el widget. El widget en sí vive en /widget y es lo
    único del sitio que se deja embeber: su CSP lleva frame-ancestors *, y esa
    regla va después del comodín en vercel.json porque gana la última. */
+/* El renglón de abajo NO es decoración. El crédito de adentro del widget
+   («vía Cota Cero») vive en el iframe, y para Google un enlace dentro de un
+   iframe es del documento del iframe, no de la nota que lo embebe: el medio
+   que pegaba el código no dejaba ningún enlace hacia acá. Éste sí queda en
+   su página. Va con la marca como texto y nada más: Google trata como spam
+   los widgets que reparten enlaces con palabras clave. */
 const CODIGO_WIDGET = `<iframe src="${SITIO}/widget"
   width="100%" height="220" loading="lazy"
   style="border:0;border-radius:16px"
-  title="Nivel del río en el Puerto de Santa Fe — Cota Cero"></iframe>`;
+  title="Nivel del río en el Puerto de Santa Fe — Cota Cero"></iframe>
+<p style="margin:6px 0 0;font:13px/1.4 sans-serif">Fuente: <a href="${SITIO}/">Cota Cero</a>, con datos del INA</p>`;
 
 /* [título, texto]. Tres y numeradas: son las reglas del préstamo, en orden
    de lo que más se rompe. */
 const CONDICIONES = [
   [
     "No recortes el crédito",
-    "«Datos: INA · vía Cota Cero» es lo que le permite a tu lector ir a la fuente del número que estás publicando.",
+    "Ni el «Datos: INA · vía Cota Cero» de adentro ni el renglón de abajo: es lo que le permite a tu lector ir a la fuente del número que estás publicando.",
   ],
   [
     "No es un pronóstico",
@@ -1979,7 +1986,7 @@ const htmlMedios = pagina({
   h1: "El río, embebido en tu nota",
   lead:
     "El nivel del Paraná en el Puerto, con la alerta y la evacuación de la " +
-    "ciudad, siempre actualizado. Pegás dos líneas de HTML y listo.",
+    "ciudad, siempre actualizado. Pegás el código en tu nota y listo.",
   acciones: `        <ul class="hero-tildes medios-tildes">
           <li>Gratis</li>
           <li>Sin claves de API</li>
