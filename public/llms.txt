@@ -1,6 +1,6 @@
 # Cota Cero
 
-> Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad.
+> Alerta y evacuación de la ciudad: 5,30 y 5,70 m en el Puerto. Calculá con tu dirección a qué nivel del río el agua puede llegar a tu terreno. Datos del INA.
 
 Herramienta ciudadana para la emergencia hídrica de Santa Fe, Argentina.
 Sin vínculo con el municipio ni con ningún organismo: la orden de
@@ -14,7 +14,7 @@ lo más importante que hay que conservar.
 
 ## Páginas
 
-- [Nivel del río Paraná en Santa Fe hoy](https://cotacerosf.com/): Consultá el nivel actual del río Paraná en la ciudad de Santa Fe y entendé qué significa para tu terreno. Datos públicos del INA y de la Municipalidad.
+- [Nivel del río Paraná en Santa Fe hoy](https://cotacerosf.com/): Alerta y evacuación de la ciudad: 5,30 y 5,70 m en el Puerto. Calculá con tu dirección a qué nivel del río el agua puede llegar a tu terreno. Datos del INA.
 - [Puntos de encuentro por inundación en Santa Fe](https://cotacerosf.com/puntos-de-encuentro): Los 30 puntos de encuentro del Plan de Contingencia de la Municipalidad de Santa Fe, con su dirección y cómo llegar. Fuente: Gestión de Riesgos.
 - [Cota de tu terreno y datos del río en Santa Fe](https://cotacerosf.com/datos): Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso.
 - [Crecidas históricas del río Paraná en Santa Fe](https://cotacerosf.com/historia): Las mayores crecidas y las bajantes más hondas del Paraná en Santa Fe, con la serie diaria del INA desde 1925. La de 1992 sigue siendo el récord.
