@@ -1,13 +1,12 @@
 /* js/app/cota.js — de la cota del terreno al umbral del hidrómetro.
-   `cotaEnHidrometro()` es la ÚNICA función que hace esa traducción, y por
+   `cotaEnHidrometro()` es la ÚNICA puerta a esa traducción —la cuenta en sí
+   está en modelo.js, pura, para poder comprobarla desde Node—, y por
    defecto devuelve el escenario pesimista. No recalcular la cuenta en otro
    lado: cuando se hizo, la regla mostraba el optimista y el veredicto el
    pesimista, con hasta 3 m de diferencia para lo mismo en la misma pantalla. */
 
 import {
   CERO_IGN,
-  ERROR_DEM,
-  ERROR_PUNTOS,
   ESCALA_MAX,
   ESCALA_MIN,
   KM_PUBLICADO,
@@ -19,6 +18,7 @@ import { curvas, elevacionDe } from "./elevacion.js";
 import { estado, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
+import { margenDe, umbralDe } from "./modelo.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
 import { aniosQueLlegaron, pintarRio } from "./rio.js";
 import { aLaVista, ocupar } from "./vista.js";
@@ -72,15 +72,20 @@ export const BOTON_MARCAR =
    ciudad y los puntos de la costa no se equivocan lo mismo (config.js). Una
    sola función para que la regla, el veredicto, el desglose y el plan
    impreso no puedan usar márgenes distintos. */
+/* `function` y no `const` con flecha: cota.js y rio.js se importan entre sí,
+   y una declaración se eleva; una constante, no. */
 export function margenCota() {
-  if (!estado.cotaEsEstimada) return 0;
-  return estado.cotaFuente === "puntos" ? ERROR_PUNTOS : ERROR_DEM;
+  return margenDe({ estimada: estado.cotaEsEstimada, fuente: estado.cotaFuente });
 }
 
 export function cotaEnHidrometro({ crudo = false } = {}) {
-  if (estado.cota == null || kmDeZona() === null) return null;
-  const cota = crudo ? estado.cota : estado.cota - margenCota();
-  return cota - CERO_IGN - PENDIENTE * kmDeZona();
+  return umbralDe({
+    cota: estado.cota,
+    estimada: estado.cotaEsEstimada,
+    fuente: estado.cotaFuente,
+    km: kmDeZona(),
+    crudo,
+  });
 }
 
 /* Los km a mano se persisten. `iniciar()` los leía de cc_km pero nadie

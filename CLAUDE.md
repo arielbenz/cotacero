@@ -13,6 +13,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
 ## Comandos
 
     node scripts/servir.js            # http://localhost:3000 (PORT=3100 para otro puerto)
+    node scripts/comprobar.js         # los casos del cálculo central; sale con error si uno cambia
     node scripts/paginas.js           # regenera las páginas de contenido y public/css/app.css
     node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
@@ -23,9 +24,18 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
     node scripts/vapid.js             # claves de push, se corre una sola vez
 
-**No hay `package.json`, ni dependencias, ni build step, ni tests, ni linter.**
-Es deliberado. Agregar cualquiera de esas cosas es una decisión de proyecto, no
-un detalle de implementación: preguntá antes.
+**No hay `package.json`, ni dependencias, ni build step, ni framework de
+tests, ni linter.** Es deliberado. Agregar cualquiera de esas cosas es una
+decisión de proyecto, no un detalle de implementación: preguntá antes.
+
+Lo que sí hay, desde octubre de 2026 y con el OK del proyecto, es
+`scripts/comprobar.js`: una lista de casos con valores ya verificados a mano
+—el formato de los números, el gemelo clásico, la cuenta del modelo, de dónde
+sale la altura, la consistencia de `ZONAS`— que sale con error si alguno
+cambia. Sin framework y sin dependencias: importa los módulos de la app con
+un hook que manda las rutas del navegador (`/lib/…`) a `public/`. **Un caso
+nuevo se agrega con su valor comprobado en el navegador o contra la fuente**,
+no con lo que la función devuelve hoy: si no, el script confirma el error.
 
 `scripts/servir.js` es el único servidor que sirve: aplica las cabeceras de
 `vercel.json` —**la CSP incluida**—, sirve el sitio desde `public/` y ejecuta
@@ -33,13 +43,16 @@ las funciones de `/api`. Un `python -m http.server` no prueba la política.
 
 ### Cómo se verifica un cambio
 
-Sin tests, la verificación es esta y en este orden:
+Sin framework de tests, la verificación es esta y en este orden:
 
 1. `node --check <archivo>` en cada `.js` tocado.
-2. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
+2. `node scripts/comprobar.js` si tocaste algo del cálculo: `config.js`,
+   `modelo.js`, `elevacion.js`, `public/lib/comun.js` o los datos de
+   `datos-abiertos/`.
+3. `node scripts/paginas.js` si tocaste `scripts/paginas.js`, `public/app/index.html`,
    `public/lib/fuentes.js`, **`public/lib/comun.js` o `estilos/app.css`** —de los
    dos últimos sale un archivo generado, ver abajo—.
-3. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
+4. Levantar el servidor y mirarlo en un navegador de verdad, con la consola
    abierta. Los módulos (`lib/`, `scripts/`) se pueden probar importándolos
    desde Node.
 
@@ -576,10 +589,14 @@ teléfono de emergencia, no una acción de la interfaz.
 
 ### Escenario pesimista, en un solo lugar
 
-`cotaEnHidrometro()` es la **única** función que traduce cota a umbral, y por
-defecto descuenta el margen de la fuente: `margenCota()`, que da `ERROR_DEM`
-para las curvas y `ERROR_PUNTOS` para los puntos de la costa, según
-`estado.cotaFuente`. No recalcular esa cuenta en otro lado: cuando se
+`cotaEnHidrometro()` es la **única** puerta a la traducción de cota a umbral,
+y por defecto descuenta el margen de la fuente: `margenCota()`, que da
+`ERROR_DEM` para las curvas y `ERROR_PUNTOS` para los puntos de la costa,
+según `estado.cotaFuente`. La cuenta en sí está en `js/app/modelo.js`
+(`umbralDe`, `margenDe`), pura —sin estado ni DOM— para que
+`scripts/comprobar.js` la pueda probar desde Node; las dos de `cota.js` sólo
+le pasan los datos de la sesión. **`config.js` y `modelo.js` no importan nada
+que toque el DOM**: el día que lo hagan, el script deja de poder cargarlos. No recalcular esa cuenta en otro lado: cuando se
 hizo, la regla mostraba el escenario optimista y el veredicto el pesimista, con
 hasta 3 m de diferencia para lo mismo en la misma pantalla.
 
@@ -631,7 +648,7 @@ instalarse_.
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
 | `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 87 KB  | todo el que entra al sitio |
-| `DEL_APP`  | los 23 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 224 KB | sólo quien abre `/app`     |
+| `DEL_APP`  | los 24 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 224 KB | sólo quien abre `/app`     |
 
 Medido con gzip en octubre de 2026, después de sacarle los comentarios a
 `app.css` y de dejar las tipografías en un archivo por familia.

@@ -124,6 +124,7 @@ const DEL_APP = [
   "/js/app/lluvia.js",
   "/js/app/mapa.js",
   "/js/app/metricas.js",
+  "/js/app/modelo.js",
   "/js/app/oficiales.js",
   "/js/app/plan.js",
   "/js/app/puntos.js",
@@ -159,8 +160,9 @@ const DEL_APP = [
   "/img/apple-touch-icon.png",
 ];
 
-/* La unión. `scripts/paginas.js` verifica contra esto que estén los 22 módulos
-   y las 10 páginas generadas, y que no sobre ninguna ruta muerta. */
+/* La unión. `scripts/paginas.js` verifica contra esto que estén todos los
+   módulos de js/app/ y las páginas generadas, y que no sobre ninguna ruta
+   muerta. */
 const ESENCIALES = CRITICOS.concat(DEL_APP);
 
 // `cache: "reload"` salta el caché HTTP del navegador. Sin esto, subir

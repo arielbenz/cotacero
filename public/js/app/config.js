@@ -1,10 +1,11 @@
 /* js/app/config.js — las constantes del cálculo y las listas fijas.
    Los tres números que gobiernan el modelo —CERO_IGN, PENDIENTE y ERROR_DEM—
    están en discusión técnica abierta: no se tocan sin leer AUDITORIA.md.
-   MOCHILA y PREVIA se guardan por posición: no reordenar (ver CLAUDE.md). */
+   MOCHILA y PREVIA se guardan por posición: no reordenar (ver CLAUDE.md).
 
-import { guardado } from "./estado.js";
-import { m } from "./formato.js";
+   No importa nada que toque el DOM, a propósito: así scripts/comprobar.js
+   lo puede cargar desde Node. Importaba guardado y m sin usarlos, y con eso
+   arrastraba a estado.js, que lee el HTML al cargarse. */
 
 /* ==========  CONFIGURACIÓN  ==========
    Lo único que tenés que tocar para poner esto en marcha. */
