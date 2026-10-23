@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { GENERADAS, PUBLICO, RAIZ, SITIO, pie, puntos } from "./base.js";
 import { ENLACES, PROVEEDORES } from "../../lib/proveedores.js";
 import { RENGLON_VERSION, versionDelSw } from "../version-sw.js";
+import { GEOMETRIA, geometriaDe } from "../marca.js";
 
 /* Las páginas se cargan solas: cada archivo de esta carpeta que no sea
    base.js ni emitir.js es una página, y al cargarse se anota en GENERADAS
@@ -646,6 +647,45 @@ console.log(
     "proveedores: " + PROVEEDORES.length + " en la CSP y en /legal; " +
       enCodigo.size + " hosts del código clasificados",
   );
+}
+
+/* ---------- la marca ----------
+   El dibujo vive en scripts/marca.js. El HTML a mano —portada, app, widget—
+   lleva sus copias con su tamaño y su color; acá se compara la geometría de
+   cada una (y de las generadas) contra ese dibujo. También que ningún id de
+   clipPath se repita en una página: con dos iguales el navegador recorta las
+   dos con el primero, y la marca de abajo sale mal sin ningún error. */
+{
+  const problemas = [];
+  let copias = 0;
+  const recorrer = async (dir) => {
+    for (const e of await readdir(dir, { withFileTypes: true })) {
+      const ruta = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name !== "vendor") await recorrer(ruta);
+      } else if (e.name.endsWith(".html")) {
+        const html = await readFile(ruta, "utf8");
+        const archivo = ruta.slice(PUBLICO.length + 1);
+        const ids = [];
+        for (const [svg] of html.matchAll(/<svg\b[^>]*viewBox="0 0 60 60"[\s\S]*?<\/svg>/g)) {
+          copias++;
+          const id = (svg.match(/<clipPath id="([^"]+)"/) || [])[1];
+          ids.push(id);
+          if (geometriaDe(svg) !== GEOMETRIA)
+            problemas.push(`${archivo}, la marca con clipPath «${id}»: el dibujo no es el de scripts/marca.js`);
+          if (!svg.includes(`url(#${id})`))
+            problemas.push(`${archivo}, «${id}»: el agua no usa su propio clipPath`);
+        }
+        const repetidos = ids.filter((x, i) => ids.indexOf(x) !== i);
+        if (repetidos.length)
+          problemas.push(`${archivo}: clipPath repetido en la misma página: ${[...new Set(repetidos)].join(", ")}`);
+      }
+    }
+  };
+  await recorrer(PUBLICO);
+  if (problemas.length)
+    throw new Error("La marca:\n  " + problemas.join("\n  "));
+  console.log("la marca: " + copias + " copias, todas con el dibujo de scripts/marca.js");
 }
 
 /* ---------- la VERSION del service worker ----------
