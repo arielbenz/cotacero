@@ -26,7 +26,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)  | no        | sí                        | no                     |
 | Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)    | no        | sí                        | no                     |
 | Km río arriba por zona         | `js/app/config.js`             | 1 publicado, 9 propios   | parcial   | sí                        | no                     |
-| Niveles observados por zona    | `js/app/config.js` (`ZONAS`)   | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
+| Niveles observados por zona    | `js/app/zonas.js` (`ZONAS`)    | municipio en prensa, 2016 | **no**   | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio          | no        | sí                        | no                     |
 | «Atención» 1 m antes de alerta | `public/lib/comun.js`          | criterio propio          | no        | sí                        | no                     |
 | Escenario 6 m + 200-300 mm     | HTML de la app                 | municipio                | sí        | sí                        | no                     |

@@ -218,7 +218,7 @@ nunca.
   pide la altura a mano de entrada, en vez de mandar de un camino al otro.
   Para quien ya la cargó, el resultado va
   primero y los pasos se pliegan. Debajo, si la zona tiene defensa y a qué
-  niveles **pasó algo** ahí, con fuente (`ZONAS` en `js/app/config.js`,
+  niveles **pasó algo** ahí, con fuente (`ZONAS` en `js/app/zonas.js`,
   rastreados en `AUDITORIA.md` §9). La defensa no cambia la cuenta: cambia lo
   que la cuenta significa.
 - **Mi plan.** Mochila y checklist previo (`public/lib/listas.js`), que se

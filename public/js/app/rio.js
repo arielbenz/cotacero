@@ -18,7 +18,6 @@ import {
 } from "./config.js";
 import { pintarCompartir } from "./compartir.js";
 import { calcular, cotaEnHidrometro } from "./cota.js";
-import { curvas } from "./elevacion.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";

@@ -23,7 +23,8 @@ import { activarAvisos, desactivarAvisos } from "./avisos.js";
 import { cerrarBienvenida, mostrarBienvenida } from "./bienvenida.js";
 import { elegirCalle, sugerirCalle, teclaEnDireccion } from "./calles.js";
 import { compartirImagen } from "./compartir.js";
-import { REFRESCO_MS, ZONAS } from "./config.js";
+import { REFRESCO_MS } from "./config.js";
+import { ZONAS } from "./zonas.js";
 import {
   alternarCasa,
   calcular,

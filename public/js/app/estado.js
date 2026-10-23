@@ -5,7 +5,7 @@
    puntos de encuentro: así los indexa un buscador, se ven sin JS y no hay dos
    listas que se puedan desincronizar. */
 
-import { ZONAS } from "./config.js";
+import { ZONAS } from "./zonas.js";
 
 /* Los 30 puntos de encuentro viven en el HTML (ver index.html), con las
    coordenadas OFICIALES del municipio en atributos data-. Los leemos de ahí en
@@ -101,7 +101,7 @@ export let estado = {
   // es la altura del lugar donde estabas parado, que puede no ser tu casa.
   cotaOrigen: "",
   cotaDetalle: "", // la dirección encontrada, o la precisión del GPS
-  // "curvas" | "puntos": de qué fuente salió una altura estimada. Decide el
+  // El id de FUENTES_ALTURA (elevacion.js) del que salió una altura estimada. Decide el
   // margen (margenCota en cota.js). Vacío si se cargó a mano.
   cotaFuente: "",
   zona: "centro",

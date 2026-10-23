@@ -131,6 +131,7 @@ const DEL_APP = [
   "/js/app/rio.js",
   "/js/app/tema.js",
   "/js/app/vista.js",
+  "/js/app/zonas.js",
   /* Las listas de la mochila y del checklist previo viven en lib/ para que
      también las lea el generador de la guía impresa. La app las importa desde
      config.js, así que sin esto /app no abre sin conexión. */
