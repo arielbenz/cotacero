@@ -188,7 +188,13 @@ export const ZONAS = [
     id: "rincon",
     n: "San José del Rincón",
     km: 16,
-    localidad: { re: /san jos[eé] del rinc[oó]n/i, georef: "San José del Rincón" },
+    localidad: {
+      re: /san jos[eé] del rinc[oó]n/i,
+      en: /\b(?:(?:san\s+jos[eé]|s\.?\s?j\.?)\s+del\s+)?rinc[oó]n\b/i,
+      georef: "San José del Rincón",
+      centro: [-60.5675, -31.6064],
+      callejero: "/datos-abiertos/calles-rincon.json",
+    },
     nota: "Defensa propia al este; unos 3 km de la margen oeste no la tienen, y la obra proyectada no se adjudicó.",
     defensa: "local",
     observado: [
@@ -208,7 +214,13 @@ export const ZONAS = [
     id: "leyes",
     n: "Arroyo Leyes",
     km: 24,
-    localidad: { re: /arroyo leyes/i, georef: null },
+    localidad: {
+      re: /arroyo leyes/i,
+      en: /\b(?:arroyo\s+)?leyes\b/i,
+      georef: null,
+      centro: [-60.5176, -31.5591],
+      callejero: null,
+    },
     nota: "Defensa a 17 m sobre el mar (cota IGN) al este; los barrios del oeste no tienen, y la obra licitada no se adjudicó.",
     defensa: "local",
     observado: [
@@ -246,10 +258,15 @@ export const ZONAS = [
 
 /* `localidad`, sólo en las vecinas que no son el municipio de Santa Fe y que
    la app calcula: `re` las reconoce en lo que devuelve Nominatim —que pone a
-   Rincón en `municipality` y a Arroyo Leyes en `village`—, y `georef` es su
-   localidad censal en Georef, que tiene el callejero de Rincón (217 calles) y
-   no el de Arroyo Leyes. Calchines no la lleva: no tiene datos de altura y
-   además queda fuera del viewbox de la búsqueda. */
+   Rincón en `municipality` y a Arroyo Leyes en `village`—, `en` las reconoce
+   en lo que ESCRIBE la persona («Dorrego 2414, san jose del rincon»,
+   «Leyes»), más suelto porque nadie escribe el nombre entero, y `georef` es
+   su localidad censal en Georef, que tiene el callejero de Rincón (217 calles)
+   y no el de Arroyo Leyes —ahí sólo «CALLE 1», «CALLE 2»…—. `callejero` es el
+   archivo con las calles que sugiere el buscador (scripts/calles.js); null
+   donde no hay uno que sirva, y `centro` —el centroide de la localidad en
+   Georef— es adónde mira el mapa al marcar la casa. Calchines no lleva `localidad`: no tiene datos
+   de altura y además queda fuera del viewbox de la búsqueda. */
 export const VECINAS = ZONAS.filter((z) => z.localidad);
 
 /* Hasta dónde llegan los planos, en palabras: la usan los mensajes de «no

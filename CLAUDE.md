@@ -18,7 +18,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
     node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
     node scripts/cotas-costa.js       # baja los puntos con cota de Rincón y Leyes -> public/datos-abiertos/cotas-costa.json
-    node scripts/calles.js            # baja el callejero de Georef -> public/datos-abiertos/calles.json
+    node scripts/calles.js            # baja el callejero de Georef -> calles.json y calles-rincon.json
     node scripts/iconos.js            # rasteriza la marca a los PNG (Chrome headless)
     node scripts/guia-pdf.js          # imprime /guia a public/guia.pdf (Chrome headless)
     node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
@@ -481,9 +481,23 @@ Georef, a su `localidad.georef`) y después a la ciudad, y si la dirección cae
 en otra zona que la elegida, la app lo dice y ofrece cambiarla. Santo Tomé y
 Candioti siguen afuera.
 
+**La localidad escrita manda sobre la zona elegida, y las esquinas se
+buscan.** «Dorrego 2414, San José del Rincón» busca en Rincón aunque la zona
+sea la ciudad (`localidadEscrita()` en `mapa.js`, con `localidad.en` de
+`zonas.js`): antes le pasaba «san jose del rincon» a Georef como parte de la
+calle. La localidad cuenta sólo al principio o al final —«Combate de Rincón
+100» es una calle—. «Mitre y Salta» va a Georef, que sí resuelve esquinas
+(Nominatim no, y por eso no se le pregunta). Georef es difuso con los nombres
+(«Dorrego y Constituyentes» devolvió «Cmte Orrego»): lo encontrado se
+muestra entero. Cuando no aparece, `noEncontrada()` ofrece buscar en las
+vecinas y el mapa, que arranca sobre la localidad elegida (`centro`). Arroyo
+Leyes no tiene callejero útil en Georef —171 tramos «CALLE 1», «CALLE 2»— y ahí
+el campo lo dice y manda al mapa.
+
 **Las sugerencias del buscador no consultan a nadie.** `js/app/calles.js`
-filtra en el teléfono contra `datos-abiertos/calles.json`, el callejero de
-Georef que baja `node scripts/calles.js`. Pedirle sugerencias a una API por
+filtra en el teléfono contra `datos-abiertos/calles.json` —o
+`calles-rincon.json` si la zona elegida es Rincón—, el callejero de Georef que
+baja `node scripts/calles.js`. Pedirle sugerencias a una API por
 cada tecla mandaría la dirección de la persona antes de que apriete Buscar,
 y eso vuelve falsa la frase de `/legal`; además la política de Nominatim
 prohíbe autocompletar contra su API. El archivo no se precachea: buscar una

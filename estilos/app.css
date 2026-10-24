@@ -1396,6 +1396,11 @@ label.campo-dir {
 .pista-dir.aviso-dir {
   color: var(--alerta-texto);
 }
+/* Dónde va a buscar, con las vecinas como enlaces: el campo de dirección no
+   decía que buscaba en la ciudad. Pintado por pintarZonaDir (calles.js). */
+.zona-dir {
+  margin: 0 0 var(--e-3);
+}
 /* ==========================================================================
    BOTONES: DOS ESTILOS Y NADA MÁS
    `.btn`      el sólido. La acción principal, una por pantalla. Negro sobre

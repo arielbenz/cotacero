@@ -21,7 +21,12 @@ document.documentElement.classList.add("con-modulos");
 
 import { activarAvisos, desactivarAvisos } from "./avisos.js";
 import { cerrarBienvenida, mostrarBienvenida } from "./bienvenida.js";
-import { elegirCalle, sugerirCalle, teclaEnDireccion } from "./calles.js";
+import {
+  cambioDeZona,
+  elegirCalle,
+  sugerirCalle,
+  teclaEnDireccion,
+} from "./calles.js";
 import { compartirImagen } from "./compartir.js";
 import { REFRESCO_MS } from "./config.js";
 import { ZONAS } from "./zonas.js";
@@ -46,6 +51,7 @@ import { cargarLluvia } from "./lluvia.js";
 import {
   abrirBuscadorDireccion,
   buscarDireccion,
+  buscarEnVecina,
   cancelarMarca,
   confirmarMarca,
   mapa,
@@ -139,6 +145,7 @@ function iniciar() {
   sel.addEventListener("change", () => {
     guardado.set("cc_zona", sel.value);
     calcular();
+    cambioDeZona();
   });
 
   const c = guardado.get("cc_cota");
@@ -219,6 +226,14 @@ const ACCIONES = {
   "buscar-dir": () => buscarDireccion(),
   // La dirección cayó en una vecina sin plano y la persona confirma (mapa.js).
   "zona-vecina": (el) => vivoEnVecina(el.dataset.zona),
+  // «¿Vivís en Rincón?» debajo del campo de dirección: cambia la zona y deja
+  // el foco donde estaba, para seguir escribiendo.
+  "zona-dir": (el) => {
+    elegirZona(el.dataset.zona);
+    document.getElementById("in-dir").focus();
+  },
+  // El mismo, pero desde el renglón de «no se encontró»: repite la búsqueda.
+  "buscar-en-vecina": (el) => buscarEnVecina(el.dataset.zona),
   // Una sugerencia del buscador de dirección (js/app/calles.js).
   "elegir-calle": (el) => elegirCalle(el.dataset.calle || ""),
   exportar: () => exportarPlan(),

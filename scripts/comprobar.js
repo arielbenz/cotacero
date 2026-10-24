@@ -21,7 +21,7 @@
 // public/, que es lo que hace el servidor.
 
 import { PUBLICO } from "./app-en-node.js";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import vm from "node:vm";
 
@@ -200,7 +200,17 @@ console.log("ZONAS");
     caso(`vecina «${v.id}»: cómo se la reconoce`, v.localidad.re instanceof RegExp && v.localidad.re.test(v.n), true);
     caso(`vecina «${v.id}»: está en la frase de cobertura`, zonas.COBERTURA.includes(v.n), true);
     caso(`vecina «${v.id}»: no es «sin plano»`, !v.sinPlano, true);
+    caso(`vecina «${v.id}»: se la reconoce en lo que escribe la persona`, v.localidad.en.test(v.n), true);
+    caso(
+      `vecina «${v.id}»: el callejero que nombra existe`,
+      v.localidad.callejero === null || existsSync(join(PUBLICO, v.localidad.callejero)),
+      true,
+    );
+    caso(`vecina «${v.id}»: tiene centro para el mapa`, v.localidad.centro.length === 2, true);
   }
+  // «Combate de Rincón 100» es una calle de Rincón: no se confunde con la localidad sola.
+  caso("«rincón» a secas se reconoce", zonas.VECINAS[0].localidad.en.test("Rincón"), true);
+  caso("«Leyes» no es Rincón", zonas.VECINAS[0].localidad.en.test("Leyes"), false);
   const ids = zonas.ZONAS.map((z) => z.id);
   caso("ids sin repetir", ids.length === new Set(ids).size, true);
   caso(

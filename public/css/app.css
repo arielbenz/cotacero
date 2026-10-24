@@ -1242,6 +1242,10 @@ label.campo-dir {
   color: var(--alerta-texto);
 }
 
+.zona-dir {
+  margin: 0 0 var(--e-3);
+}
+
 .btn {
   background: var(--btn-fuerte);
   color: var(--btn-fuerte-texto);

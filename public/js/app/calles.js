@@ -1,6 +1,8 @@
 /* js/app/calles.js — las sugerencias del buscador de dirección.
    Filtra en el teléfono contra datos-abiertos/calles.json, el callejero de
-   Georef para la ciudad (lo genera scripts/calles.js). Mientras la persona
+   Georef para la ciudad, o contra calles-rincon.json si la zona elegida es
+   San José del Rincón (los genera scripts/calles.js; Arroyo Leyes no
+   tiene uno que sirva, ver zonas.js). Mientras la persona
    escribe no sale nada del dispositivo: /legal promete que la búsqueda
    consulta afuera sólo cuando ella la inicia, y la política de Nominatim
    prohíbe autocompletar contra su API.
@@ -10,10 +12,23 @@
    lista se puede buscar igual: puede ser un barrio, que eso lo resuelve
    Nominatim. */
 
-let calles = null, // [{ nombre, palabras, desde, hasta }]
-  promesa = null,
-  opciones = [], // lo que se está mostrando, para las flechas
+import { VECINAS } from "./zonas.js";
+import { estado } from "./estado.js";
+
+const CALLEJERO_CIUDAD = "/datos-abiertos/calles.json";
+
+const callejeros = new Map(); // archivo -> promesa de [{ nombre, palabras, desde, hasta }] | null
+let opciones = [], // lo que se está mostrando, para las flechas
   activa = -1;
+
+/* Qué callejero y qué nombre corresponden a la zona elegida. Sin zona, o con
+   una de la ciudad, es la ciudad. `archivo` es null donde no hay callejero. */
+function callejeroActual() {
+  const v = VECINAS.find((x) => x.id === estado.zona);
+  return v
+    ? { archivo: v.localidad.callejero, lugar: v.n, vecina: v }
+    : { archivo: CALLEJERO_CIUDAD, lugar: "Santa Fe", vecina: null };
+}
 
 /* «BV GALVEZ» → «Bv Galvez». Georef da los nombres en mayúsculas y sin
    tildes; la app los muestra así para que la persona pueda desmentir lo que
@@ -52,6 +67,10 @@ const ALIAS = {
   presbitero: "pbro",
   presidente: "pres", pte: "pres",
   camino: "cno",
+  coronel: "cnl", cnel: "cnl",
+  comandante: "cmte", cdte: "cmte",
+  capitan: "cap",
+  alferez: "alfz",
   acceso: "acc",
   cortada: "cort",
 };
@@ -70,27 +89,28 @@ const palabrasDe = (s) =>
     .filter(Boolean)
     .map((w) => ALIAS[w] || w);
 
-export function cargarCalles() {
-  if (promesa) return promesa;
-  promesa = fetch("/datos-abiertos/calles.json")
+export function cargarCalles(archivo = callejeroActual().archivo) {
+  if (!archivo) return Promise.resolve(null);
+  if (callejeros.has(archivo)) return callejeros.get(archivo);
+  const promesa = fetch(archivo)
     .then((r) => {
       if (!r.ok) throw new Error("sin callejero");
       return r.json();
     })
-    .then((j) => {
-      calles = j.calles.map(([nombre, desde, hasta]) => ({
+    .then((j) =>
+      j.calles.map(([nombre, desde, hasta]) => ({
         nombre: aTitulo(nombre),
         palabras: palabrasDe(nombre),
         desde,
         hasta,
-      }));
-      return calles;
-    })
+      })),
+    )
     .catch(() => {
       // Sin lista no hay sugerencias, y nada más. Se puede reintentar.
-      promesa = null;
+      callejeros.delete(archivo);
       return null;
     });
+  callejeros.set(archivo, promesa);
   return promesa;
 }
 
@@ -141,7 +161,7 @@ function partir(texto) {
     : { calle: antes.trim(), numero: null };
 }
 
-function buscarCalles(textoCalle) {
+function buscarCalles(calles, textoCalle) {
   // null = todavía es muy poco para opinar («Av», «B»).
   const q = palabrasDe(textoCalle).filter((w) => !IGNORAR.has(w));
   const claves = q;
@@ -236,7 +256,7 @@ const exacta = (c, calle) => sustantivas(c.nombre) === sustantivas(calle);
 /* El renglón de abajo del campo: dice qué entendió y qué falta, antes de
    apretar Buscar. Dice «número» y no «altura»: en esta app «altura» es la
    del terreno sobre el mar, y mezclar las dos al lado del cálculo confunde. */
-function opinar(calle, numero, lista) {
+function opinar(calle, numero, lista, lugar) {
   if (!calle || lista === null) {
     pista("Escribí la calle y el número de tu casa.");
     return;
@@ -252,7 +272,7 @@ function opinar(calle, numero, lista) {
   }
   if (!lista.length) {
     pista(
-      "No hay ninguna calle de Santa Fe que se escriba así. Revisá cómo " +
+      `No hay ninguna calle de ${lugar} que se escriba así. Revisá cómo ` +
         "está escrita, o buscá igual: si es un barrio o un lugar, lo " +
         "buscamos en OpenStreetMap.",
       true,
@@ -298,22 +318,66 @@ export async function sugerirCalle() {
   const inp = $("in-dir");
   if (!inp) return;
   const valor = inp.value;
-  if (!calles) await cargarCalles();
-  // Mientras bajaba la lista pudo seguir escribiendo: se pinta lo último.
-  if (inp.value !== valor) return;
+  const { archivo, lugar } = callejeroActual();
+  // Arroyo Leyes: Georef no tiene sus calles con nombre. Se dice, en vez de
+  // dejar al campo mudo, y se señala el camino que sí anda.
+  if (!archivo) {
+    cerrarSugerencias();
+    pista(
+      `${lugar} casi no tiene calles con nombre en los mapas abiertos, así ` +
+        "que acá no hay sugerencias. Probá con calle y número; si no aparece, " +
+        "tocá «Mapa» arriba y marcá tu casa.",
+    );
+    return;
+  }
+  const calles = await cargarCalles(archivo);
+  // Mientras bajaba la lista pudo seguir escribiendo —o cambiar de zona—: se
+  // pinta lo último.
+  if (inp.value !== valor || callejeroActual().archivo !== archivo) return;
   const { calle, numero } = partir(valor);
   if (!calles) {
     cerrarSugerencias();
     pista(calle ? "" : "Escribí la calle y el número de tu casa.");
     return;
   }
-  const lista = calle ? buscarCalles(calle) : null;
+  const lista = calle ? buscarCalles(calles, calle) : null;
   const identificada =
     lista && lista.length && numero != null && exacta(lista[0], calle);
   // Con la calle ya escrita entera y el número puesto, la lista sobra.
   if (identificada || !lista) cerrarSugerencias();
   else mostrar(lista, numero);
-  opinar(calle, numero, lista);
+  opinar(calle, numero, lista, lugar);
+}
+
+/* Dónde va a buscar, dicho arriba de Buscar. Antes la zona era un paso aparte
+   y el campo no mencionaba que buscaba en la ciudad: quien vivía en Rincón
+   escribía su calle y leía «no se encontró». Con la ciudad elegida se ofrecen
+   las vecinas; con una vecina, sólo se dice cuál. */
+export function pintarZonaDir() {
+  const el = $("zona-dir");
+  if (!el) return;
+  const { lugar, vecina } = callejeroActual();
+  const ul = $("sug-dir");
+  if (ul) ul.setAttribute("aria-label", "Calles de " + lugar);
+  el.innerHTML = vecina
+    ? `Buscando en <b>${esc(lugar)}</b>. Si es otra zona, cambiala arriba.`
+    : "Buscando en <b>la ciudad de Santa Fe</b>. ¿Vivís en " +
+      VECINAS.map(
+        (x) =>
+          '<button class="enlace-crudo" type="button" data-accion="zona-dir" ' +
+          `data-zona="${x.id}">${esc(x.n)}</button>`,
+      ).join(" o en ") +
+      "?";
+}
+
+/* La zona cambió con el buscador abierto: las sugerencias salen de otro
+   callejero. Se vuelve a pintar lo que está escrito. */
+export function cambioDeZona() {
+  pintarZonaDir();
+  cerrarSugerencias();
+  // Con el buscador cerrado no se baja nada: se baja al abrirlo.
+  const caja = $("caja-dir");
+  if (caja && caja.style.display === "block") sugerirCalle();
 }
 
 /* Toca una sugerencia: queda la calle tal cual la conoce Georef, se
