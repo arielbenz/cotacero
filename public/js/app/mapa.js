@@ -4,7 +4,12 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import { aTitulo, cargarCalles, cerrarSugerencias } from "./calles.js";
+import {
+  aTitulo,
+  cargarCalles,
+  cerrarSugerencias,
+  pintarZonaDir,
+} from "./calles.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
@@ -92,6 +97,33 @@ function vecinaDe(a) {
 }
 const vecinaElegida = () => VECINAS.find((v) => v.id === estado.zona);
 
+/* Quien escribe «Dorrego 2414, San José del Rincón» ya dijo dónde vive:
+   buscarlo en la ciudad —o mandar «san jose del rincon» a Georef como parte de
+   la calle— era la falla de las dos sugerencias del 19 y 20/10 que el 22 se
+   creyeron arregladas. La localidad cuenta sólo al principio o al final del
+   texto: «Combate de Rincón 100» es una calle de Rincón, no una localidad.
+   Devuelve { v, resto } —la vecina y lo escrito sin ella— o null. */
+function localidadEscrita(texto) {
+  for (const v of VECINAS) {
+    const re = new RegExp(
+      "^\\s*(?:" + v.localidad.en.source + ")[\\s,]*$|^\\s*(?:" +
+        v.localidad.en.source + ")[\\s,]+|[\\s,]+(?:" +
+        v.localidad.en.source + ")\\s*$",
+      "i",
+    );
+    if (re.test(texto))
+      return { v, resto: texto.replace(re, " ").replace(/\s+/g, " ").trim() };
+  }
+  return null;
+}
+
+/* «Mitre y Salta», «Mitre esquina Salta», «Mitre e Ituzaingó»: dos calles y
+   ningún número. Georef las ubica; se unifica el conector a «y», que es el
+   que entiende. */
+const CONECTOR_ESQUINA = /\s+(?:y|e|esq\.?|esquina(?:\s+con|\s+de)?|con)\s+/i;
+const esEsquina = (t) => !/\d/.test(t) && CONECTOR_ESQUINA.test(t);
+const comoEsquina = (t) => t.replace(CONECTOR_ESQUINA, " y ");
+
 /* Devuelve { c: [lon, lat], nombre, exacta, vecina } o null. `exacta` es la
    altura —interpolada dentro de la cuadra, que para curvas cada 50 cm
    alcanza— y no la calle entera. Se filtra por localidad censal y no por
@@ -99,8 +131,12 @@ const vecinaElegida = () => VECINAS.find((v) => v.id === estado.zona);
    Santo Tomé. La localidad es la de la zona elegida: con Rincón elegido,
    «Dorrego 2414» es la de Rincón. Sin altura no contesta nada útil —la
    ubicación es un punto cualquiera de la calle—, así que se descarta y sigue
-   Nominatim. `v` es la vecina donde buscar, o null para la ciudad. */
-async function georef(texto, v) {
+   Nominatim. `v` es la vecina donde buscar, o null para la ciudad. Una
+   esquina («X y Y») no lleva número y sí la resuelve Georef —a diferencia de
+   Nominatim—, con la localidad filtrada igual. Ojo: Georef es difuso con los
+   nombres («Dorrego y Constituyentes» le devolvió «Cmte Orrego»), por eso lo
+   que se encontró se muestra entero. */
+async function georef(texto, v, esquina) {
   if (v && !v.localidad.georef) return null;
   const localidad = v ? v.localidad.georef : "Santa Fe";
   const j = await traerJson(
@@ -114,9 +150,21 @@ async function georef(texto, v) {
     8000,
   );
   const f = j && j.direcciones && j.direcciones[0];
-  if (!f || !f.altura || f.altura.valor == null || !f.ubicacion) return null;
+  if (!f || !f.ubicacion) return null;
   const c = [+f.ubicacion.lon, +f.ubicacion.lat];
   if (!isFinite(c[0]) || !isFinite(c[1])) return null;
+  // «Bv Pellegrini y San Martín»: Georef devuelve la esquina, sin altura.
+  // Es un punto, y un punto de una esquina sirve igual que una altura.
+  const cruce = f.calle_cruce_1 && f.calle_cruce_1.nombre;
+  if (esquina && cruce)
+    return {
+      c,
+      nombre:
+        aTitulo(f.calle.nombre) + " y " + aTitulo(cruce) + ", " + localidad,
+      exacta: true,
+      vecina: v ? v.id : null,
+    };
+  if (!f.altura || f.altura.valor == null) return null;
   return {
     c,
     nombre: aTitulo(f.calle.nombre + " " + f.altura.valor) + ", " + localidad,
@@ -228,6 +276,7 @@ function avisoDeZona(r) {
 export function abrirBuscadorDireccion() {
   document.getElementById("caja-dir").style.display = "block";
   document.getElementById("in-dir").focus();
+  pintarZonaDir();
   // Las sugerencias se filtran contra el callejero (js/app/calles.js): se
   // baja ahora, mientras empieza a escribir, y no al abrir la app.
   cargarCalles();
@@ -240,6 +289,45 @@ export function abrirBuscadorDireccion() {
    inició la persona, no un barrido. */
 const PREFIJO_BARRIO = /(^|[\s,])(?:barrio\s+|b\s*[°º]\s*|bo\.\s*)/gi;
 
+/* Cuando no aparece, el renglón dice qué se buscó y adónde seguir. Es el
+   mensaje que más se lee en esta pantalla —ocho sugerencias, seis de Rincón y
+   Arroyo Leyes—, y «probá con calle y número» no le sirve a quien escribió una
+   esquina ni a quien vive en una localidad que la zona elegida no es. */
+function noEncontrada({ esquina, v, dicha }) {
+  const donde = v ? v.n : "la ciudad de Santa Fe";
+  let h = esquina
+    ? "<b>No ubicamos esa esquina.</b> Probá con calle y número, o con " +
+      "otra de las dos calles."
+    : "<b>No se encontró esa dirección</b> en " + donde + ". Probá con " +
+      "calle y número.";
+  if (!v) {
+    // Se buscó en la ciudad: puede que viva en otra localidad y no lo sepa
+    // decir. Un botón la busca de nuevo ahí, sin volver a escribir.
+    h +=
+      " ¿Vivís en " +
+      VECINAS.map(
+        (x) =>
+          '<button class="enlace-crudo" type="button" ' +
+          'data-accion="buscar-en-vecina" data-zona="' + x.id + '">' +
+          x.n + "</button>",
+      ).join(" o en ") +
+      "? Buscala ahí.";
+  } else if (!v.localidad.georef && !dicha) {
+    h +=
+      " Arroyo Leyes casi no tiene calles con nombre en los mapas abiertos: " +
+      "lo más seguro es el mapa.";
+  }
+  return h + " Si sigue sin aparecer, " + BOTON_MARCAR + ".";
+}
+
+/* Cambia la zona a una vecina y repite la búsqueda con lo que ya estaba
+   escrito: es el botón de «¿Vivís en Rincón?» del renglón de error. */
+export async function buscarEnVecina(id) {
+  elegirZona(id);
+  pintarOrigenCota();
+  await buscarDireccion();
+}
+
 export async function buscarDireccion() {
   cerrarSugerencias();
   const q = document.getElementById("in-dir").value.trim();
@@ -248,34 +336,48 @@ export async function buscarDireccion() {
     e.textContent = "Escribí una dirección.";
     return;
   }
+  // Si escribió la localidad, esa manda sobre la zona elegida, y no se le
+  // pasa a Georef como parte del nombre de la calle.
+  const dicha = localidadEscrita(q);
+  const consulta = dicha ? dicha.resto : q;
+  if (!consulta) {
+    e.textContent =
+      "Escribí también la calle y el número, además de " + dicha.v.n + ".";
+    return;
+  }
   const liberar = ocupar('[data-accion="buscar-dir"]', "Buscando…");
   try {
     e.textContent = "Buscando la dirección…";
     aLaVista(e);
-    // Georef sólo con una altura: sin número lo que escribió es un barrio,
-    // una plaza o una calle entera, y eso lo sabe Nominatim.
-    const conNumero = /\d/.test(q);
-    const sinBarrio = q.replace(PREFIJO_BARRIO, "$1").trim();
+    // Georef sólo con una altura o con dos calles: sin eso lo que escribió es
+    // un barrio, una plaza o una calle entera, y eso lo sabe Nominatim.
+    const esquina = esEsquina(consulta);
+    const conNumero = /\d/.test(consulta);
+    const sinBarrio = consulta.replace(PREFIJO_BARRIO, "$1").trim();
     /* Primero en la localidad de la zona elegida; si ahí no aparece, en la
        ciudad. Quien eligió Rincón y escribe una dirección del centro la
-       encuentra igual, y avisoDeZona() le dice dónde quedó. */
-    const elegida = vecinaElegida();
+       encuentra igual, y avisoDeZona() le dice dónde quedó. Con la localidad
+       escrita no hay segunda vuelta: ya dijo dónde. */
+    const elegida = dicha ? dicha.v : vecinaElegida();
+    const sitios = dicha ? [elegida] : elegida ? [elegida, null] : [null];
     var r = null;
-    for (const v of elegida ? [elegida, null] : [null]) {
-      r = conNumero ? await georef(q, v) : null;
-      if (!r) r = await nominatim(q, v);
-      if (!r && sinBarrio && sinBarrio !== q) r = await nominatim(sinBarrio, v);
+    for (const v of sitios) {
+      r =
+        conNumero || esquina
+          ? await georef(esquina ? comoEsquina(consulta) : consulta, v, esquina)
+          : null;
+      // Nominatim no entiende esquinas: devolvería un punto cualquiera de
+      // una de las dos calles, y eso no es lo que se pidió.
+      if (!r && !esquina) r = await nominatim(consulta, v);
+      if (!r && !esquina && sinBarrio && sinBarrio !== consulta)
+        r = await nominatim(sinBarrio, v);
       if (r) break;
     }
     if (!r) {
       // Hay calles nuevas que ningún callejero tiene todavía —pasó con
       // «Avenida de los Ombúes»—: ahí ningún intento más la va a encontrar,
       // y lo que sirve es el mapa.
-      e.innerHTML =
-        "No se encontró esa dirección. Probá con calle y número; si sigue " +
-        "sin aparecer, " +
-        BOTON_MARCAR +
-        ".";
+      e.innerHTML = noEncontrada({ esquina, v: elegida, dicha });
       return;
     }
     e.textContent = "Buscando la altura de ese terreno…";
@@ -554,10 +656,24 @@ async function construirMapa() {
        se ve una manzana lisa y borrosa: parecía que el mapa no cargaba. */
     maxZoom: 18,
     attributionControl: { compact: true },
+    // Sin inclinar: con dos dedos el mapa también se inclina, y el IGN es un
+    // plano, no un 3D. Girar sí se deja, y por eso está la brújula.
+    pitchWithRotate: false,
+    touchPitch: false,
+    locale: {
+      "NavigationControl.ZoomIn": "Acercar",
+      "NavigationControl.ZoomOut": "Alejar",
+      "NavigationControl.ResetBearing": "Orientar el mapa al norte",
+      "AttributionControl.ToggleAttribution": "Ver los créditos del mapa",
+    },
   });
   vigilarFondo();
+  /* Con la brújula: el mapa se puede girar con dos dedos, y entonces el
+     norte deja de estar arriba. Donde las calles no tienen cartel —lo que
+     pidió una sugerencia del 23/10— la aguja dice para dónde está el norte y
+     un toque lo devuelve. Antes se escondía (showCompass: false). */
   mapa.addControl(
-    new maplibregl.NavigationControl({ showCompass: false }),
+    new maplibregl.NavigationControl({ showCompass: true, visualizePitch: false }),
     "top-right",
   );
 
@@ -816,6 +932,10 @@ export async function marcarCasaEnMapa() {
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.
   if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
+  // Sin posición pero con Rincón o Arroyo Leyes elegida, arranca ahí y no en
+  // la ciudad: es el camino de quien no la encontró escribiendo.
+  else if (vecinaElegida())
+    mapa.jumpTo({ center: vecinaElegida().localidad.centro, zoom: 14 });
   pedirToque();
   mapa.once("click", alTocar);
 }
