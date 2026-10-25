@@ -4,7 +4,7 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import { aTitulo, cerrarSugerencias } from "./calles.js";
+import { aTitulo, cerrarSugerencias, sinCiudad } from "./calles.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
@@ -322,7 +322,7 @@ export async function buscarDireccion() {
   // Si escribió la localidad, esa manda sobre la zona elegida, y no se le
   // pasa a Georef como parte del nombre de la calle.
   const dicha = localidadEscrita(q);
-  const consulta = dicha ? dicha.resto : q;
+  const consulta = dicha ? dicha.resto : sinCiudad(q);
   if (!consulta) {
     decir(
       "error",

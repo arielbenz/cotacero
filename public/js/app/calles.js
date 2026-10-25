@@ -66,6 +66,7 @@ const ALIAS = {
   general: "grl", gral: "grl",
   presbitero: "pbro",
   presidente: "pres", pte: "pres",
+  republica: "rca",
   camino: "cno",
   coronel: "cnl", cnel: "cnl",
   comandante: "cmte", cdte: "cmte",
@@ -149,12 +150,23 @@ function empieza(w, q, tolerar) {
   return false;
 }
 
+/* «Santa Fe» al principio o al final dice la ciudad, no la calle: «Santa Fe
+   República de Siria 3701» no la encontraba ningún proveedor. Se saca sólo si
+   lo que queda tiene letras y un número —«Santa Fe 1234» es la avenida, y
+   «Santa Fe y Mitre» una esquina—. Lo usan el filtro de acá y la búsqueda de
+   mapa.js. */
+const CIUDAD = /^\s*santa\s+fe[\s,]+|[\s,]+santa\s+fe\s*$/i;
+export function sinCiudad(texto) {
+  const t = String(texto).replace(CIUDAD, " ").replace(/\s+/g, " ").trim();
+  return /[a-z]/i.test(t) && /\d/.test(t) ? t : String(texto);
+}
+
 /* Separa lo que escribió en calle y número. El número es el ÚLTIMO grupo de
    cifras, y sólo si hay una palabra antes: «25 de Mayo» no tiene número,
    «25 de Mayo 3000» sí. Lo que va después de una coma —«, Santa Fe»,
    «, Candioti»— no es la calle. */
 function partir(texto) {
-  const antes = String(texto).split(",")[0];
+  const antes = sinCiudad(texto).split(",")[0];
   const m = antes.match(/^(.*\D)\s(\d{1,5})\s*$/);
   return m
     ? { calle: m[1].trim(), numero: +m[2] }
@@ -301,11 +313,17 @@ function opinar(calle, numero, lista, lugar) {
     );
     return;
   }
-  // Sólo se avisa cuando el número pasa el último de la calle, que es lo
-  // seguro: por debajo puede haber huecos entre tramos y la búsqueda decide.
-  if (c.hasta != null && numero > c.hasta) {
+  // Se avisa cuando el número queda fuera de lo que el callejero tiene de esa
+  // calle: pasa el último o es anterior al primero («Santa Fe 2500» no existe,
+  // la avenida va del 9401 al 10099). Entre los tramos puede haber huecos, y
+  // ahí decide la búsqueda. Si hay dos calles que se escriben igual, alcanza
+  // con que el número entre en una.
+  const iguales = lista.filter((x) => exacta(x, calle));
+  const entra = (x) =>
+    x.hasta == null || (numero <= x.hasta && numero >= x.desde);
+  if (!iguales.some(entra)) {
     pista(
-      `<b>${esc(c.nombre)}</b> llega hasta el ${c.hasta}. Revisá el número.`,
+      `<b>${esc(c.nombre)}</b> ${rango(c)}. Revisá el número.`,
       true,
     );
     return;

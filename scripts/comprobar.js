@@ -163,6 +163,8 @@ console.log("De dónde sale la altura");
 // Valores verificados en el navegador el 22/10/2026 (PR #26).
 const alturas = [
   ["Risso 1745, ciudad", -31.639, -60.704, 16.47, "curvas"],
+  // Georef, 24/10/2026; 16,92 m verificado en el navegador.
+  ["República de Siria 3701, ciudad", -31.634387199320205, -60.69916398126204, 16.92, "curvas"],
   ["Dorrego 2414, San José del Rincón", -31.6055, -60.5741, 15.52, "puntos"],
   ["plaza de Rincón", -31.606, -60.568, 16.47, "puntos"],
   ["Arroyo Leyes", -31.56, -60.53, 15.17, "puntos"],
