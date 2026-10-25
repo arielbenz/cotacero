@@ -4,15 +4,12 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import {
-  aTitulo,
-  cargarCalles,
-  cerrarSugerencias,
-  pintarZonaDir,
-} from "./calles.js";
+import { aTitulo, cerrarSugerencias } from "./calles.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
+  avisarCota,
+  decir,
   elegirZona,
   fijarCotaEstimada,
   pintarOrigenCota,
@@ -253,9 +250,9 @@ function avisoDeZona(r) {
   if (r.vecina && r.vecina !== estado.zona) {
     const z = ZONAS.find((x) => x.id === r.vecina);
     return (
-      ' <b style="color:var(--alerta-texto)">Esa dirección queda en ' +
+      "<b>Esa dirección queda en " +
       z.n +
-      "</b>, y tu zona dice otra cosa: la distancia río arriba cambia el " +
+      "</b>, y tu zona dice otra cosa: cambia el " +
       'resultado. <button class="enlace-crudo" type="button" ' +
       'data-accion="zona-vecina" data-zona="' +
       z.id +
@@ -266,20 +263,10 @@ function avisoDeZona(r) {
   }
   if (!r.vecina && elegida)
     return (
-      ' <b style="color:var(--alerta-texto)">Esa dirección queda en la ciudad ' +
-      "de Santa Fe</b>, no en tu zona. Si no es tu casa, escribí también la " +
-      "localidad."
+      "<b>Esa dirección queda en la ciudad de Santa Fe</b>, no en tu zona. " +
+      "Si no es tu casa, escribí también la localidad."
     );
   return "";
-}
-
-export function abrirBuscadorDireccion() {
-  document.getElementById("caja-dir").style.display = "block";
-  document.getElementById("in-dir").focus();
-  pintarZonaDir();
-  // Las sugerencias se filtran contra el callejero (js/app/calles.js): se
-  // baja ahora, mientras empieza a escribir, y no al abrir la app.
-  cargarCalles();
 }
 
 /* Nominatim no encuentra «Barrio Centenario» y sí «Centenario»: en
@@ -296,28 +283,24 @@ const PREFIJO_BARRIO = /(^|[\s,])(?:barrio\s+|b\s*[°º]\s*|bo\.\s*)/gi;
 function noEncontrada({ esquina, v, dicha }) {
   const donde = v ? v.n : "la ciudad de Santa Fe";
   let h = esquina
-    ? "<b>No ubicamos esa esquina.</b> Probá con calle y número, o con " +
-      "otra de las dos calles."
-    : "<b>No se encontró esa dirección</b> en " + donde + ". Probá con " +
-      "calle y número.";
+    ? "<b>No ubicamos esa esquina.</b> Probá con calle y número."
+    : "<b>No encontramos esa dirección</b> en " + donde + ".";
   if (!v) {
     // Se buscó en la ciudad: puede que viva en otra localidad y no lo sepa
     // decir. Un botón la busca de nuevo ahí, sin volver a escribir.
     h +=
-      " ¿Vivís en " +
+      " ¿Es de " +
       VECINAS.map(
         (x) =>
           '<button class="enlace-crudo" type="button" ' +
           'data-accion="buscar-en-vecina" data-zona="' + x.id + '">' +
           x.n + "</button>",
-      ).join(" o en ") +
-      "? Buscala ahí.";
+      ).join(" o de ") +
+      "?";
   } else if (!v.localidad.georef && !dicha) {
-    h +=
-      " Arroyo Leyes casi no tiene calles con nombre en los mapas abiertos: " +
-      "lo más seguro es el mapa.";
+    h += " Arroyo Leyes casi no tiene calles con nombre: lo más seguro es el mapa.";
   }
-  return h + " Si sigue sin aparecer, " + BOTON_MARCAR + ".";
+  return h + " Si no, " + BOTON_MARCAR + ".";
 }
 
 /* Cambia la zona a una vecina y repite la búsqueda con lo que ya estaba
@@ -331,9 +314,9 @@ export async function buscarEnVecina(id) {
 export async function buscarDireccion() {
   cerrarSugerencias();
   const q = document.getElementById("in-dir").value.trim();
-  const e = document.getElementById("estado-cota");
   if (!q) {
-    e.textContent = "Escribí una dirección.";
+    decir("error", "<b>Escribí la calle y el número de tu casa.</b>");
+    document.getElementById("in-dir").focus();
     return;
   }
   // Si escribió la localidad, esa manda sobre la zona elegida, y no se le
@@ -341,14 +324,16 @@ export async function buscarDireccion() {
   const dicha = localidadEscrita(q);
   const consulta = dicha ? dicha.resto : q;
   if (!consulta) {
-    e.textContent =
-      "Escribí también la calle y el número, además de " + dicha.v.n + ".";
+    decir(
+      "error",
+      "<b>Falta la calle y el número</b>, además de " + dicha.v.n + ".",
+    );
     return;
   }
   const liberar = ocupar('[data-accion="buscar-dir"]', "Buscando…");
   try {
-    e.textContent = "Buscando la dirección…";
-    aLaVista(e);
+    decir("busca", "Buscando la dirección…");
+    aLaVista(document.getElementById("estado-cota"));
     // Georef sólo con una altura o con dos calles: sin eso lo que escribió es
     // un barrio, una plaza o una calle entera, y eso lo sabe Nominatim.
     const esquina = esEsquina(consulta);
@@ -377,17 +362,22 @@ export async function buscarDireccion() {
       // Hay calles nuevas que ningún callejero tiene todavía —pasó con
       // «Avenida de los Ombúes»—: ahí ningún intento más la va a encontrar,
       // y lo que sirve es el mapa.
-      e.innerHTML = noEncontrada({ esquina, v: elegida, dicha });
+      decir("error", noEncontrada({ esquina, v: elegida, dicha }));
+      aLaVista(document.getElementById("estado-cota"));
       return;
     }
-    e.textContent = "Buscando la altura de ese terreno…";
+    decir("busca", "Encontramos la dirección. Buscando la altura…");
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
-      e.innerHTML =
+      decir(
+        "error",
         "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> " +
-        "Los planos que usamos cubren " +
-        COBERTURA +
-        ", no toda el área metropolitana.";
+          "Los planos cubren " +
+          COBERTURA +
+          ". Probá " +
+          BOTON_MARCAR +
+          ".",
+      );
       return;
     }
     var alt = Math.round(res.cota * 100) / 100;
@@ -404,10 +394,15 @@ export async function buscarDireccion() {
     res.fuente,
   );
   if (!r.exacta)
-    e.innerHTML +=
-      ' <b style="color:var(--alerta-texto)">Ubicó la calle, no el número exacto</b>, ' +
-      "así que puede estar a varias cuadras. Si no es tu casa, escribí la altura a mano.";
-  e.innerHTML += avisoDeZona(r);
+    avisarCota(
+      "<b>Ubicamos la calle, no el número exacto:</b> puede estar a varias " +
+        "cuadras. Si no es tu casa, " +
+        BOTON_MARCAR +
+        ".",
+    );
+  const zona = avisoDeZona(r);
+  if (zona) avisarCota(zona);
+  aLaVista(document.getElementById("estado-cota"));
 }
 
 /* Baja MapLibre bajo demanda. Una sola vez, aunque se pida de nuevo.
@@ -911,14 +906,14 @@ function salirDeMarcar() {
 }
 
 export async function marcarCasaEnMapa() {
-  const est = document.getElementById("estado-cota");
   irA("donde");
   await armarMapa();
   if (!mapa) {
-    if (est)
-      est.innerHTML =
-        "<b>Este teléfono no puede mostrar el mapa.</b> Probá con «Buscar " +
-        "dirección», o escribí la altura a mano.";
+    decir(
+      "error",
+      "<b>Este teléfono no puede mostrar el mapa.</b> Buscá la dirección o " +
+        "escribí la altura.",
+    );
     irA("cota");
     return;
   }

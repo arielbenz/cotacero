@@ -33,12 +33,10 @@ import { ZONAS } from "./zonas.js";
 import {
   alternarCasa,
   calcular,
-  cerrarBuscadorDir,
   elegirZona,
   estimarCota,
   fijarKmManual,
   marcarCotaManual,
-  pintarMetodos,
   pintarOrigenCota,
   primeraAtras,
   primeraSeguir,
@@ -49,7 +47,6 @@ import { enCampo } from "./formato.js";
 import { instalar, ofrecerInstalacion } from "./instalar.js";
 import { cargarLluvia } from "./lluvia.js";
 import {
-  abrirBuscadorDireccion,
   buscarDireccion,
   buscarEnVecina,
   cancelarMarca,
@@ -209,14 +206,7 @@ window.addEventListener("focus", refrescarSiHaceFalta);
 const ACCIONES = {
   "rio-manual": () => fijarRioManual(),
   "rio-auto": () => cargarRio(),
-  "cota-gps": () => {
-    cerrarBuscadorDir();
-    estimarCota();
-  },
-  "abrir-dir": () => {
-    abrirBuscadorDireccion();
-    pintarMetodos();
-  },
+  "cota-gps": () => estimarCota(),
   // «Cambiar» / «Listo» del renglón de la casa, en Mi casa.
   "cambiar-casa": () => alternarCasa(),
   // La primera vez, en tres pasos (cota.js).
@@ -226,12 +216,6 @@ const ACCIONES = {
   "buscar-dir": () => buscarDireccion(),
   // La dirección cayó en una vecina sin plano y la persona confirma (mapa.js).
   "zona-vecina": (el) => vivoEnVecina(el.dataset.zona),
-  // «¿Vivís en Rincón?» debajo del campo de dirección: cambia la zona y deja
-  // el foco donde estaba, para seguir escribiendo.
-  "zona-dir": (el) => {
-    elegirZona(el.dataset.zona);
-    document.getElementById("in-dir").focus();
-  },
   // El mismo, pero desde el renglón de «no se encontró»: repite la búsqueda.
   "buscar-en-vecina": (el) => buscarEnVecina(el.dataset.zona),
   // Una sugerencia del buscador de dirección (js/app/calles.js).
@@ -254,10 +238,7 @@ const ACCIONES = {
   /* El camino para quien no sabe la altura de su terreno: lo lleva a lo que
      sirve sin configurar nada —el 103, el punto más cercano y las tres
      reglas—. No es una vista nueva: es la primera tarjeta de "Dónde ir". */
-  "cota-mapa": () => {
-    cerrarBuscadorDir();
-    marcarCasaEnMapa();
-  },
+  "cota-mapa": () => marcarCasaEnMapa(),
   // Los tres botones del aviso sobre el mapa, en el modo «marcando».
   "mapa-confirmar": () => confirmarMarca(),
   "mapa-de-nuevo": () => marcarDeNuevo(),

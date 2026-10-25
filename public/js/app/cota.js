@@ -133,67 +133,85 @@ export function origenCota() {
   return { corto: "lo que cargaste a mano", largo: "", ojo: false };
 }
 
-/* Deja el renglón de estado diciendo SIEMPRE de dónde salió la cota, no sólo
-   justo después de la acción. */
-/* Las tres formas de cargar la altura van como un selector, y la marcada es
-   la que dio la altura que se está usando: así se lee de un vistazo si el
-   número salió del GPS, de una dirección o del mapa. Escrita a mano no marca
-   ninguna. «Dirección» se marca también mientras su buscador está abierto. */
+/* El renglón de respuesta de «Mi casa». Cada cosa que pasa al cargar la
+   altura —buscando, listo, no se encontró— sale por acá, y el tipo lo pinta:
+   «busca» con ruedita, «ok» con tilde, «aviso» y «error» con su color. Antes
+   eran textos sueltos en el mismo párrafo, y encontrar la casa se leía igual
+   que no encontrarla. Sin html, se esconde. */
+export function decir(tipo, html) {
+  const e = document.getElementById("estado-cota");
+  if (!e) return;
+  e.dataset.tipo = html ? tipo : "";
+  // Un solo hijo junto al ícono: sin él, cada botón o texto suelto del
+  // mensaje caía en su propia fila de la grilla.
+  e.innerHTML = html ? '<div class="est-cuerpo">' + html + "</div>" : "";
+  e.hidden = !html;
+}
+
+/* Agrega una advertencia al «listo» que ya está puesto, y lo pasa a «aviso». */
+export function avisarCota(html) {
+  const e = document.getElementById("estado-cota");
+  if (!e || e.hidden) return;
+  e.dataset.tipo = "aviso";
+  e.firstElementChild.insertAdjacentHTML(
+    "beforeend",
+    '<span class="est-aviso">' + html + "</span>",
+  );
+}
+
+/* Las dos formas de cargar la altura sin escribir, como un selector: la
+   marcada es la que dio la altura que se está usando, así se lee de un
+   vistazo si salió del GPS o del mapa. La dirección tiene su campo y escrita
+   a mano no marca ninguna. */
 export function pintarMetodos() {
-  const dir = document.getElementById("caja-dir");
-  const buscando = dir && dir.style.display !== "none";
   document.querySelectorAll(".metodos [data-metodo]").forEach((b) => {
-    const m = b.dataset.metodo;
-    const on = buscando
-      ? m === "direccion"
-      : estado.cota != null && estado.cotaOrigen === m;
+    const on = estado.cota != null && estado.cotaOrigen === b.dataset.metodo;
     b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 
-/* Elegir otra forma de cargar la altura cierra el buscador de dirección: si
-   no, el selector seguía marcando «Dirección» con la altura ya tomada del
-   GPS o del mapa. */
-export function cerrarBuscadorDir() {
-  const dir = document.getElementById("caja-dir");
-  if (dir) dir.style.display = "none";
-  pintarMetodos();
-}
-
+/* Deja el renglón de estado diciendo SIEMPRE de dónde salió la cota, no sólo
+   justo después de la acción: lo primero es el número, y debajo de dónde sale
+   y qué hacer si no es la casa. */
 export function pintarOrigenCota() {
-  const e = document.getElementById("estado-cota");
   const o = origenCota();
   pintarMetodos();
-  if (!o) return (e.innerHTML = "");
-  e.innerHTML =
-    "Altura del terreno <b>" +
-    m(estado.cota) +
-    "</b>, tomada de " +
-    (o.ojo
-      ? '<b style="color:var(--alerta-texto)">' + o.corto + "</b>"
-      : "<b>" + o.corto + "</b>") +
-    "." +
-    (o.largo ? " " + o.largo : "") +
-    /* De dónde salió la altura, en el mismo renglón donde se la muestra. La
-       cota que la persona carga a mano es suya, no nuestra: ahí no
-       corresponde atribuir nada. */
-    (estado.cotaEsEstimada
-      ? selloFuente(FUENTES_APP[fuenteAltura(estado.cotaFuente).sello])
-      : "");
+  if (!o) return decir("", "");
+  const detalle = estado.cotaDetalle;
+  const mano = document.getElementById("altura-mano");
+  if (mano && estado.cotaOrigen === "mano") mano.open = true;
+  decir(
+    "ok",
+    '<b class="est-titu">Tu terreno está a ' +
+      m(estado.cota) +
+      " sobre el mar</b>" +
+      '<span class="est-txt">' +
+      (estado.cotaOrigen === "direccion"
+        ? "Encontramos <b>" +
+          atr(detalle || "esa dirección") +
+          "</b>. Si no es tu casa, buscala de nuevo."
+        : o.ojo
+          ? o.largo
+          : "Es la altura que escribiste.") +
+      "</span>" +
+      /* De dónde salió la altura, en el mismo renglón donde se la muestra. La
+         cota que la persona carga a mano es suya, no nuestra: ahí no
+         corresponde atribuir nada. */
+      (estado.cotaEsEstimada
+        ? selloFuente(FUENTES_APP[fuenteAltura(estado.cotaFuente).sello])
+        : ""),
+  );
 }
 
 export function marcarCotaManual() {
   const campo = document.getElementById("in-cota");
   const v = aNumero(campo.value);
-  const est = document.getElementById("estado-cota");
   if (campo.value.trim() && isNaN(v)) {
-    est.innerHTML =
-      '<b style="color:var(--alerta-texto)">No entiendo ese número.</b> Escribilo así: 16,40.';
+    decir("error", "<b>No entiendo ese número.</b> Escribilo así: 16,40.");
     return;
   }
   if (!isNaN(v) && (v < 0 || v > 40)) {
-    est.innerHTML =
-      '<b style="color:var(--alerta-texto)">Esa altura no puede ser</b> (va de 0 a 40 m sobre el mar).';
+    decir("error", "<b>Esa altura no puede ser:</b> va de 0 a 40 m sobre el mar.");
     return;
   }
   estado.cota = isNaN(v) ? null : v;
@@ -212,16 +230,15 @@ export function marcarCotaManual() {
 }
 
 export async function estimarCota() {
-  const e = document.getElementById("estado-cota");
   if (!navigator.geolocation) {
-    e.textContent = "Este navegador no da ubicación.";
+    decir("error", "<b>Este navegador no da ubicación.</b> Buscá la dirección.");
     return;
   }
   // El GPS puede tardar hasta 12 s. Sin esto el botón queda igual todo ese
   // rato y parece que no hizo nada.
   const liberar = ocupar('[data-accion="cota-gps"]', "Ubicando…");
-  e.textContent = "Pidiendo tu ubicación…";
-  aLaVista(e);
+  decir("busca", "Pidiendo tu ubicación…");
+  aLaVista(document.getElementById("estado-cota"));
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
       try {
@@ -230,16 +247,18 @@ export async function estimarCota() {
         // con un fix de ±800 m el modelo devuelve la elevación de otro
         // terreno, no del tuyo, y el número parece igual de firme.
         if (typeof prec === "number" && prec > PRECISION_MAX) {
-          e.innerHTML =
-            '<b style="color:var(--alerta-texto)">La ubicación llegó con ±' +
-            Math.round(prec) +
-            " m de error.</b> A esa distancia el modelo mide otro terreno. " +
-            "Probá al aire libre, " +
-            BOTON_MARCAR +
-            ", buscá la dirección, o escribí la altura a mano.";
+          decir(
+            "error",
+            "<b>La ubicación llegó con ±" +
+              Math.round(prec) +
+              " m de error</b>, y a esa distancia medimos otro terreno. " +
+              "Probá al aire libre, buscá la dirección o " +
+              BOTON_MARCAR +
+              ".",
+          );
           return;
         }
-        e.textContent = "Buscando la altura de ese terreno…";
+        decir("busca", "Buscando la altura de ese terreno…");
         try {
           const r = await elevacionDe(la, lo);
           if (!r) throw new Error("fuera de cobertura");
@@ -252,29 +271,34 @@ export async function estimarCota() {
             r.fuente,
           );
         } catch (err) {
-          e.innerHTML =
-            "<b>No tenemos la altura de ese punto.</b> Los planos que usamos " +
-            "cubren " +
-            COBERTURA +
-            ", no toda el área metropolitana. " +
-            "Si tenés la altura en la escritura o en un plano, escribila arriba." +
-            SALIDA_SIN_DATO;
+          decir(
+            "error",
+            "<b>No tenemos la altura de ese punto.</b> Los planos cubren " +
+              COBERTURA +
+              ". Buscá la dirección, " +
+              BOTON_MARCAR +
+              " o escribí la altura." +
+              SALIDA_SIN_DATO,
+          );
         }
       } finally {
         liberar();
-        aLaVista(e);
+        aLaVista(document.getElementById("estado-cota"));
       }
     },
     (err) => {
       liberar();
-      e.innerHTML =
+      decir(
+        "error",
         (err && err.code === 3
-          ? "La ubicación tardó demasiado. Probá al aire libre, " +
+          ? "<b>La ubicación tardó demasiado.</b> Probá al aire libre, buscá la dirección o " +
             BOTON_MARCAR +
-            ", buscá la dirección, o escribí la altura a mano."
-          : "No diste permiso de ubicación. Podés escribir la altura a mano.") +
-        SALIDA_SIN_DATO;
-      aLaVista(e);
+            "."
+          : "<b>No diste permiso de ubicación.</b> Buscá la dirección o " +
+            BOTON_MARCAR +
+            ".") + SALIDA_SIN_DATO,
+      );
+      aLaVista(document.getElementById("estado-cota"));
     },
     { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 },
   );
@@ -313,11 +337,19 @@ function tarjetaDefensa(z) {
   if (!z) return "";
   const txt = DEFENSA_TXT[z.defensa];
   const obs = z.observado || [];
-  if (!txt && !obs.length) return "";
+  if (!txt && !obs.length && !z.nota) return "";
   let h =
     '<div class="tarjeta"><h3 style="margin-top:0">Lo que hay entre el río y tu casa</h3>';
-  if (txt)
-    h += `<p class="chico" style="margin:0 0 ${obs.length ? "10px" : "0"}">${txt}</p>`;
+  /* La nota de la zona vivía bajo la lista de zonas, donde nadie la leía; acá
+     está al lado del cálculo que explica. */
+  const aparte = [txt, z.nota].filter(Boolean);
+  if (aparte.length)
+    h += aparte
+      .map(
+        (t, i) =>
+          `<p class="chico" style="margin:0 0 ${i < aparte.length - 1 || obs.length ? "10px" : "0"}">${t}</p>`,
+      )
+      .join("");
   if (obs.length)
     h +=
       '<span class="eti">En tu zona, otras veces</span><ul class="pasos">' +
@@ -340,31 +372,24 @@ function tarjetaDefensa(z) {
    Rincón. Ahora se esconden y se dice de entrada cuál es la única salida. */
 function pintarSinPlano(z) {
   const aviso = document.getElementById("sin-plano");
-  const metodos = document.querySelector(".metodos");
-  if (!aviso || !metodos) return;
+  const busca = document.getElementById("busca-casa");
+  const mano = document.getElementById("altura-mano");
+  if (!aviso || !busca || !mano) return;
   const sin = Boolean(z && z.sinPlano);
   aviso.hidden = !sin;
-  metodos.hidden = sin;
-  // Sin los tres botones, el «O» del campo no tiene a qué oponerse, y la
-  // pista de las curvas habla de un plano que ahí no hay.
-  const o = document.getElementById("o-escribila");
-  if (o) o.textContent = sin ? "Escribila" : "O escribila";
-  const pista = document.getElementById("pista-curvas");
-  if (pista) pista.hidden = sin;
-  const bajada = document.getElementById("bajada-curvas");
-  if (bajada) bajada.hidden = sin;
+  busca.hidden = sin;
+  // Sin plano, escribirla es la única forma: se muestra abierta y sin el
+  // «ya sé» de quien tiene otras opciones.
+  document.getElementById("resumen-mano").textContent = sin
+    ? "Escribí la altura de tu terreno"
+    : "Ya sé la altura de mi terreno";
+  if (sin) mano.open = true;
   if (!sin) return;
-  cerrarBuscadorDir();
   aviso.innerHTML =
     "<b>Para " +
     z.n +
-    " no tenemos el plano de alturas.</b> Ni las curvas de nivel de la " +
-    "Municipalidad ni los puntos medidos por la Provincia llegan hasta " +
-    "ahí, así que ni tu " +
-    "ubicación, ni la dirección, ni el mapa pueden darnos la altura de tu " +
-    "terreno. Si la sabés, escribila acá abajo: en la escritura o en un " +
-    "plano figura como «cota IGN», y también te la puede dar tu municipio " +
-    "o comuna." +
+    " no tenemos el plano de alturas.</b> Si la sabés, escribila abajo; " +
+    "también te la puede dar tu municipio o comuna." +
     SALIDA_SIN_DATO;
 }
 
@@ -399,17 +424,11 @@ export function calcular() {
         '" data-input="km-manual"></label>';
     }
   } else {
-    // A 0 km no hay «aguas arriba» que decir: el centro está en el puerto y
-    // La Boca queda río abajo, donde el modelo no corrige. La nota lo explica.
-    nz.innerHTML =
-      (z ? z.nota : "") +
-      (kmDeZona() > 0
-        ? " A " + kmDeZona() + " km del hidrómetro, aguas arriba."
-        : "") +
-      (KM_PUBLICADO.has(estado.zona)
-        ? ""
-        : ' <span style="color:var(--alerta-texto)">Esa distancia es una estimación ' +
-          "propia, no una medición sobre el cauce.</span>");
+    /* Antes acá iba la nota de la zona, la distancia al hidrómetro y si era
+       una estimación: cinco renglones bajo la lista que nadie leía. La nota
+       pasó a la tarjeta de «Lo que hay entre el río y tu casa» y la distancia
+       está en «Cómo sale ese número». */
+    nz.innerHTML = "";
   }
 
   const cont = document.getElementById("resultado");
