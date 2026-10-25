@@ -463,7 +463,8 @@
           <fieldset class="zonas-radio solo-primera" id="zonas-radio">
             <legend class="solo-lectores">Zona</legend>
           </fieldset>
-          <p class="chico" id="nota-zona"></p>
+          <!-- Sólo el campo de km de «Otra zona»: calcular() en cota.js -->
+          <div id="nota-zona"></div>
           <button class="btn solo-primera" type="button" data-accion="primera-seguir">
             Seguir
           </button>
@@ -471,96 +472,80 @@
 
         <div class="tarjeta" id="paso-altura">
           <h3 class="solo-formulario" style="margin-top: 0">2 · La altura de tu terreno</h3>
-          <div class="solo-primera">
-            <h2 id="titulo-paso-2" tabindex="-1">¿Dónde está tu casa?</h2>
-            <p class="chico" id="bajada-curvas">
-              Con eso sacamos la altura de tu terreno de los planos del
-              municipio y de la Provincia.
-            </p>
-          </div>
+          <h2 class="solo-primera" id="titulo-paso-2" tabindex="-1">
+            ¿Dónde está tu casa?
+          </h2>
 
           <!-- Zonas sin curvas: ver sinPlano en config.js -->
           <p class="aviso" id="sin-plano" role="status" hidden></p>
 
-          <!-- aria-pressed: de dónde salió la altura en uso -->
-          <div
-            class="segmentado metodos"
-            role="group"
-            aria-label="Cómo cargar la altura">
-            <button type="button" data-accion="cota-gps" data-metodo="gps" aria-pressed="false">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="12" r="3" />
-                <circle cx="12" cy="12" r="7" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-              </svg>
-              Mi ubicación
-            </button>
-            <button type="button" data-accion="abrir-dir" data-metodo="direccion" aria-pressed="false">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="11" cy="11" r="6" />
-                <path d="M20 20l-4.5-4.5" />
-              </svg>
-              Dirección
-            </button>
-            <!-- La única que no pide saber ningún dato -->
-            <button type="button" data-accion="cota-mapa" data-metodo="mapa" aria-pressed="false">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
-                <circle cx="12" cy="9.5" r="2.5" />
-              </svg>
-              Mapa
-            </button>
+          <div id="busca-casa">
+            <div id="caja-dir">
+              <label class="campo campo-dir"
+                ><span>Calle y número</span>
+                <input
+                  type="text"
+                  id="in-dir"
+                  placeholder="Ej: Risso 1745"
+                  data-input="sugerir-calle"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="sug-dir"
+                  aria-describedby="pista-dir"
+                  autocomplete="off"
+                  autocapitalize="words"
+                  spellcheck="false"
+                  enterkeyhint="search"
+              /></label>
+              <!-- Sugerencias: js/app/calles.js -->
+              <ul id="sug-dir" class="sug-dir" role="listbox" aria-label="Calles de Santa Fe" hidden></ul>
+              <p class="chico pista-dir" id="pista-dir">
+                O dos calles que se cruzan: Mitre y Salta.
+              </p>
+              <button class="btn sec" type="button" data-accion="buscar-dir">Buscar mi casa</button>
+            </div>
+
+            <p class="o-sep" aria-hidden="true">o</p>
+
+            <!-- aria-pressed: de dónde salió la altura en uso -->
+            <div class="segmentado metodos" role="group" aria-label="Otras formas de cargar la altura">
+              <button type="button" data-accion="cota-gps" data-metodo="gps" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="3" />
+                  <circle cx="12" cy="12" r="7" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                </svg>
+                Usar mi ubicación
+              </button>
+              <!-- La única que no pide saber ningún dato -->
+              <button type="button" data-accion="cota-mapa" data-metodo="mapa" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+                  <circle cx="12" cy="9.5" r="2.5" />
+                </svg>
+                Marcarla en el mapa
+              </button>
+            </div>
           </div>
 
-          <div id="caja-dir" style="display: none">
-            <label class="campo campo-dir"
-              ><span>Dirección</span>
+          <!-- Un solo renglón de respuesta: decir() en cota.js -->
+          <div class="estado-casa" id="estado-cota" role="status" hidden></div>
+
+          <!-- Abierto en las zonas sin plano, donde es la única forma -->
+          <details class="plegable altura-mano" id="altura-mano">
+            <summary id="resumen-mano">Ya sé la altura de mi terreno</summary>
+            <label class="campo"
+              ><span>Metros sobre el mar (figura como «cota IGN» en la escritura o el plano)</span>
               <input
                 type="text"
-                id="in-dir"
-                placeholder="Ej: Risso 1745, o Mitre y Salta"
-                data-input="sugerir-calle"
-                role="combobox"
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-controls="sug-dir"
-                aria-describedby="pista-dir"
+                inputmode="decimal"
+                id="in-cota"
                 autocomplete="off"
-                autocapitalize="words"
-                spellcheck="false"
-                enterkeyhint="search"
+                placeholder="16,00"
+                data-input="cota-manual"
             /></label>
-            <!-- Sugerencias: js/app/calles.js -->
-            <ul id="sug-dir" class="sug-dir" role="listbox" aria-label="Calles de Santa Fe" hidden></ul>
-            <p class="chico pista-dir" id="pista-dir">
-              Escribí la calle y el número de tu casa.
-            </p>
-            <!-- Dónde busca y cómo cambiarlo: pintarZonaDir en calles.js -->
-            <p class="chico zona-dir" id="zona-dir"></p>
-            <button class="btn sec" data-accion="buscar-dir">Buscar</button>
-          </div>
-
-          <p class="chico" id="estado-cota" role="status"></p>
-
-          <label class="campo"
-            ><span><span id="o-escribila">O escribila</span>: metros sobre el
-              mar (la «cota IGN» del plano o la escritura)</span>
-            <input
-              type="text"
-              inputmode="decimal"
-              id="in-cota"
-              autocomplete="off"
-              placeholder="16,00"
-              data-input="cota-manual"
-          /></label>
-
-          <!-- La explicación larga vive en /datos -->
-          <p class="chico" id="pista-curvas" style="margin: 0">
-            Sale de las curvas de nivel del municipio, o en Rincón y Arroyo
-            Leyes de puntos medidos por la Provincia: pasan cerca de tu casa,
-            no por tu puerta. Si tenés el número de la escritura o de un
-            relevamiento, vale más. <a href="/datos">Cómo se calcula</a>.
-          </p>
+          </details>
           <div class="fila-pasos solo-primera">
             <button class="btn sec" type="button" data-accion="primera-atras">
               Atrás

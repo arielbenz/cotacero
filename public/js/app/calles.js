@@ -317,6 +317,7 @@ function opinar(calle, numero, lista, lugar) {
 export async function sugerirCalle() {
   const inp = $("in-dir");
   if (!inp) return;
+  pintarZonaDir();
   const valor = inp.value;
   const { archivo, lugar } = callejeroActual();
   // Arroyo Leyes: Georef no tiene sus calles con nombre. Se dice, en vez de
@@ -349,35 +350,23 @@ export async function sugerirCalle() {
   opinar(calle, numero, lista, lugar);
 }
 
-/* Dónde va a buscar, dicho arriba de Buscar. Antes la zona era un paso aparte
-   y el campo no mencionaba que buscaba en la ciudad: quien vivía en Rincón
-   escribía su calle y leía «no se encontró». Con la ciudad elegida se ofrecen
-   las vecinas; con una vecina, sólo se dice cuál. */
+/* Dónde busca lo dice el paso anterior —la zona elegida— y, si la dirección
+   cae en otra, el resultado. Antes un renglón arriba de Buscar decía «Buscando
+   en la ciudad» y ofrecía las vecinas: era texto que había que leer antes de
+   escribir una calle, y si no se encuentra, el error ya ofrece buscarla en
+   Rincón o Arroyo Leyes. Acá queda lo que sirve a lectores de pantalla. */
 export function pintarZonaDir() {
-  const el = $("zona-dir");
-  if (!el) return;
-  const { lugar, vecina } = callejeroActual();
   const ul = $("sug-dir");
-  if (ul) ul.setAttribute("aria-label", "Calles de " + lugar);
-  el.innerHTML = vecina
-    ? `Buscando en <b>${esc(lugar)}</b>. Si es otra zona, cambiala arriba.`
-    : "Buscando en <b>la ciudad de Santa Fe</b>. ¿Vivís en " +
-      VECINAS.map(
-        (x) =>
-          '<button class="enlace-crudo" type="button" data-accion="zona-dir" ' +
-          `data-zona="${x.id}">${esc(x.n)}</button>`,
-      ).join(" o en ") +
-      "?";
+  if (ul) ul.setAttribute("aria-label", "Calles de " + callejeroActual().lugar);
 }
 
-/* La zona cambió con el buscador abierto: las sugerencias salen de otro
-   callejero. Se vuelve a pintar lo que está escrito. */
+/* La zona cambió: las sugerencias salen de otro callejero. Si hay algo
+   escrito se vuelve a pintar; si no, no se baja nada hasta que escriba. */
 export function cambioDeZona() {
   pintarZonaDir();
   cerrarSugerencias();
-  // Con el buscador cerrado no se baja nada: se baja al abrirlo.
-  const caja = $("caja-dir");
-  if (caja && caja.style.display === "block") sugerirCalle();
+  const inp = $("in-dir");
+  if (inp && inp.value.trim()) sugerirCalle();
 }
 
 /* Toca una sugerencia: queda la calle tal cual la conoce Georef, se
