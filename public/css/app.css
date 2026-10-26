@@ -1913,6 +1913,49 @@ label.campo-dir {
   display: block;
 }
 
+.muestra-placa {
+  margin: 0 0 var(--e-4);
+}
+.muestra-placa iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--r-m);
+  background: #17232a;
+}
+
+.arriba {
+  list-style: none;
+  margin: var(--e-3) 0 0;
+  padding: 0;
+}
+.arriba li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--e-3);
+  align-items: baseline;
+  padding: var(--e-3) 0;
+  border-top: 1px solid var(--linea);
+}
+.arriba .a-nombre {
+  font-weight: 700;
+}
+.arriba .a-nivel {
+  font-family: var(--mono);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.arriba .a-cambio {
+  grid-column: 1 / -1;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.arriba-nota {
+  margin: var(--e-3) 0 0;
+}
+
 .barra-app {
   position: fixed;
   left: 0;
@@ -5433,6 +5476,9 @@ button.enlace-crudo {
 #tendencia {
   min-height: 250px;
 }
+#rio-arriba {
+  min-height: 465px;
+}
 #contexto-caja {
   min-height: 390px;
 }
@@ -5444,6 +5490,7 @@ button.enlace-crudo {
   #veredicto-rio,
   #v-rio.con-casa #veredicto-rio,
   #tendencia,
+  #rio-arriba,
   #contexto-caja,
   #lluvia-caja {
     min-height: 0;

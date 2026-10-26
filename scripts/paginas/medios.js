@@ -79,6 +79,21 @@ const htmlMedios = pagina({
         </ul>`,
     },
     {
+      id: "placa",
+      titulo: "Placa 16:9 para tu transmisión",
+      /* Es /placa de verdad, con el dato de ahora: no una captura. */
+      html: `        <figure class="muestra-placa">
+          <iframe src="/placa?limpio=1" title="Placa 16:9 de Cota Cero, con el nivel del río de ahora" loading="lazy"></iframe>
+          <figcaption class="chico">La placa, en vivo. Mide 1920×1080.</figcaption>
+        </figure>
+        <ul class="medida-widget">
+          <li><b>En OBS o vMix:</b> una fuente de navegador de 1920×1080 con <code>${SITIO}/placa?limpio=1</code>. Se actualiza sola cada diez minutos.</li>
+          <li><b>Sobre tu video:</b> agregale <code>&amp;fondo=transparente</code>. Con <code>&amp;tema=claro</code> sale en claro.</li>
+          <li><b>Como imagen:</b> en <a href="/placa">/placa</a> hay un botón «Descargar PNG» de 1920×1080, para tu diseño o tus redes.</li>
+          <li><b>Lleva adentro</b> el nivel, la alerta y la evacuación de la ciudad, el último mes, el récord y las escalas del INA río arriba. Con la fecha de la lectura, el crédito y el 103: es lo que impide que una captura de hoy circule el jueves como si fuera de ese día.</li>
+        </ul>`,
+    },
+    {
       titulo: "Tres condiciones",
       html: `        <ol class="condiciones-tres">
 ${CONDICIONES.map(([t, c]) => `          <li><b>${esc(t)}</b><span>${esc(c)}</span></li>`).join("\n")}

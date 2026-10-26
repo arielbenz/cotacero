@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Placa del nivel del río en Santa Fe — Cota Cero</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://cotacerosf.com/placa" />
+    <meta name="color-scheme" content="light dark" />
+    <link
+      rel="preload"
+      href="/vendor/fonts/jakarta.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+    <style>
+      /* Placa 16:9 para televisión y redes. Sin app.css, como el widget: es
+         una sola lámina que se escala al tamaño de la ventana. Lo que se ve lo
+         dibuja js/placa.js en un SVG de 1920×1080. */
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        src: url("/vendor/fonts/jakarta.woff2") format("woff2");
+        font-weight: 500 800;
+        font-display: swap;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #17232a;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      }
+      html[data-tema="claro"],
+      html[data-tema="claro"] body {
+        background: #ffffff;
+      }
+      /* Con ?fondo=transparente la página no pinta nada: es lo que una fuente
+         de navegador de OBS o vMix deja ver por encima del video. */
+      html[data-fondo="transparente"],
+      html[data-fondo="transparente"] body {
+        background: transparent;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+      /* La lámina ocupa lo que sobra y el propio SVG la centra con su
+         relación 16:9: la barra queda debajo, nunca encima del crédito. */
+      main {
+        flex: 1 1 0;
+        min-height: 0;
+      }
+      #lamina {
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .barra {
+        flex: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        background: rgba(15, 24, 29, 0.92);
+        color: #e9eef0;
+        font-size: 14px;
+      }
+      .barra a,
+      .barra button {
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 99px;
+        border: 1px solid rgba(233, 238, 240, 0.35);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .barra button.fuerte {
+        background: #e9eef0;
+        color: #17232a;
+        border-color: #e9eef0;
+      }
+      .barra .aviso {
+        flex-basis: 100%;
+        text-align: center;
+        font-size: 13px;
+        opacity: 0.8;
+      }
+      /* ?limpio=1 saca la barra: para capturar o para usarla en vivo. */
+      html[data-limpio] .barra {
+        display: none;
+      }
+      @media print {
+        .barra {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg
+        id="lamina"
+        viewBox="0 0 1920 1080"
+        role="img"
+        aria-label="Placa con el nivel del río Paraná en el Puerto de Santa Fe"></svg>
+    </main>
+    <div class="barra">
+      <button type="button" class="fuerte" id="bajar" disabled>
+        Descargar PNG
+      </button>
+      <a id="t-oscuro" href="?">Oscuro</a>
+      <a id="t-claro" href="?tema=claro">Claro</a>
+      <a id="t-transp" href="?fondo=transparente">Fondo transparente</a>
+      <a href="/para-medios">Cómo usarla</a>
+      <span class="aviso" id="aviso-barra"></span>
+    </div>
+    <script src="/lib/comun-clasico.js" defer></script>
+    <script src="/js/placa.js" defer></script>
+  </body>
+</html>

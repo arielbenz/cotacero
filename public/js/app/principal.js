@@ -82,6 +82,7 @@ import {
 import {
   cargarHistoria,
   cargarRio,
+  cargarRioArriba,
   cargarTendencia,
   fijarRioManual,
   pintarConexion,
@@ -182,6 +183,7 @@ function iniciar() {
   cargarRio();
   cargarLluvia();
   cargarTendencia();
+  cargarRioArriba();
   // Tarde y sin bloquear: la app tiene que poder decir cuánto mide el río
   // aunque este archivo nunca llegue.
   cargarHistoria();
@@ -202,6 +204,7 @@ function refrescarSiHaceFalta() {
   cargarRio();
   cargarLluvia();
   cargarTendencia();
+  cargarRioArriba();
 }
 document.addEventListener("visibilitychange", refrescarSiHaceFalta);
 window.addEventListener("focus", refrescarSiHaceFalta);

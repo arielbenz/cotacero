@@ -184,10 +184,34 @@ INA** y los cinco consumidores los adoptan con un filtro de plausibilidad. Las
 constantes 5,3 / 5,7 que quedan escritas son sólo el respaldo para cuando
 contesta el reporte diario, que no las trae.
 
+**«Río arriba» y la serie del último mes** (octubre de 2026). `/api/nivel` trae
+ahora `serie` —los últimos 30 días, `[«AAAA-MM-DD», metros]`, sólo cuando
+contesta la API— y `api/rio-arriba.js` devuelve la última lectura y el cambio
+en ~7 días de cuatro escalas del INA aguas arriba (`RIO_ARRIBA` en
+`public/lib/fuentes.js`: Corrientes, Goya, La Paz, Paraná). Es **observación,
+no pronóstico**: el INA no publica por su API abierta un pronóstico vigente
+para Santa Fe (la última corrida guardada de `tabprono_central` es de junio de
+2024, comprobado el 26/10/2026), y la tarjeta de `/app` lo dice. Va en un
+endpoint aparte para que los cinco consumidores de nivel no paguen cuatro
+pedidos más. Una escala que no contesta, o cuyo id de estación ya no coincide,
+se omite sin tumbar a las otras.
+
+**`/placa` es la lámina 16:9 para televisión y redes**, y se escribe a mano
+como el widget (`public/placa/index.html` + `public/js/placa.js`, script clásico
+con `CC_COMUN`). Dibuja un SVG de 1920×1080: se ve tal cual en una fuente de
+navegador de OBS o vMix (`?limpio=1`, `?fondo=transparente`, `?tema=claro`) y se
+exporta a PNG con la tipografía embebida en base64. Reglas heredadas del
+widget: **sin analytics** (`/para-medios` promete «sin rastreo»), **nunca el
+nivel de aviso de nadie**, y como una placa viaja sin contexto **la fecha de la
+lectura va dentro de la imagen** y con el dato vencido dice «Dato viejo» en vez
+de mostrar un número con cara de actual. El récord sale de `historia.json`, no
+de un número escrito acá. Su CSP y su revalidación están en `vercel.json`
+aparte de la general, igual que el widget.
+
 ### `lib/` no es `api/`
 
 Cada archivo dentro de `api/` se publica como una función de Vercel, y el plan
-Hobby topea en **12**. Hoy hay 8. Todo lo compartido va en `lib/`, que no se
+Hobby topea en **12**. Hoy hay 9. Todo lo compartido va en `lib/`, que no se
 publica —salvo los cuatro de `public/lib/`, que el navegador necesita—.
 
 ### Cuatro mundos que no se importan entre sí
