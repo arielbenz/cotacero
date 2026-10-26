@@ -7,13 +7,13 @@
 // Son las curvas de nivel de la ciudad, en metros IGN.
 //
 // OJO CON UNA SUPOSICIÓN. Damos por hecho que estas curvas y el cero del
-// hidrómetro que usa la app (8,20 m) están en el mismo sistema de alturas,
+// hidrómetro que usa la app (8,42 m) están en el mismo sistema de alturas,
 // porque de eso depende que restarlos signifique algo. Los metadatos de la
 // capa NO lo declaran: sólo dicen que salió de
 // Sec_Recursos_Hidricos\Dep_Relevamientos_Planialtimetricos, y el sistema
 // horizontal es EPSG:22185 (Campo Inchauspe, 1969). Está anotado como
 // pendiente de validación técnica en AUDITORIA.md, junto con la discrepancia
-// entre 8,20 y el 8,378 que publica el INA.
+// entre el 8,20 que usó la app hasta octubre de 2026 y el cero actual (8,4214).
 //
 // Y no son exactamente "cada 50 cm": 21 de los 169 tramos caen fuera de esa
 // malla, y entre 20,7 y 22,5 m no hay ninguna curva. Es que se trazaron a

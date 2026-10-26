@@ -179,8 +179,8 @@ export const FUENTES = {
 };
 
 /* Normativa y antecedentes. No entran en el cálculo: sirven para explicar el
-   marco y, en el caso de Rincón, para mostrar que el 8,20 no es un invento
-   nuestro sino el número que usa la normativa local. */
+   marco y, en el caso de Rincón, para mostrar de dónde salía el 8,20 que la app
+   usó hasta octubre de 2026 y que ya no usa. */
 export const NORMATIVA = [
   {
     n: "Ley provincial 11.730",
@@ -197,7 +197,7 @@ export const NORMATIVA = [
   },
   {
     n: "Reglamento de Edificaciones — Comuna de San José del Rincón",
-    que: 'Fija la cota de edificación en "16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)". La diferencia entre esos dos números es exactamente 8,20.',
+    que: 'Fija la cota de edificación en "16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)". La diferencia entre esos dos números es exactamente 8,20, el cero que usó esta app hasta octubre de 2026; Vías Navegables, que mantiene la escala, aclaró que ese valor no lo brinda.',
     url: "https://capsf.org.ar/modulos/ejercicio_prof./archivos/rincon.pdf",
     rango: "normativa",
   },

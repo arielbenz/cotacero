@@ -605,7 +605,7 @@ dice cada vez.
 
 ### Los números tienen dueño
 
-`CERO_IGN` (8,20), `PENDIENTE` (0,045), `ERROR_DEM` (0,5) y `ERROR_PUNTOS` (1,0)
+`CERO_IGN` (8,4214), `PENDIENTE` (0,045), `ERROR_DEM` (0,5) y `ERROR_PUNTOS` (1,0)
 están **en discusión técnica abierta**. `AUDITORIA.md` explica de dónde salió cada uno, qué evidencia
 hay en contra y por qué no se tocaron. **No cambiarlos sin leer ese archivo.**
 Cambiar una constante para que el resultado parezca más seguro es precisamente

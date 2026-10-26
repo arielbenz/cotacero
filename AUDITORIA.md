@@ -4,7 +4,7 @@ Qué número usa la app, de dónde salió, qué tan firme es y qué habría que
 preguntarle a quién para cerrarlo. Es documentación interna: lo que de acá va
 a la interfaz está en `/datos`, escrito para cualquiera.
 
-Última revisión: **2 de septiembre de 2026**.
+Última revisión: **26 de octubre de 2026** (el cero pasó a 8,4214; §1).
 
 Regla de jerarquía, en este orden: **organismo oficial → universidad →
 normativa → prensa**. Ningún número que entre en el cálculo puede tener a la
@@ -21,7 +21,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Evacuación 5,70 m              | estación INA                   | INA                       | sí        | idem                      | **sí, ahora**          |
 | Récord 7,43 m (1992)           | `datos-abiertos/historia.json` | INA, serie 30             | sí        | si hay una crecida mayor  | sí, al generar         |
 | Aguas bajas 2,00 m             | `public/lib/fuentes.js`        | INA                       | sí        | idem                      | sí (no se usa todavía) |
-| **Cero del hidrómetro 8,20 m** | `js/app/config.js`             | prensa + normativa local  | **no**    | **discutido — ver abajo** | no                     |
+| **Cero del hidrómetro 8,4214** | `js/app/config.js`             | Vías Navegables + IGN     | sí        | sí — datum de las curvas  | no                     |
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso       | **no**    | **discutido — ver abajo** | no                     |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)   | no        | sí                        | no                     |
 | Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)     | no        | sí                        | no                     |
@@ -43,9 +43,75 @@ hardcodeados son justamente los dos que están en discusión.
 
 ---
 
-## 1. El cero del hidrómetro: 8,20 contra 8,378
+## 1. El cero del hidrómetro: de 8,20 a 8,4214
 
-**Qué usa la app:** `CERO_IGN = 8.2`.
+**Qué usa la app:** `CERO_IGN = 8.4214` desde el 26/10/2026. Hasta entonces,
+8,20. Lo que sigue a la resolución, hasta §2, es el razonamiento previo, con 8,20
+como valor vigente: se conserva porque explica de dónde venía el número y por
+qué se dudaba. **La resolución está en la sección siguiente.**
+
+### Resolución del 26/10/2026: la nota de Vías Navegables y la conversión del IGN
+
+La FICH-UNL facilitó dos documentos oficiales:
+
+1. **Nota de la Subsecretaría de Puertos, Vías Navegables y Marina Mercante**
+   (Distrito Paraná Medio, Paraná, 23/7/2018), en respuesta al pedido del
+   Secretario de Recursos Hídricos de Santa Fe (3/7/2018). Expediente
+   01801-0049664-3, Ministerio de Infraestructura y Transporte de Santa Fe.
+   Reconstruye la cota del cero de la escala del Dique 2, **en el sistema MOP**
+   (referido al cero del Riachuelo): 8,4200 (original), 8,4464 (nivelación de
+   1957), **8,9524** (último valor, el de los anuarios de 1976 y 1983). Y dice
+   sobre la consulta de Santa Fe: _«Con respecto al valor de cota cero +8.19 m
+   que Usted manifiesta es un valor no brindado por este organismo»_.
+   Agrega que sus cotas «están referidas al cero del riachuelo cuya diferencia
+   entre MOP e IGN es de −0.556 m pero que por controles realizados, ese valor
+   no siempre se cumple».
+2. **IGN, Dirección de Geodesia, _Comparación de orígenes altimétricos en la
+   Ciudad Autónoma de Buenos Aires_ (2017):** **H_IGN = H_MOP − 0,531 m**.
+
+Cuenta: 8,9524 − 0,531 = **8,4214**. Con los 0,556 de la nota (es lo que dejó
+anotado a mano el expediente: «8,3964 IGN») daría 8,3964. El INA midió 8,378 en
+diciembre de 2016 (campaña INA-IGN, SRVN16). **Los tres valores quedan en 4,3
+cm.** Las tres cuentas son de la autoridad que corresponde a cada pieza: Vías
+Navegables sobre su escala, el IGN sobre la conversión.
+
+Lo que esto desarma: las tres patas de «a favor de 8,20» eran la normativa de
+Rincón, una declaración en prensa y la coherencia con 1992. **Ninguna es una
+fuente sobre el cero de la escala**, y el organismo que la mantiene dice que
+ese valor no es suyo. El 7,80 del reglamento de Rincón es una resta hecha por
+quien lo redactó; no hay constancia de en qué sistema.
+
+**Por qué 8,4214 y no 8,378 o 8,3964.** Los tres entran en el margen de la
+pantalla (un decimal). Se elige el más alto porque es el que, ante la duda, hace
+avisar antes: un cero más alto da un nivel de aviso más bajo. Es una decisión de
+criterio, no de medición, y se registra acá para poder revisarla.
+
+**Lo que NO resuelve:**
+
+- **El sistema de las curvas** (pregunta 7). Si están en SRVN16, 8,4214 es
+  exacto y el 8,20 anterior daba todos los niveles de aviso unos 22 cm
+  **altos** (avisaba tarde). Si están en un sistema viejo, 8,4214 los da hasta
+  ~22 cm **bajos** (avisa temprano). Cualquiera de los dos casos favorece a 8,4214
+  frente a 8,20 en seguridad. Que las curvas den el terreno 0,32 m más bajo
+  que la red municipal (§1, abajo) es compatible con las dos lecturas.
+- **El 0,531 está medido en el Riachuelo (CABA), no en Santa Fe.** Aplicarlo
+  supone que la red MOP es coherente entre los dos lugares. La nota usa 0,556,
+  y aclara que no siempre se cumple (preguntas 26 y 27).
+- **La pendiente de 0,045** salió de 7,43 + 8,19 = 15,62 y de los 16,70 de la
+  prensa (§2, §3). Con 8,4214 el puerto da 15,85 y la misma cuenta da 16,93 en
+  Arroyo Leyes: 23 cm sobre lo que publicó la prensa. No se retoca la
+  pendiente, que ya era circular; solo se anota que la coincidencia de 1992 se
+  perdió, y que la pendiente que cerraría con 16,70 sería 0,035 m/km.
+
+**Qué cambió en el código y en el sitio:** `CERO_IGN`, los casos de
+`scripts/comprobar.js` (con valores hechos a mano), el ejemplo de `/datos`
+(ahora 15,30 − 8,42 − 0,50 = 6,38), el desglose de «Mi casa» (muestra 8,4214 y,
+si la API lo trae, el 8,378 del INA) y el README. `estado.ceroINA` sigue sin
+entrar en ninguna cuenta.
+
+---
+
+## Lo anterior, escrito con 8,20 como valor vigente
 
 **El conflicto.** El propio INA publica, para la estación Santa Fe (serie 30),
 `cero_ign: 8.378`. Son **17,8 cm** de diferencia, y el umbral personal de cada
@@ -449,6 +515,21 @@ poder copiarse y mandarse.
     crecida?
 12. ¿Existe registro académico de la cota alcanzada en Arroyo Leyes en la
     crecida de junio de 1992? Hoy el único respaldo es una nota de prensa.
+26. _(26/10/2026, a raíz de la nota de Vías Navegables.)_ El cero del
+    hidrómetro de Santa Fe en SRVN16 sale como 8,4214 (8,9524 MOP − 0,531 del
+    IGN), 8,3964 (con los 0,556 de la propia nota) u 8,378 (INA 2016). ¿Cuál
+    usan ustedes, y **el 0,531, que el IGN midió en el Riachuelo, es aplicable
+    a Santa Fe?**
+27. ¿En qué sistema de alturas están las curvas de nivel del municipio y de la
+    Provincia (`MACurvaNivel`, proyecto Área de Riesgo Hídrico de 1992 y
+    ajuste de 2005 del convenio CFI-INA)? ¿MOP, IGM/SRVN71 o SRVN16? ¿Quedó
+    algún informe del relevamiento que lo diga? Es lo único que falta para
+    saber si el cero de 8,4214 corresponde a ellas o hay que corregirlo.
+28. El 8,20 (y el 8,19 que cita la nota) circulaban en prensa y en el
+    Reglamento de Rincón («16.00 I.G.M = 7.80 m Hidrómetro»), y Vías
+    Navegables aclara que no lo brinda. ¿Saben de dónde sale y en qué sistema
+    estaba referido? 8,9524 − 8,20 = 0,7524 no coincide con ningún desnivel
+    conocido.
 
 ### A la Dirección de Gestión de Riesgos
 
@@ -602,8 +683,8 @@ terreno en Rincón, es la primera comparación que hay que hacer.
 
 ## 8. Lo que NO se cambió, a propósito
 
-- **`CERO_IGN` sigue en 8,20.** Sin saber el datum de las curvas, mover esto es
-  meter un sesgo invisible.
+- **`CERO_IGN` se movió el 26/10/2026, de 8,20 a 8,4214** (§1). Lo que sigue
+  abierto es el datum de las curvas, no el cero.
 - **`PENDIENTE` sigue en 0,045.** No hay evidencia para otro valor, y menos
   para valores distintos por tramo.
 - **`ERROR_DEM` sigue en 0,5.** El 22/10/2026 se midió contra 330 puntos
