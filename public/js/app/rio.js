@@ -103,6 +103,14 @@ export async function cargarRio() {
            mostraría la cara de hoy con un número de la semana pasada. */
         const horas = horasDesde(fechaINA(j.fecha_dato));
         estado.rioVencido = horas !== null && horas > VENCE_HORAS;
+        /* El INA sube UNA lectura por día, hacia media tarde y también los
+           domingos. Antes de eso la última es la de ayer, y quien la ve piensa
+           que el río no se mueve o que faltan datos. */
+        const fd = fechaINA(j.fecha_dato);
+        const hoy = new Date().setHours(0, 0, 0, 0);
+        if (fd && !estado.rioVencido && fd.getTime() < hoy)
+          extra +=
+            " El INA publica una lectura por día, hacia media tarde: la de hoy todavía no salió.";
         if (typeof j.delta === "number") estado.delta = j.delta;
         guardado.set("cc_rio_auto", String(j.altura));
         guardado.set("cc_rio_fecha", j.fecha_dato || "");
