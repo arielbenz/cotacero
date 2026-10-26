@@ -345,7 +345,7 @@ export async function sugerirCalle() {
     pista(
       `${lugar} casi no tiene calles con nombre en los mapas abiertos, así ` +
         "que acá no hay sugerencias. Probá con calle y número; si no aparece, " +
-        "tocá «Mapa» arriba y marcá tu casa.",
+        "tocá «Marcarla en el mapa» más abajo.",
     );
     return;
   }
