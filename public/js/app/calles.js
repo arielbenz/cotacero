@@ -18,6 +18,7 @@ import { estado } from "./estado.js";
 const CALLEJERO_CIUDAD = "/datos-abiertos/calles.json";
 
 const callejeros = new Map(); // archivo -> promesa de [{ nombre, palabras, desde, hasta }] | null
+let busquedas = 0; // cuántas veces se apretó Buscar (restaurarPista)
 let opciones = [], // lo que se está mostrando, para las flechas
   activa = -1;
 
@@ -220,6 +221,7 @@ function pista(html, aviso) {
    quedaba pegado junto al «listo» verde, o junto al error: dos mensajes
    distintos sobre la misma dirección. */
 export function restaurarPista() {
+  busquedas++; // una búsqueda anula las sugerencias que todavía están en camino
   const p = $("pista-dir");
   if (!p) return;
   p.innerHTML = p.dataset.inicial || "";
@@ -348,6 +350,7 @@ export async function sugerirCalle() {
   if (!inp) return;
   pintarZonaDir();
   const valor = inp.value;
+  const gen = busquedas;
   const { archivo, lugar } = callejeroActual();
   // Arroyo Leyes: Georef no tiene sus calles con nombre. Se dice, en vez de
   // dejar al campo mudo, y se señala el camino que sí anda.
@@ -361,9 +364,16 @@ export async function sugerirCalle() {
     return;
   }
   const calles = await cargarCalles(archivo);
-  // Mientras bajaba la lista pudo seguir escribiendo —o cambiar de zona—: se
-  // pinta lo último.
-  if (inp.value !== valor || callejeroActual().archivo !== archivo) return;
+  // Mientras bajaba la lista pudo seguir escribiendo, cambiar de zona o apretar
+  // Buscar: con poca señal el callejero tarda, y pintar la lista junto a un
+  // resultado ya encontrado era «¿Es Cnl Manuel Dorrego?» al lado del tilde
+  // verde. Se pinta sólo lo último.
+  if (
+    gen !== busquedas ||
+    inp.value !== valor ||
+    callejeroActual().archivo !== archivo
+  )
+    return;
   const { calle, numero } = partir(valor);
   if (!calles) {
     cerrarSugerencias();

@@ -7,7 +7,7 @@
 
 import { CONFIG } from "./config.js";
 import { cotaEnHidrometro } from "./cota.js";
-import { guardado } from "./estado.js";
+import { estado, guardado } from "./estado.js";
 import { m, mU } from "./formato.js";
 import { ALERTA, EVACUACION } from "./oficiales.js";
 import { aLaVista, ocupar } from "./vista.js";
@@ -241,6 +241,18 @@ export async function pintarAvisos() {
         conmutadorCerca() +
         '<button class="btn sec mini" style="margin-top:11px;display:block" ' +
         'data-accion="avisos-off">Desactivar avisos</button>',
+    );
+    return;
+  }
+
+  /* Con la zona sin confirmar el número es provisorio (estado.zonaAjena): el
+     aviso sonaría por un nivel que la app misma dice que no es seguro. Sólo se
+     bloquea ACTIVAR; quien ya los tiene sigue pudiendo desactivarlos. */
+  if (estado.zonaAjena) {
+    caja.innerHTML = envoltura(
+      '<p class="chico" style="margin:0"><b>Elegí tu zona para activar el ' +
+        "aviso.</b> La dirección que buscaste queda en otra zona que la " +
+        "elegida, y el aviso sonaría por un nivel provisorio.</p>",
     );
     return;
   }

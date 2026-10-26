@@ -2,7 +2,7 @@
    El foco programático de cada sección es para que un lector de pantalla
    anuncie el cambio; por eso `.vista` puede enfocarse sólo por script. */
 
-import { armarMapa, cancelarMarca } from "./mapa.js";
+import { armarMapa, cancelarMarca, encuadrarPuntos } from "./mapa.js";
 
 /* `desdeHistorial` evita empujar una entrada nueva cuando el cambio de vista
    ya vino del historial (popstate) — si no, atrás y adelante se pelean. */
@@ -28,7 +28,7 @@ export function ver(id, btn, desdeHistorial) {
   // lector de pantalla no se entera de que cambió todo el contenido.
   panel.focus({ preventScroll: true });
   // El mapa se arma la primera vez que se abre la pestaña, no al inicio.
-  if (id === "donde") armarMapa();
+  if (id === "donde") armarMapa().then(encuadrarPuntos);
   // Irse de «Dónde ir» con un toque armado dejaría la próxima tocada del
   // mapa marcando una casa que nadie pidió.
   else cancelarMarca(false);

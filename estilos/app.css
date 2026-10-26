@@ -6880,3 +6880,29 @@ body.marcando-mapa {
   font-family: var(--sans);
   font-size: var(--t-s);
 }
+
+/* El texto de ayuda de los campos. Sin esta regla salía el gris por defecto del
+   navegador, #757575: 4,14:1 sobre el campo en claro y 2,87 en oscuro, en el
+   campo principal de la app y en los cinco de Mi plan. Es el tenue, que ya está
+   medido contra el campo (comprobar.js); `opacity: 1` porque Firefox lo baja. */
+::placeholder {
+  color: var(--tenue);
+  opacity: 1;
+}
+
+/* Cuánto le falta al río, dentro del veredicto de Mi casa. */
+.falta-rio {
+  margin: var(--e-3) 0 0;
+  font-size: var(--t-base);
+  color: var(--texto);
+}
+
+/* «Más sobre tu zona»: lo que se plegó de la tarjeta de defensa. */
+.defensa-mas {
+  margin-top: var(--e-3);
+}
+.defensa-mas > summary {
+  font-weight: 600;
+  font-size: var(--t-s);
+  color: var(--acento);
+}
