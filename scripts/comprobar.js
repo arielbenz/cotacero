@@ -326,5 +326,26 @@ console.log("CONTRASTE");
   }
 }
 
+{
+  /* Los rellenos sólidos llevan texto blanco (--sobre-solido): se miden con él.
+     El rojo del 103 en tema oscuro aprobaba por 0,002. */
+  const css = readFileSync(join(PUBLICO, "..", "estilos", "app.css"), "utf8");
+  const hex = (n) => css.match(new RegExp("--" + n + ":\\s*(#[0-9a-fA-F]{6});"))?.[1];
+  const lumH = (h) => {
+    const l = (c) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    const [r, g, b] = [1, 3, 5].map((i) => l(parseInt(h.slice(i, i + 2), 16)));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  for (const [tema, n] of [
+    ["oscuro", "peligro-solido"],
+    ["claro", "c-peligro-solido"],
+    ["ambos", "alerta-solido"],
+    ["ambos", "evac-solido"],
+  ]) {
+    const razon = 1.05 / (lumH(hex(n)) + 0.05);
+    caso(`${tema}: «${n}» con texto blanco pasa 4,5:1 (da ${razon.toFixed(2)})`, razon >= 4.6, true);
+  }
+}
+
 console.log(fallas ? `\n${fallas} caso(s) fallaron.` : "\nTodo en orden.");
 process.exit(fallas ? 1 : 0);

@@ -34,6 +34,7 @@ import {
   alternarCasa,
   calcular,
   elegirZona,
+  elegirZonaDeLaCiudad,
   estimarCota,
   fijarKmManual,
   marcarCotaManual,
@@ -42,7 +43,12 @@ import {
   primeraSeguir,
   primeraVer,
 } from "./cota.js";
-import { estado, guardado, limpiarGuardadoViejo } from "./estado.js";
+import {
+  estado,
+  fijarZonaAjena,
+  guardado,
+  limpiarGuardadoViejo,
+} from "./estado.js";
 import { enCampo } from "./formato.js";
 import { instalar, ofrecerInstalacion } from "./instalar.js";
 import { cargarLluvia } from "./lluvia.js";
@@ -138,8 +144,10 @@ function iniciar() {
   // Sin default: cualquiera que eligiéramos sería una suposición sobre dónde
   // vive la persona, y la más cómoda —el centro— es la más optimista.
   estado.zona = guardado.get("cc_zona") || "";
+  estado.zonaAjena = guardado.get("cc_zona_ajena") || "";
   sel.value = estado.zona;
   sel.addEventListener("change", () => {
+    fijarZonaAjena(""); // la persona la eligió: ya no hay nada que avisar
     guardado.set("cc_zona", sel.value);
     calcular();
     cambioDeZona();
@@ -216,6 +224,8 @@ const ACCIONES = {
   "buscar-dir": () => buscarDireccion(),
   // La dirección cayó en una vecina sin plano y la persona confirma (mapa.js).
   "zona-vecina": (el) => vivoEnVecina(el.dataset.zona),
+  // La dirección quedó en la ciudad y la zona elegida es otra (cota.js).
+  "elegir-zona-ciudad": () => elegirZonaDeLaCiudad(),
   // El mismo, pero desde el renglón de «no se encontró»: repite la búsqueda.
   "buscar-en-vecina": (el) => buscarEnVecina(el.dataset.zona),
   // Una sugerencia del buscador de dirección (js/app/calles.js).

@@ -105,6 +105,11 @@ export let estado = {
   // margen (margenCota en cota.js). Vacío si se cargó a mano.
   cotaFuente: "",
   zona: "centro",
+  /* Dónde cayó la dirección cuando NO es la zona elegida: «ciudad» o el id de
+     una vecina. Vacío si coinciden, o si la altura no salió de una dirección.
+     Mientras haya algo acá el veredicto es provisorio: la zona pone los km río
+     arriba, y con una zona que no es la de la casa el número es de otro lado. */
+  zonaAjena: "",
   kmManual: null,
   lluvia: null,
 };
@@ -120,3 +125,11 @@ export const kmDeZona = () => {
   const z = ZONAS.find((z) => z.id === estado.zona);
   return z ? (z.km ?? 0) : 0;
 };
+
+/* El desacuerdo entre la dirección y la zona se guarda: al recargar, la
+   persona no tiene por qué ver el veredicto como confirmado si ayer no lo
+   estaba. Se limpia al elegir zona o al cargar otra altura. */
+export function fijarZonaAjena(valor) {
+  estado.zonaAjena = valor || "";
+  guardado.set("cc_zona_ajena", estado.zonaAjena);
+}
