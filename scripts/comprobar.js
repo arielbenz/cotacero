@@ -283,6 +283,30 @@ console.log("Cada import de la app existe en su módulo");
   caso("ningún import apunta a un nombre que no existe", rotos, []);
 }
 
+console.log("ARROYO LEYES: nombres nuevos y números anteriores");
+{
+  /* Los valores salen de la Ordenanza 47/2021 de la Comuna, Anexo II
+     (datos-crudos/arroyo-leyes-ordenanza-47-2021/anexo-2.txt), no de lo que
+     devuelve la función: «CALLE 18 LOS CURUPIES 3050-2900» es la línea que dice
+     que la casa 3006 está en la antigua calle 18. Las otras tres, con las
+     calles que el mapa de la app rotula «Calle 53», «56» y «58». */
+  const alias = await import("/js/app/alias.js");
+  const tabla = await alias.cargarAlias();
+  caso("la tabla de nombres carga", Array.isArray(tabla) && tabla.length > 200, true);
+  const de = (texto, altura) => alias.resolverAlias(tabla, texto, altura);
+  caso("«Curupies 3006» es la antigua calle 18", de("Curupies", 3006)?.anterior, "18");
+  caso("«Curupies 3006» cae dentro de un tramo de la ordenanza", de("Curupies", 3006)?.dentro, true);
+  caso("«Los Curupíes» con tilde y artículo es la misma", de("Los Curupíes", 3006)?.anterior, "18");
+  caso("«Curupíes 1700» es la antigua 16", de("Curupies", 1700)?.anterior, "16");
+  caso("«Curupíes 900» es la antigua 26", de("Curupies", 900)?.anterior, "26");
+  caso("«Curupíes 1300» no cae en un tramo con número: no se afirma", de("Curupies", 1300)?.dentro, false);
+  caso("«Los Crespines 2700» es la antigua 53", de("Los Crespines", 2700)?.anterior, "53");
+  caso("«Los Espinillos» es la antigua 56", de("Los Espinillos")?.anterior, "56");
+  caso("«Sarandí» es la antigua 58", de("Sarandi")?.anterior, "58");
+  caso("un nombre que no existe no resuelve", de("Calle Inventada", 100), null);
+  caso("se escribe como la rotulan los mapas", alias.comoCalle("90BIS"), "Calle 90 BIS");
+}
+
 console.log("CONTRASTE");
 {
   /* Los colores de TEXTO de los dos temas contra TODOS los fondos donde caen,

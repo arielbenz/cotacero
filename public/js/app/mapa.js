@@ -10,6 +10,7 @@ import {
   restaurarPista,
   sinCiudad,
 } from "./calles.js";
+import { cargarAlias, comoCalle, resolverAlias } from "./alias.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
@@ -374,15 +375,29 @@ export async function buscarDireccion() {
        escrita no hay segunda vuelta: ya dijo dónde. */
     const elegida = dicha ? dicha.v : vecinaElegida();
     const sitios = dicha ? [elegida] : elegida ? [elegida, null] : [null];
+    /* Arroyo Leyes: «Curupíes 3006» es la antigua «Calle 18» (alias.js). Los
+       mapas siguen con el número de antes, y es el único que se puede buscar. */
+    let alias = null;
+    if (elegida && elegida.id === "leyes" && !esquina) {
+      const partes = consulta.match(/^(.*\D)\s+(\d{1,5})\s*$/);
+      const al = resolverAlias(
+        await cargarAlias(),
+        partes ? partes[1] : consulta,
+        partes ? +partes[2] : null,
+      );
+      if (al) alias = { ...al, altura: partes ? +partes[2] : null };
+    }
     var r = null;
     for (const v of sitios) {
+      const texto =
+        alias && v && v.id === "leyes" ? comoCalle(alias.anterior) : consulta;
       r =
         conNumero || esquina
-          ? await georef(esquina ? comoEsquina(consulta) : consulta, v, esquina)
+          ? await georef(esquina ? comoEsquina(consulta) : texto, v, esquina)
           : null;
       // Nominatim no entiende esquinas: devolvería un punto cualquiera de
       // una de las dos calles, y eso no es lo que se pidió.
-      if (!r && !esquina) r = await nominatim(consulta, v);
+      if (!r && !esquina) r = await nominatim(texto, v);
       if (!r && !esquina && sinBarrio && sinBarrio !== consulta)
         r = await nominatim(sinBarrio, v);
       if (r) break;
@@ -407,6 +422,25 @@ export async function buscarDireccion() {
       await marcarCasaEnMapa({
         centro: r.c,
         calle: (r.nombre || "").split(",")[0].trim(),
+        mensaje: alias
+          ? "«" +
+            aTitulo(alias.nombre) +
+            (alias.altura != null ? " " + alias.altura : "") +
+            "» " +
+            (alias.dentro ? "es la antigua" : "fue la") +
+            " «" +
+            comoCalle(alias.anterior) +
+            "»" +
+            (alias.anteriores.length > 1 && !alias.dentro
+              ? " (o " +
+                alias.anteriores
+                  .filter((a) => a !== alias.anterior)
+                  .map(comoCalle)
+                  .join(", ") +
+                ")"
+              : "") +
+            ". Acercá el mapa y tocá tu casa."
+          : undefined,
       });
       return;
     }
@@ -1000,7 +1034,7 @@ function escapeDeMarcar(ev) {
 
 /* `centro` y `calle` los pasa la búsqueda cuando encontró la calle pero no la
    altura exacta: el mapa arranca sobre ella y el pedido la nombra. */
-export async function marcarCasaEnMapa({ centro, calle } = {}) {
+export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
   irA("donde");
   await armarMapa();
   if (!mapa) {
@@ -1034,9 +1068,10 @@ export async function marcarCasaEnMapa({ centro, calle } = {}) {
   else if (vecinaElegida())
     mapa.jumpTo({ center: vecinaElegida().localidad.centro, zoom: 14 });
   pedirToque(
-    calle
-      ? "Encontramos «" + calle + "». Acercá el mapa y tocá tu casa."
-      : undefined,
+    mensaje ||
+      (calle
+        ? "Encontramos «" + calle + "». Acercá el mapa y tocá tu casa."
+        : undefined),
   );
   mapa.once("click", alTocar);
 }
