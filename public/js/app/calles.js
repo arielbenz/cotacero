@@ -12,10 +12,21 @@
    lista se puede buscar igual: puede ser un barrio, que eso lo resuelve
    Nominatim. */
 
+import { cargarAlias } from "./alias.js";
 import { VECINAS } from "./zonas.js";
 import { estado } from "./estado.js";
 
 const CALLEJERO_CIUDAD = "/datos-abiertos/calles.json";
+// Arroyo Leyes: además de «Calle 18» están los nombres que la Ordenanza 47/2021
+// les puso («Los Curupíes»), que es como las conoce el barrio (alias.js).
+const CALLEJERO_LEYES = "/datos-abiertos/calles-leyes.json";
+
+/* «Calle 18, 16 y 26»: los números que tuvo una calle con nombre nuevo. */
+function antesDe(c) {
+  const a = [...new Set(c.tramos.map((t) => t.anterior).filter((x) => x && x !== "S/N"))];
+  if (!a.length) return "";
+  return "Calle " + (a.length > 1 ? a.slice(0, -1).join(", ") + " y " + a.at(-1) : a[0]);
+}
 
 const callejeros = new Map(); // archivo -> promesa de [{ nombre, palabras, desde, hasta }] | null
 let busquedas = 0; // cuántas veces se apretó Buscar (restaurarPista)
@@ -99,14 +110,27 @@ export function cargarCalles(archivo = callejeroActual().archivo) {
       if (!r.ok) throw new Error("sin callejero");
       return r.json();
     })
-    .then((j) =>
-      j.calles.map(([nombre, desde, hasta]) => ({
+    .then(async (j) => {
+      const base = j.calles.map(([nombre, desde, hasta]) => ({
         nombre: aTitulo(nombre),
         palabras: palabrasDe(nombre),
         desde,
         hasta,
-      })),
-    )
+      }));
+      if (archivo !== CALLEJERO_LEYES) return base;
+      // Sin la tabla de nombres quedan las calles numeradas, que ya sirven.
+      const tabla = await cargarAlias();
+      if (!tabla) return base;
+      return base.concat(
+        tabla.map((a) => ({
+          nombre: aTitulo(a.nombre),
+          palabras: palabrasDe(a.nombre),
+          desde: Math.min(...a.tramos.map((t) => t.min)),
+          hasta: Math.max(...a.tramos.map((t) => t.max)),
+          antes: antesDe(a),
+        })),
+      );
+    })
     .catch(() => {
       // Sin lista no hay sugerencias, y nada más. Se puede reintentar.
       callejeros.delete(archivo);
@@ -270,7 +294,11 @@ function mostrar(lista, numero) {
         `<li role="option" id="sug-dir-${i}" aria-selected="false" ` +
         `data-accion="elegir-calle" data-calle="${esc(c.nombre)}">` +
         `<span>${esc(c.nombre)}${numero != null ? " " + numero : ""}</span>` +
-        (c.hasta != null ? `<small>${rango(c)}</small>` : "") +
+        (c.antes
+          ? `<small>antes ${esc(c.antes)}</small>`
+          : c.hasta != null
+            ? `<small>${rango(c)}</small>`
+            : "") +
         `</li>`,
     )
     .join("");

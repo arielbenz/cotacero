@@ -35,6 +35,11 @@ const LICENCIAS = [
     "Provincia de Santa Fe — IDESF",
     'Puntos con cota de San José del Rincón, Colastiné y La Guardia (Secretaría de Aguas, relevamiento de 2005), con los que la app calcula la altura en Rincón y Arroyo Leyes. Del servicio de mapas público de la <a href="https://www.santafe.gov.ar/idesf/" target="_blank" rel="noopener">IDESF</a>; la ficha no declara licencia.',
   ],
+  /* Ordenanza pública, sin licencia declarada: se atribuye y se enlaza. */
+  [
+    "Comuna de Arroyo Leyes",
+    'Los nombres nuevos de las calles de Arroyo Leyes y los números que tenían antes, de la <a href="https://www.arroyoleyes.gob.ar/ordenanzas.php" target="_blank" rel="noopener">Ordenanza 47/2021</a> (Anexos I y II). Con eso la búsqueda entiende «Curupíes 3006» como la antigua calle 18.',
+  ],
   [
     "INA",
     'Alturas hidrométricas diarias del Paraná, del <a href="' +
