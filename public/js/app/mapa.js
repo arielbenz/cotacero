@@ -14,14 +14,15 @@ import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
   avisarCota,
+  calcular,
   decir,
   elegirZona,
   fijarCotaEstimada,
   pintarOrigenCota,
 } from "./cota.js";
 import { elevacionDe } from "./elevacion.js";
-import { PUNTOS, estado, guardado } from "./estado.js";
-import { m } from "./formato.js";
+import { PUNTOS, estado, fijarZonaAjena, guardado } from "./estado.js";
+import { mU } from "./formato.js";
 import { pintarCercanos, pintarPuntos } from "./puntos.js";
 import { aLaVista, irA, ocupar } from "./vista.js";
 
@@ -268,8 +269,9 @@ function avisoDeZona(r) {
   }
   if (!r.vecina && elegida)
     return (
-      "<b>Esa dirección queda en la ciudad de Santa Fe</b>, no en tu zona. " +
-      "Si no es tu casa, escribí también la localidad."
+      "<b>Esa dirección queda en la ciudad de Santa Fe</b>, no en tu zona: " +
+      "el resultado es provisorio hasta que elijas la tuya. Si no es tu " +
+      "casa, escribí también la localidad."
     );
   return "";
 }
@@ -431,6 +433,16 @@ export async function buscarDireccion() {
         BOTON_MARCAR +
         ".",
     );
+  /* Dónde cayó la dirección, si no es la zona elegida: el veredicto pasa a
+     provisorio (cota.js) hasta que la persona resuelva la zona. */
+  fijarZonaAjena(
+    r.vecina && r.vecina !== estado.zona
+      ? r.vecina
+      : !r.vecina && vecinaElegida()
+        ? "ciudad"
+        : "",
+  );
+  if (estado.zonaAjena) calcular();
   const zona = avisoDeZona(r);
   if (zona) avisarCota(zona);
   aLaVista(document.getElementById("estado-cota"));
@@ -838,7 +850,9 @@ let marca = null; // lo que devolvió elevacionDe() para el punto tocado
 const CANCELAR =
   ' <button class="enlace-crudo" type="button" data-accion="mapa-cancelar">Cancelar</button>';
 
-function avisoMapa(html) {
+/* `abajo`: la confirmación va abajo, donde llega el pulgar; el pedido de
+   tocar va arriba, donde se lee primero (estilos/app.css, #mapa.marcando). */
+function avisoMapa(html, abajo = false) {
   const cont = document.getElementById("mapa");
   if (!cont) return;
   let el = cont.querySelector(".mapa-aviso");
@@ -852,6 +866,7 @@ function avisoMapa(html) {
     el.setAttribute("role", "status");
     cont.appendChild(el);
   }
+  el.classList.toggle("confirmar", abajo);
   el.innerHTML = html;
 }
 
@@ -917,23 +932,34 @@ async function alTocar(e) {
   marca = r;
   avisoMapa(
     "Marcaste un punto a <b>" +
-      m(r.cota) +
+      mU(r.cota) +
       " sobre el mar</b>. ¿Es tu casa?" +
       '<div class="mapa-aviso-botones">' +
       '<button class="btn mini" type="button" data-accion="mapa-confirmar">Sí, usar esta altura</button>' +
       ' <button class="enlace-crudo" type="button" data-accion="mapa-de-nuevo">Marcar de nuevo</button>' +
       CANCELAR +
       "</div>",
+    true,
   );
 }
 
 function salirDeMarcar() {
   const cont = document.getElementById("mapa");
   if (cont) cont.classList.remove("marcando");
+  document.body.classList.remove("marcando-mapa");
+  document.removeEventListener("keydown", escapeDeMarcar);
   fondoDeMarcar(false);
   avisoMapa(null);
-  if (mapa) mapa.off("click", alTocar);
+  if (mapa) {
+    mapa.off("click", alTocar);
+    mapa.resize(); // el contenedor vuelve a su alto de pestaña
+  }
   marca = null;
+}
+
+/* Escape sale de marcar, como en cualquier hoja a pantalla completa. */
+function escapeDeMarcar(ev) {
+  if (ev.key === "Escape") cancelarMarca();
 }
 
 export async function marcarCasaEnMapa() {
@@ -953,7 +979,13 @@ export async function marcarCasaEnMapa() {
   // pliegue: el pedido tiene que verse, no sólo existir.
   aLaVista(cont);
   if (estaMarcando()) return; // ya está esperando el toque: no armar dos
+  /* A pantalla completa y no en los 340 px de la pestaña: con la barra de
+     abajo y el pedido encima quedaban ~170 px de foto para tocar, y es la única
+     forma de cargar la casa para quien no sabe su dirección. */
   cont.classList.add("marcando");
+  document.body.classList.add("marcando-mapa");
+  document.addEventListener("keydown", escapeDeMarcar);
+  mapa.resize();
   fondoDeMarcar(true);
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.

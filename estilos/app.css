@@ -73,7 +73,9 @@
 
   /* Relleno sólido: ahí encima va texto blanco y necesita su propio valor.
      El del diseño daba 3,67 con blanco. */
-  --peligro-solido: #d93e24;
+  /* Antes #d93e24: blanco encima daba 4,5017, aprobado por 0,002. Un retoque
+     al rojo lo rompía en silencio; con #d2381f son 4,85. */
+  --peligro-solido: #d2381f;
   --sobre-solido: #ffffff;
 
   /* Los dos rellenos de la franja de estado en vivo. NO se remapean por tema:
@@ -339,6 +341,11 @@ html[data-theme="light"] {
    encoge. El tamaño base del texto lo pone `body`.
    Y NO va `-webkit-text-size-adjust: 100%`: esa línea es justo la que hacía
    que el ajuste de "Tamaño de fuente" de Chrome en Android no hiciera nada. */
+/* La barra de abajo es fija: sin esto, aLaVista() dejaba un error o un
+   resultado 89 px detrás de ella, justo el enlace que sirve para salir. */
+html {
+  scroll-padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
 html,
 body {
   background: var(--fondo);
@@ -4666,6 +4673,9 @@ body.con-bienvenida {
 }
 .bienvenida .dato {
   margin-top: var(--e-2);
+  /* El renglón del número es de 0,9: la coma de «4,07» bajaba hasta tocar el
+     rótulo de abajo. */
+  margin-bottom: var(--e-2);
 }
 .bienvenida-botones {
   display: flex;
@@ -5336,11 +5346,11 @@ html.texto-grande {
 }
 .sugerir > summary {
   cursor: pointer;
+  /* Era 17 px en mayúsculas y la pieza más ruidosa del pie: un enlace al
+     final de la página, no un título. */
   font-family: var(--sans);
   font-weight: 600;
-  font-size: var(--t-m);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: var(--t-base);
   color: var(--tenue);
   padding: var(--e-3) 0;
   border-top: 1px solid var(--linea);
@@ -6758,19 +6768,21 @@ button.enlace-crudo {
 
    Un enlace dentro de una frase no se puede agrandar sin romper el renglón,
    así que la zona de toque se extiende con un pseudoelemento invisible: el
-   texto queda donde estaba y el dedo tiene 44 px de donde apuntar. Los que
+   texto queda donde estaba y el dedo tiene 44 px de donde apuntar. Con
+   0,75rem de cada lado un renglón de 16,5 px llegaba a 40, y el «911»,
+   de 18 px de ancho, a 42: son 1,1rem arriba y abajo y 1rem a los lados. Los que
    van en una lista, en cambio, crecen de verdad: dos filas de 20 px con
    zonas de toque superpuestas harían marcar el 911 al querer el 103.
    ========================================================================== */
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente) a:not([class]),
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class]),
 button.enlace-crudo {
   position: relative;
 }
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente) a:not([class])::after,
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class])::after,
 button.enlace-crudo::after {
   content: "";
   position: absolute;
-  inset: -0.75rem -0.5rem;
+  inset: -1.1rem -1rem;
 }
 .pasos.grave li a {
   display: inline-flex;
@@ -6804,4 +6816,67 @@ button.enlace-crudo.enlace-solo::after {
 }
 .salida-ya .btn-emergencia {
   margin: 0;
+}
+
+/* Resultado provisorio: la dirección cayó en otra zona que la elegida
+   (estado.zonaAjena). El veredicto se ve, pero sin su color de estado: el
+   número está calculado con los km de otro lado, y el naranja o el rojo le
+   daban un significado que no tiene. Se desatura y no se aclara, así el
+   texto conserva su contraste: bajarle la opacidad lo dejaba en 3,7:1. El
+   aviso de arriba no se toca, y lleva el botón que lo resuelve. */
+#resultado.provisorio > :not(.zona-ajena) {
+  filter: grayscale(1);
+}
+.zona-ajena .btn.mini {
+  display: flex;
+  margin: var(--e-3) 0 0;
+}
+
+/* ---------- Marcar la casa, a pantalla completa ----------
+   El mapa de «Dónde ir» mide 340 px, y con el pedido encima y la barra de
+   abajo quedaban unos 170 de foto aérea para tocar. Al marcar, el mismo
+   contenedor se pega a toda la pantalla (mapa.js hace resize()). El pedido va
+   arriba y la confirmación abajo, donde llega el pulgar. La caja traía la
+   tipografía de MapLibre (Helvetica 13 px): acá es la del producto. */
+body.marcando-mapa {
+  overflow: hidden;
+}
+#mapa.marcando {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+#mapa.marcando .mapa-aviso {
+  top: calc(env(safe-area-inset-top) + var(--e-2));
+  left: var(--e-2);
+  right: 4.25rem;
+  padding: var(--e-3) var(--e-4);
+}
+#mapa.marcando .mapa-aviso.confirmar {
+  top: auto;
+  bottom: calc(env(safe-area-inset-bottom) + var(--e-3));
+  right: var(--e-2);
+}
+.mapa-aviso {
+  font-family: var(--sans);
+  font-size: var(--t-base);
+  font-weight: 500;
+  color: var(--texto);
+}
+.mapa-aviso .enlace-crudo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.mapa-aviso .btn.mini {
+  margin: 0;
+}
+#mapa .maplibregl-popup-content {
+  font-family: var(--sans);
+  font-size: var(--t-s);
 }

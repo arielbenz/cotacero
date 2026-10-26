@@ -14,7 +14,7 @@ import {
 } from "./config.js";
 import { COBERTURA, KM_PUBLICADO, ZONAS } from "./zonas.js";
 import { elevacionDe, fuenteAltura } from "./elevacion.js";
-import { estado, guardado, kmDeZona } from "./estado.js";
+import { estado, fijarZonaAjena, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { margenDe, umbralDe } from "./modelo.js";
@@ -36,6 +36,7 @@ import { aLaVista, ocupar } from "./vista.js";
    `distancia` sólo la trae el camino del GPS y el del mapa. `fuente` es la
    que devolvió elevacionDe(): el id de una de FUENTES_ALTURA. */
 export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente) {
+  fijarZonaAjena(""); // lo decide quien la llama, con la dirección a la vista
   estado.cota = alt;
   estado.cotaEsEstimada = true;
   estado.cotaOrigen = origen;
@@ -217,6 +218,7 @@ export function marcarCotaManual() {
     decir("error", "<b>Esa altura no puede ser:</b> va de 0 a 40 m sobre el mar.");
     return;
   }
+  fijarZonaAjena("");
   estado.cota = isNaN(v) ? null : v;
   estado.cotaEsEstimada = false;
   estado.cotaOrigen = isNaN(v) ? "" : "mano";
@@ -399,6 +401,8 @@ function pintarSinPlano(z) {
 export function calcular() {
   const sel = document.getElementById("sel-zona");
   if (sel) estado.zona = sel.value;
+  // Lo vuelve a poner el final, si hay veredicto y la zona no coincide.
+  document.getElementById("resultado")?.classList.remove("provisorio");
 
   const z = ZONAS.find((z) => z.id === estado.zona);
   pintarSinPlano(z);
@@ -456,7 +460,7 @@ export function calcular() {
   const criticoPeor = cotaEnHidrometro();
 
   const r = estado.rio;
-  let html = "";
+  let html = avisoZonaAjena();
 
   // veredicto
   let cls = "v-ok",
@@ -672,7 +676,63 @@ ${
     '<a href="/datos#no-dice">Qué no dice este número</a></div>';
 
   cont.innerHTML = html;
+  cont.classList.toggle("provisorio", Boolean(estado.zonaAjena));
   pintarRio();
+}
+
+/* Cuando la dirección quedó en otro lado que la zona elegida, el veredicto de
+   abajo se muestra atenuado y con esto arriba: un «≈ 7,0 m» seguro sobre una
+   casa de Guadalupe con la zona de Rincón era el número de otra parte, dicho
+   con aplomo. Con una vecina hay un botón que pasa a ella; con la ciudad no
+   puede haberlo —son ocho zonas y la calle no dice cuál—, y el botón lleva a
+   elegirla. */
+function avisoZonaAjena() {
+  const a = estado.zonaAjena;
+  if (!a) return "";
+  const elegida = ZONAS.find((x) => x.id === estado.zona);
+  const nombre = (x) => x.n.replace(/^Santa Fe — /, "").replace(/ — .*/, "");
+  if (a === "ciudad")
+    return (
+      '<div class="aviso zona-ajena"><b>Este resultado es provisorio:</b> la ' +
+      "dirección queda en la ciudad de Santa Fe y tu zona dice " +
+      (elegida ? nombre(elegida) : "otra") +
+      ". La zona pone los km río arriba y cambia el nivel de aviso. " +
+      '<button class="btn sec mini" type="button" ' +
+      'data-accion="elegir-zona-ciudad">Elegir mi zona de la ciudad</button></div>'
+    );
+  const z = ZONAS.find((x) => x.id === a);
+  if (!z) return "";
+  return (
+    '<div class="aviso zona-ajena"><b>Este resultado es provisorio:</b> la ' +
+    "dirección queda en " +
+    z.n +
+    " y tu zona dice " +
+    (elegida ? nombre(elegida) : "otra") +
+    ". La zona pone los km río arriba y cambia el nivel de aviso. " +
+    '<button class="btn sec mini" type="button" data-accion="zona-vecina" ' +
+    'data-zona="' +
+    z.id +
+    '">Pasar a ' +
+    z.n +
+    "</button></div>"
+  );
+}
+
+/* «Elegir mi zona de la ciudad»: la zona de Rincón estaba mal y la ciudad
+   tiene ocho. Se vacía y se lleva a la persona a elegir, sin suponer ninguna:
+   suponer el centro daría el resultado más optimista de todos. */
+export function elegirZonaDeLaCiudad() {
+  const sel = document.getElementById("sel-zona");
+  if (!sel) return;
+  sel.value = "";
+  sel.dispatchEvent(new Event("change"));
+  casaAbierta = true; // con la casa cargada, los pasos están plegados
+  if (pasoPrimera != null) irAPaso(2);
+  else {
+    calcular();
+    aLaVista(document.getElementById("paso-zona"));
+    sel.focus({ preventScroll: true });
+  }
 }
 
 /* ---- la casa cargada ----
@@ -830,8 +890,8 @@ function renglonCasa(z, km) {
     : "";
   return `<div class="tarjeta casa-renglon">
     <span class="casa-icono" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg></span>
-    <span class="casa-txt"><b>${atr(nombre)} · terreno a ${mU(estado.cota)}</b>
-      <span>Según ${o.corto || "—"} · ${km} km del Puerto</span>
+    <span class="casa-txt"><b>${estado.zonaAjena ? "Zona sin confirmar" : atr(nombre)} · terreno a ${mU(estado.cota)}</b>
+      <span>Según ${o.corto || "—"}${estado.zonaAjena ? "" : " · " + km + " km del Puerto"}</span>
       ${o.ojo ? `<span class="ojo">${o.largo}</span>` : ""}</span>
     <button type="button" data-accion="cambiar-casa" aria-controls="pasos-casa"
       aria-expanded="${casaAbierta ? "true" : "false"}">${casaAbierta ? "Listo" : "Cambiar"}</button>

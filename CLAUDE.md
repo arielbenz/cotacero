@@ -624,6 +624,18 @@ y `sinPlano` en `zonas.js`). «Seguir» aparece cuando ya hay altura y es el
 en `cota.js`). `#paso-zona` y `#paso-altura` conservan sus ids y el formulario
 de «Cambiar» no se tocó.
 
+**Dirección y zona que no coinciden: el veredicto es provisorio.** Si la
+dirección cae en otro lado que la zona elegida —Risso 1745 con Rincón elegida,
+o al revés— `estado.zonaAjena` guarda dónde cayó (`«ciudad»` o el id de una
+vecina; `fijarZonaAjena()` en `estado.js`, que lo persiste en `cc_zona_ajena`
+para que no desaparezca al recargar). Mientras haya algo ahí, `calcular()` pone
+un aviso arriba del veredicto, lo muestra sin su color de estado (`grayscale`,
+no opacidad: bajarle la opacidad lo dejaba en 3,7:1) y la tarjeta de la casa
+dice «Zona sin confirmar» y no los km. Con una vecina el botón pasa a ella; con
+la ciudad **no puede haber un «pasar a»** —son ocho zonas— y el botón vacía la
+zona y lleva a elegirla (`elegirZonaDeLaCiudad()`). Se limpia al elegir zona o
+al cargar otra altura.
+
 **Una búsqueda que falla no deja un número ajeno a la vista:** si ya había
 una casa cargada, el error dice que el nivel de aviso de más abajo sigue
 siendo el de ésa (`deLaCasaAnterior()`), y la pista del campo vuelve a la
@@ -637,13 +649,27 @@ un renglón— no se pueden agrandar sin romper el renglón: se extiende la zona
 toque con un `::after` invisible (`.app :where(p, li, …) a`, al final de
 `estilos/app.css`). Los que van en lista crecen de verdad (`.pasos.grave li a`):
 dos zonas de toque superpuestas harían marcar el 911 al querer el 103. Los
-botones del mapa miden 44 en `#mapa .maplibregl-ctrl-group button`.
+botones del mapa miden 44 en `#mapa .maplibregl-ctrl-group button`. El
+`::after` es de `-1.1rem -1rem`: con `-0.75rem -0.5rem` un renglón de 16,5 px
+llegaba a 40 y el «911» a 42, y lo dijo el barrido de objetivos, no el ojo. Un
+enlace en un contenedor nuevo (`.nota`, `.sello-fuente`…) hay que sumarlo al
+selector. `html` lleva `scroll-padding-bottom` del alto de la barra: sin eso
+`aLaVista()` dejaba un error 89 px detrás de ella.
+
+**«Marcarla en el mapa» es una hoja a pantalla completa.** El mismo `#mapa`
+pasa a `position: fixed` con la clase `marcando` (y `body.marcando-mapa` frena
+el scroll); `mapa.js` llama a `resize()` al entrar y al salir. El pedido va
+arriba, la confirmación abajo (`.mapa-aviso.confirmar`), Escape cancela, y la
+caja usa la tipografía del producto y no la de MapLibre (Helvetica 13 px).
+Antes quedaban ~170 px de foto para tocar.
 
 **Los colores de texto se miden contra todos los fondos donde caen**, no sólo
 contra el papel: el tenue daba 4,12 y el acento 4,13 sobre el tinte de peligro.
 `node scripts/comprobar.js` lo verifica en los dos temas leyendo
 `estilos/app.css` (sección CONTRASTE): un color nuevo se mide solo. Los
-valores del tema claro viven una sola vez en las `--c-*`; el HTML del widget y
+rellenos sólidos con texto blanco (`peligro-solido`, `alerta-solido`,
+`evac-solido`) también se miden ahí: el rojo del 103 en oscuro aprobaba por
+0,002. Los valores del tema claro viven una sola vez en las `--c-*`; el HTML del widget y
 el CSS embebido de `api/metricas.js` tienen su propia copia del acento.
 
 **La barra de «Instalar en el teléfono» sólo sale en Río.** `vista.js` pone

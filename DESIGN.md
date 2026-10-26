@@ -263,6 +263,12 @@ La marca es un cero con agua adentro: un anillo con una línea de nivel que lo c
 ### La regla del río (componente firma)
 La regla vertical del hidrómetro: un tanque de 44 px de ancho, el agua azul subiendo desde abajo con una transición de 0,7 s, una escala de marcas a la izquierda y, a lo ancho, una línea de 2 px por cada nivel con su etiqueta pegada. Alerta (naranja), evacuación (rojo), récord (rayada) y «vos» (punteada, en tierra). Vencido, el agua y la línea del río se vuelven gris: un dato viejo no se pinta con la cara de uno actual.
 
+### Marcar la casa en el mapa
+La misma pieza del mapa, a pantalla completa mientras se marca: el pedido es una caja de una o dos líneas arriba, en Plus Jakarta Sans de 15 px, y la confirmación —«Sí, usar esta altura» como único sólido, más «Marcar de nuevo» y «Cancelar»— va abajo, donde llega el pulgar. Escape sale. Los controles del mapa miden 44 px.
+
+### Resultado provisorio
+Cuando la dirección cae en otra zona que la elegida, el veredicto se desatura (`grayscale`, nunca opacidad: el texto conserva su contraste) y un aviso de alerta-tinte arriba, con su botón, dice por qué. Un tinte de estado sobre un número que no es el de la casa le daba un significado que no tiene.
+
 ### Avisos
 Fondo tintado de alerta (o de peligro si es grave), 16 px de radio, texto de apoyo de 13 px, y los énfasis en negrita con el color del estado. Nada de borde lateral de color.
 
