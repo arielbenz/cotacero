@@ -283,5 +283,48 @@ console.log("Cada import de la app existe en su módulo");
   caso("ningún import apunta a un nombre que no existe", rotos, []);
 }
 
+console.log("CONTRASTE");
+{
+  /* Los colores de TEXTO de los dos temas contra TODOS los fondos donde caen,
+     no sólo contra el papel: la crítica del 26/10/2026 midió el tenue en 4,12
+     y el acento en 4,13 sobre el tinte de peligro, justo en el renglón del
+     103. Lee los tokens de estilos/app.css, así un color nuevo se mide solo. */
+  const css = readFileSync(join(PUBLICO, "..", "estilos", "app.css"), "utf8");
+  const tok = (n) => css.match(new RegExp("--" + n + ":\\s*([^;]+);"))?.[1].trim();
+  const rgb = (v) => {
+    if (v.startsWith("#")) return [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16)).concat(1);
+    const p = v.match(/[\d.]+/g).map(Number);
+    return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1];
+  };
+  const sobre = ([r, g, b, a], f) => [r, g, b].map((x, i) => Math.round(x * a + f[i] * (1 - a)));
+  const lum = ([r, g, b]) => {
+    const l = (c) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * l(r) + 0.7152 * l(g) + 0.0722 * l(b);
+  };
+  const razon = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+    return (x + 0.05) / (y + 0.05);
+  };
+  for (const [tema, pre, fondo, panel] of [
+    ["claro", "c-", "c-fondo", "c-panel"],
+    ["oscuro", "", "fondo", "panel"],
+  ]) {
+    const F = rgb(tok(fondo)).slice(0, 3);
+    const P = rgb(tok(panel)).slice(0, 3);
+    const fondos = [
+      F,
+      P,
+      sobre(rgb(tok(pre + "panel-2")), P),
+      sobre(rgb(tok(pre + "panel-2")), F),
+      ...["agua", "alerta", "peligro", "ok"].map((e) => sobre(rgb(tok(pre + e + "-tinte")), tema === "claro" ? F : P)),
+    ];
+    for (const t of ["tenue", "acento", "alerta-texto", "peligro-texto", "ok-texto", "tierra"]) {
+      const c = rgb(tok(pre + t)).slice(0, 3);
+      const peor = Math.min(...fondos.map((f) => razon(c, f)));
+      caso(`${tema}: «${t}» pasa 4,5:1 en todos los fondos (peor ${peor.toFixed(2)})`, peor >= 4.5, true);
+    }
+  }
+}
+
 console.log(fallas ? `\n${fallas} caso(s) fallaron.` : "\nTodo en orden.");
 process.exit(fallas ? 1 : 0);

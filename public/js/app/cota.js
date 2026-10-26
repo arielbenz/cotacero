@@ -182,8 +182,11 @@ export function pintarOrigenCota() {
   if (mano && estado.cotaOrigen === "mano") mano.open = true;
   decir(
     "ok",
+    /* Un decimal y ≈, como el nivel de aviso: la altura sale de curvas cada
+       ~0,5 m, o de puntos con ±1 m en la costa, y «15,51» prometía una
+       exactitud que no hay. En el campo y en el desglose queda la exacta. */
     '<b class="est-titu">Tu terreno está a ' +
-      m(estado.cota) +
+      mU(estado.cota) +
       " sobre el mar</b>" +
       '<span class="est-txt">' +
       (estado.cotaOrigen === "direccion"
@@ -684,7 +687,7 @@ let casaAbierta = null;
 
 function pintarCasa(conCasa) {
   // La primera vez se decide una sola vez, al arrancar, como el plegado.
-  if (casaAbierta === null && !conCasa) pasoPrimera = estado.zona ? 2 : 1;
+  if (casaAbierta === null && !conCasa) pasoPrimera = 1;
   if (casaAbierta === null || !conCasa) casaAbierta = !conCasa;
   const plegada = conCasa && !casaAbierta;
   document.getElementById("pasos-casa").hidden = plegada;
@@ -693,9 +696,14 @@ function pintarCasa(conCasa) {
 }
 
 /* ---- la primera vez, en tres pasos ----
-   Zona → dónde está tu casa → resultado, con una barra de progreso. Antes
-   eran dos tarjetas abiertas a la vez con el resultado diciendo «Falta tu
-   zona» debajo: la pantalla arrancaba con un reporte de lo que faltaba. Los
+   Dónde está tu casa → zona → resultado, con una barra de progreso. Antes
+   la zona iba primero, con doce opciones a la vista, antes de poder escribir
+   la dirección: la zona es la parte que más cuesta y la que la dirección ya
+   dice. Con una dirección de Rincón o Arroyo Leyes la zona se toma de ahí
+   (mapa.js) y el segundo paso se salta; con una de la ciudad hay que elegir
+   entre sus ocho zonas, que dependen de los km río arriba y no de la calle.
+   Antes eran dos tarjetas abiertas a la vez con el resultado diciendo «Falta
+   tu zona» debajo: la pantalla arrancaba con un reporte de lo que faltaba. Los
    pasos usan los MISMOS campos que el formulario de siempre —el <select>, la
    dirección, el GPS, el mapa, la altura a mano— y sólo cambia qué se ve, con
    una clase en la sección. Así la búsqueda, las zonas sin plano y lo que se
@@ -706,38 +714,58 @@ let pasoPrimera = null; // 1, 2 o 3; null cuando no es la primera vez
 function pintarPrimera() {
   const v = document.getElementById("v-cota");
   if (!v) return;
+  // Con «Seguir» a la vista, el sólido es «Seguir»; si no, «Buscar mi casa».
+  document
+    .querySelector('#paso-altura [data-accion="buscar-dir"]')
+    ?.classList.toggle("sec", pasoPrimera != null && estado.cota != null);
   v.classList.toggle("primera", pasoPrimera != null);
   for (const n of [1, 2, 3]) v.classList.toggle("paso-" + n, pasoPrimera === n);
   if (pasoPrimera == null) return;
 
-  const z = ZONAS.find((x) => x.id === estado.zona);
   document.getElementById("primera-paso").textContent =
-    pasoPrimera === 3
-      ? "Listo"
-      : "Paso " +
-        pasoPrimera +
-        " de 3" +
-        (pasoPrimera === 2 && z ? " · " + z.n.replace(/^Santa Fe — /, "") : "");
+    "Paso " + pasoPrimera + " de 3";
   document
     .querySelectorAll(".progreso-pasos i")
     .forEach((i, k) => i.classList.toggle("hecho", k < pasoPrimera));
 
   const radios = document.getElementById("zonas-radio");
-  if (radios && !radios.querySelector("input"))
+  /* Agrupadas, y no una lista plana de doce: «Rincón» y «Arroyo Leyes» son
+     localidades y «Alto Verde» un barrio, y mezcladas nadie sabía dónde
+     buscar la suya. El grupo sale de los datos de la zona: las que tienen
+     `localidad` o `sinPlano` quedan fuera de la ciudad. */
+  if (radios && !radios.querySelector("input")) {
+    const grupoDe = (x) =>
+      x.id === "otro"
+        ? ""
+        : x.localidad || x.sinPlano
+          ? "Fuera de la ciudad"
+          : "En la ciudad de Santa Fe";
+    let ultimo = null;
     radios.insertAdjacentHTML(
       "beforeend",
-      ZONAS.map(
-        (x) =>
-          `<label class="zona-opcion"><input type="radio" name="zona" value="${x.id}" data-input="zona-radio"><span>${x.n}</span></label>`,
-      ).join(""),
+      ZONAS.map((x) => {
+        const g = grupoDe(x);
+        const cab =
+          g !== ultimo && g
+            ? `<span class="zona-grupo" aria-hidden="true">${g}</span>`
+            : "";
+        ultimo = g;
+        return (
+          cab +
+          `<label class="zona-opcion"><input type="radio" name="zona" value="${x.id}" data-input="zona-radio"><span>${x.n}</span></label>`
+        );
+      }).join(""),
     );
+  }
   radios
     ?.querySelectorAll("input")
     .forEach((r) => (r.checked = r.value === estado.zona));
 
-  // Sin zona no se sigue; sin altura no hay nivel de aviso que ver.
+  /* «Seguir» aparece cuando ya hay altura, y entonces es la acción principal:
+     «Buscar mi casa» pasa a secundario. Un solo sólido por pantalla. Sin zona
+     no se ve el nivel de aviso. */
   const seguir = document.querySelector('[data-accion="primera-seguir"]');
-  if (seguir) seguir.disabled = !estado.zona;
+  if (seguir) seguir.hidden = estado.cota == null;
   const ver = document.querySelector('[data-accion="primera-ver"]');
   if (ver) ver.disabled = estado.cota == null || !estado.zona;
 }
@@ -757,9 +785,10 @@ function irAPaso(n) {
   pasoPrimera = n;
   if (n === 3) casaAbierta = false;
   calcular();
+  // En el resultado el foco va al resultado: la cabecera de pasos ya no se ve.
   const destino =
     n === 3
-      ? document.querySelector(".primera-cabeza")
+      ? document.getElementById("resultado")
       : document.getElementById("titulo-paso-" + n);
   /* Arriba de todo, no «a la vista»: aLaVista() mueve lo mínimo, y un paso
      nuevo que arranca a la mitad se lee como la continuación del anterior. */
@@ -770,7 +799,10 @@ function irAPaso(n) {
   }
 }
 
-export const primeraSeguir = () => estado.zona && irAPaso(2);
+/* Con la zona ya dicha —la tomó mapa.js de la dirección, o la eligió antes—
+   se va derecho al resultado; si no, se pregunta. */
+export const primeraSeguir = () =>
+  estado.cota != null && irAPaso(estado.zona ? 3 : 2);
 export const primeraAtras = () => irAPaso(1);
 export const primeraVer = () =>
   estado.cota != null && estado.zona && irAPaso(3);
@@ -798,7 +830,7 @@ function renglonCasa(z, km) {
     : "";
   return `<div class="tarjeta casa-renglon">
     <span class="casa-icono" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg></span>
-    <span class="casa-txt"><b>${atr(nombre)} · terreno a ${m(estado.cota)}</b>
+    <span class="casa-txt"><b>${atr(nombre)} · terreno a ${mU(estado.cota)}</b>
       <span>Según ${o.corto || "—"} · ${km} km del Puerto</span>
       ${o.ojo ? `<span class="ojo">${o.largo}</span>` : ""}</span>
     <button type="button" data-accion="cambiar-casa" aria-controls="pasos-casa"

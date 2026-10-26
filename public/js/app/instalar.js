@@ -149,7 +149,9 @@ function mostrarBotonInstalar() {
   caja.id = "barra-instalar";
   caja.className = "instalar";
   const b = document.createElement("button");
-  b.className = "btn";
+  // Secundario, no el sólido: instalar no es la acción de la pantalla, y un
+  // píldora negra fija era lo que más llamaba justo encima de los resultados.
+  b.className = "btn sec";
   b.type = "button";
   b.textContent = esMovil() ? "Instalar en el teléfono" : "Instalar la app";
   b.addEventListener("click", instalar);

@@ -230,31 +230,37 @@ export async function cargarTendencia() {
     const proy = variacion(futuro, hoy);
     if (camb === null) throw new Error("referencia en cero");
 
-    let flecha, color, txt;
-    if (camb > 8) {
-      flecha = "↗";
-      color = "var(--alerta)";
-      txt = "Viene subiendo";
-    } else if (camb < -8) {
-      flecha = "↘";
-      color = "var(--ok)";
-      txt = "Viene bajando";
-    } else {
-      flecha = "→";
-      color = "var(--tenue)";
+    /* Un solo veredicto, con las dos mitades dichas en palabras. Antes el
+       titular decía «Viene subiendo» (la semana pasada) y el renglón de abajo
+       «proyección −84 %» (la que viene): quien lo lee no sabe cuál creer. Y
+       sin color de estado: esto es caudal, no la regla del puerto, y un
+       naranja o un verde acá le quita su significado al de la alerta. */
+    const subio = camb > 8,
+      bajo = camb < -8,
+      seEsperaSuba = proy !== null && proy > 8,
+      seEsperaBaje = proy !== null && proy < -8;
+    let flecha = "→",
       txt = "Estable";
-    }
+    if (subio) flecha = "↗";
+    else if (bajo) flecha = "↘";
+    if (subio && seEsperaBaje) txt = "Subió esta semana y se espera que baje";
+    else if (subio && seEsperaSuba) txt = "Sigue subiendo";
+    else if (subio) txt = "Subió esta semana";
+    else if (bajo && seEsperaSuba) txt = "Bajó esta semana y se espera que suba";
+    else if (bajo && seEsperaBaje) txt = "Sigue bajando";
+    else if (bajo) txt = "Bajó esta semana";
+    else if (seEsperaSuba) txt = "Estable, y se espera que suba";
+    else if (seEsperaBaje) txt = "Estable, y se espera que baje";
 
     caja.innerHTML = `<span class="eti">Cuánta agua trae el río · pronóstico a 7 días</span>
 <div class="tend">
-  <div class="flecha" style="color:${color}">${flecha}</div>
+  <div class="flecha" aria-hidden="true">${flecha}</div>
   <div>
-    <div style="font-family:var(--sans);font-weight:700;font-size: var(--t-l);
-      letter-spacing:.03em;text-transform:uppercase;color:${color}">${txt}</div>
-    <div class="chico">${camb >= 0 ? "+" : ""}${camb.toFixed(0)}% en los últimos 7 días${
+    <div class="tend-titu">${txt}</div>
+    <div class="chico">Caudal: ${camb >= 0 ? "+" : ""}${camb.toFixed(0)} % contra hace una semana${
       proy === null
         ? ""
-        : ` · proyección a 7 días: ${proy >= 0 ? "+" : ""}${proy.toFixed(0)}%`
+        : ` · pronóstico a 7 días: ${proy >= 0 ? "+" : ""}${proy.toFixed(0)} %`
     }</div>
   </div>
 </div>

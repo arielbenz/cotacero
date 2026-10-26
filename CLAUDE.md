@@ -610,6 +610,51 @@ Las páginas generadas terminaban con un bloque de enlaces a otras páginas.
 **Se sacaron y no se vuelven a agregar.** Si una página necesita mandar a otra,
 el enlace va donde el texto lo pide, no en una lista de relleno al pie.
 
+### Mi casa, la primera vez: dirección → zona → resultado
+
+El flujo arranca por **dónde está tu casa** y no por la zona (octubre de
+2026): la zona era la parte que más costaba y la dirección ya la dice. Con
+una dirección de Rincón o Arroyo Leyes, `mapa.js` toma la zona de ahí
+(`elegirZona(r.vecina)`, sólo si no había ninguna elegida) y el paso de zona
+se salta; con una de la ciudad hay que elegir entre sus ocho zonas, que
+dependen de los km río arriba y **no se deducen de la calle**. Las zonas van
+agrupadas («En la ciudad», «Fuera de la ciudad»; el grupo sale de `localidad`
+y `sinPlano` en `zonas.js`). «Seguir» aparece cuando ya hay altura y es el
+único sólido de la pantalla; «Buscar mi casa» pasa a `.sec` (`pintarPrimera`
+en `cota.js`). `#paso-zona` y `#paso-altura` conservan sus ids y el formulario
+de «Cambiar» no se tocó.
+
+**Una búsqueda que falla no deja un número ajeno a la vista:** si ya había
+una casa cargada, el error dice que el nivel de aviso de más abajo sigue
+siendo el de ésa (`deLaCasaAnterior()`), y la pista del campo vuelve a la
+inicial (`restaurarPista()`, que lee `data-inicial`) para que no queden dos
+mensajes sobre la misma dirección.
+
+### Objetivos táctiles, contraste y la barra de instalar
+
+**Mínimo 44 px, y cómo se llega.** Los enlaces dentro de una frase —el «103» de
+un renglón— no se pueden agrandar sin romper el renglón: se extiende la zona de
+toque con un `::after` invisible (`.app :where(p, li, …) a`, al final de
+`estilos/app.css`). Los que van en lista crecen de verdad (`.pasos.grave li a`):
+dos zonas de toque superpuestas harían marcar el 911 al querer el 103. Los
+botones del mapa miden 44 en `#mapa .maplibregl-ctrl-group button`.
+
+**Los colores de texto se miden contra todos los fondos donde caen**, no sólo
+contra el papel: el tenue daba 4,12 y el acento 4,13 sobre el tinte de peligro.
+`node scripts/comprobar.js` lo verifica en los dos temas leyendo
+`estilos/app.css` (sección CONTRASTE): un color nuevo se mide solo. Los
+valores del tema claro viven una sola vez en las `--c-*`; el HTML del widget y
+el CSS embebido de `api/metricas.js` tienen su propia copia del acento.
+
+**La barra de «Instalar en el teléfono» sólo sale en Río.** `vista.js` pone
+`body[data-vista]` y el CSS la oculta en las otras tres pestañas, donde tapaba
+el resultado, el plan y el 103. Es un `.btn.sec`, no el sólido.
+
+**La tendencia del río no lleva color de estado.** Es caudal, no la regla del
+puerto: un naranja o un verde ahí le quita su significado al de la alerta. El
+titular dice las dos mitades en palabras («Subió esta semana y se espera que
+baje») en vez de «Viene subiendo» junto a «−84 %». Lo mismo con «▲ 0,07 m».
+
 ### Dos trampas del marcado de la app
 
 **`#plan-impreso` es hijo directo de `<body>`, no del `<main>`.** El
