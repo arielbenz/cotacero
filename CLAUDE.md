@@ -634,7 +634,11 @@ no opacidad: bajarle la opacidad lo dejaba en 3,7:1) y la tarjeta de la casa
 dice «Zona sin confirmar» y no los km. Con una vecina el botón pasa a ella; con
 la ciudad **no puede haber un «pasar a»** —son ocho zonas— y el botón vacía la
 zona y lleva a elegirla (`elegirZonaDeLaCiudad()`). Se limpia al elegir zona o
-al cargar otra altura.
+al cargar otra altura. Mientras esté provisorio, además: la tarjeta de defensa se
+reemplaza por «Se muestra cuando elijas tu zona» (era el terraplén de Rincón
+sobre una dirección de Guadalupe) y **«Avisarme» no se puede activar**: la
+tarjeta dice «Elegí tu zona para activar el aviso» (`pintarAvisos` en
+`avisos.js`; quien ya los tenía puede seguir desactivándolos).
 
 **Una búsqueda que falla no deja un número ajeno a la vista:** si ya había
 una casa cargada, el error dice que el nivel de aviso de más abajo sigue
@@ -656,12 +660,34 @@ enlace en un contenedor nuevo (`.nota`, `.sello-fuente`…) hay que sumarlo al
 selector. `html` lleva `scroll-padding-bottom` del alto de la barra: sin eso
 `aLaVista()` dejaba un error 89 px detrás de ella.
 
+**El resultado de Mi casa va en este orden:** veredicto —con «Al río le faltan
+unos X», el dato que antes vivía sólo en la pestaña Río; no se dice con el dato
+vencido—, la tarjeta de la casa, **«Armar mi plan»** (que estaba 2.000 px abajo), el
+desglose, la defensa (dos líneas y «Más sobre tu zona» plegado: es el mismo
+texto partido por la mitad, no se reescribió) y el aviso por push. Tras marcar
+la casa en el mapa con el formulario de «Cambiar» abierto, `irAlResultadoDeLaCasa()`
+lo pliega y va al número; antes se caía arriba del formulario, que todavía
+decía lo anterior.
+
+**Las sugerencias de calles no pueden pisar un resultado.** `restaurarPista()`
+(que arranca cada búsqueda) cuenta `busquedas`, y `sugerirCalle()` lo compara
+tras el `await cargarCalles()`: con poca señal el callejero tarda, y pintar la
+lista después de Buscar dejaba «¿Es Cnl Manuel Dorrego?» junto al tilde verde.
+El mapa de «Dónde ir» se reencuadra a los 30 puntos la próxima vez que se abre
+después de marcar (`encuadrarPuntos()`): es una sola instancia y heredaba el
+zoom de una manzana.
+
 **«Marcarla en el mapa» es una hoja a pantalla completa.** El mismo `#mapa`
 pasa a `position: fixed` con la clase `marcando` (y `body.marcando-mapa` frena
 el scroll); `mapa.js` llama a `resize()` al entrar y al salir. El pedido va
 arriba, la confirmación abajo (`.mapa-aviso.confirmar`), Escape cancela, y la
 caja usa la tipografía del producto y no la de MapLibre (Helvetica 13 px).
 Antes quedaban ~170 px de foto para tocar.
+
+**El placeholder es el tenue** (`::placeholder` en `estilos/app.css`). Sin esa
+regla el navegador pone #757575: 4,14:1 en claro y 2,87 en oscuro, en el campo
+principal y en los de Mi plan. Ningún barrido de nodos de texto lo ve; por eso
+`comprobar.js` verifica que la regla exista y use el tenue, que ya está medido.
 
 **Los colores de texto se miden contra todos los fondos donde caen**, no sólo
 contra el papel: el tenue daba 4,12 y el acento 4,13 sobre el tinte de peligro.

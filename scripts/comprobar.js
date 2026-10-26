@@ -327,6 +327,18 @@ console.log("CONTRASTE");
 }
 
 {
+  /* El texto de ayuda de los campos: sin una regla propia el navegador pone
+     #757575 (4,14:1 en claro, 2,87 en oscuro) y nadie lo mide, porque no es un
+     nodo de texto. Tiene que ser el tenue, que sí está medido arriba. */
+  const css = readFileSync(join(PUBLICO, "..", "estilos", "app.css"), "utf8");
+  caso(
+    "el placeholder usa el tenue, no el gris del navegador",
+    /::placeholder\s*\{[^}]*color:\s*var\(--tenue\)/.test(css),
+    true,
+  );
+}
+
+{
   /* Los rellenos sólidos llevan texto blanco (--sobre-solido): se miden con él.
      El rojo del 103 en tema oscuro aprobaba por 0,002. */
   const css = readFileSync(join(PUBLICO, "..", "estilos", "app.css"), "utf8");

@@ -18,6 +18,7 @@ import {
   decir,
   elegirZona,
   fijarCotaEstimada,
+  irAlResultadoDeLaCasa,
   pintarOrigenCota,
 } from "./cota.js";
 import { elevacionDe } from "./elevacion.js";
@@ -948,6 +949,7 @@ function salirDeMarcar() {
   if (cont) cont.classList.remove("marcando");
   document.body.classList.remove("marcando-mapa");
   document.removeEventListener("keydown", escapeDeMarcar);
+  encuadrarAlVolver = true;
   fondoDeMarcar(false);
   avisoMapa(null);
   if (mapa) {
@@ -955,6 +957,23 @@ function salirDeMarcar() {
     mapa.resize(); // el contenedor vuelve a su alto de pestaña
   }
   marca = null;
+}
+
+/* Marcar deja el mapa acercado a una manzana, y «Dónde ir» es una sola
+   instancia: al volver mostraba un recorte verde sin ningún punto de
+   encuentro. La próxima vez que se abre la pestaña se encuadran los 30. Sólo
+   después de marcar: quien acercó el más cercano a mí quiere seguir ahí. */
+let encuadrarAlVolver = false;
+export function encuadrarPuntos() {
+  if (!encuadrarAlVolver || !mapa || estaMarcando()) return;
+  encuadrarAlVolver = false;
+  const cs = Object.values(coordsPuntos).filter(Boolean);
+  if (!cs.length) return;
+  const b = cs.reduce(
+    (acc, c) => acc.extend(c),
+    new maplibregl.LngLatBounds(cs[0], cs[0]),
+  );
+  mapa.fitBounds(b, { padding: 40, animate: false, maxZoom: 13 });
 }
 
 /* Escape sale de marcar, como en cualquier hoja a pantalla completa. */
@@ -1010,6 +1029,7 @@ export function confirmarMarca() {
     r.fuente,
   );
   irA("cota");
+  irAlResultadoDeLaCasa();
 }
 
 export function marcarDeNuevo() {

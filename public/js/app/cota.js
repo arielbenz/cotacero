@@ -318,36 +318,53 @@ export async function estimarCota() {
    Los datos viven en ZONAS; cada renglón de `observado` tiene fuente y
    AUDITORIA.md §9 dice de dónde salió. */
 const DEFENSA_TXT = {
-  anillo:
-    "Tu zona está <b>dentro del anillo de defensas</b> de la ciudad. El agua " +
-    "nunca pasó por arriba de una defensa de Santa Fe: el terraplén llega a " +
-    "unos 17 m sobre el mar, que en la regla del puerto son más de 8,5 m, muy " +
-    "por encima del récord de 7,43. Cuando entró, en 2003, fue por un tramo " +
-    "que no estaba construido. Tu nivel de aviso es lo que pasaría si entre " +
-    "el río y tu casa no hubiera nada: sirve para prepararte, no dice que el " +
-    "agua vaya a entrar.",
-  local:
-    "Tu zona está <b>fuera del anillo de la ciudad, pero tiene defensa " +
-    "propia</b>. Tu nivel de aviso es lo que pasaría si no estuviera. Ninguna " +
-    "defensa de la costa falló por arriba en una crecida registrada: el agua " +
-    "entra por abajo —filtraciones y napa— y por los desagües, y eso empieza " +
-    "bastante antes de que el río llegue a la altura del terraplén. La app no " +
-    "sabe en qué estado está hoy.",
-  ninguna:
-    "En tu zona <b>no hay defensa</b> entre el río y las casas: tu nivel de " +
-    "aviso es la cuenta directa, sin nada en el medio.",
+  anillo: {
+    corto:
+      "Tu zona está <b>dentro del anillo de defensas</b> de la ciudad. Tu nivel " +
+      "de aviso es lo que pasaría si entre el río y tu casa no hubiera nada: " +
+      "sirve para prepararte, no dice que el agua vaya a entrar.",
+    resto:
+      "El agua nunca pasó por arriba de una defensa de Santa Fe: el terraplén " +
+      "llega a unos 17 m sobre el mar, que en la regla del puerto son más de " +
+      "8,5 m, muy por encima del récord de 7,43. Cuando entró, en 2003, fue " +
+      "por un tramo que no estaba construido.",
+  },
+  local: {
+    corto:
+      "Tu zona está <b>fuera del anillo de la ciudad, pero tiene defensa " +
+      "propia</b>. Tu nivel de aviso es lo que pasaría si no estuviera.",
+    resto:
+      "Ninguna defensa de la costa falló por arriba en una crecida " +
+      "registrada: el agua entra por abajo —filtraciones y napa— y por los " +
+      "desagües, y eso empieza bastante antes de que el río llegue a la altura " +
+      "del terraplén. La app no sabe en qué estado está hoy.",
+  },
+  ninguna: {
+    corto:
+      "En tu zona <b>no hay defensa</b> entre el río y las casas: tu nivel de " +
+      "aviso es la cuenta directa, sin nada en el medio.",
+    resto: "",
+  },
 };
 
+/* Dos líneas a la vista y el resto plegado. Eran unas doce líneas de 15 px
+   con «terraplén», «napa» y fuentes largas entre el número y lo que hay que
+   hacer: llegaban justo después del pico y antes de «Armar mi plan». Lo
+   plegado es lo mismo, sin cambiar una palabra: sólo se partió por la mitad. */
 function tarjetaDefensa(z) {
   if (!z) return "";
-  const txt = DEFENSA_TXT[z.defensa];
+  const d = DEFENSA_TXT[z.defensa];
   const obs = z.observado || [];
-  if (!txt && !obs.length && !z.nota) return "";
+  if (!d && !obs.length && !z.nota) return "";
   let h =
     '<div class="tarjeta"><h3 style="margin-top:0">Lo que hay entre el río y tu casa</h3>';
+  if (d) h += `<p class="chico" style="margin:0">${d.corto}</p>`;
   /* La nota de la zona vivía bajo la lista de zonas, donde nadie la leía; acá
      está al lado del cálculo que explica. */
-  const aparte = [txt, z.nota].filter(Boolean);
+  const aparte = [d && d.resto, z.nota].filter(Boolean);
+  if (!aparte.length && !obs.length) return h + "</div>";
+  h +=
+    '<details class="plegable defensa-mas"><summary>Más sobre tu zona</summary>';
   if (aparte.length)
     h += aparte
       .map(
@@ -368,7 +385,19 @@ function tarjetaDefensa(z) {
       "por barrio: esto es lo que el municipio dijo en prensa y lo que pasó en " +
       "crecidas anteriores. Cada renglón tiene fuente. Si sabés de otro dato, " +
       '<a href="/contacto">contanos</a>.</p>';
-  return h + "</div>";
+  return h + "</details></div>";
+}
+
+/* Con la zona sin confirmar (estado.zonaAjena) la defensa de la zona elegida
+   no es la de esta casa: mostrarla era contar el terraplén de Rincón sobre una
+   dirección de Guadalupe. Queda dicho, y vuelve al elegir la zona. */
+function tarjetaDefensaPendiente() {
+  return (
+    '<div class="tarjeta"><h3 style="margin-top:0">Lo que hay entre el río y tu ' +
+    'casa</h3><p class="chico" style="margin:0">Se muestra cuando elijas tu ' +
+    "zona: la defensa y lo que pasó otras veces dependen de dónde queda tu " +
+    "casa.</p></div>"
+  );
 }
 
 /* En una zona que las curvas no cubren, las tres formas automáticas de
@@ -582,13 +611,26 @@ export function calcular() {
     : '<p class="chico glosa">El nivel del río a partir del cual el agua ' +
       "puede llegar a tu terreno. Es un cálculo aproximado.</p>";
 
+  /* Cuánto falta, dentro del veredicto: el número y el color dicen dónde cae tu
+     nivel de aviso entre las alertas, no a cuánto está el río, y esa distancia
+     vivía sólo en la pestaña Río. Con el dato vencido no se dice: «hoy» sería
+     mentira. Superado no hace falta, el titular ya lo dice. */
+  const faltaRio =
+    r != null && !estado.rioVencido && ref - r > 0
+      ? `<p class="falta-rio">Al río le faltan unos <b>${mCm(ref - r)}</b> para llegar a tu nivel de aviso.</p>`
+      : "";
+
   html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
     <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
     <div class="dato">${mU(ref)}</div>
-    ${glosa}${barraCasa(ref, r)}
+    ${glosa}${barraCasa(ref, r)}${faltaRio}
     <p class="veredicto-pie">${txt}</p></div>`;
 
   html += renglonCasa(z, km);
+  /* Antes estaba al final de la pantalla, unos 2.000 px abajo: lo que sigue a
+     tu número es armar el plan, no leer el desglose. */
+  html +=
+    '<button class="btn sec" type="button" data-accion="ir" data-vista="plan">Armar mi plan</button>';
 
   // desglose
   html += `<details class="tarjeta plegable"><summary>Cómo sale ese número</summary>
@@ -658,7 +700,7 @@ ${
   }
   html += "</details>";
 
-  html += tarjetaDefensa(z);
+  html += estado.zonaAjena ? tarjetaDefensaPendiente() : tarjetaDefensa(z);
 
   /* UNA advertencia fuerte por pantalla. Eran tres cajas —el aviso grave, el
      de la altura estimada y el de «ni la mejor cota»— y el mismo descargo
@@ -866,6 +908,17 @@ export const primeraSeguir = () =>
 export const primeraAtras = () => irAPaso(1);
 export const primeraVer = () =>
   estado.cota != null && estado.zona && irAPaso(3);
+
+/* Después de marcar la casa en el mapa con el formulario abierto («Cambiar»):
+   se cae arriba del formulario, que todavía dice lo de antes, y el resultado
+   queda a un scroll de distancia. Se pliega y se va al número. En los pasos de
+   la primera vez no: ahí lo que sigue es «Seguir». */
+export function irAlResultadoDeLaCasa() {
+  if (pasoPrimera != null || !casaAbierta) return;
+  casaAbierta = false;
+  calcular();
+  aLaVista(document.getElementById("resultado"));
+}
 
 export function alternarCasa() {
   // «Cambiar» abre el formulario de siempre, no los pasos de la primera vez.
