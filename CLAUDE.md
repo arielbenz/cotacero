@@ -491,8 +491,32 @@ calle. La localidad cuenta sólo al principio o al final —«Combate de Rincón
 («Dorrego y Constituyentes» devolvió «Cmte Orrego»): lo encontrado se
 muestra entero. Cuando no aparece, `noEncontrada()` ofrece buscar en las
 vecinas y el mapa, que arranca sobre la localidad elegida (`centro`). Arroyo
-Leyes no tiene callejero útil en Georef —171 tramos «CALLE 1», «CALLE 2»— y ahí
-el campo lo dice y manda al mapa.
+Leyes es distinto: Georef y OpenStreetMap lo tienen como «Calle 1»…«Calle 98»
+—así lo rotula también el mapa de la app—, no con los nombres que usa el barrio
+(«Curupíes»), que ningún callejero abierto tiene. `calles-leyes.json` sugiere
+esas calles numeradas; escribir otro nombre da un mensaje que explica la
+numeración y manda al mapa.
+
+**Pero los nombres sí existen, y están publicados.** La Ordenanza 47/2021 de la
+Comuna (18/11/2021) renombró toda la localidad —árboles para las calles
+perpendiculares a la Ruta 1, aves para las paralelas, próceres en el casco— y
+numeró las casas; los números de antes siguen siendo los de Georef,
+OpenStreetMap y el mapa. De sus Anexos I y II sale
+`calles-leyes-alias.json`: para cada nombre nuevo, los números anteriores y el
+rango de numeración de casas de cada uno (`datos-crudos/arroyo-leyes-alias-2026-10-26.mjs`
+lo arma desde los textos del PDF, que están en
+`datos-crudos/arroyo-leyes-ordenanza-47-2021/`). `js/app/alias.js` —puro, lo
+prueba `comprobar.js`— traduce «Curupíes 3006» a «Calle 18» eligiendo el tramo
+por la altura, y la búsqueda abre el mapa sobre esa calle. Los nombres también
+entran en las sugerencias («Los Curupíes · antes Calle 18, 16 y 26»). **Un
+número anterior puede repetirse en tramos sin conexión** (la 75 son cuatro
+calles distintas): la tabla va del nombre nuevo al viejo, nunca al revés. Y no
+ubica ninguna casa: la ordenanza dice que la numeración crece hacia el oeste y el
+norte desde un cero, pero ningún dato abierto dice dónde cae cada altura. Si la búsqueda encuentra la calle numerada
+(`!r.exacta`), no se intenta la altura —el punto que da OpenStreetMap puede
+quedar a más de 150 m del punto de altura más cercano— sino que se abre la
+hoja de «Marcarla en el mapa» ya centrada en esa calle
+(`marcarCasaEnMapa({ centro, calle })`).
 
 **Las sugerencias del buscador no consultan a nadie.** `js/app/calles.js`
 filtra en el teléfono contra `datos-abiertos/calles.json` —o

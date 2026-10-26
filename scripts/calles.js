@@ -28,9 +28,11 @@
 //
 // Hay un archivo por localidad: `calles.json` (la ciudad) y
 // `calles-rincon.json` (San José del Rincón, 217 calles en Georef). Con Rincón
-// elegida como zona, el buscador sugiere de ese. Arroyo Leyes no tiene: Georef
-// lo trae como «CALLE 1», «CALLE 2»… —171 tramos numerados y casi ninguno con
-// numeración—, y nadie escribe así su calle; ahí la salida es el mapa.
+// elegida como zona, el buscador sugiere de ese. Arroyo Leyes también tiene el
+// suyo, pero distinto: Georef lo trae como «CALLE 1»…«CALLE 98» (casi ninguna con
+// numeración), y así figuran en el mapa. Mucha gente conoce su calle por otro
+// nombre —«Curupíes»— que ningún callejero abierto tiene; el archivo sirve para
+// que vean cómo figura la suya, y la salida sigue siendo marcarla en el mapa.
 //
 // Sin dependencias, como el resto del proyecto.
 
@@ -49,6 +51,13 @@ const LOCALIDADES = [
     id: "82063160", // San José del Rincón, departamento La Capital
     nombre: "San José del Rincón",
     archivo: "calles-rincon.json",
+  },
+  {
+    // Arroyo Leyes: Georef lo trae como «CALLE 1»…«CALLE 98», que es como lo
+    // rotulan los mapas abiertos, y no con los nombres que usa el barrio.
+    id: "82063030",
+    nombre: "Arroyo Leyes",
+    archivo: "calles-leyes.json",
   },
 ];
 

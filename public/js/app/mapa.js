@@ -10,6 +10,7 @@ import {
   restaurarPista,
   sinCiudad,
 } from "./calles.js";
+import { cargarAlias, comoCalle, resolverAlias } from "./alias.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
@@ -305,8 +306,13 @@ function noEncontrada({ esquina, v, dicha }) {
           x.n + "</button>",
       ).join(" o de ") +
       "?";
-  } else if (!v.localidad.georef && !dicha) {
-    h += " Arroyo Leyes casi no tiene calles con nombre: lo más seguro es el mapa.";
+  } else if (v.id === "leyes") {
+    /* No es que la calle no exista: los mapas abiertos rotulan las de Arroyo
+       Leyes con número («Calle 53») y no con el nombre del barrio
+       («Curupíes»). Decírselo es lo que le permite encontrarla. */
+    h +=
+      " En Arroyo Leyes los mapas rotulan las calles con número («Calle 53»), " +
+      "no con el nombre que usa el barrio: probá con el número.";
   }
   return h + " Si no, " + BOTON_MARCAR + ".";
 }
@@ -369,15 +375,29 @@ export async function buscarDireccion() {
        escrita no hay segunda vuelta: ya dijo dónde. */
     const elegida = dicha ? dicha.v : vecinaElegida();
     const sitios = dicha ? [elegida] : elegida ? [elegida, null] : [null];
+    /* Arroyo Leyes: «Curupíes 3006» es la antigua «Calle 18» (alias.js). Los
+       mapas siguen con el número de antes, y es el único que se puede buscar. */
+    let alias = null;
+    if (elegida && elegida.id === "leyes" && !esquina) {
+      const partes = consulta.match(/^(.*\D)\s+(\d{1,5})\s*$/);
+      const al = resolverAlias(
+        await cargarAlias(),
+        partes ? partes[1] : consulta,
+        partes ? +partes[2] : null,
+      );
+      if (al) alias = { ...al, altura: partes ? +partes[2] : null };
+    }
     var r = null;
     for (const v of sitios) {
+      const texto =
+        alias && v && v.id === "leyes" ? comoCalle(alias.anterior) : consulta;
       r =
         conNumero || esquina
-          ? await georef(esquina ? comoEsquina(consulta) : consulta, v, esquina)
+          ? await georef(esquina ? comoEsquina(consulta) : texto, v, esquina)
           : null;
       // Nominatim no entiende esquinas: devolvería un punto cualquiera de
       // una de las dos calles, y eso no es lo que se pidió.
-      if (!r && !esquina) r = await nominatim(consulta, v);
+      if (!r && !esquina) r = await nominatim(texto, v);
       if (!r && !esquina && sinBarrio && sinBarrio !== consulta)
         r = await nominatim(sinBarrio, v);
       if (r) break;
@@ -393,6 +413,37 @@ export async function buscarDireccion() {
       aLaVista(document.getElementById("estado-cota"));
       return;
     }
+    /* Arroyo Leyes: lo que Nominatim encuentra es la calle entera («Calle 53»),
+       con un punto cualquiera de ella que puede quedar a más de 150 m del
+       punto de altura más cercano —«Calle 53» daba 252 m: «no la altura»—, y
+       aunque lo tuviera sería la de otra cuadra. Sin callejero con números, la
+       salida es el mapa: ya sobre esa calle, y que toque su casa. */
+    if (!r.exacta && r.vecina === "leyes") {
+      await marcarCasaEnMapa({
+        centro: r.c,
+        calle: (r.nombre || "").split(",")[0].trim(),
+        mensaje: alias
+          ? "«" +
+            aTitulo(alias.nombre) +
+            (alias.altura != null ? " " + alias.altura : "") +
+            "» " +
+            (alias.dentro ? "es la antigua" : "fue la") +
+            " «" +
+            comoCalle(alias.anterior) +
+            "»" +
+            (alias.anteriores.length > 1 && !alias.dentro
+              ? " (o " +
+                alias.anteriores
+                  .filter((a) => a !== alias.anterior)
+                  .map(comoCalle)
+                  .join(", ") +
+                ")"
+              : "") +
+            ". Acercá el mapa y tocá tu casa."
+          : undefined,
+      });
+      return;
+    }
     decir("busca", "Encontramos la dirección. Buscando la altura…");
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
@@ -401,7 +452,7 @@ export async function buscarDireccion() {
         "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> " +
           "Los planos cubren " +
           COBERTURA +
-          ". Probá " +
+          ". Si no, " +
           BOTON_MARCAR +
           "." +
           deLaCasaAnterior(),
@@ -981,7 +1032,9 @@ function escapeDeMarcar(ev) {
   if (ev.key === "Escape") cancelarMarca();
 }
 
-export async function marcarCasaEnMapa() {
+/* `centro` y `calle` los pasa la búsqueda cuando encontró la calle pero no la
+   altura exacta: el mapa arranca sobre ella y el pedido la nombra. */
+export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
   irA("donde");
   await armarMapa();
   if (!mapa) {
@@ -1008,12 +1061,18 @@ export async function marcarCasaEnMapa() {
   fondoDeMarcar(true);
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.
-  if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
+  if (centro) mapa.jumpTo({ center: centro, zoom: 16.5 });
+  else if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
   // Sin posición pero con Rincón o Arroyo Leyes elegida, arranca ahí y no en
   // la ciudad: es el camino de quien no la encontró escribiendo.
   else if (vecinaElegida())
     mapa.jumpTo({ center: vecinaElegida().localidad.centro, zoom: 14 });
-  pedirToque();
+  pedirToque(
+    mensaje ||
+      (calle
+        ? "Encontramos «" + calle + "». Acercá el mapa y tocá tu casa."
+        : undefined),
+  );
   mapa.once("click", alTocar);
 }
 

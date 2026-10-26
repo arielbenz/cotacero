@@ -1,0 +1,572 @@
+{
+  "fuente": "Comuna de Arroyo Leyes, Ordenanza 47/2021 (18/11/2021), Anexos I y II — https://arroyoleyes.gob.ar/ordenanzas.php",
+  "generado": "2026-10-26",
+  "formato": "[nombre nuevo, categoría, [[número anterior, altura mínima, altura máxima], …]]; número anterior vacío si el tramo no lo tenía",
+  "nota": "Los números anteriores son los de «Calle 18», que es como la rotulan Georef, OpenStreetMap y el mapa de la app. Las alturas son las de la numeración de casas de la ordenanza.",
+  "calles": [
+    ["13 DE SEPTIEMBRE", "histórica", [["", 1400, 1650]]],
+    ["AGUARIBAY", "árboles", [["68", 2100, 2700]]],
+    ["ÁGUILA", "aves", [["51", 2500, 2650]]],
+    ["AGUILUCHO", "aves", [["79", 4450, 4600]]],
+    ["AMBAY", "árboles", [["110B", 1800, 2500]]],
+    ["ANACAHUITA", "árboles", [["", 350, 650]]],
+    ["ANCHICO", "árboles", [["98", 1800, 2500]]],
+    ["ANHINGÁ", "aves", [["5", 1600, 1850]]],
+    ["ARAGUANEY", "árboles", [["85", 3650, 3950]]],
+    ["ARAUCARIAS", "árboles", [["", 2200, 2500]]],
+    ["ARCE", "árboles", [["75", 3650, 4250]]],
+    ["ARENERO", "aves", [["", 7000, 7100]]],
+    ["AZAHAR DE MONTE", "árboles", [["12", 1300, 2000]]],
+    ["AZULINOS", "aves", [["25", 0, 400]]],
+    [
+      "BALSAMO",
+      "árboles",
+      [
+        ["", 2250, 2500],
+        ["74", 2500, 3450]
+      ]
+    ],
+    ["BARCINOS", "aves", [["", 10000, 10200]]],
+    ["BATITÚ", "aves", [["", 1050, 1150]]],
+    [
+      "BECASINAS",
+      "aves",
+      [
+        ["33", 650, 900],
+        ["29", 900, 1600]
+      ]
+    ],
+    ["BENTEVEO", "aves", [["", 3200, 3300]]],
+    [
+      "BIGUAES",
+      "aves",
+      [
+        ["", 0, 200],
+        ["7", 0, 1000],
+        ["5A", 1000, 1850]
+      ]
+    ],
+    ["BOYEROS", "aves", [["123", 10100, 10200]]],
+    ["BRIGADIER ESTANISLAO LOPEZ", "histórica", [["24", 2500, 2700]]],
+    ["CABURÉ", "aves", [["127", 10100, 10150]]],
+    ["CALDÉN", "árboles", [["96", 2200, 2500]]],
+    ["CAMINO REAL SANTA ROSA", "", [["21", 0, 2500]]],
+    ["CANELÓN", "árboles", [["", 2400, 2500]]],
+    ["CANUTILLOS", "árboles", [["", 2900, 3200]]],
+    ["CAOBA", "árboles", [["81", 3650, 4250]]],
+    ["CARAÚ", "aves", [["", 10000, 10100]]],
+    ["CARLOS LEYES", "histórica", [["35", 1400, 1650]]],
+    ["CASUARINAS", "árboles", [["64", 2500, 3300]]],
+    ["CATAIZALES", "", [["", 2300, 2500]]],
+    ["CATALPA", "árboles", [["102", 2000, 2500]]],
+    ["CEIBA", "árboles", [["83", 3650, 4250]]],
+    ["CELESTINOS", "aves", [["21A", 900, 1000]]],
+    ["CHAJAES", "aves", [["3", 900, 1400]]],
+    ["CHAL CHAL", "árboles", [["", 2400, 2500]]],
+    ["CHAÑAR", "árboles", [["74", 2100, 2500]]],
+    ["CHARATAS", "aves", [["31", 900, 1050]]],
+    ["CHIFLÓN", "aves", [["", 1050, 1150]]],
+    ["CHILCA", "árboles", [["", 2300, 2350]]],
+    ["CHIRIMOLLA", "árboles", [["", 2350, 2500]]],
+    ["CHORORO", "aves", [["", 250, 300]]],
+    ["CINA CINA", "árboles", [["142", 2100, 2500]]],
+    ["COLORADOS", "aves", [["", 9250, 9350]]],
+    ["CONGO", "aves", [["", 5800, 5900]]],
+    ["CONIFERAS", "árboles", [["18C", 2500, 2650]]],
+    ["CORRELIMOS", "aves", [["3B", 1150, 1250]]],
+    ["CORRELIMOS CANELA", "aves", [["", 1600, 1650]]],
+    ["CRESPÓN", "árboles", [["", 2050, 2500]]],
+    ["CURITÍ", "", [["61", 2800, 3000]]],
+    ["CURUPAY", "árboles", [["86", 2500, 3200]]],
+    [
+      "DE LOS CARDENALES",
+      "",
+      [
+        ["2", 200, 450],
+        ["9A", 0, 1200]
+      ]
+    ],
+    [
+      "DE LOS CEIBOS",
+      "árboles",
+      [
+        ["12", 2700, 3600],
+        ["10", 1900, 2700],
+        ["2", 1300, 1900]
+      ]
+    ],
+    ["DE LOS CITRICOS", "", [["14", 3100, 3600]]],
+    ["DE LOS EUCALIPTUS", "árboles", [["2", 850, 3400]]],
+    [
+      "DE LOS HORNEROS",
+      "",
+      [
+        ["15", 1750, 1850],
+        ["19", 0, 1600]
+      ]
+    ],
+    ["DE LOS OMBUES", "árboles", [["146", 2500, 3700]]],
+    ["DOROTEOS", "aves", [["", 12500, 12650]]],
+    ["DURAZNILLO", "árboles", [["", 2300, 2500]]],
+    ["ESPATULA ROSADA", "aves", [["", 12500, 12650]]],
+    ["ESPINA CORONA", "árboles", [["114", 2200, 2500]]],
+    ["FEDERAL", "aves", [["29", 0, 400]]],
+    ["FUEGUEROS", "aves", [["27", 900, 1050]]],
+    ["GALLITO DE AGUA", "aves", [["", 7000, 7250]]],
+    ["GARABATOS", "árboles", [["", 2550, 2650]]],
+    ["GARGANTILLO", "aves", [["129", 10150, 10200]]],
+    ["GARZA MORA", "aves", [["", 2650, 2950]]],
+    ["GAVILÁN", "aves", [["77", 4450, 4600]]],
+    ["GOMEROS", "árboles", [["", 2300, 2500]]],
+    ["GRANADILLO", "árboles", [["", 2300, 2500]]],
+    ["GRAPIA", "árboles", [["", 2100, 2200]]],
+    ["GUANACASTE", "árboles", [["79", 3650, 4250]]],
+    ["GUARANINA", "árboles", [["", 1950, 2200]]],
+    ["GUATAMBÚ", "árboles", [["82", 2100, 2500]]],
+    ["GUAYABO", "árboles", [["", 2300, 2500]]],
+    ["GUAYACANES", "árboles", [["90", 2000, 2500]]],
+    ["GUAYAIBÍ", "", [["110", 1800, 2500]]],
+    ["HALCÓN", "aves", [["75", 4450, 4600]]],
+    ["HORACIO MACEDO", "histórica", [["37", 1400, 1650]]],
+    ["IBIRÁ PITÁ", "árboles", [["70", 2200, 2500]]],
+    ["INCIENSO", "árboles", [["120", 2100, 2500]]],
+    ["INGÁ DEL CERRO", "árboles", [["34", 1250, 2300]]],
+    ["IPACAÁ", "aves", [["121", 10100, 10200]]],
+    ["IPEQUÍ", "aves", [["", 2750, 3200]]],
+    [
+      "IRUPÉ",
+      "árboles",
+      [
+        ["112", 2000, 2850],
+        ["", 0, 3200]
+      ]
+    ],
+    ["ITIN", "árboles", [["92", 1900, 2500]]],
+    ["JABIRÚ", "aves", [["3A", 1150, 1250]]],
+    ["JACARANDÁ", "árboles", [["40", 500, 2500]]],
+    ["JILGUEROS", "aves", [["25", 950, 1050]]],
+    ["JOTE", "aves", [["131", 10150, 10250]]],
+    ["JUAN CHIVIRO", "aves", [["9C", 1000, 1100]]],
+    ["JUNCALES", "árboles", [["100", 2400, 2500]]],
+    ["LAPACHO AMARILLO", "árboles", [["132", 3400, 3600]]],
+    ["LAPACHO ROSADO", "árboles", [["38", 800, 2500]]],
+    ["LAS ACACIAS", "árboles", [["84", 2100, 3000]]],
+    ["LAS ACACIAS -", "árboles", [["84", 3200, 3200]]],
+    ["LAS BRASITAS", "aves", [["73", 4850, 4950]]],
+    ["LAS CALANDRIAS", "aves", [["23", 0, 400]]],
+    ["LAS CARDENILLAS", "aves", [["77", 4850, 5000]]],
+    ["LAS CASUARINAS", "árboles", [["64", 1800, 2500]]],
+    ["LAS CHUÑAS", "aves", [["63", 2800, 3000]]],
+    ["LAS CONIFERAS", "árboles", [["18C", 2650, 3400]]],
+    ["LAS GALLARETAS", "aves", [["65", 2800, 3000]]],
+    ["LAS GARZAS", "aves", [["5", 0, 1250]]],
+    ["LAS GOLONDRINAS", "aves", [["15", 500, 1600]]],
+    ["LAS HIGUERAS", "árboles", [["54", 2200, 2500]]],
+    ["LAS LECHUZAS", "aves", [["15A", 500, 1100]]],
+    [
+      "LAS LIMAS",
+      "árboles",
+      [
+        ["6", 1900, 2500],
+        ["6B", 2700, 3150],
+        ["", 2500, 2700]
+      ]
+    ],
+    ["LAS MACLURAS", "árboles", [["14", 2100, 2500]]],
+    ["LAS MONTERITAS", "aves", [["71", 4850, 4950]]],
+    ["LAS MORAS", "árboles", [["52", 1700, 2500]]],
+    [
+      "LAS PALMERAS",
+      "árboles",
+      [
+        ["", 2000, 2500],
+        ["90", 2500, 2750]
+      ]
+    ],
+    ["LAS PALOMAS", "aves", [["41", 2000, 2300]]],
+    [
+      "LAS PALTAS",
+      "árboles",
+      [
+        ["16", 2500, 3100],
+        ["", 2100, 2500]
+      ]
+    ],
+    ["LAS PARINAS", "aves", [["77", 4400, 4950]]],
+    ["LAS PERDICES", "aves", [["11", 500, 1600]]],
+    ["LAS TACUARAS", "aves", [["79", 4850, 5000]]],
+    ["LAS TACUARITAS", "aves", [["19B", 1100, 1450]]],
+    [
+      "LAS TIJERETAS",
+      "aves",
+      [
+        ["95", 5350, 5650],
+        ["", 5800, 5900]
+      ]
+    ],
+    [
+      "LAS TORCASAS",
+      "aves",
+      [
+        ["13", 500, 1600],
+        ["11", 1750, 1850]
+      ]
+    ],
+    ["LAS TOTORAS", "árboles", [["28", 0, 200]]],
+    [
+      "LAS URRACAS",
+      "aves",
+      [
+        ["119", 11500, 11800],
+        ["139", 10750, 11150]
+      ]
+    ],
+    ["LAUREL DE ISLA", "árboles", [["128", 2500, 3600]]],
+    ["LIBUSTRO", "", [["126", 2100, 2300]]],
+    [
+      "LLUVIA DE ORO",
+      "árboles",
+      [
+        ["48", 1800, 2500],
+        ["46", 1600, 1800],
+        ["44", 2500, 3400]
+      ]
+    ],
+    ["LOS ALAMOS", "árboles", [["38B", 800, 2500]]],
+    ["LOS ALGARROBOS", "árboles", [["104", 1700, 4100]]],
+    ["LOS ALISOS", "árboles", [["130", 2500, 3600]]],
+    [
+      "LOS AROMOS",
+      "árboles",
+      [
+        ["60", 1800, 2500],
+        ["", 2500, 3600]
+      ]
+    ],
+    ["LOS BUHOS", "aves", [["15C", 600, 950]]],
+    ["LOS CAPUCHINOS", "aves", [["7A", 1000, 1850]]],
+    ["LOS CARACOLEROS", "aves", [["9", 0, 1800]]],
+    ["LOS CARANCHOS", "aves", [["2", 0, 200]]],
+    ["LOS CARDELINOS", "aves", [["", 0, 150]]],
+    [
+      "LOS CAROLINOS",
+      "árboles",
+      [
+        ["76", 2100, 2500],
+        ["78", 2500, 3450]
+      ]
+    ],
+    [
+      "LOS CARPINTEROS",
+      "aves",
+      [
+        ["2", 0, 600],
+        ["15B", 600, 1100],
+        ["17", 1300, 1400]
+      ]
+    ],
+    ["LOS CARRIZALES", "árboles", [["130", 1700, 2500]]],
+    ["LOS CEDROS", "árboles", [["90BIS", 1800, 2500]]],
+    ["LOS CHIJIES", "aves", [["73", 4750, 5000]]],
+    ["LOS CHIMANGOS", "aves", [["", 6150, 6250]]],
+    [
+      "LOS CHIVATOS",
+      "árboles",
+      [
+        ["50", 1700, 1800],
+        ["", 1800, 1850]
+      ]
+    ],
+    ["LOS CIRUELOS", "árboles", [["42", 2500, 3000]]],
+    [
+      "LOS CISNES",
+      "aves",
+      [
+        ["45", 2000, 2250],
+        ["", 2750, 3000]
+      ]
+    ],
+    [
+      "LOS CITRICOS",
+      "árboles",
+      [
+        ["14", 1250, 3100],
+        ["", 2100, 2500]
+      ]
+    ],
+    ["LOS CORMORANES", "aves", [["", 3000, 3200]]],
+    [
+      "LOS CRESPINES",
+      "aves",
+      [
+        ["53", 2400, 3050],
+        ["69", 3100, 3400]
+      ]
+    ],
+    ["LOS CRESTONES", "aves", [["7", 1150, 1850]]],
+    ["LOS CRIOLLOS", "aves", [["75", 4400, 4650]]],
+    [
+      "LOS CURUPIES",
+      "árboles",
+      [
+        ["18", 2500, 3600],
+        ["", 1250, 2500],
+        ["16", 1400, 2100],
+        ["26", 650, 1250]
+      ]
+    ],
+    ["LOS DOMADORES", "aves", [["75", 4850, 5000]]],
+    ["LOS DOMINÓ", "aves", [["17", 300, 850]]],
+    [
+      "LOS DURAZNOS",
+      "árboles",
+      [
+        ["40", 2500, 3000],
+        ["", 2300, 2500]
+      ]
+    ],
+    ["LOS ESPINEROS", "aves", [["71", 4400, 4650]]],
+    ["LOS ESPINILLOS", "árboles", [["56", 1700, 2500]]],
+    ["LOS FLAMENCOS", "aves", [["49", 2000, 2200]]],
+    [
+      "LOS FRESNOS",
+      "árboles",
+      [
+        ["30", 1200, 2100],
+        ["20", 2500, 2700]
+      ]
+    ],
+    [
+      "LOS FRUTEROS",
+      "aves",
+      [
+        ["", 5100, 5150],
+        ["71", 4900, 5000]
+      ]
+    ],
+    [
+      "LOS GORRIONES",
+      "aves",
+      [
+        ["91", 5350, 5700],
+        ["", 5800, 5900]
+      ]
+    ],
+    [
+      "LOS GUARANES",
+      "árboles",
+      [
+        ["", 700, 950],
+        ["2", 1200, 1300]
+      ]
+    ],
+    ["LOS JUNCALES", "", [["", 2500, 4100]]],
+    ["LOS JUNQUEROS", "aves", [["", 7000, 7350]]],
+    ["LOS LAURELES", "árboles", [["", 2100, 2500]]],
+    [
+      "LOS LIMONEROS",
+      "árboles",
+      [
+        ["", 2400, 2700],
+        ["8", 1900, 3350]
+      ]
+    ],
+    ["LOS LOROS", "aves", [["39", 2100, 2300]]],
+    ["LOS MAICEROS", "aves", [["73", 4400, 4650]]],
+    [
+      "LOS MANDARINOS",
+      "árboles",
+      [
+        ["4", 1900, 2500],
+        ["4A", 2500, 2600]
+      ]
+    ],
+    ["LOS MOCHUELOS", "aves", [["9B", 1000, 1100]]],
+    [
+      "LOS NARANJILLOS",
+      "árboles",
+      [
+        ["88", 2500, 3200],
+        ["86", 2200, 2500]
+      ]
+    ],
+    [
+      "LOS NARANJOS",
+      "árboles",
+      [
+        ["6", 2700, 3200],
+        ["4", 2500, 2700]
+      ]
+    ],
+    ["LOS OLIVOS", "árboles", [["", 2500, 2700]]],
+    ["LOS PARAISOS", "árboles", [["88A", 2100, 2500]]],
+    ["LOS PEPITEROS", "aves", [["31", 150, 250]]],
+    ["LOS PINOS", "árboles", [["28", 650, 1250]]],
+    ["LOS PIRINCHOS", "aves", [["", 5500, 5700]]],
+    [
+      "LOS POMELOS",
+      "árboles",
+      [
+        ["4", 2700, 3400],
+        ["", 2100, 2700]
+      ]
+    ],
+    ["LOS QUINOTOS", "árboles", [["6A", 2500, 3150]]],
+    [
+      "LOS ROBLES",
+      "árboles",
+      [
+        ["", 2300, 2500],
+        ["76", 2500, 3450]
+      ]
+    ],
+    [
+      "LOS SAUCES",
+      "árboles",
+      [
+        ["18C", 1200, 2500],
+        ["", 800, 900]
+      ]
+    ],
+    [
+      "LOS SIRIRÍ",
+      "aves",
+      [
+        ["59", 2800, 3000],
+        ["47", 2000, 2200]
+      ]
+    ],
+    [
+      "LOS TALAS",
+      "árboles",
+      [
+        ["32", 0, 2500],
+        ["", 800, 3400],
+        ["22", 2500, 2700]
+      ]
+    ],
+    ["LOS TEROS", "aves", [["", 1400, 1550]]],
+    ["LOS TILOS", "árboles", [["140", 2100, 2500]]],
+    ["LOS TORDOS", "aves", [["123", 8000, 9250]]],
+    ["LOS ZORZALES", "árboles", [["9A", 1200, 1850]]],
+    ["MACÁ", "aves", [["", 5800, 5900]]],
+    ["MADRONIO", "árboles", [["77", 3650, 4250]]],
+    ["MAJAGUA", "árboles", [["73", 3650, 4250]]],
+    ["MARTÍN PESCADOR", "aves", [["1", 900, 1250]]],
+    [
+      "MIRLOS",
+      "aves",
+      [
+        ["", 7550, 7800],
+        ["113", 7850, 8700]
+      ]
+    ],
+    ["MISTO", "aves", [["", 1800, 5150]]],
+    ["MISTOL", "árboles", [["", 2300, 2500]]],
+    [
+      "MONTARÁZ",
+      "aves",
+      [
+        ["93", 5350, 5650],
+        ["", 5650, 5900]
+      ]
+    ],
+    ["NENUFAR", "árboles", [["", 2850, 3150]]],
+    ["NÍSPEROS", "árboles", [["", 2600, 2800]]],
+    ["NUESTRA SEÑORA DEL PERPETUO SOCORRO", "", [["28", 2500, 2700]]],
+    [
+      "ÑACUNDÁ",
+      "aves",
+      [
+        ["87", 5350, 5700],
+        ["", 5250, 5350]
+      ]
+    ],
+    ["ÑANDUBAY", "árboles", [["88", 2100, 2500]]],
+    [
+      "ÑANGARIPÍ",
+      "",
+      [
+        ["", 2500, 2700],
+        ["66", 2100, 2500]
+      ]
+    ],
+    ["ORQUIDEA SILVESTRE", "árboles", [["18B", 2100, 2600]]],
+    ["PACARÁ", "árboles", [["", 2400, 2500]]],
+    [
+      "PALMA REAL",
+      "árboles",
+      [
+        ["80", 2100, 2500],
+        ["82", 2500, 3200]
+      ]
+    ],
+    ["PALO BORRACHO", "árboles", [["18B", 2700, 3400]]],
+    ["PALO LANZA", "árboles", [["124", 2100, 2500]]],
+    ["PALO SANTO", "árboles", [["144", 2100, 2500]]],
+    ["PECANES", "árboles", [["", 2200, 2500]]],
+    ["PEDRO BORZONE", "histórica", [["26", 2500, 2600]]],
+    ["PEHUEN", "árboles", [["71", 3650, 4250]]],
+    ["PERNAMBUCO", "árboles", [["78", 2100, 2500]]],
+    ["PERNANBUCO", "", [["80", 2500, 3200]]],
+    [
+      "PICAFLOR",
+      "aves",
+      [
+        ["55", 2400, 3150],
+        ["43", 2000, 2300]
+      ]
+    ],
+    [
+      "PICAZURÓ",
+      "aves",
+      [
+        ["89", 5400, 5700],
+        ["", 5800, 5900]
+      ]
+    ],
+    [
+      "QUEBRACHO COLORADO",
+      "árboles",
+      [
+        ["18A", 1200, 3200],
+        ["30", 600, 1200]
+      ]
+    ],
+    ["QUINA", "árboles", [["85", 3650, 3950]]],
+    ["REINAMORA", "aves", [["19A", 0, 1450]]],
+    [
+      "RIO COLORADO",
+      "histórica",
+      [
+        ["", 7150, 7350],
+        ["23", 950, 1050]
+      ]
+    ],
+    ["RÍO COLORADO", "histórica", [["", 3000, 4650]]],
+    ["SALVIA", "árboles", [["", 2400, 2500]]],
+    ["SANGRE DE DRAGO", "árboles", [["", 1900, 2500]]],
+    ["SAPIRANDÍ", "árboles", [["38A", 800, 1250]]],
+    ["SARANDÍ", "árboles", [["58", 1800, 2500]]],
+    ["SAUCO", "árboles", [["", 2100, 2500]]],
+    ["SEMILLEROS", "", [["", 10000, 10200]]],
+    ["SIETE COLORES", "aves", [["27", 0, 400]]],
+    ["SILBÓN", "aves", [["", 9250, 9350]]],
+    ["SILVADOR", "aves", [["115", 11500, 11800]]],
+    ["TABAQUILLO", "árboles", [["", 2400, 2500]]],
+    ["TACHURÍ", "aves", [["", 0, 150]]],
+    ["TARUMÁ", "árboles", [["122", 2100, 2500]]],
+    ["TICOTICO", "aves", [["", 5800, 6000]]],
+    ["TIMBÓ", "árboles", [["36", 800, 2500]]],
+    ["TIPAS", "árboles", [["72", 2100, 2500]]],
+    ["TUSCA", "árboles", [["", 2100, 2200]]],
+    ["TUYANGO", "aves", [["117", 11500, 11800]]],
+    ["UBAJAY", "árboles", [["62", 1900, 3300]]],
+    ["URUNDAY", "árboles", [["94", 1900, 2500]]],
+    ["VARILLEROS", "aves", [["125", 10100, 10150]]],
+    ["VERDERON", "aves", [["", 6450, 6550]]],
+    ["VIÑAL", "árboles", [["", 2350, 2500]]],
+    ["VIRARÓ", "", [["106", 2500, 3150]]],
+    ["YERUTÍ", "", [["31", 0, 150]]]
+  ]
+}
