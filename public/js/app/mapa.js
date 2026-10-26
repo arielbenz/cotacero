@@ -4,7 +4,12 @@
    puntos— y deja la CSP con script-src 'self' sin una sola excepción.
    Las coordenadas NO se geocodifican en runtime: se probó y salía mal. */
 
-import { aTitulo, cerrarSugerencias, sinCiudad } from "./calles.js";
+import {
+  aTitulo,
+  cerrarSugerencias,
+  restaurarPista,
+  sinCiudad,
+} from "./calles.js";
 import { COBERTURA, VECINAS, ZONAS } from "./zonas.js";
 import {
   BOTON_MARCAR,
@@ -311,8 +316,24 @@ export async function buscarEnVecina(id) {
   await buscarDireccion();
 }
 
+/* Si la búsqueda falla y ya había una casa cargada, el nivel de aviso de más
+   abajo sigue siendo el de ésa. Sin decirlo, parecía el de la dirección que
+   acababa de escribir: quedaba un «≈ 5,6 m» ajeno al lado del error. */
+function deLaCasaAnterior() {
+  if (estado.cota == null) return "";
+  const donde = estado.cotaDetalle
+    ? String(estado.cotaDetalle).replace(/[&<>"]/g, (c) => "&#" + c.charCodeAt(0) + ";")
+    : "";
+  return (
+    ' <span class="est-aviso">El nivel de aviso de más abajo sigue siendo el de ' +
+    (donde ? "<b>" + donde + "</b>" : "la casa que ya tenías cargada") +
+    ", no el de esta búsqueda.</span>"
+  );
+}
+
 export async function buscarDireccion() {
   cerrarSugerencias();
+  restaurarPista();
   const q = document.getElementById("in-dir").value.trim();
   if (!q) {
     decir("error", "<b>Escribí la calle y el número de tu casa.</b>");
@@ -362,7 +383,10 @@ export async function buscarDireccion() {
       // Hay calles nuevas que ningún callejero tiene todavía —pasó con
       // «Avenida de los Ombúes»—: ahí ningún intento más la va a encontrar,
       // y lo que sirve es el mapa.
-      decir("error", noEncontrada({ esquina, v: elegida, dicha }));
+      decir(
+        "error",
+        noEncontrada({ esquina, v: elegida, dicha }) + deLaCasaAnterior(),
+      );
       aLaVista(document.getElementById("estado-cota"));
       return;
     }
@@ -376,7 +400,8 @@ export async function buscarDireccion() {
           COBERTURA +
           ". Probá " +
           BOTON_MARCAR +
-          ".",
+          "." +
+          deLaCasaAnterior(),
       );
       return;
     }
@@ -384,6 +409,12 @@ export async function buscarDireccion() {
   } finally {
     liberar();
   }
+  /* Sin zona todavía, la dirección la dice: «Dorrego 2414, Rincón» ya es la
+     zona de Rincón, y el paso de elegirla se salta. Sólo si no había
+     ninguna: con una elegida, avisoDeZona() pregunta antes de cambiarla. La
+     zona de la ciudad no se deduce de la calle —depende de los km río
+     arriba— y se pregunta. */
+  if (!estado.zona && r.vecina) elegirZona(r.vecina);
   // Se guarda qué encontró, no lo que la persona escribió: el geocodificador
   // puede haber entendido otra cosa, y así se puede desmentir.
   fijarCotaEstimada(

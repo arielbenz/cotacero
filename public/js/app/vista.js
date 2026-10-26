@@ -20,6 +20,9 @@ export function ver(id, btn, desdeHistorial) {
     btn.classList.add("on");
     btn.setAttribute("aria-current", "true");
   }
+  // La barra de instalar sólo sale en Río (estilos/app.css): en Mi casa, Mi
+  // plan y Dónde ir tapaba el resultado, el plan y el 103.
+  document.body.dataset.vista = id;
   window.scrollTo(0, 0);
   // Sin esto el foco se queda en el botón de abajo y quien navega con
   // lector de pantalla no se entera de que cambió todo el contenido.

@@ -215,6 +215,17 @@ function pista(html, aviso) {
   p.classList.toggle("aviso-dir", Boolean(aviso));
 }
 
+/* Vuelve la pista de abajo del campo a lo que decía antes de escribir (está en
+   data-inicial). Sin esto, «¿Es Cnl Manuel Dorrego? Tocala en la lista» se
+   quedaba pegado junto al «listo» verde, o junto al error: dos mensajes
+   distintos sobre la misma dirección. */
+export function restaurarPista() {
+  const p = $("pista-dir");
+  if (!p) return;
+  p.innerHTML = p.dataset.inicial || "";
+  p.classList.remove("aviso-dir");
+}
+
 const esc = (s) =>
   String(s).replace(
     /[&<>"]/g,
@@ -285,8 +296,8 @@ function opinar(calle, numero, lista, lugar) {
   if (!lista.length) {
     pista(
       `No hay ninguna calle de ${lugar} que se escriba así. Revisá cómo ` +
-        "está escrita, o buscá igual: si es un barrio o un lugar, lo " +
-        "buscamos en OpenStreetMap.",
+        "está escrita, o buscá igual: si es un barrio o un lugar, " +
+        "también se encuentra.",
       true,
     );
     return;
