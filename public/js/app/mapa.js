@@ -305,8 +305,13 @@ function noEncontrada({ esquina, v, dicha }) {
           x.n + "</button>",
       ).join(" o de ") +
       "?";
-  } else if (!v.localidad.georef && !dicha) {
-    h += " Arroyo Leyes casi no tiene calles con nombre: lo más seguro es el mapa.";
+  } else if (v.id === "leyes") {
+    /* No es que la calle no exista: los mapas abiertos rotulan las de Arroyo
+       Leyes con número («Calle 53») y no con el nombre del barrio
+       («Curupíes»). Decírselo es lo que le permite encontrarla. */
+    h +=
+      " En Arroyo Leyes los mapas rotulan las calles con número («Calle 53»), " +
+      "no con el nombre que usa el barrio: probá con el número.";
   }
   return h + " Si no, " + BOTON_MARCAR + ".";
 }
@@ -393,6 +398,18 @@ export async function buscarDireccion() {
       aLaVista(document.getElementById("estado-cota"));
       return;
     }
+    /* Arroyo Leyes: lo que Nominatim encuentra es la calle entera («Calle 53»),
+       con un punto cualquiera de ella que puede quedar a más de 150 m del
+       punto de altura más cercano —«Calle 53» daba 252 m: «no la altura»—, y
+       aunque lo tuviera sería la de otra cuadra. Sin callejero con números, la
+       salida es el mapa: ya sobre esa calle, y que toque su casa. */
+    if (!r.exacta && r.vecina === "leyes") {
+      await marcarCasaEnMapa({
+        centro: r.c,
+        calle: (r.nombre || "").split(",")[0].trim(),
+      });
+      return;
+    }
     decir("busca", "Encontramos la dirección. Buscando la altura…");
     var res = await elevacionDe(r.c[1], r.c[0]);
     if (!res) {
@@ -401,7 +418,7 @@ export async function buscarDireccion() {
         "<b>Encontramos la dirección, pero no la altura de ese terreno.</b> " +
           "Los planos cubren " +
           COBERTURA +
-          ". Probá " +
+          ". Si no, " +
           BOTON_MARCAR +
           "." +
           deLaCasaAnterior(),
@@ -981,7 +998,9 @@ function escapeDeMarcar(ev) {
   if (ev.key === "Escape") cancelarMarca();
 }
 
-export async function marcarCasaEnMapa() {
+/* `centro` y `calle` los pasa la búsqueda cuando encontró la calle pero no la
+   altura exacta: el mapa arranca sobre ella y el pedido la nombra. */
+export async function marcarCasaEnMapa({ centro, calle } = {}) {
   irA("donde");
   await armarMapa();
   if (!mapa) {
@@ -1008,12 +1027,17 @@ export async function marcarCasaEnMapa() {
   fondoDeMarcar(true);
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.
-  if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
+  if (centro) mapa.jumpTo({ center: centro, zoom: 16.5 });
+  else if (miPos) mapa.jumpTo({ center: miPos, zoom: 16 });
   // Sin posición pero con Rincón o Arroyo Leyes elegida, arranca ahí y no en
   // la ciudad: es el camino de quien no la encontró escribiendo.
   else if (vecinaElegida())
     mapa.jumpTo({ center: vecinaElegida().localidad.centro, zoom: 14 });
-  pedirToque();
+  pedirToque(
+    calle
+      ? "Encontramos «" + calle + "». Acercá el mapa y tocá tu casa."
+      : undefined,
+  );
   mapa.once("click", alTocar);
 }
 

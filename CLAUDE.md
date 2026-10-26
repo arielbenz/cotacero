@@ -491,8 +491,15 @@ calle. La localidad cuenta sólo al principio o al final —«Combate de Rincón
 («Dorrego y Constituyentes» devolvió «Cmte Orrego»): lo encontrado se
 muestra entero. Cuando no aparece, `noEncontrada()` ofrece buscar en las
 vecinas y el mapa, que arranca sobre la localidad elegida (`centro`). Arroyo
-Leyes no tiene callejero útil en Georef —171 tramos «CALLE 1», «CALLE 2»— y ahí
-el campo lo dice y manda al mapa.
+Leyes es distinto: Georef y OpenStreetMap lo tienen como «Calle 1»…«Calle 98»
+—así lo rotula también el mapa de la app—, no con los nombres que usa el barrio
+(«Curupíes»), que ningún callejero abierto tiene. `calles-leyes.json` sugiere
+esas calles numeradas; escribir otro nombre da un mensaje que explica la
+numeración y manda al mapa. Si la búsqueda encuentra la calle numerada
+(`!r.exacta`), no se intenta la altura —el punto que da OpenStreetMap puede
+quedar a más de 150 m del punto de altura más cercano— sino que se abre la
+hoja de «Marcarla en el mapa» ya centrada en esa calle
+(`marcarCasaEnMapa({ centro, calle })`).
 
 **Las sugerencias del buscador no consultan a nadie.** `js/app/calles.js`
 filtra en el teléfono contra `datos-abiertos/calles.json` —o

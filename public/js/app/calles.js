@@ -168,6 +168,14 @@ export function sinCiudad(texto) {
    «, Candioti»— no es la calle. */
 function partir(texto) {
   const antes = sinCiudad(texto).split(",")[0];
+  /* «Calle 53» es la calle 53 de Arroyo Leyes, no la calle «Calle», número 53:
+     sin esto el último grupo de cifras se tomaba por la altura y la calle
+     quedaba en «Calle», que no es ninguna. Con altura sí: «Calle 53 1200». */
+  if (/^\s*calle\s+\d{1,3}(\s+(?:bis|[a-z]))?\s*$/i.test(antes))
+    return { calle: antes.trim(), numero: null };
+  // «Calle 53 1200»: la calle termina en cifra, y la regla de abajo exige que no.
+  const n = antes.match(/^\s*(calle\s+\d{1,3}(?:\s+(?:bis|[a-z]))?)\s+(\d{1,5})\s*$/i);
+  if (n) return { calle: n[1].trim(), numero: +n[2] };
   const m = antes.match(/^(.*\D)\s(\d{1,5})\s*$/);
   return m
     ? { calle: m[1].trim(), numero: +m[2] }
@@ -292,6 +300,15 @@ function opinar(calle, numero, lista, lugar) {
     pista(
       "Buscar un barrio da un punto cualquiera del barrio, no tu casa. " +
         "Si podés, escribí calle y número.",
+    );
+    return;
+  }
+  if (!lista.length && callejeroActual().vecina?.id === "leyes") {
+    pista(
+      "No aparece. En Arroyo Leyes los mapas rotulan las calles con número " +
+        "(«Calle 53»), no con el nombre que usa el barrio. Probá con el número, " +
+        "o tocá «Marcarla en el mapa» y mirá cómo figura la tuya.",
+      true,
     );
     return;
   }

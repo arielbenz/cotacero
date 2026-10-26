@@ -219,7 +219,7 @@ export const ZONAS = [
       en: /\b(?:arroyo\s+)?leyes\b/i,
       georef: null,
       centro: [-60.5176, -31.5591],
-      callejero: null,
+      callejero: "/datos-abiertos/calles-leyes.json",
     },
     nota: "Defensa a 17 m sobre el mar (cota IGN) al este; los barrios del oeste no tienen, y la obra licitada no se adjudicó.",
     defensa: "local",
@@ -262,9 +262,9 @@ export const ZONAS = [
    en lo que ESCRIBE la persona («Dorrego 2414, san jose del rincon»,
    «Leyes»), más suelto porque nadie escribe el nombre entero, y `georef` es
    su localidad censal en Georef, que tiene el callejero de Rincón (217 calles)
-   y no el de Arroyo Leyes —ahí sólo «CALLE 1», «CALLE 2»…—. `callejero` es el
-   archivo con las calles que sugiere el buscador (scripts/calles.js); null
-   donde no hay uno que sirva, y `centro` —el centroide de la localidad en
+   y no el de Arroyo Leyes —ahí sólo «CALLE 1», «CALLE 2»…, que es como las
+   rotula el mapa—. `callejero` es el archivo con las calles que sugiere el
+   buscador (scripts/calles.js); null donde no hay uno que sirva, y `centro` —el centroide de la localidad en
    Georef— es adónde mira el mapa al marcar la casa. Calchines no lleva `localidad`: no tiene datos
    de altura y además queda fuera del viewbox de la búsqueda. */
 export const VECINAS = ZONAS.filter((z) => z.localidad);
