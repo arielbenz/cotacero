@@ -229,6 +229,18 @@ export const ESTACION = {
   aguasBajas: 2.0,
 };
 
+/* Las escalas del Paraná aguas arriba del Puerto que muestra «Río arriba»,
+   en el orden del río (de más lejos a más cerca). Salen del listado de series
+   del SIyAH (var_id=2, procedimiento «medicion», el 26/10/2026): el id de la
+   serie es el de la estación. lib/ina.js comprueba el id de estación en cada
+   pedido y omite la que dejó de coincidir. */
+export const RIO_ARRIBA = [
+  { serieId: 19, estacionId: 19, nombre: "Corrientes" },
+  { serieId: 23, estacionId: 23, nombre: "Goya" },
+  { serieId: 26, estacionId: 26, nombre: "La Paz" },
+  { serieId: 29, estacionId: 29, nombre: "Paraná" },
+];
+
 export const ENDPOINTS = {
   // La API REST del sistema de alerta. Es la que consume el propio visor del
   // INA: JSON estructurado, sin clave, con la serie completa desde 1925.

@@ -436,14 +436,10 @@ console.log(
    comprueba y se falla fuerte. */
 const enHtml = (h, re) =>
   (h.match(re) || [, ""])[1].replace(/\s+/g, " ").trim();
-for (const clave of ["inicio", "app", "widget"]) {
+for (const clave of ["inicio", "app", "widget", "placa"]) {
   const meta = PAGINAS[clave];
   const archivo =
-    clave === "inicio"
-      ? "index.html"
-      : clave === "app"
-        ? join("app", "index.html")
-        : join("widget", "index.html");
+    clave === "inicio" ? "index.html" : join(clave, "index.html");
   const h = await readFile(join(PUBLICO, archivo), "utf8");
   const problemas = [];
   const titulo = enHtml(h, /<title>([\s\S]*?)<\/title>/);
@@ -468,7 +464,7 @@ for (const clave of ["inicio", "app", "widget"]) {
       `${archivo} no coincide con lib/paginas.js:\n` + problemas.join("\n"),
     );
 }
-console.log("portada, app y widget: coinciden con lib/paginas.js");
+console.log("portada, app, widget y placa: coinciden con lib/paginas.js");
 
 /* ---------- la lista de módulos de sw.js ----------
    La escribe este script entre los marcadores MODULOS:inicio / MODULOS:fin:

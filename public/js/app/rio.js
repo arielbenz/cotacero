@@ -188,6 +188,64 @@ export async function cargarRio() {
   calcular();
 }
 
+/* ---- Río arriba (escalas del INA aguas arriba del Puerto) ----
+   Lo que midió el INA, hoy, en cada escala. Es observación: no dice cuándo
+   llegaría a Santa Fe ni se presenta como pronóstico. Sin color de estado,
+   como la tendencia. Si no contesta, se dice y listo. */
+export async function cargarRioArriba() {
+  const caja = document.getElementById("rio-arriba");
+  try {
+    const r = await fetch("/api/rio-arriba", { cache: "no-store" });
+    if (!r.ok) throw new Error(String(r.status));
+    const j = await r.json();
+    const filas = (j.estaciones || []).filter(
+      (e) => typeof e.altura === "number",
+    );
+    if (!filas.length) throw new Error("sin escalas");
+    caja.innerHTML =
+      '<span class="eti">Escalas del INA</span>' +
+      '<ul class="arriba">' +
+      filas
+        .map((e) => {
+          const c = e.cambio;
+          const cambio = !c
+            ? ""
+            : Math.abs(c.m) < 0.01
+              ? "sin cambios en " + c.dias + " días"
+              : (c.m > 0 ? "▲ subió " : "▼ bajó ") +
+                mCm(c.m) +
+                " en " +
+                c.dias +
+                " días";
+          const sobre =
+            typeof e.alerta === "number" && e.altura >= e.alerta
+              ? " · sobre el nivel de alerta de su escala (" + m(e.alerta) + ")"
+              : "";
+          return (
+            '<li><span class="a-nombre">' +
+            atr(e.nombre) +
+            '</span><span class="a-nivel">' +
+            m(e.altura) +
+            "</span>" +
+            (cambio || sobre
+              ? '<span class="a-cambio">' + cambio + sobre + "</span>"
+              : "") +
+            "</li>"
+          );
+        })
+        .join("") +
+      "</ul>" +
+      '<p class="chico arriba-nota">Es lo que midió el INA en cada escala, ' +
+      "con su propia regla y su propia alerta. No es un pronóstico ni dice " +
+      "cuándo llegaría a Santa Fe.</p>";
+  } catch (e) {
+    caja.innerHTML =
+      '<span class="eti">Escalas del INA</span>' +
+      '<p class="chico" style="margin:0">No pudimos leer las escalas ' +
+      "de río arriba. El nivel del río en el Puerto no depende de esto.</p>";
+  }
+}
+
 /* ---- Tendencia del caudal (GloFAS vía Open-Meteo) ----
    Esto SÍ funciona sin servidor ni clave. Ojo: es caudal en m³/s, no altura
    en metros. No sirve para decir "el río está en X", sí para ver si viene
