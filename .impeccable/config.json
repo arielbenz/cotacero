@@ -1,0 +1,32 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "repeating-stripes-gradient",
+        "value": "*",
+        "files": [
+          "public/app/index.html"
+        ],
+        "createdAt": "2026-10-26T12:51:53.702Z",
+        "reason": "Falso positivo: son .marcas-rio, la escala de medición del hidrómetro, y el rayado de dato vencido de .agua.viejo (estilos/app.css, con comentario). Decidió Claude con evidencia del CSS; no lo confirmó el usuario."
+      },
+      {
+        "rule": "codex-grid-background",
+        "value": "*",
+        "files": [
+          "public/app/index.html"
+        ],
+        "createdAt": "2026-10-26T12:51:53.729Z",
+        "reason": "Falso positivo: es .marcas-rio, la escala del hidrómetro (superficie de medida), no una grilla decorativa de fondo. Decidió Claude con evidencia del CSS; no lo confirmó el usuario."
+      },
+      {
+        "rule": "overused-font",
+        "value": "plus jakarta sans",
+        "createdAt": "2026-10-26T12:53:39.089Z",
+        "reason": "Decisión de proyecto documentada: Plus Jakarta Sans variable, self-hosteada, es la tipografía del texto (estilos/app.css y DESIGN.md). Decidió Claude con esa evidencia; el usuario no confirmó este ignore."
+      }
+    ]
+  }
+}

@@ -14,3 +14,6 @@ rediseno/
 # Claude Code: lo compartido (.claude/skills, settings.json) va al repo;
 # la configuración personal de cada máquina, no.
 .claude/settings.local.json
+
+# Impeccable: el binario del lanzador se baja solo en la primera corrida y es de cada plataforma
+.claude/skills/impeccable/scripts/bin/

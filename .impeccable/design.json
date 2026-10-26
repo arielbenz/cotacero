@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T02:56:13+00:00",
+  "title": "Design System: Cota Cero",
+  "extensions": {
+    "colorMeta": {
+      "agua": {
+        "role": "primary",
+        "displayName": "Agua",
+        "canonical": "oklch(78% 0.107 221)",
+        "tonalRamp": [
+          "#000f22",
+          "#002d44",
+          "#004d68",
+          "#006e8b",
+          "#1e90ae",
+          "#58b3cf",
+          "#8bd6ef",
+          "#befaff"
+        ]
+      },
+      "tinta-de-agua": {
+        "role": "primary",
+        "displayName": "Tinta de agua",
+        "canonical": "oklch(52% 0.098 230)",
+        "tonalRamp": [
+          "#000e24",
+          "#002a46",
+          "#004a6a",
+          "#006b8e",
+          "#3a8db1",
+          "#67b0d2",
+          "#95d3f2",
+          "#c5f7ff"
+        ]
+      },
+      "tierra": {
+        "role": "secondary",
+        "displayName": "Tierra",
+        "canonical": "oklch(50% 0.097 88)",
+        "tonalRamp": [
+          "#180700",
+          "#362000",
+          "#573e00",
+          "#785d09",
+          "#9a7f39",
+          "#bca263",
+          "#ddc791",
+          "#ffedc1"
+        ]
+      },
+      "alerta-texto": {
+        "role": "tertiary",
+        "displayName": "Alerta",
+        "canonical": "oklch(54% 0.175 38)",
+        "tonalRamp": [
+          "#300000",
+          "#5a0000",
+          "#840000",
+          "#ad2b00",
+          "#d35429",
+          "#f67e58",
+          "#ffa987",
+          "#ffd6b9"
+        ]
+      },
+      "peligro-texto": {
+        "role": "tertiary",
+        "displayName": "Peligro",
+        "canonical": "oklch(54% 0.166 32)",
+        "tonalRamp": [
+          "#2e0000",
+          "#580000",
+          "#820000",
+          "#ab2d1a",
+          "#d15540",
+          "#f37e69",
+          "#ffa995",
+          "#ffd5c4"
+        ]
+      },
+      "ok-texto": {
+        "role": "tertiary",
+        "displayName": "Ok",
+        "canonical": "oklch(51% 0.081 165)",
+        "tonalRamp": [
+          "#001205",
+          "#002f1c",
+          "#034f38",
+          "#2c7056",
+          "#519177",
+          "#79b49a",
+          "#a4d7bf",
+          "#d0fae6"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "oklch(26% 0.019 232)",
+        "tonalRamp": [
+          "#060c10",
+          "#1d272c",
+          "#38444a",
+          "#57636a",
+          "#78858c",
+          "#9ba7ae",
+          "#c0cbd1",
+          "#e7f0f5"
+        ]
+      },
+      "tenue": {
+        "role": "neutral",
+        "displayName": "Tenue",
+        "canonical": "oklch(52% 0.018 227)",
+        "tonalRamp": [
+          "#060c10",
+          "#1d272b",
+          "#384449",
+          "#576469",
+          "#78858b",
+          "#9ba7ad",
+          "#c0cbd0",
+          "#e7f0f4"
+        ]
+      },
+      "noche": {
+        "role": "neutral",
+        "displayName": "Noche",
+        "canonical": "oklch(19% 0.013 223)",
+        "tonalRamp": [
+          "#070c0e",
+          "#1f2629",
+          "#3b4447",
+          "#596367",
+          "#7a8488",
+          "#9da7ab",
+          "#c2cbce",
+          "#e9f0f3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "numero-hero": {
+        "displayName": "Número hero",
+        "purpose": "La lectura del hidrómetro y el nivel de aviso; el único elemento que puede gritar."
+      },
+      "titular-estado": {
+        "displayName": "Titular de estado",
+        "purpose": "El veredicto de la tarjeta."
+      },
+      "seccion": {
+        "displayName": "Sección",
+        "purpose": "h2 de cada vista."
+      },
+      "titulo": {
+        "displayName": "Título",
+        "purpose": "h3."
+      },
+      "boton": {
+        "displayName": "Botón",
+        "purpose": "El texto de todos los botones."
+      },
+      "cuerpo": {
+        "displayName": "Cuerpo",
+        "purpose": "Texto corrido."
+      },
+      "apoyo": {
+        "displayName": "Apoyo",
+        "purpose": "Glosas, pistas y aclaraciones."
+      },
+      "etiqueta": {
+        "displayName": "Etiqueta",
+        "purpose": "Mono en mayúsculas: nombra algo que existe."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambiente-claro",
+        "value": "0 1px 2px rgba(23,36,42,0.05), 0 10px 28px rgba(23,36,42,0.07)",
+        "purpose": "Tarjetas y veredicto en tema claro."
+      },
+      {
+        "name": "ambiente-noche",
+        "value": "0 1px 2px rgba(0,0,0,0.25), 0 10px 28px rgba(0,0,0,0.3)",
+        "purpose": "Lo mismo en tema oscuro."
+      },
+      {
+        "name": "barra-inferior",
+        "value": "0 -6px 24px rgba(23,36,42,0.06)",
+        "purpose": "Separa la barra de navegación del contenido (35 % en oscuro)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "mov",
+        "value": "160ms cubic-bezier(0.2, 0, 0.2, 1)",
+        "purpose": "Transiciones de estado de los controles."
+      },
+      {
+        "name": "agua",
+        "value": "0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "El agua y las líneas de la regla al cambiar de nivel."
+      },
+      {
+        "name": "sin-movimiento",
+        "value": "prefers-reduced-motion: reduce → sin animaciones ni transiciones",
+        "purpose": "Se respeta siempre."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "560px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "700px"
+      },
+      {
+        "name": "lg",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "boton-principal",
+      "description": "El sólido de máximo contraste con la superficie. Uno por pantalla.",
+      "html": "<button class=\"ds-btn\">Buscar mi casa</button>",
+      "css": ".ds-btn{background:#0e1619;color:#e9eef0;border:none;border-radius:99px;min-height:48px;padding:12px 20px;width:100%;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-weight:700;font-size:15px;letter-spacing:-0.01em;cursor:pointer;transition:transform 160ms cubic-bezier(.2,0,.2,1)} .ds-btn:hover{background:#1b262c} .ds-btn:active{transform:translateY(1px)} .ds-btn:focus-visible{outline:2px solid #127296;outline-offset:2px} .ds-btn:disabled{opacity:.55;cursor:default}"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "boton-secundario",
+      "description": "Relleno azul agua con tinta oscura; para todo lo que no es la acción principal.",
+      "html": "<button class=\"ds-btn-sec\">Marcarla en el mapa</button>",
+      "css": ".ds-btn-sec{background:#5fc8e8;color:#0e1619;border:none;border-radius:99px;min-height:48px;padding:12px 20px;width:100%;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-weight:700;font-size:15px;letter-spacing:-0.01em;cursor:pointer} .ds-btn-sec:hover{background:#74d1ee} .ds-btn-sec:active{transform:translateY(1px)} .ds-btn-sec:focus-visible{outline:2px solid #127296;outline-offset:2px}"
+    },
+    {
+      "name": "Campo de dirección",
+      "kind": "input",
+      "refersTo": "campo",
+      "description": "Campo relleno de 52 px, sin borde, con etiqueta arriba.",
+      "html": "<label class=\"ds-campo\"><span>Calle y número</span><input type=\"text\" placeholder=\"Ej: Risso 1745\"></label>",
+      "css": ".ds-campo{display:block;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-size:13px;font-weight:500;color:#5f6c72} .ds-campo span{display:block;margin-bottom:6px} .ds-campo input{width:100%;min-height:52px;padding:12px 16px;background:rgba(27,38,44,.055);border:1px solid transparent;border-radius:16px;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-size:15px;font-weight:500;color:#1b262c} .ds-campo input:focus{outline:2px solid #127296;outline-offset:2px} .ds-campo input::placeholder{color:#5f6c72}"
+    },
+    {
+      "name": "Tarjeta",
+      "kind": "card",
+      "refersTo": "tarjeta",
+      "description": "Panel blanco de 24 px con sombra ambiente de dos capas.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-eti\">Tu nivel de aviso · en la regla del puerto</span><p>El nivel del río a partir del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.</p></div>",
+      "css": ".ds-card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 1px 2px rgba(23,36,42,.05),0 10px 28px rgba(23,36,42,.07);font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-size:15px;font-weight:500;line-height:1.55;color:#1b262c} .ds-card p{margin:0} .ds-eti{display:block;margin-bottom:8px;font-family:'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#5f6c72}"
+    },
+    {
+      "name": "Veredicto",
+      "kind": "card",
+      "refersTo": "tarjeta",
+      "description": "Tarjeta tintada por estado con el titular y el número hero.",
+      "html": "<div class=\"ds-ver\"><div class=\"ds-titu\">Tenés poco margen</div><span class=\"ds-eti\">Tu nivel de aviso</span><div class=\"ds-dato\">≈ 6,3 m</div></div>",
+      "css": ".ds-ver{background:#ffefe3;border-radius:24px;padding:20px;box-shadow:0 1px 2px rgba(23,36,42,.05),0 10px 28px rgba(23,36,42,.07);font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;color:#1b262c} .ds-titu{font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1;color:#bf3d05;margin-bottom:8px} .ds-eti{display:block;margin-bottom:8px;font-family:'JetBrains Mono', ui-monospace, monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#5f6c72} .ds-dato{font-weight:800;font-size:64px;line-height:.9}"
+    },
+    {
+      "name": "Respuesta de la casa",
+      "kind": "custom",
+      "refersTo": "estado-ok",
+      "description": "Renglón de respuesta con ícono redondo y relleno tintado; variante ok.",
+      "html": "<div class=\"ds-est\"><span class=\"ds-ico\"></span><div><b>Tu terreno está a 15,51 m sobre el mar</b><br><small>Encontramos Cnl Manuel Dorrego 2414, San José del Rincón.</small></div></div>",
+      "css": ".ds-est{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:start;padding:12px 16px;border-radius:16px;border:1px solid #33765c;background:#e6f2ec;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-size:15px;line-height:1.4;color:#1b262c} .ds-ico{width:22px;height:22px;margin-top:1px;border-radius:99px;background:#33765c url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E\") no-repeat center/14px} .ds-est small{font-size:13px;color:#5f6c72}"
+    },
+    {
+      "name": "Aviso",
+      "kind": "custom",
+      "refersTo": "aviso",
+      "description": "Fondo de alerta tintado; el énfasis en negrita lleva el color del estado.",
+      "html": "<div class=\"ds-aviso\"><b>Si Defensa Civil dice que salgas, salí.</b> El cálculo no sabe de defensas, bombas ni lluvia.</div>",
+      "css": ".ds-aviso{background:#ffefe3;border-radius:16px;padding:16px 20px;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;font-size:13px;line-height:1.55;font-weight:500;color:#1b262c} .ds-aviso b{color:#bf3d05}"
+    },
+    {
+      "name": "Pestaña de la barra inferior",
+      "kind": "nav",
+      "refersTo": "barra-inferior",
+      "description": "Una de las cuatro pestañas; la activa tiñe el ícono y pasa a negrita.",
+      "html": "<div class=\"ds-nav\"><button class=\"ds-tab\"><svg viewBox=\"0 0 24 24\"><path d=\"M3 18l6-8 4 5 3-3 5 6z\"/></svg><span>Río</span></button><button class=\"ds-tab ds-on\"><svg viewBox=\"0 0 24 24\"><path d=\"M3 18l6-8 4 5 3-3 5 6z\"/></svg><span>Mi casa</span></button></div>",
+      "css": ".ds-nav{display:flex;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -6px 24px rgba(23,36,42,.06);padding:8px 12px 8px;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif} .ds-tab{flex:1;background:none;border:none;border-radius:16px;padding:8px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:#5f6c72;font-size:13px;font-weight:500;cursor:pointer} .ds-tab svg{width:44px;height:26px;padding:4px 12px;border-radius:99px;box-sizing:content-box;stroke:currentColor;fill:none;stroke-width:2} .ds-on{color:#127296} .ds-on span{font-weight:700} .ds-on svg{background:#e8f3f8}"
+    },
+    {
+      "name": "Regla del río",
+      "kind": "custom",
+      "refersTo": "tarjeta",
+      "description": "Mini regla vertical: tanque con agua y las líneas de alerta, evacuación y vos.",
+      "html": "<div class=\"ds-regla\"><div class=\"ds-tanque\"><div class=\"ds-agua\"></div></div><i class=\"ds-l ds-alerta\" style=\"bottom:58%\"></i><i class=\"ds-l ds-evac\" style=\"bottom:74%\"></i><i class=\"ds-l ds-vos\" style=\"bottom:68%\"></i><span class=\"ds-t\" style=\"bottom:58%\">5,30 alerta de la ciudad</span><span class=\"ds-t\" style=\"bottom:74%\">5,70 evacuación de la ciudad</span></div>",
+      "css": ".ds-regla{position:relative;width:260px;height:240px;font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif} .ds-tanque{position:absolute;left:0;top:0;bottom:0;width:44px;background:rgba(27,38,44,.055);border-radius:12px;overflow:hidden} .ds-agua{position:absolute;left:0;right:0;bottom:0;height:46%;background:#5fc8e8} .ds-l{position:absolute;left:0;width:50px;border-top:2px solid} .ds-alerta{color:#cf440d} .ds-evac{color:#a5271a} .ds-vos{color:#7a5f0d;border-top-style:dotted} .ds-t{position:absolute;left:62px;transform:translateY(50%);font-size:12px;color:#1b262c;white-space:nowrap}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El instrumento de medición",
+    "overview": "La interfaz se lee como un instrumento: un número grande que se entiende de un vistazo, una regla vertical con sus líneas, y etiquetas en monoespaciada que nombran cosas que existen. El diseño se hace a un lado para que el dato sea lo único que compite por la atención.\n\nLa densidad es baja y el ritmo es de una sola columna. Las superficies son planas y tintadas: el color casi siempre significa un estado y no decora. Los objetivos táctiles son grandes y hay una sola acción sólida por pantalla.\n\nRechaza el alarmismo y el aspecto oficial: la urgencia se dice con el verbo del texto, y Cota Cero es independiente.",
+    "keyCharacteristics": [
+      "Un número como protagonista y una regla vertical como firma.",
+      "Superficies planas, tintadas por estado, con una sombra ambiente casi imperceptible.",
+      "Botones píldora de 48 px, campos de 52 px, tarjetas de 24 px.",
+      "Plus Jakarta Sans para todo el texto y JetBrains Mono solo para datos y etiquetas.",
+      "Dos temas con el mismo azul de marca; el claro se mide para contraste AA.",
+      "Todo en rem y todo en español rioplatense."
+    ],
+    "rules": [
+      {
+        "name": "La regla de los dos azules",
+        "body": "El azul de marca (agua) es relleno y nunca tinta; la tinta es tinta-de-agua. Confundirlos deja ilegibles los enlaces o apaga la marca.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla del texto y el fondo",
+        "body": "Un color calibrado para texto no sirve de fondo ni al revés. Alerta y peligro tienen un valor para texto y otro sólido para relleno.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla de los fondos medidos",
+        "body": "Un color de texto se mide contra todos los fondos donde cae, no solo contra el papel. scripts/comprobar.js lo verifica en los dos temas.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla del tinte que significa",
+        "body": "Un tinte de fondo es un estado. No se usa como decoración ni se pone tinte sobre tinte.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla del mono que nombra",
+        "body": "La mono en mayúsculas etiqueta una cosa real. Si se puede borrar sin perder información, no era un rótulo.",
+        "section": "typography"
+      },
+      {
+        "name": "La regla del rem",
+        "body": "Toda medida de texto y de espaciado va en rem, nunca en px, para que el ajuste de tamaño de letra de Android funcione.",
+        "section": "typography"
+      },
+      {
+        "name": "La regla del filete en oscuro",
+        "body": "Las superficies invertidas que se fundirían con el fondo llevan un filete de 1 px y ninguna sombra.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do poner un solo botón sólido por pantalla y dejar el azul agua para lo secundario.",
+      "Do escribir toda medida de texto y de espaciado en rem.",
+      "Do usar el valor de color correcto para su rol: texto o fondo, tinta o relleno.",
+      "Do reservar el alto (min-height) de todo lo que llega por red.",
+      "Do mantener los objetivos táctiles en 44 px o más.",
+      "Do pintar los estados graves con el verbo de lo que hay que hacer al principio del texto, no con un color más fuerte.",
+      "Do probar cada color nuevo contra AA y escribir al lado el motivo del valor elegido."
+    ],
+    "donts": [
+      "Don't usar rojo teatral, sirenas, íconos de alarma ni dramatismo: la urgencia va en el texto.",
+      "Don't darle a nada el aspecto de un sitio oficial del municipio o de Defensa Civil.",
+      "Don't agregar un renglón decorativo en mono y mayúsculas arriba de un titular, ni una banda de métricas de vanidad, ni degradés genéricos.",
+      "Don't usar agua (#5fc8e8) como color de texto sobre fondo claro.",
+      "Don't poner un tinte sobre otro tinte.",
+      "Don't agregar un tercer estilo de botón.",
+      "Don't mostrar el nivel de aviso con dos decimales ni sin el ≈.",
+      "Don't reutilizar el nombre de una clase de otro componente: antes de estrenar uno, buscar en estilos/app.css.",
+      "Don't escribir public/css/app.css a mano: se genera desde estilos/app.css."
+    ]
+  }
+}
