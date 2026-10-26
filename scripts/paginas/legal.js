@@ -70,6 +70,11 @@ const PRIVACIDAD = [
     "Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos.",
   ],
   [
+    "Dictar un mensaje",
+    "Al usar el micrófono",
+    "En el formulario de contacto, el botón de dictar usa el reconocimiento de voz de tu navegador: en Chrome y Android, un servicio de Google que recibe el audio. Nosotros no recibimos ni guardamos audio, sólo el texto que revisás y enviás. Es opcional: podés escribirlo.",
+  ],
+  [
     "Cuánta gente la usa",
     "Un número al azar",
     "Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno.",

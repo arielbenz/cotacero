@@ -112,6 +112,87 @@ function pintarAyuda() {
   texto.placeholder = elegida.dataset.ejemplo || "";
 }
 
+/* ---------- dictar con la voz ----------
+   Escribe en el mismo cuadro de texto: lo que se manda sigue siendo texto, y
+   la persona lo revisa antes. Sin reconocimiento de voz en el navegador
+   (Firefox, por ejemplo) el botón no aparece y el formulario es el de
+   siempre. Lo del audio —que en Chrome lo procesa Google— está dicho junto al
+   botón y en /legal.
+   Se arma el texto entero a partir de todos los resultados, no sólo del
+   último: en algunos Android el evento repite lo ya dicho, y sumar de a
+   pedazos lo duplicaba. */
+const Reconocimiento = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const ERRORES_VOZ = {
+  "not-allowed": "No diste permiso para usar el micrófono. Escribí el mensaje.",
+  "service-not-allowed": "Este navegador no deja dictar. Escribí el mensaje.",
+  "audio-capture": "No encontramos un micrófono. Escribí el mensaje.",
+  "no-speech": "No te escuchamos. Probá de nuevo, cerca del micrófono.",
+  network: "No hay conexión con el servicio de voz. Escribí el mensaje.",
+  "language-not-supported": "Este navegador no entiende español dictado. Escribí el mensaje.",
+};
+
+function iniciarDictado() {
+  const caja = $("dictado");
+  const voz = $("sug-voz");
+  const msg = $("voz-estado");
+  const etiqueta = voz.querySelector("span");
+  const ayuda = msg.innerHTML;
+  let rec = null;
+
+  const decir = (html) => (msg.innerHTML = html);
+  const reposo = () => {
+    rec = null;
+    voz.setAttribute("aria-pressed", "false");
+    etiqueta.textContent = "Dictar con la voz";
+  };
+
+  function empezar() {
+    const base = texto.value.trim();
+    const max = +texto.getAttribute("maxlength") || 600;
+    let fallo = "";
+    rec = new Reconocimiento();
+    rec.lang = "es-AR";
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.onresult = (ev) => {
+      let dicho = "";
+      for (let i = 0; i < ev.results.length; i++)
+        dicho += ev.results[i][0].transcript;
+      texto.value = (base ? base + " " : "") + dicho.trim();
+      if (texto.value.length > max) texto.value = texto.value.slice(0, max);
+      contar();
+    };
+    rec.onerror = (ev) => {
+      fallo = ERRORES_VOZ[ev.error] || "";
+    };
+    rec.onend = () => {
+      reposo();
+      if (fallo) decir("<b>" + fallo + "</b>");
+      else if (texto.value.trim() && texto.value.trim() !== base)
+        decir("<b>Listo.</b> Revisá el texto antes de enviarlo: puede haber palabras mal entendidas.");
+      else decir(ayuda);
+    };
+    try {
+      rec.start();
+    } catch (e) {
+      reposo();
+      return;
+    }
+    voz.setAttribute("aria-pressed", "true");
+    etiqueta.textContent = "Dejar de grabar";
+    decir("<b>Escuchando…</b> Hablá cerca del micrófono.");
+  }
+
+  voz.addEventListener("click", () => {
+    if (rec) rec.stop();
+    else empezar();
+  });
+  // Mandar con el micrófono abierto cortaría el último pedazo a mitad.
+  form.addEventListener("submit", () => rec && rec.stop(), true);
+  caja.hidden = false;
+}
+
 if (form) {
   form.addEventListener("change", (ev) => {
     if (ev.target.name === "categoria") pintarAyuda();
@@ -119,6 +200,7 @@ if (form) {
   form.addEventListener("submit", enviar);
   texto.addEventListener("input", contar);
   contar();
+  if (Reconocimiento) iniciarDictado();
   /* Una vez al arrancar: al recargar, el navegador puede restaurar otro tema
      marcado y la ayuda del HTML quedaría diciendo la del tema por defecto. */
   pintarAyuda();

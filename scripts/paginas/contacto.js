@@ -86,6 +86,28 @@ ${opcionesCategoria}
             rows="6" aria-describedby="sug-ayuda" placeholder="${esc(AYUDAS[CATEGORIA_POR_DEFECTO][1])}"></textarea>
           <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
 
+          ${
+            /* Dictar es una ayuda, no un camino aparte: escribe en el mismo
+               cuadro y lo que se manda es el texto, revisado. El botón sale
+               escondido y js/contacto.js lo muestra sólo si el navegador sabe
+               reconocer voz; sin eso, el formulario es el de siempre. La
+               frase de al lado no es de relleno: en Chrome el audio lo
+               procesa Google, y eso se dice antes de grabar. */ ""
+          }<div class="dictado" id="dictado" hidden>
+            <button class="btn sec" type="button" id="sug-voz" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="9" y="3" width="6" height="11" rx="3" />
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+              </svg>
+              <span>Dictar con la voz</span>
+            </button>
+            <p class="chico" id="voz-estado" role="status" aria-live="polite">
+              Se escribe en el cuadro y lo revisás antes de enviar. Tu navegador
+              procesa el audio: en Chrome, lo hace Google.
+              <a href="/legal#privacidad">Qué sale del teléfono</a>.
+            </p>
+          </div>
+
           <label class="campo" for="sug-contacto">
             <span>Un contacto para responderte <i>(opcional)</i></span>
           </label>

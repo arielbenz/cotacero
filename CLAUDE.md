@@ -694,7 +694,12 @@ El arranque vive en `js/analitica.js` y no en línea, porque `script-src` es
 `vercel.json`; las dos CSP del widget **no se tocaron**.
 
 Lo **único** que sale del dispositivo son las sugerencias, y el formulario lo
-dice. El push va **sin contenido**: el servidor no sabe la cota ni el umbral de
+dice. **El micrófono de `/contacto` no cambia eso, pero se dice.**
+El botón de dictar usa el reconocimiento de voz del navegador, y en Chrome el
+audio lo procesa Google: por eso hay una frase junto al botón y una fila en
+`/legal`. A nuestro servidor llega sólo el texto revisado, nunca audio. No hay
+que agregar nada que grabe y mande audio: eso sí rompe la promesa. El permiso
+está en `Permissions-Policy` de `vercel.json` (`microphone=(self)`). El push va **sin contenido**: el servidor no sabe la cota ni el umbral de
 nadie, sólo despierta al teléfono y el service worker arma la notificación
 comparando contra IndexedDB. De cada persona el servidor guarda un solo dato:
 el endpoint opaco del navegador. Cualquier cambio que agregue un envío rompe la
