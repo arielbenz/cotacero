@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-d9ec9f96de";
+const VERSION = "cota-cero-763cc3dae6";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -248,17 +248,19 @@ self.addEventListener("fetch", (e) => {
   // cacheáramos serviríamos una versión vieja para siempre.
   if (url.pathname.startsWith("/_vercel/")) return;
 
-  // robots.txt, sitemap.xml, llms.txt y el catálogo de API: siempre a la red,
-  // nunca al caché. Ni un buscador ni un agente corren service workers, así que
-  // esto no cambia nada para ellos, pero una copia guardada de estos archivos
-  // no caduca nunca: a un navegador que ya los pidió le quedaría una versión
-  // vieja del mapa del sitio para siempre. Son cuatro archivos chicos, no hay
-  // nada que ahorrar.
+  // robots.txt, sitemap.xml, llms.txt, el catálogo de API y las versiones en
+  // Markdown de cada página: siempre a la red, nunca al caché. Ni un buscador
+  // ni un agente corren service workers, así que esto no cambia nada para
+  // ellos, pero una copia guardada de estos archivos no caduca nunca: a un
+  // navegador que ya los pidió le quedaría una versión vieja para siempre. Y
+  // un .md abierto desde el pie es una navegación: sin esto, sin señal caía
+  // en la portada. Son archivos chicos, no hay nada que ahorrar.
   if (
     url.pathname === "/robots.txt" ||
     url.pathname === "/sitemap.xml" ||
     url.pathname === "/llms.txt" ||
-    url.pathname === "/.well-known/api-catalog"
+    url.pathname === "/.well-known/api-catalog" ||
+    url.pathname.endsWith(".md")
   )
     return;
 

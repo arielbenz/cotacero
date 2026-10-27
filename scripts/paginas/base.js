@@ -11,6 +11,7 @@ import { ORGANISMOS, FUENTES } from "../../public/lib/fuentes.js";
 import { PAGINAS, OG_IMAGEN } from "../../lib/paginas.js";
 import { mCm, nm } from "../../public/lib/comun.js";
 import { marca } from "../marca.js";
+import { rutaMd } from "../markdown.js";
 
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -175,8 +176,11 @@ const marcaSvg = (id) =>
    `frescura` agrega el renglón de "última lectura del INA" abajo del enlace a
    /datos, y va SÓLO en la portada: quien lo llena es js/landing.js, que es lo
    único que lee /api/nivel del lado del sitio. Emitirlo en las nueve páginas
-   generadas sería dejar nueve renglones vacíos que no completa nadie. */
-const pie = ({ frescura = false } = {}) => `      <footer class="pie-sitio">
+   generadas sería dejar nueve renglones vacíos que no completa nadie.
+
+   `md` es la versión en Markdown de ESA página (scripts/markdown.js), como el
+   «View as AI agent» del pie de vercel.com. Sin `md` —la 404— no sale. */
+const pie = ({ frescura = false, md = null } = {}) => `      <footer class="pie-sitio">
         <div>
           <span class="lockup">
             ${marcaSvg("mpf")}
@@ -214,7 +218,7 @@ ${
           <a href="/legal">Legal y privacidad</a>
           <a href="/contacto">Contacto y sugerencias</a>
           <a href="/para-medios">Widget para medios</a>
-        </div>
+${md ? `          <a href="${md}" type="text/markdown">Ver como agente de IA</a>\n` : ""}        </div>
         <div>
           <span class="eti">Datos públicos de</span>
 ${["ina", "prefectura", "muni", "gestionRiesgos", "ign"]
@@ -309,6 +313,10 @@ ${
          Declarar una canónica ahí es afirmar que esa página es la versión
          buena de lo que el visitante pidió, y no lo es. */
   ruta === "/404" ? "" : `    <link rel="canonical" href="${url}" />\n`
+}${
+  meta.indexable
+    ? `    <link rel="alternate" type="text/markdown" href="${rutaMd(ruta)}" />\n`
+    : ""
 }
     <meta name="description" content="${esc(descripcion)}" />
     ${
@@ -440,7 +448,7 @@ ${[
     </div>
 
     <div class="pie-envoltura">
-${pie()}
+${pie({ md: meta.indexable ? rutaMd(ruta) : null })}
     </div>
   </body>
 </html>
