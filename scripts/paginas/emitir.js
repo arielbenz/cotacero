@@ -12,6 +12,7 @@ import { GENERADAS, PUBLICO, RAIZ, SITIO, pie, puntos } from "./base.js";
 import { ENLACES, PROVEEDORES } from "../../lib/proveedores.js";
 import { RENGLON_VERSION, versionDelSw } from "../version-sw.js";
 import { GEOMETRIA, geometriaDe } from "../marca.js";
+import { paginaMd, rutaMd } from "../markdown.js";
 
 /* Las páginas se cargan solas: cada archivo de esta carpeta que no sea
    base.js ni emitir.js es una página, y al cargarse se anota en GENERADAS
@@ -143,7 +144,7 @@ const despues =
   antes.slice(0, i) +
   cabecera +
   "\n" +
-  pie({ frescura: true }) +
+  pie({ frescura: true, md: rutaMd("/") }) +
   "\n" +
   antes.slice(f);
 if (despues !== antes) {
@@ -184,6 +185,33 @@ for (const { clave, html } of GENERADAS) {
   );
 }
 console.log("puntos leídos de app/index.html: " + puntos.length);
+
+/* ---------- Las versiones en Markdown ----------
+   Una por página indexable, en la misma URL con «.md» (la portada, en
+   /index.html.md): lo que abre «Ver como agente de IA» en el pie y lo que
+   enlaza llms.txt. Salen del HTML recién escrito, así que no hay un segundo
+   texto que mantener. Las no indexables —la app, el widget, la placa, la
+   404— no llevan: son interfaces, no documentos. */
+for (const p of enSitemap()) {
+  const html =
+    p.ruta === "/"
+      ? despues
+      : GENERADAS.find((g) => PAGINAS[g.clave] === p)?.html;
+  if (!html)
+    throw new Error(
+      "Markdown: no hay HTML para " + p.ruta + ". ¿Es una página a mano nueva?",
+    );
+  if (!html.includes(`<link rel="alternate" type="text/markdown" href="${rutaMd(p.ruta)}" />`))
+    throw new Error(
+      `${p.ruta === "/" ? "index.html" : p.ruta} no anuncia su versión en Markdown en el <head>:\n` +
+        `    <link rel="alternate" type="text/markdown" href="${rutaMd(p.ruta)}" />`,
+    );
+  const texto = paginaMd(html, { ruta: p.ruta });
+  await writeFile(join(PUBLICO, rutaMd(p.ruta).slice(1)), texto);
+  console.log(
+    "escrito: " + rutaMd(p.ruta) + "  (" + (texto.length / 1024).toFixed(0) + " KB)",
+  );
+}
 
 /* ---------- sitemap.xml ----------
    Sale del registro, no de un archivo que se edita aparte: así no puede
@@ -306,7 +334,10 @@ console.log(
    el margen y el descargo— es mejor que de una nota de 2003 mal recordada.
 
    Sale del MISMO registro que el sitemap: `lib/paginas.js`. Si se agrega una
-   página, aparece sola. Nunca se escribe una URL a mano acá. */
+   página, aparece sola. Nunca se escribe una URL a mano acá.
+
+   Las páginas se enlazan en su versión en Markdown, como propone llms.txt:
+   quien lee este archivo es un agente. */
 const llms =
   `# Cota Cero\n\n` +
   `> ${PAGINAS.inicio.descripcion}\n\n` +
@@ -322,7 +353,7 @@ const llms =
   enSitemap()
     .map(
       (p) =>
-        `- [${p.titulo.split(" | ")[0].split(" — ")[0]}](${SITIO}${p.ruta === "/" ? "/" : p.ruta}): ${p.descripcion}`,
+        `- [${p.titulo.split(" | ")[0].split(" — ")[0]}](${SITIO}${rutaMd(p.ruta)}): ${p.descripcion}`,
     )
     .join("\n") +
   `\n\n## Datos abiertos\n\n` +

@@ -420,6 +420,25 @@ POST de la app y publicarlos sería invitar a que alguien los llame sin motivo.
 No hay `service-desc` porque eso pide un OpenAPI, y un OpenAPI sería una **sexta
 copia** de la forma de la respuesta de `/api/nivel`.
 
+**Y una cuarta: cada página indexable tiene su versión en Markdown** (octubre
+de 2026, como el «View as AI agent» del pie de vercel.com). Está en la misma
+URL con `.md` —`/datos.md`; la portada, `/index.html.md`, como propone
+llms.txt—, la anuncia un `<link rel="alternate" type="text/markdown">` y el
+pie la abre con «Ver como agente de IA». **No se escribe**: la emite
+`emitir.js` convirtiendo el HTML recién generado con `scripts/markdown.js`
+(no va en `scripts/paginas/`, que carga como página cada `.js`). Cada una
+arranca avisando que no somos oficiales y que **el nivel de hoy no está ahí**
+—es una copia estática—, sino en `/api/nivel`. Lo que pinta el JavaScript
+(el mockup del hero, la vista previa del widget, los `role="status"`) se
+saltea a propósito: quedaba como «— m». Si una página nueva sale rara en
+Markdown, se arregla con una regla general en el conversor, no con un caso
+por página. `vercel.json` las sirve como `text/markdown; charset=utf-8` y con
+`noindex` —el HTML es el canónico—, y `sw.js` las manda siempre a la red,
+igual que `llms.txt`. No hay negociación por `Accept: text/markdown` (que
+`/datos` responda Markdown según quién pide): no está comprobado que un
+`rewrite` con `has` gane sobre un archivo estático en Vercel, `servir.js` no
+lo traduce, y suma un `Vary: Accept` a todo el HTML.
+
 Lo que **no** se publica, y no por olvido: `openid-configuration`,
 `oauth-protected-resource`, `auth.md`, un MCP Server Card y un índice de skills.
 Acá no hay autenticación, ni servidor MCP, ni skills. Publicar esos documentos
