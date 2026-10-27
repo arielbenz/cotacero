@@ -21,7 +21,10 @@ export const CONFIG = {
   NIVEL_ENDPOINT: "/api/nivel",
 };
 
-export const CERO_IGN = 8.2;
+/* 8,9524 (cero de la escala en el sistema del ex MOP, según Vías Navegables)
+   − 0,531 (H_IGN = H_MOP − 0,531, IGN 2017) = 8,4214. Hasta el 26/10/2026 era
+   8,20, que ningún organismo respalda (AUDITORIA.md §1). */
+export const CERO_IGN = 8.4214;
 
 export const PENDIENTE = 0.045;
 

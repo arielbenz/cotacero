@@ -124,30 +124,33 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
 }
 
 console.log("La cuenta del modelo");
-// Risso 1745, zona Centro: 16,44 de las curvas → 16,44 − 0,5 − 8,20.
+// El cero: 8,9524 (cero de la escala en el sistema MOP, nota de Vías Navegables
+// del 23/7/2018) − 0,531 (H_IGN = H_MOP − 0,531, IGN 2017) = 8,4214.
+caso("cero del hidrómetro", config.CERO_IGN, 8.4214, 1e-9);
+// Risso 1745, zona Centro: 16,44 de las curvas → 16,44 − 0,5 − 8,4214.
 caso(
   "Risso 1745, centro, curvas",
   modelo.umbralDe({ cota: 16.44, estimada: true, fuente: "curvas", km: 0 }),
-  7.74,
+  7.5186,
   1e-9,
 );
 // Dorrego 2414, San José del Rincón: 15,52 de los puntos, 16 km.
 caso(
   "Dorrego 2414, Rincón, puntos",
   modelo.umbralDe({ cota: 15.52, estimada: true, fuente: "puntos", km: 16 }),
-  5.6,
+  5.3786,
   1e-9,
 );
 caso(
   "altura cargada a mano: sin margen",
   modelo.umbralDe({ cota: 13.7, estimada: false, fuente: "", km: 11 }),
-  13.7 - 8.2 - 0.045 * 11,
+  4.7836, // 13,70 − 8,4214 − 0,495
   1e-9,
 );
 caso(
   "crudo: sin margen aunque sea estimada",
   modelo.umbralDe({ cota: 16.44, estimada: true, fuente: "curvas", km: 0, crudo: true }),
-  8.24,
+  8.0186,
   1e-9,
 );
 caso("sin zona: no hay número", modelo.umbralDe({ cota: 16, estimada: true, km: null }), null);

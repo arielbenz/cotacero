@@ -143,7 +143,7 @@ const htmlDatos = pagina({
       titulo: "La cuenta, entera",
       html: `        <p class="formula">
           <span>cota del terreno <b>− 0,50</b></span>
-          <span><b>−</b> cero del hidrómetro <b>(8,20)</b></span>
+          <span><b>−</b> cero del hidrómetro <b>(8,42)</b></span>
           <span><b>−</b> km río arriba <b>× 0,045</b></span>
           <span class="f-total"><b>=</b> tu nivel de aviso</span>
         </p>
@@ -277,11 +277,11 @@ const htmlDatos = pagina({
 ${cuentaVertical([
   ["Lectura del hidrómetro", "5,00 m"],
   ["+", "", "op"],
-  ["Cero del hidrómetro", "8,20 m IGN"],
+  ["Cero del hidrómetro", "8,42 m IGN"],
   ["+", "", "op"],
   ["Corrección río arriba (11 km)", "0,50 m"],
   ["=", "", "op"],
-  ["Superficie de agua equivalente", "13,70 m IGN", "total"],
+  ["Superficie de agua equivalente", "13,92 m IGN", "total"],
 ])}
 ${CORTE_SVG}
         <p>
@@ -307,15 +307,16 @@ ${[
   }),
   filaEjemplo({
     n: 2,
-    titulo: "Restar el cero del hidrómetro: 8,20 m",
-    html: `              <p>Pasa tu terreno a la escala del hidrómetro. El INA publica 8,378: esos 18 cm están sin resolver. <a href="#abiertas">Por qué usamos 8,20</a>.</p>`,
-    valor: "− 8,20 = 7,10",
+    titulo: "Restar el cero del hidrómetro: 8,42 m",
+    html: `              <p>Pasa tu terreno a la escala del hidrómetro. El INA midió 8,378: son 4 cm de diferencia entre fuentes oficiales. <a href="#abiertas">De dónde sale el 8,42</a>.</p>`,
+    valor: "− 8,42 = 6,88",
+    /* 15,30 − 8,4214 − 0,50 = 6,38. */
   }),
   filaEjemplo({
     n: 3,
     titulo: "Restar el desnivel río arriba: 0,045 m por km",
     html: `              <p>El río no es una pileta: río arriba el agua está más alta. 11 × 0,045 = 0,495, que redondeamos a 0,50.</p>`,
-    valor: "− 0,50 = 6,60",
+    valor: "− 0,50 = 6,38",
   }),
 ].join("\n")}
         </ol>
@@ -325,10 +326,10 @@ ${[
        de CLAUDE.md, «el desglose conserva la aritmética exacta». */
     `      <section class="bloque oscuro resultado">
         <p class="kicker">Resultado del ejemplo</p>
-        <p class="dato-grande">≈ 6,6 m</p>
-        <p class="cuenta-chica">15,30 − 8,20 − 0,50 = 6,60</p>
+        <p class="dato-grande">≈ 6,4 m</p>
+        <p class="cuenta-chica">15,30 − 8,42 − 0,50 = 6,38</p>
         <p>
-          Cuando el hidrómetro del Puerto se acerque a <b>6,60 m</b>, el nivel
+          Cuando el hidrómetro del Puerto se acerque a <b>6,38 m</b>, el nivel
           de agua equivalente alcanza la cota de ese terreno según el modelo.
           <b>No significa que el terreno se inunde exactamente a ese nivel</b>:
           lo que pase depende de las defensas, del bombeo, del viento y de la
@@ -342,8 +343,8 @@ ${[
       /* El orden es deliberado: antes los subtítulos abrían en negativo y
          quien leía en diagonal se llevaba sólo eso. Primero lo comprobado,
          después lo que falta, con el MISMO peso: tres tarjetas iguales. No se
-         sacó ni se suavizó una sola admisión. El razonamiento largo del 8,20
-         va plegado y no borrado: la app enlaza acá («por qué usamos 8,20») y
+         sacó ni se suavizó una sola admisión. El razonamiento largo del cero
+         va plegado y no borrado: la app enlaza acá («por qué usamos 8,42») y
          tiene que encontrar la respuesta entera.
 
          «Se comprobó» decía «la crecida de 1992: Arroyo Leyes, registrado,
@@ -369,24 +370,30 @@ ${[
           <div class="firme-caja f-discusion" id="abiertas">
             <span class="eti">En discusión</span>
             <h3>Dos números sin cerrar</h3>
-            <p><b>El cero: 8,20 o 8,378.</b> 8,20 es el de la normativa de Rincón; el INA publica 8,378 desde 2016. Pueden ser el mismo punto en dos sistemas de alturas.</p>
+            <p><b>El cero: 8,42, con una duda.</b> Sale de la nota de Vías Navegables (8,9524 en el sistema del ex MOP) pasada al sistema del IGN; el INA midió 8,378 en 2016. Falta saber en qué sistema de alturas están las curvas del municipio.</p>
             <p><b>La pendiente: 0,045 m/km.</b> No hay una medición que la respalde, y usamos un solo valor para todas las zonas. La cifra de ${RECORD_ANIO} que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.</p>
             <details class="h-detalle">
-              <summary>Por qué no cambiamos ninguno</summary>
+              <summary>De dónde sale cada uno</summary>
               <p class="chico">
-                <b>El cero.</b> El Reglamento de Edificaciones de San José del
-                Rincón fija la cota de edificación en
-                <span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>
-                —la diferencia es exactamente 8,20— y coincide con el que da un
-                ingeniero hidrólogo de la FICH-UNL. El INA publica 8,378 de una
-                campaña INA-IGN de diciembre de 2016. Los 18 cm no son de
-                redondeo: en enero de 2017 el país cambió de sistema de alturas
-                —del SRVN71 al SRVN16— y antes convivían referencias del ex
-                Ministerio de Obras Públicas, de Obras Sanitarias y de sistemas
-                municipales. Lo que importa no es cuál número es más nuevo,
-                sino que el cero y las curvas estén en el <b>mismo</b> sistema,
-                y las curvas no declaran el suyo. Mover el cero a 8,378 metería
-                un sesgo de 18 cm en todos los umbrales sin que nadie se entere.
+                <b>El cero.</b> Hasta el 26 de octubre de 2026 usábamos 8,20:
+                la diferencia que sale del Reglamento de Edificaciones de San
+                José del Rincón
+                (<span class="cita">16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)</span>),
+                que repite la prensa. Ningún organismo lo respalda: en la nota
+                del 23/7/2018 (expediente 01801-0049664-3, Ministerio de
+                Infraestructura y Transporte de Santa Fe) la Subsecretaría de
+                Puertos y Vías Navegables, que mantiene la escala, aclara que
+                el 8,19 «no es un valor brindado por este organismo» y da el
+                cero de la escala: +8,9524 en el sistema del ex Ministerio de
+                Obras Públicas. El IGN publica que el pasaje de ese sistema al
+                suyo es H<sub>IGN</sub> = H<sub>MOP</sub> − 0,531 m:
+                8,9524 − 0,531 = <b>8,4214</b>. El INA midió 8,378 con el IGN en
+                diciembre de 2016, y la propia nota usa un desnivel de 0,556
+                que da 8,3964: los tres valores quedan a 4 cm. Lo que sigue
+                abierto es que las curvas del municipio no declaran su sistema
+                de alturas, y el 0,531 está medido en el Riachuelo, no en Santa
+                Fe. Si las curvas estuvieran en un sistema anterior, 8,42 haría
+                avisar hasta unos 20 cm antes: queda del lado seguro.
               </p>
               <p class="chico">
                 <b>La pendiente.</b> El reglamento de Rincón, 16 km río arriba,
@@ -454,7 +461,7 @@ ${[
       oscuro: true,
       titulo: "Lo que todavía no sabe",
       html: `        <ul class="no-sabe">
-          <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero correcto es 8,20 o 8,378.</li>
+          <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero de 8,42 corresponde a ellas o hay que corregirlo.</li>
           <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
           <li><b>Cuánto se equivoca la cota en tu cuadra.</b> Medido contra ${MEDICION.n} puntos del municipio, el medio metro alcanza en ${MEDICION.alcanza} de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.</li>
           <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>

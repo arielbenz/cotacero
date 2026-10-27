@@ -647,11 +647,12 @@ export function calcular() {
         : ""
     }
     <tr><td>Cero de la regla del puerto${
-      /* El INA publica 8,378 para esta escala y el cálculo usa 8,20. La
-         diferencia son 18 cm en el umbral de cada persona, y está sin
-         resolver: puede ser el mismo punto medido en dos sistemas de alturas
-         distintos. Esconderlo sería lo contrario de lo que hace esta app.
-         Sólo aparece si la API lo trajo, para no afirmarlo de memoria. */
+      /* El INA publica 8,378 para esta escala y el cálculo usa 8,4214
+         (Vías Navegables + la conversión del IGN). La diferencia son 4 cm en
+         el umbral de cada persona: son dos fuentes oficiales que miden lo
+         mismo y no coinciden del todo. Esconderlo sería lo contrario de lo
+         que hace esta app. Sólo aparece si la API lo trajo, para no
+         afirmarlo de memoria. */
       estado.ceroINA != null && Math.abs(estado.ceroINA - CERO_IGN) > 0.005
         ? /* Tres decimales, no dos: el INA publica 8,378 y redondear a 8,38
              borraría justo el dígito que hace concreta la diferencia. Es la
@@ -662,7 +663,7 @@ export function calcular() {
             .replace(".", ",")} m — <a href="/datos#abiertas">por qué usamos ${m(CERO_IGN)}</a></span>`
         : ""
     }</td>
-  <td class="n">− ${nm(CERO_IGN, 2)} m</td></tr>
+  <td class="n">− ${nm(CERO_IGN, 4)} m</td></tr>
     <tr><td>Caída del río hasta el puerto (${km} km × 4,5 cm)${
       KM_PUBLICADO.has(estado.zona)
         ? ""

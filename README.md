@@ -14,7 +14,7 @@ Tres documentos, tres trabajos:
 
 ## El modelo
 
-    cota del agua (IGN) = lectura del hidrómetro + 8,20
+    cota del agua (IGN) = lectura del hidrómetro + 8,4214
     corrección río arriba = 0,045 m por km
 
 Para un terreno dado se despeja al revés: qué lectura del hidrómetro pone el
@@ -25,10 +25,13 @@ defecto descuenta el margen de la fuente para quedarse en el escenario
 pesimista: `ERROR_DEM` (0,5 m) con las curvas de la ciudad, `ERROR_PUNTOS`
 (1,0 m) con los puntos de Rincón y Arroyo Leyes.
 
-**Las constantes están en discusión y no se tocaron.** El INA publica hoy
-`cero_ign = 8,378` (relevamiento de 2016, SRVN16), y las curvas del municipio
-no declaran su sistema de alturas: mover el cero metería un sesgo de 18 cm sin
-que nadie lo note. La pendiente se despejó del mismo caso de 1992 con el que
+**El cero cambió el 26/10/2026, de 8,20 a 8,4214.** Vías Navegables, que
+mantiene la escala, informó por escrito su cero en el sistema del ex MOP
+(+8,9524) y aclaró que el 8,19 que circulaba no lo brinda; el IGN publica
+que H_IGN = H_MOP − 0,531 m. El INA midió 8,378 en 2016: las tres fuentes
+oficiales quedan a 4 cm. Lo que sigue abierto es que las curvas del municipio
+no declaran su sistema de alturas (AUDITORIA.md §1). **Las otras constantes
+están en discusión y no se tocaron.** La pendiente se despejó del mismo caso de 1992 con el que
 después se la «validaba»: el 16,70 de Arroyo Leyes en 1992 que circula en la
 prensa se estimó con esa misma pendiente, así que coincidir con él no prueba
 nada. Lo que sí se midió contra algo independiente es la altura del terreno:

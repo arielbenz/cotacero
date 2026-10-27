@@ -104,13 +104,14 @@ import { irA, ver } from "./vista.js";
    COTA CERO — Santa Fe
    --------------------------------------------------------------------------
    MODELO HIDROLÓGICO
-   El cero del hidrómetro del Puerto de Santa Fe está a ~8,20 m IGN.
-   Entonces:   cota del agua (IGN) = lectura del hidrómetro + 8,20
+   El cero del hidrómetro del Puerto de Santa Fe está a ~8,42 m IGN.
+   Entonces:   cota del agua (IGN) = lectura del hidrómetro + 8,42
    El río tiene pendiente natural: aguas arriba el mismo evento da cota más alta.
    Pendiente ~0,045 m por km.
    La pendiente NO está validada. Durante un tiempo se la dio por comprobada
-   con 1992: puerto 7,43 m -> 15,62 IGN, y en Arroyo Leyes, 24 km arriba,
-   15,62 + (0,045 x 24) = 16,70 IGN, «el valor publicado». Pero ese 16,70 la
+   con 1992: puerto 7,43 m -> 15,62 IGN (con el cero de entonces, 8,19), y en
+   Arroyo Leyes, 24 km arriba, 15,62 + (0,045 x 24) = 16,70 IGN, «el valor
+   publicado». Pero ese 16,70 la
    prensa lo ESTIMA con esta misma cuenta (AUDITORIA.md §3): es circular. Lo
    que sí se midió es la altura del terreno, contra 330 puntos fijos (§4).
    Falta una cota del agua medida río arriba del Puerto, y la revisión de
