@@ -9,7 +9,8 @@ import { CONFIG } from "./config.js";
 import { cotaEnHidrometro } from "./cota.js";
 import { estado, guardado } from "./estado.js";
 import { m, mU } from "./formato.js";
-import { ALERTA, EVACUACION } from "./oficiales.js";
+import { ALERTA, EVACUACION, RECORD } from "./oficiales.js";
+import { sobreRecord } from "/lib/comun.js";
 import { aLaVista, ocupar } from "./vista.js";
 
 /* ================= AVISOS =================
@@ -160,9 +161,11 @@ const LETRA_CHICA =
    fácil decidir activarlo viendo exactamente qué va a sonar. */
 const listaNiveles = (umbral) =>
   '<ul class="lista-niveles">' +
-  '<li><b class="c-vos">' +
-  mU(umbral).replace(" m", "") +
-  "</b>cuando el río llegue a tu nivel de aviso</li>" +
+  (sobreRecord(umbral, RECORD, estado.rio)
+    ? '<li><b class="c-vos">↑</b>si llega a tu nivel de aviso, que está más alto que el récord</li>'
+    : '<li><b class="c-vos">' +
+      mU(umbral).replace(" m", "") +
+      "</b>cuando el río llegue a tu nivel de aviso</li>") +
   '<li><b class="c-alerta">' +
   m(ALERTA).replace(" m", "") +
   "</b>si pasa la alerta de la ciudad</li>" +
@@ -236,7 +239,9 @@ export async function pintarAvisos() {
     caja.innerHTML = envoltura(
       '<p class="chico" style="margin:0"><b style="color:var(--ok-texto)">Avisos activados.</b> ' +
         "Te avisamos cuando el río llegue a tu nivel de aviso (<b>" +
-        mU(umbral) +
+        (sobreRecord(umbral, RECORD, estado.rio)
+          ? "más alto que el récord"
+          : mU(umbral)) +
         "</b>), y también si pasa la alerta o la evacuación de la ciudad.</p>" +
         conmutadorCerca() +
         '<button class="btn sec mini" style="margin-top:11px;display:block" ' +

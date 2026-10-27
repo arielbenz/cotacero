@@ -9,6 +9,8 @@ import { cotaEnHidrometro, margenCota, origenCota } from "./cota.js";
 import { TELEFONOS, estado, guardado } from "./estado.js";
 import { m, mU, nm } from "./formato.js";
 import { faltanMochila, pintarRio } from "./rio.js";
+import { RECORD, RECORD_ANIO } from "./oficiales.js";
+import { sobreRecord } from "/lib/comun.js";
 
 /* ================= PLAN ================= */
 export function pintarListas() {
@@ -167,11 +169,21 @@ function textoPlan() {
           .map((o) => "  " + m(o.nivel) + " — " + o.que + " (" + o.fuente + ")")
           .join("\n") +
         "\n";
+    /* El plan se lee días después y sin señal: no depende del río de hoy,
+       así que sobreRecord va sin nivel. */
+    const u = cotaEnHidrometro();
+    t += sobreRecord(u, RECORD, null)
+      ? "Tu nivel de aviso: más alto que la crecida de " +
+        RECORD_ANIO +
+        " (" +
+        m(RECORD) +
+        "), la más grande medida.\n" +
+        "Antes de que el río llegue ahí, la ciudad ya estaría en emergencia: guiate por la alerta y la evacuación de la ciudad.\n"
+      : "Tu nivel de aviso (en la regla del puerto): " +
+        mU(u) +
+        "\n" +
+        "Si el río llega ahí, el agua puede llegar a tu terreno.\n";
     t +=
-      "Tu nivel de aviso (en la regla del puerto): " +
-      mU(cotaEnHidrometro()) +
-      "\n" +
-      "Si el río llega ahí, el agua puede llegar a tu terreno.\n" +
       (estado.cotaEsEstimada
         ? "La altura del terreno va " +
           nm(margenCota(), 2) +

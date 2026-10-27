@@ -81,6 +81,15 @@ fuente sobre el cero de la escala**, y el organismo que la mantiene dice que
 ese valor no es suyo. El 7,80 del reglamento de Rincón es una resta hecha por
 quien lo redactó; no hay constancia de en qué sistema.
 
+**27/10/2026: Paoli dice 8,40.** Carlos Paoli —el hidrólogo de la FICH que
+El Litoral citaba con «8,20» y que estaba entre los respaldos de ese número, más
+abajo— le respondió a Nicolás Loyarte (El Litoral) que, según entiende, el cero
+«fue verificado a 8,40 m y no 8,20». Es una comunicación personal, no una
+fuente publicada, pero retira la única voz de especialista que sostenía el
+8,20 y coincide con las tres fuentes oficiales. Agrega que habría que
+validar las bases topográficas con la Municipalidad, la SRH, el INA, la FICH,
+Catastro o la IDESF: es la pregunta 7.
+
 **Por qué 8,4214 y no 8,378 o 8,3964.** Los tres entran en el margen de la
 pantalla (un decimal). Se elige el más alto porque es el que, ante la duda, hace
 avisar antes: un cero más alto da un nivel de aviso más bajo. Es una decisión de
@@ -341,6 +350,18 @@ contra los puntos fijos de §4, y 1992 se explica en «En discusión» como la
 misma cuenta.)_ Lo que
 falta: **una** cota medida en 1992 o 2016 en cualquier punto río arriba del
 Puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
+
+**27/10/2026: el número por encima del récord.** Agustín Botterón —la fuente
+técnica de esa nota— probó la app con Mitre y Chacabuco: cota 19,10, nivel de
+aviso 10,40 m. Su observación: es técnicamente imposible y no sirve, porque
+con valores mucho menores la ciudad estaría en un caos. Tiene razón, y no es
+un error de cuenta sino de qué se muestra. Desde entonces, un nivel de aviso
+igual o mayor que el récord no se muestra como número (`sobreRecord()` en
+`public/lib/comun.js`, con casos en `scripts/comprobar.js`): la app dice «más
+alto que el récord» y manda a la alerta y la evacuación de la ciudad. El
+número sigue en el desglose, y vuelve a la pantalla si el río queda a 50 cm o
+menos. También señaló que la app es «abrumadora» por la cantidad de
+aclaraciones; eso queda pendiente.
 
 ---
 

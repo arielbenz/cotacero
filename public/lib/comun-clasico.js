@@ -125,6 +125,21 @@ const ATENCION_ANTES_M = 1.0;
    0 cm» en vez de «el río pasó tu nivel de aviso». */
 const faltaCm = (nivel, umbral) => Math.round((umbral - nivel) * 100);
 
+/* ¿El nivel de aviso queda por encima del récord, con el río lejos? Entonces
+   la pantalla no da el número. «≈ 10,4 m» es aritmética correcta en un
+   hidrómetro que nunca pasó de 7,43: mucho antes de que el río llegue ahí la
+   ciudad entera estaría en emergencia, y el número no sirve para decidir nada
+   (devolución de un ingeniero civil, octubre de 2026; AUDITORIA.md §3). Se
+   dice «más alto que el récord» y el número exacto queda en el desglose.
+   Con el río a 50 cm o menos —el «acercándose» de estadoDe()— sí se da: con
+   una crecida récord en curso, el número vuelve a servir. `nivel` puede ser
+   null (el plan impreso, que no depende del río de hoy). */
+const sobreRecord = (umbral, record, nivel) =>
+  umbral != null &&
+  record != null &&
+  umbral >= record &&
+  (nivel == null || faltaCm(nivel, umbral) > 50);
+
 /* Qué estado corresponde, en este orden: tu nivel de aviso superado manda
    sobre la ciudad, la evacuación sobre la alerta. `alerta` y `evacuacion`
    son los que publica la estación, o los de respaldo. */
@@ -260,5 +275,5 @@ function avisoDe(nivel, umbral, cerca, oficiales) {
   }
 }
 
-  raiz.CC_COMUN = { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm, m, mU, mCm, ESTADOS, ATENCION_ANTES_M, faltaCm, estadoDe, textoGrave, avisoDe };
+  raiz.CC_COMUN = { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm, m, mU, mCm, ESTADOS, ATENCION_ANTES_M, faltaCm, sobreRecord, estadoDe, textoGrave, avisoDe };
 })(typeof self !== "undefined" ? self : globalThis);
