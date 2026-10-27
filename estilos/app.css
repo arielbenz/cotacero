@@ -5435,7 +5435,7 @@ html.texto-grande {
   border-top: 1px solid var(--linea);
   font-size: var(--t-s);
 }
-.firma b {
+.firma a {
   color: var(--texto);
   font-weight: 600;
 }
@@ -6863,11 +6863,11 @@ button.enlace-crudo {
    van en una lista, en cambio, crecen de verdad: dos filas de 20 px con
    zonas de toque superpuestas harían marcar el 911 al querer el 103.
    ========================================================================== */
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class]),
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class]),
 button.enlace-crudo {
   position: relative;
 }
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class])::after,
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class])::after,
 button.enlace-crudo::after {
   content: "";
   position: absolute;
