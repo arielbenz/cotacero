@@ -18,7 +18,7 @@ import { estado, fijarZonaAjena, guardado, kmDeZona } from "./estado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { margenDe, umbralDe } from "./modelo.js";
-import { ESTADOS, faltaCm } from "/lib/comun.js";
+import { ESTADOS, faltaCm, sobreRecord } from "/lib/comun.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
 import { aniosQueLlegaron, pintarRio } from "./rio.js";
 import { aLaVista, ocupar } from "./vista.js";
@@ -496,6 +496,7 @@ export function calcular() {
     titu = "",
     txt = "";
   const ref = criticoPeor;
+  const alto = sobreRecord(ref, RECORD, r);
   /* Ver README §"Los ocho estados y cómo se dicen". El grave empieza con el
      verbo y lleva el 103; "Margen ajustado/amplio" eran vocabulario contable.
      Ninguno arranca con «Tu nivel de aviso es ≈ X»: el número está en grande
@@ -585,6 +586,21 @@ export function calcular() {
       "Más alto que lo que el municipio dice estar planificando. " +
       cuando +
       " <b>Si la ciudad entra en evacuación, tené la mochila lista.</b>";
+  } else if (alto) {
+    /* El número no se da (sobreRecord en lib/comun.js): lo que sirve es el
+       contexto. Con el río tan alto, lo que afecta a esta casa es la ciudad,
+       no el agua en su terreno. */
+    cls = "v-ok";
+    titu = "Tenés margen contra el río";
+    txt =
+      "Para que el agua llegue a tu terreno, el río tendría que pasar la " +
+      "crecida más grande medida, la de " +
+      RECORD_ANIO +
+      " (" +
+      m(RECORD) +
+      "). Mucho antes, la ciudad ya estaría en emergencia: cortes de calles " +
+      "y de servicios, barrios evacuados. <b>Guiate por la alerta y la " +
+      "evacuación de la ciudad.</b>";
   } else {
     cls = "v-ok";
     titu = "Tenés margen";
@@ -616,14 +632,14 @@ export function calcular() {
      vivía sólo en la pestaña Río. Con el dato vencido no se dice: «hoy» sería
      mentira. Superado no hace falta, el titular ya lo dice. */
   const faltaRio =
-    r != null && !estado.rioVencido && ref - r > 0
+    r != null && !estado.rioVencido && ref - r > 0 && !alto
       ? `<p class="falta-rio">Al río le faltan unos <b>${mCm(ref - r)}</b> para llegar a tu nivel de aviso.</p>`
       : "";
 
   html += `<div class="veredicto ${cls}"><div class="titu">${titu}</div>
     <span class="eti">Tu nivel de aviso · en la regla del puerto</span>
-    <div class="dato">${mU(ref)}</div>
-    ${glosa}${barraCasa(ref, r)}${faltaRio}
+    ${alto ? '<div class="dato dato-sobre">Más alto que el récord</div>' : `<div class="dato">${mU(ref)}</div>`}
+    ${glosa}${barraCasa(ref, r, alto)}${faltaRio}
     <p class="veredicto-pie">${txt}</p></div>`;
 
   html += renglonCasa(z, km);
@@ -674,9 +690,13 @@ export function calcular() {
   <td>Tu nivel de aviso</td>
   <td class="n">${m(ref)}</td></tr>
     </table>
-    <p class="chico" style="margin:10px 0 0">La app lo muestra como ${mU(ref)}:
+    <p class="chico" style="margin:10px 0 0">${
+      alto
+        ? `La app no lo muestra como número: es más alto que la crecida de ${RECORD_ANIO}, la más grande medida, y con el río ahí la ciudad entera ya estaría en emergencia.`
+        : `La app lo muestra como ${mU(ref)}:
 la cota del terreno viene de ${fuente.dice.deDonde}, y más decimales serían una
-precisión que el dato no tiene.</p>`;
+precisión que el dato no tiene.`
+    }</p>`;
 
   /* Era una caja ámbar aparte, debajo del resultado. Es parte de cómo sale el
      número, así que va acá; la frase de «pasa cerca de tu casa, no por tu
@@ -955,7 +975,7 @@ function renglonCasa(z, km) {
 /* La regla del veredicto: hoy, la alerta de la ciudad, el récord y vos en la
    misma escala que el hidrómetro de la pestaña Río. Es un dibujo: los
    números van como texto en el renglón de abajo. */
-function barraCasa(ref, r) {
+function barraCasa(ref, r, alto) {
   const pct = (v) =>
     Math.max(
       0,
@@ -978,6 +998,10 @@ function barraCasa(ref, r) {
     ${r != null ? `<span><b class="c-hoy">${n2(r)}</b> ${viejo ? "último dato" : "hoy"}</span>` : ""}
     <span><b class="c-alerta">${n2(ALERTA)}</b> alerta de la ciudad</span>
     <span><b>${n2(RECORD)}</b> récord</span>
-    <span><b class="c-vos">${mU(ref).replace(" m", "")}</b> vos</span>
+    ${
+      alto
+        ? '<span><b class="c-vos">vos</b> más arriba del récord</span>'
+        : `<span><b class="c-vos">${mU(ref).replace(" m", "")}</b> vos</span>`
+    }
   </div>`;
 }

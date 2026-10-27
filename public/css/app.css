@@ -447,6 +447,11 @@ p {
   font-size: var(--t-hero);
   line-height: 0.9;
 }
+
+.dato.dato-sobre {
+  font-size: var(--t-xl);
+  line-height: 1.15;
+}
 .unidad {
   display: block;
   font-family: var(--mono);
@@ -733,6 +738,11 @@ p {
 }
 .celdas-umbral .t-vos .v {
   color: var(--tierra);
+}
+
+.celdas-umbral .v.v-texto {
+  font-size: var(--t-l);
+  letter-spacing: -0.01em;
 }
 .celdas-umbral .t-ok .v {
   color: var(--ok-texto);

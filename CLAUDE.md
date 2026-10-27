@@ -630,6 +630,15 @@ El umbral **nunca** se muestra con dos decimales: la cota sale de curvas cada
 usan la app, el sitio y `sw.js`). La única excepción es el desglose del cálculo, que conserva la
 aritmética exacta y aclara al pie por qué la pantalla muestra otra cosa.
 
+**Por encima del récord, sin número** (octubre de 2026). Un nivel de aviso más
+alto que la crecida más grande medida —Mitre y Chacabuco daba «≈ 10,4 m»— es
+aritmética correcta y un dato inútil: mucho antes de que el río llegue ahí la
+ciudad entera estaría en emergencia. `sobreRecord()` en `public/lib/comun.js`
+decide, y el veredicto, las fichas y la regla de Río, los avisos, el plan y la
+imagen para compartir dicen «más alto que el récord» y mandan a la alerta de
+la ciudad. Con el río a 50 cm o menos el número vuelve, y el desglose lo
+conserva siempre. Un lugar nuevo que muestre el nivel de aviso pasa por ahí.
+
 ### El mono en mayúsculas etiqueta una cosa
 
 `.eti` —mono, versalitas, `letter-spacing`— es la voz del **instrumento**: la

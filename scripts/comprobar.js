@@ -154,6 +154,21 @@ caso(
   1e-9,
 );
 caso("sin zona: no hay número", modelo.umbralDe({ cota: 16, estimada: true, km: null }), null);
+// Mitre y Chacabuco, centro: 19,10 de las curvas → 19,10 − 0,5 − 8,4214 =
+// 10,1786. Es el caso que mostró que el número no sirve (AUDITORIA.md §3).
+caso(
+  "Mitre y Chacabuco, centro, curvas",
+  modelo.umbralDe({ cota: 19.1, estimada: true, fuente: "curvas", km: 0 }),
+  10.1786,
+  1e-9,
+);
+caso("sobre el récord, río lejos: sin número", comun.sobreRecord(10.1786, 7.43, 4.0), true);
+caso("sobre el récord, sin dato del río (plan impreso): sin número", comun.sobreRecord(10.1786, 7.43, null), true);
+caso("justo en el récord: sin número", comun.sobreRecord(7.43, 7.43, 3), true);
+caso("debajo del récord: con número", comun.sobreRecord(7.0, 7.43, 3), false);
+caso("sobre el récord con el río a 50 cm: con número", comun.sobreRecord(7.6, 7.43, 7.1), false);
+caso("sobre el récord con el río a 51 cm: sin número", comun.sobreRecord(7.6, 7.43, 7.09), true);
+caso("sin nivel de aviso: nada que esconder", comun.sobreRecord(null, 7.43, 3), false);
 caso("margen de las curvas", modelo.margenDe({ estimada: true, fuente: "curvas" }), config.ERROR_DEM);
 caso("margen de los puntos", modelo.margenDe({ estimada: true, fuente: "puntos" }), config.ERROR_PUNTOS);
 caso(

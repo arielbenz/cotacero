@@ -10,8 +10,8 @@
 import { cotaEnHidrometro } from "./cota.js";
 import { estado } from "./estado.js";
 import { m, mCm, mU } from "./formato.js";
-import { ALERTA, EVACUACION } from "./oficiales.js";
-import { ATENCION_ANTES_M, ESTADOS, faltaCm } from "/lib/comun.js";
+import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
+import { ATENCION_ANTES_M, ESTADOS, faltaCm, sobreRecord } from "/lib/comun.js";
 import { ocupar } from "./vista.js";
 
 const ANCHO = 1080;
@@ -343,15 +343,20 @@ async function armarImagen(conVos) {
         g.font = SANS(500, 30);
         g.fillStyle = C.suave;
         g.fillText("Mi nivel de aviso", MARGEN_X, y + 26);
-        g.font = SANS(800, 64);
+        /* Sobre el récord, palabras y no número (sobreRecord en lib/comun.js).
+           A 52 px entra en el ancho de la columna; a 64 se salía. */
+        const alto = sobreRecord(u, RECORD, viejo ? null : r);
+        g.font = SANS(800, alto ? 52 : 64);
         g.fillStyle = C.vos;
-        g.fillText(mU(u), MARGEN_X, y + 26 + 72);
+        g.fillText(alto ? "Sobre el récord" : mU(u), MARGEN_X, y + 26 + 72);
         g.font = SANS(500, 26);
         g.fillStyle = C.tenue;
         g.fillText(
-          !viejo && faltaCm(r, u) <= 0
-            ? "El río ya lo pasó. Es un cálculo aproximado."
-            : "Es un cálculo aproximado, no una predicción.",
+          alto
+            ? "Más alto que la crecida de " + RECORD_ANIO + " (" + m(RECORD) + ")."
+            : !viejo && faltaCm(r, u) <= 0
+              ? "El río ya lo pasó. Es un cálculo aproximado."
+              : "Es un cálculo aproximado, no una predicción.",
           MARGEN_X,
           y + 26 + 72 + 44,
         );

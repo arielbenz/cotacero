@@ -36,6 +36,7 @@ import {
   ATENCION_ANTES_M,
   ESTADOS,
   faltaCm,
+  sobreRecord,
   textoGrave as textoGraveComun,
   umbralesDe,
 } from "/lib/comun.js";
@@ -472,6 +473,7 @@ export function pintarRio() {
   /* Tu nivel de aviso, en la escala del hidrómetro. Si cae afuera de la
      regla no tiene línea, pero la etiqueta se queda en el borde: callarlo
      haría creer que no hay número. */
+  const alto = critico !== null && sobreRecord(critico, RECORD, r);
   if (critico !== null) {
     const fuera = critico > ESCALA_MAX || critico < ESCALA_MIN;
     lineas.push({
@@ -479,10 +481,12 @@ export function pintarRio() {
       cls: "l-vos" + (fuera ? " fuera" : ""),
       // Afuera de la regla, una flecha y no una frase: «más arriba de la
       // regla» no entraba al lado del tanque. La frase va en el aria-label.
-      txt:
-        `<span class="chip-vos">vos</span><b>${mU(critico).replace(" m", "")}</b> ` +
-        (fuera ? (critico > ESCALA_MAX ? "↑ " : "↓ ") : "") +
-        "tu nivel de aviso",
+      // Sobre el récord, sin número (sobreRecord en lib/comun.js).
+      txt: alto
+        ? `<span class="chip-vos">vos</span><b>↑</b> sobre el récord`
+        : `<span class="chip-vos">vos</span><b>${mU(critico).replace(" m", "")}</b> ` +
+          (fuera ? (critico > ESCALA_MAX ? "↑ " : "↓ ") : "") +
+          "tu nivel de aviso",
     });
   }
   separar(lineas);
@@ -530,11 +534,13 @@ export function pintarRio() {
         ", " +
         m(RECORD) +
         "." +
-        (critico !== null
-          ? " Tu nivel de aviso " +
-            mU(critico) +
-            (critico > ESCALA_MAX ? ", más arriba de la regla." : ".")
-          : ""),
+        (critico === null
+          ? ""
+          : alto
+            ? " Tu nivel de aviso está más arriba del récord."
+            : " Tu nivel de aviso " +
+              mU(critico) +
+              (critico > ESCALA_MAX ? ", más arriba de la regla." : ".")),
     );
 
   pintarVeredictoRio();
@@ -682,6 +688,19 @@ function pintarVeredictoRio() {
      umbral propio con el margen de hoy, en dos celdas que se leen de un golpe.
      Sin umbral cargado no se dibuja: la CTA de más abajo se encarga. */
   const u = cotaEnHidrometro();
+  /* Sobre el récord y con el río lejos, las fichas no dan el número ni cuánto
+     falta: «le falta al río ≈ 5,4 m» es tan inútil como el número. En su
+     lugar, el récord, que es la escala real (sobreRecord en lib/comun.js). */
+  const alto = sobreRecord(u, RECORD, r);
+  const celdaAlto =
+    '<div class="celdas-umbral">' +
+    '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
+    '<span class="v v-texto">Sobre el récord</span></div>' +
+    '<div class="celda"><span class="k">Récord, ' +
+    RECORD_ANIO +
+    '</span><span class="v">' +
+    m(RECORD) +
+    "</span></div></div>";
   let celdas = "",
     glosa = "";
   /* El texto de la ciudad ya trae una instrucción en tres de los cuatro
@@ -697,9 +716,14 @@ function pintarVeredictoRio() {
     '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
     "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
     "aproximado: <b>no dice cuándo entra el agua</b>.</p>";
-  if (u != null && viejo) {
+  if (u != null && alto && !viejo) {
+    celdas = celdaAlto;
+    glosa = GLOSA;
+  } else if (u != null && viejo) {
     // Tu nivel de aviso no vence: lo que vence es cuánto le falta al río.
-    celdas =
+    celdas = alto
+      ? celdaAlto
+      :
       '<div class="celdas-umbral">' +
       '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
       '<span class="v">' +
