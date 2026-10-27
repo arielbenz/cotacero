@@ -17,6 +17,7 @@ import {
   VENCE_HORAS,
 } from "./config.js";
 import { pintarCompartir } from "./compartir.js";
+import { ordenarRio, rioCerca } from "./destacar.js";
 import { calcular, cotaEnHidrometro } from "./cota.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
@@ -544,6 +545,8 @@ export function pintarRio() {
     );
 
   pintarVeredictoRio();
+  // Con el río cerca, la tendencia y río arriba suben a la vista.
+  ordenarRio({ rio: rioCerca(r, ALERTA, critico) });
   pintarConexion();
   pintarCtaCota();
   pintarCompartir();

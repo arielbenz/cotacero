@@ -468,6 +468,18 @@ río que se llenan cuando contesta el servidor tienen `min-height` en
 `estilos/app.css`. Sin eso el CLS de `/app` era 0,264 (el límite es 0,1): la pantalla
 saltaba bajo el dedo de quien estaba leyendo el nivel del río.
 
+**La pestaña Río muestra lo de hoy; el resto espera plegado** (octubre de 2026).
+Eran 479 palabras y más de cuatro pantallas, y un ingeniero que la probó la
+llamó «abrumadora». Debajo del nivel, la regla y «Cargar el nivel a mano» va
+«Más sobre el río» (`#mas-rio`), con lluvia, tendencia, río arriba, contexto y
+compartir. Un bloque sube a `#rio-destacado` cuando tiene algo que decir: la
+lluvia con 40 mm o más en un día, la tendencia y río arriba con el río a 1 m o
+menos de la alerta de la ciudad o de tu nivel de aviso. Los criterios están en
+`js/app/destacar.js`, puros y probados en `comprobar.js`. Un bloque nuevo en
+esa pestaña va en `BLOQUES` de ese archivo, envuelto en su `.bloque-rio`, y
+decide si sube o queda siempre plegado. **Plegado no es borrado**: no se sacó
+ningún texto.
+
 ### CSP: nada de manejadores inline
 
 `script-src` es `'self'` a secas y **no hay un solo `onclick` en el HTML**.

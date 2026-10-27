@@ -6232,6 +6232,32 @@ button.enlace-crudo {
 #lluvia-caja {
   min-height: 270px;
 }
+
+/* «Más sobre el río»: lo que en un día cualquiera no hace falta leer
+   (destacar.js). Plegado no es borrado: todo sigue a un toque, y lo que
+   importa hoy sube solo a #rio-destacado. El resumen dice qué hay adentro,
+   para que nadie tenga que abrirlo para saberlo. */
+.mas-rio {
+  margin: var(--e-5) 0 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+.mas-rio > summary {
+  padding: var(--e-3) 0;
+}
+.mas-rio > summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.mas-rio[open] > summary small {
+  display: none;
+}
+.mas-rio > summary + div > .bloque-rio:first-child > h2 {
+  margin-top: 0;
+}
 @media (min-width: 700px) {
   /* En pantalla ancha el texto entra en menos renglones: reservar lo mismo
      dejaría un hueco visible y no hay nada que ganar — el salto se nota

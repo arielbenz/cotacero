@@ -5495,6 +5495,28 @@ button.enlace-crudo {
 #lluvia-caja {
   min-height: 270px;
 }
+
+.mas-rio {
+  margin: var(--e-5) 0 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+.mas-rio > summary {
+  padding: var(--e-3) 0;
+}
+.mas-rio > summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.mas-rio[open] > summary small {
+  display: none;
+}
+.mas-rio > summary + div > .bloque-rio:first-child > h2 {
+  margin-top: 0;
+}
 @media (min-width: 700px) {
 
   #veredicto-rio,

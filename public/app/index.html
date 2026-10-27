@@ -370,69 +370,88 @@
         </button>
       </details>
 
-      <h2>Lluvia prevista</h2>
-      <p class="chico">
-        Tu nivel de aviso mira sólo el río. La lluvia es otro riesgo: si cae
-        mucha en poco tiempo, o varios días seguidos, puede anegar calles y
-        casas <b>aunque el río esté bajo</b>.
-      </p>
-      <div class="tarjeta" id="lluvia-caja">
-        <span class="eti">Milímetros por día · próximos 7 días</span>
-        <div class="dias" id="dias"></div>
-        <p class="chico" style="margin: 11px 0 0">
-          <span id="lluvia-resumen"></span> Las barras están a escala: la línea
-          marca los <b>40 mm en un día</b>, desde donde empieza a costar sacar
-          el agua de la ciudad.
-        </p>
-      </div>
+      <!-- Lo que sube cuando importa: ver destacar.js -->
+      <div id="rio-destacado"></div>
 
-      <!-- Después de la lluvia: no es el nivel de la regla -->
-      <h2>¿Viene subiendo o bajando?</h2>
-      <div class="tarjeta" id="tendencia">
-        <span class="eti">Tendencia</span>
-        <p class="chico" style="margin: 0">Cargando el pronóstico…</p>
-      </div>
-
-      <!-- Lo medido río arriba: observación, no pronóstico -->
-      <h2>Río arriba, hoy</h2>
-      <div class="tarjeta" id="rio-arriba">
-        <span class="eti">Escalas del INA</span>
-        <p class="chico" style="margin: 0">Cargando las escalas…</p>
-      </div>
-
-      <!-- Sólo valores con fuente publicada -->
-      <h2>En contexto</h2>
-      <div class="aviso neutro">
-        <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
-        Los dos juntos, no por separado: con el río alto las bombas no
-        alcanzan a sacar el agua de la ciudad.
-      </div>
-      <div class="tarjeta" id="contexto-caja">
-        <div id="contexto-texto"></div>
-      </div>
-
-      <h2>Compartir</h2>
-      <div class="tarjeta">
-        <p class="chico" style="margin: 0 0 12px">
-          Genera una imagen con el nivel de hoy, para mandar por WhatsApp. Se
-          arma en tu teléfono: no se sube nada.
-        </p>
-        <!-- Apagada por defecto: es un dato tuyo. Ver compartir.js -->
-        <label class="chk" id="compartir-vos-fila" hidden
-          ><input type="checkbox" id="compartir-vos" /><span
-            >Incluir mi nivel de aviso en la imagen</span
-          ></label
-        >
-        <button class="btn sec" type="button" data-accion="compartir-imagen">
-          Crear la imagen
-        </button>
-        <p
-          class="chico"
-          id="compartir-estado"
-          role="status"
-          style="margin: 8px 0 0"
-        ></p>
-      </div>
+      <details class="plegable mas-rio" id="mas-rio">
+        <summary>
+          <span>Más sobre el río<small id="mas-rio-que"
+              >Lluvia de la semana, si viene subiendo, río arriba, en contexto y
+              compartir</small
+            ></span>
+        </summary>
+        <div id="mas-rio-cuerpo">
+          <div class="bloque-rio" id="b-lluvia">
+            <h2>Lluvia prevista</h2>
+            <p class="chico">
+              Tu nivel de aviso mira sólo el río. La lluvia es otro riesgo: si cae
+              mucha en poco tiempo, o varios días seguidos, puede anegar calles y
+              casas <b>aunque el río esté bajo</b>.
+            </p>
+            <div class="tarjeta" id="lluvia-caja">
+              <span class="eti">Milímetros por día · próximos 7 días</span>
+              <div class="dias" id="dias"></div>
+              <p class="chico" style="margin: 11px 0 0">
+                <span id="lluvia-resumen"></span> Las barras están a escala: la línea
+                marca los <b>40 mm en un día</b>, desde donde empieza a costar sacar
+                el agua de la ciudad.
+              </p>
+            </div>
+          </div>
+          <div class="bloque-rio" id="b-tendencia">
+            <!-- Después de la lluvia: no es el nivel de la regla -->
+            <h2>¿Viene subiendo o bajando?</h2>
+            <div class="tarjeta" id="tendencia">
+              <span class="eti">Tendencia</span>
+              <p class="chico" style="margin: 0">Cargando el pronóstico…</p>
+            </div>
+          </div>
+          <div class="bloque-rio" id="b-arriba">
+            <!-- Lo medido río arriba: observación, no pronóstico -->
+            <h2>Río arriba, hoy</h2>
+            <div class="tarjeta" id="rio-arriba">
+              <span class="eti">Escalas del INA</span>
+              <p class="chico" style="margin: 0">Cargando las escalas…</p>
+            </div>
+          </div>
+          <div class="bloque-rio" id="b-contexto">
+            <!-- Sólo valores con fuente publicada -->
+            <h2>En contexto</h2>
+            <div class="aviso neutro">
+              <b>El municipio planifica para río en 6 m + lluvia de 200 a 300 mm.</b>
+              Los dos juntos, no por separado: con el río alto las bombas no
+              alcanzan a sacar el agua de la ciudad.
+            </div>
+            <div class="tarjeta" id="contexto-caja">
+              <div id="contexto-texto"></div>
+            </div>
+          </div>
+          <div class="bloque-rio" id="b-compartir">
+            <h2>Compartir</h2>
+            <div class="tarjeta">
+              <p class="chico" style="margin: 0 0 12px">
+                Genera una imagen con el nivel de hoy, para mandar por WhatsApp. Se
+                arma en tu teléfono: no se sube nada.
+              </p>
+              <!-- Apagada por defecto: es un dato tuyo. Ver compartir.js -->
+              <label class="chk" id="compartir-vos-fila" hidden
+                ><input type="checkbox" id="compartir-vos" /><span
+                  >Incluir mi nivel de aviso en la imagen</span
+                ></label
+              >
+              <button class="btn sec" type="button" data-accion="compartir-imagen">
+                Crear la imagen
+              </button>
+              <p
+                class="chico"
+                id="compartir-estado"
+                role="status"
+                style="margin: 8px 0 0"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </details>
     </section>
 
     <!-- ======================= MI CASA ======================= -->

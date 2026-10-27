@@ -4,6 +4,7 @@
 
 import { estado } from "./estado.js";
 import { m } from "./formato.js";
+import { LLUVIA_FUERTE_MM, lluviaFuerte, ordenarRio } from "./destacar.js";
 
 /* ================= LLUVIA ================= */
 export async function cargarLluvia() {
@@ -23,7 +24,7 @@ export async function cargarLluvia() {
 
 const MM_ESCALA = 60; // tope de la barra, en mm
 
-const MM_UMBRAL = 40; // desde acá el desagote se complica
+const MM_UMBRAL = LLUVIA_FUERTE_MM; // desde acá el desagote se complica
 
 function pintarLluvia() {
   const d = estado.lluvia;
@@ -37,12 +38,12 @@ function pintarLluvia() {
     total += mm;
     pico = Math.max(pico, mm);
     const fecha = new Date(f + "T12:00:00");
-    const cls = mm >= 40 ? "fuerte" : mm >= 1 ? "hay" : "";
+    const cls = mm >= MM_UMBRAL ? "fuerte" : mm >= 1 ? "hay" : "";
     // Escala fija de 60 mm para que las semanas se puedan comparar entre sí;
     // con una escala relativa al máximo, una semana seca se vería igual de
     // dramática que una de tormenta.
     const alto = Math.min(100, (mm / MM_ESCALA) * 100);
-    html += `<div class="dia ${mm >= 40 ? "fuerte" : ""}">
+    html += `<div class="dia ${mm >= MM_UMBRAL ? "fuerte" : ""}">
 <div class="d">${dd[fecha.getDay()]}</div>
 <div class="mm ${cls}">${mm >= 1 ? Math.round(mm) : "·"}</div>
 <div class="barra" role="img" aria-label="${Math.round(mm)} milímetros">
@@ -53,12 +54,14 @@ function pintarLluvia() {
   const res = document.getElementById("lluvia-resumen");
   if (total < 5)
     res.textContent = "Semana seca: " + Math.round(total) + " mm acumulados.";
-  else if (pico >= 40)
+  else if (lluviaFuerte(pico))
     res.innerHTML =
       '<b style="color:var(--alerta-texto)">Se esperan ' +
       Math.round(pico) +
       " mm en un solo día.</b> Con el río alto, las bombas tardan más en desagotar.";
   else res.textContent = Math.round(total) + " mm acumulados en la semana.";
+  // Con un día de 40 mm o más, la lluvia sube a la vista.
+  ordenarRio({ lluvia: lluviaFuerte(pico) });
 }
 
 /* ================= CÁLCULO DE COTA ================= */

@@ -31,6 +31,7 @@ const modelo = await import("/js/app/modelo.js");
 const { elevacionDe, FUENTES_ALTURA } = await import("/js/app/elevacion.js");
 const zonas = await import("/js/app/zonas.js");
 const { FUENTES_APP } = await import("/js/app/fuentes.js");
+const destacar = await import("/js/app/destacar.js");
 
 let fallas = 0;
 function caso(nombre, obtenido, esperado, tolerancia = 0) {
@@ -122,6 +123,18 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
   caso("pantalla, evacuación: el verbo y el 103", g.verbo === comun.ESTADOS.evacuacion.verbo && g.resto.includes("103"), true);
   caso("pantalla, debajo de la alerta: nada grave", comun.textoGrave(5.2, R.alerta, R.evacuacion), null);
 }
+
+console.log("Qué sube a la vista en la pestaña Río (destacar.js)");
+caso("río a 1,20 m de la alerta: plegado", destacar.rioCerca(4.1, 5.3, null), false);
+caso("río a 1 m justo de la alerta: arriba", destacar.rioCerca(4.3, 5.3, null), true);
+caso("río a 1,01 m de la alerta: plegado", destacar.rioCerca(4.29, 5.3, null), false);
+caso("río sobre la alerta: arriba", destacar.rioCerca(6.0, 5.3, null), true);
+caso("río a 90 cm de tu nivel de aviso, lejos de la alerta: arriba", destacar.rioCerca(3.0, 5.3, 3.9), true);
+caso("nivel de aviso sobre el récord, río normal: plegado", destacar.rioCerca(3.0, 5.3, 10.1786), false);
+caso("sin dato del río: plegado", destacar.rioCerca(null, 5.3, 3.9), false);
+caso("40 mm en un día: la lluvia sube", destacar.lluviaFuerte(40), true);
+caso("39,9 mm: la lluvia queda plegada", destacar.lluviaFuerte(39.9), false);
+caso("sin pronóstico de lluvia: plegada", destacar.lluviaFuerte(undefined), false);
 
 console.log("La cuenta del modelo");
 // El cero: 8,9524 (cero de la escala en el sistema MOP, nota de Vías Navegables
