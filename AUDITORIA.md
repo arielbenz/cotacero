@@ -361,7 +361,10 @@ igual o mayor que el récord no se muestra como número (`sobreRecord()` en
 alto que el récord» y manda a la alerta y la evacuación de la ciudad. El
 número sigue en el desglose, y vuelve a la pantalla si el río queda a 50 cm o
 menos. También señaló que la app es «abrumadora» por la cantidad de
-aclaraciones; eso queda pendiente.
+aclaraciones. Primer paso, el mismo mes: la pestaña Río pasó de 479 palabras
+y 4,3 pantallas a 150 y 1,9 en un día normal. Lo que no es de hoy espera
+plegado y sube cuando importa (`js/app/destacar.js`, ver CLAUDE.md). No se
+sacó ninguna aclaración. Falta probarlo con vecinos.
 
 ---
 

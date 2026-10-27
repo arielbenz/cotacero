@@ -28,7 +28,7 @@ const htmlSobre = pagina({
       url: SITIO,
       description:
         "Herramienta ciudadana que relaciona el nivel del río Paraná en Santa Fe con la cota del terreno.",
-      creator: { "@type": "Person", name: "Ariel Benz" },
+      creator: { "@type": "Person", name: "Ariel Benz", url: "https://arielbenz.com" },
     },
   },
   bloques: [
@@ -59,7 +59,7 @@ const htmlSobre = pagina({
     `      <div class="tarjetas-tres sobre-tres">
         <section>
           <h2>Una persona, no una institución</h2>
-          <p>La hace <b>Ariel Benz</b>, por cuenta propia. Sin empresa, ONG ni organismo detrás, y sin financiamiento.</p>
+          <p>La hace <b><a href="https://arielbenz.com" target="_blank" rel="noopener">Ariel Benz</a></b>, por cuenta propia. Sin empresa, ONG ni organismo detrás, y sin financiamiento.</p>
         </section>
         <section>
           <h2>No predice inundaciones</h2>

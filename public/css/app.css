@@ -4803,7 +4803,7 @@ html.texto-grande {
   border-top: 1px solid var(--linea);
   font-size: var(--t-s);
 }
-.firma b {
+.firma a {
   color: var(--texto);
   font-weight: 600;
 }
@@ -5495,6 +5495,28 @@ button.enlace-crudo {
 #lluvia-caja {
   min-height: 270px;
 }
+
+.mas-rio {
+  margin: var(--e-5) 0 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+.mas-rio > summary {
+  padding: var(--e-3) 0;
+}
+.mas-rio > summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.mas-rio[open] > summary small {
+  display: none;
+}
+.mas-rio > summary + div > .bloque-rio:first-child > h2 {
+  margin-top: 0;
+}
 @media (min-width: 700px) {
 
   #veredicto-rio,
@@ -6029,11 +6051,11 @@ button.enlace-crudo {
   content: "→";
 }
 
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class]),
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class]),
 button.enlace-crudo {
   position: relative;
 }
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class])::after,
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class])::after,
 button.enlace-crudo::after {
   content: "";
   position: absolute;

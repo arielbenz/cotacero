@@ -130,7 +130,7 @@ const htmlDatos = pagina({
     headline:
       "La cota de tu terreno en Santa Fe: el cálculo y de dónde salen los datos",
     inLanguage: "es-AR",
-    author: { "@type": "Person", name: "Ariel Benz" },
+    author: { "@type": "Person", name: "Ariel Benz", url: "https://arielbenz.com" },
     mainEntityOfPage: SITIO + "/datos",
   },
   bloques: [

@@ -5435,7 +5435,7 @@ html.texto-grande {
   border-top: 1px solid var(--linea);
   font-size: var(--t-s);
 }
-.firma b {
+.firma a {
   color: var(--texto);
   font-weight: 600;
 }
@@ -6232,6 +6232,32 @@ button.enlace-crudo {
 #lluvia-caja {
   min-height: 270px;
 }
+
+/* «Más sobre el río»: lo que en un día cualquiera no hace falta leer
+   (destacar.js). Plegado no es borrado: todo sigue a un toque, y lo que
+   importa hoy sube solo a #rio-destacado. El resumen dice qué hay adentro,
+   para que nadie tenga que abrirlo para saberlo. */
+.mas-rio {
+  margin: var(--e-5) 0 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+.mas-rio > summary {
+  padding: var(--e-3) 0;
+}
+.mas-rio > summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: var(--t-s);
+  color: var(--tenue);
+}
+.mas-rio[open] > summary small {
+  display: none;
+}
+.mas-rio > summary + div > .bloque-rio:first-child > h2 {
+  margin-top: 0;
+}
 @media (min-width: 700px) {
   /* En pantalla ancha el texto entra en menos renglones: reservar lo mismo
      dejaría un hueco visible y no hay nada que ganar — el salto se nota
@@ -6837,11 +6863,11 @@ button.enlace-crudo {
    van en una lista, en cambio, crecen de verdad: dos filas de 20 px con
    zonas de toque superpuestas harían marcar el 911 al querer el 103.
    ========================================================================== */
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class]),
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class]),
 button.enlace-crudo {
   position: relative;
 }
-.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota) a:not([class])::after,
+.app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class])::after,
 button.enlace-crudo::after {
   content: "";
   position: absolute;
