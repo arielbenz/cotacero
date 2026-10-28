@@ -13,6 +13,7 @@ import { ENLACES, PROVEEDORES } from "../../lib/proveedores.js";
 import { RENGLON_VERSION, versionDelSw } from "../version-sw.js";
 import { GEOMETRIA, geometriaDe } from "../marca.js";
 import { paginaMd, rutaMd } from "../markdown.js";
+import { estiloMapa } from "../../lib/estilo-mapa.js";
 
 /* Las páginas se cargan solas: cada archivo de esta carpeta que no sea
    base.js ni emitir.js es una página, y al cargarse se anota en GENERADAS
@@ -114,6 +115,22 @@ console.log(
     " KB -> " +
     Math.round(cssSinComentarios.length / 1024) +
     " KB, sin comentarios)",
+);
+
+/* ---------- public/mapa/claro.json y oscuro.json ----------
+   El estilo del mapa vectorial, con los colores de estilos/app.css. La fuente
+   es lib/estilo-mapa.js; los leen la app y la portada, que no pueden importar
+   lo mismo (CLAUDE.md, «Cuatro mundos»), pero sí pedir el mismo JSON. */
+const estilosMapa = {};
+await mkdir(join(PUBLICO, "mapa"), { recursive: true });
+for (const tema of ["claro", "oscuro"]) {
+  estilosMapa[tema] = JSON.stringify(estiloMapa(fuenteCss, tema));
+  await writeFile(join(PUBLICO, "mapa", tema + ".json"), estilosMapa[tema] + "\n");
+}
+console.log(
+  "escrito: /mapa/claro.json y /mapa/oscuro.json  (" +
+    Math.round(estilosMapa.claro.length / 1024) +
+    " KB cada uno)",
 );
 
 /* La landing dibuja los 30 puntos en un mapa y necesita las coordenadas.
@@ -662,10 +679,15 @@ console.log(
     }
   };
   await recorrer(join(PUBLICO, "js"));
+  // El estilo del mapa no es código, pero el navegador le pide a cada host
+  // que nombra: tiles, tipografías, la foto aérea.
+  for (const json of Object.values(estilosMapa))
+    for (const [, host] of json.matchAll(/https:\/\/([a-z0-9.-]+\.[a-z]{2,})/gi))
+      enCodigo.add(host.toLowerCase());
   for (const host of enCodigo)
     if (!conocidos.some((k) => cubre(k, host)))
       problemas.push(
-        `${host}: aparece en public/js y no está en lib/proveedores.js. ` +
+        `${host}: aparece en public/js o en el estilo del mapa y no está en lib/proveedores.js. ` +
           "Si el navegador le pide algo, es un proveedor (CSP y /legal); si sólo se enlaza, va en ENLACES.",
       );
   if (problemas.length)

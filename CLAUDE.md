@@ -129,12 +129,15 @@ regenerar, la versión queda vieja y eso queda congelado en los teléfonos.
       lib/                lo que usan Node Y el navegador: comun, comun-clasico,
                           fuentes, listas
       datos-abiertos/     los JSON que la app lee (y que cualquiera puede auditar)
+      mapa/               el estilo del mapa en sus dos temas; lo emite
+                          scripts/paginas.js desde lib/estilo-mapa.js
       sw.js               en la raíz del sitio a propósito: un service worker
                           sólo controla su directorio hacia abajo
     api/                las funciones de Vercel (se publican como funciones, no
                         como archivos)
     lib/                lo que corre sólo en Node: ina, push, metricas, paginas,
-                        sugerencias, charlas, proveedores, y mediciones.json
+                        sugerencias, charlas, proveedores, estilo-mapa, y
+                        mediciones.json
     scripts/            Node: el generador (paginas.js, que arranca
                         paginas/), comprobar.js y app-en-node.js,
                         version-sw.js, marca.js, el servidor local y las
@@ -291,6 +294,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | La medición del error de las curvas (330 puntos, mediana, p90, cuántos alcanza el margen) | `lib/mediciones.json`, que escribe `datos-crudos/analisis-puntos-fijos-<fecha>.mjs` | `scripts/paginas.js` para `/datos` y `/preguntas`; repetir la medición y regenerar actualiza el sitio                                                                  |
 | Cargar la app desde Node (rutas del navegador y `fetch` de archivos del sitio)            | `scripts/app-en-node.js`                                                            | `scripts/comprobar.js` y los análisis de `datos-crudos/`, que importan el código de producción en vez de copiarlo                                                      |
 | Los servicios de otro origen (host, uso, CSP)                                             | `lib/proveedores.js`                                                                | `scripts/paginas/emitir.js`, que verifica la CSP de `vercel.json`, que `/legal` los nombre y que el código no use otros                                                |
+| Los colores y las capas del mapa                                                          | `lib/estilo-mapa.js` (colores de `estilos/app.css`)                                 | `public/mapa/claro.json` y `oscuro.json`, que emite `emitir.js` y leen `js/app/mapa.js` y `js/landing.js`                                                              |
 | La versión del service worker                                                             | se calcula: `scripts/version-sw.js`                                                 | `emitir.js` la escribe en `sw.js`; `comprobar.js` avisa si quedó vieja                                                                                                 |
 | Récord histórico y serie                                                                  | `datos-abiertos/historia.json`                                                      | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                |
 | El nivel del río en la portada                                                            | objeto `rio` en `js/landing.js`                                                     | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                  |
@@ -510,8 +514,8 @@ una entrada en `ACCIONES` (clics, vía `data-accion`) o en `ENTRADAS`
 
 ### Los proveedores de otro origen están en `lib/proveedores.js`
 
-Cada servicio al que el navegador le pide algo —Georef, Nominatim, los dos
-hosts del IGN, los dos de Open-Meteo, Google Analytics— está ahí con su host,
+Cada servicio al que el navegador le pide algo —Georef, Nominatim,
+OpenFreeMap, el IGN, los dos de Open-Meteo, Google Analytics— está ahí con su host,
 para qué se usa y qué directivas de la CSP necesita. `node scripts/paginas.js`
 **falla** si uno falta en la CSP de `vercel.json`, si `/legal` no lo nombra, o
 si en `public/js` aparece un host que no está ni ahí ni en `ENLACES` (los que
@@ -583,13 +587,28 @@ prohíbe autocompletar contra su API. El archivo no se precachea: buscar una
 dirección necesita señal de todos modos. Se regenera a mano, como las curvas,
 cuando Georef suma calles.
 
-**El mapa son dos hosts del IGN, y cambiarlos toca los mismos lugares.** El
-fondo (`wms.ign.gob.ar`) y la foto aérea de «Marcar mi casa»
-(`imagenes.ign.gob.ar`, vuelos de 2013 y 2014) van en `img-src` **y** en
-`connect-src` —MapLibre baja los tiles con `fetch`, así que además exigen
-CORS—, en la fila «Ver el mapa» de `/legal` y en `LICENCIAS`. Un proveedor con
-clave o cuota no entra: se evaluaron Esri, Mapbox, Stadia y MapTiler, y todos
-cortan o cobran justo en el pico de una crecida.
+**El mapa son dos hosts, y cambiarlos toca los mismos lugares.** El fondo
+son tiles vectoriales de OpenFreeMap (`tiles.openfreemap.org`, esquema
+OpenMapTiles; desde octubre de 2026, antes el argenmap del IGN) y la foto
+aérea de «Marcar mi casa» es del IGN (`imagenes.ign.gob.ar`, vuelos de 2013 y
+2014). Van en `connect-src` —MapLibre baja todo con `fetch`, así que además
+exigen CORS; la foto, que es raster, también en `img-src`—, en la fila «Ver el
+mapa» de `/legal` y en `LICENCIAS`. Un proveedor con clave o cuota no entra:
+se evaluaron Esri, Mapbox, Stadia y MapTiler, y todos cortan o cobran justo en
+el pico de una crecida. OpenFreeMap no pide clave ni pone cuota, pero lo
+sostiene una sola persona con donaciones: si un día se cae, el mapa lo dice y
+la lista de puntos sigue andando.
+
+**El estilo del mapa se escribe en `lib/estilo-mapa.js`, no en
+`public/mapa/`.** `node scripts/paginas.js` emite `public/mapa/claro.json` y
+`oscuro.json` con los colores de `estilos/app.css` —un cambio de paleta llega
+al mapa al regenerar— y los leen la app y la portada, que no pueden importar
+lo mismo pero sí pedir el mismo JSON. Van precacheados: sin el estilo MapLibre
+no dibuja nada sin señal, ni el fondo liso. Las capas se agrupan por prefijo:
+`base-` es el plano y `foto-` la foto con los nombres de las calles encima;
+`fondoDeMarcar()` en `mapa.js` prende un grupo y apaga el otro, y un cambio de
+tema (`seguirAlTema()`) cambia el estilo sin perder el modo. El generador
+verifica que cada host que nombra el estilo esté en `lib/proveedores.js`.
 
 En la interfaz, el de la casa es **«número»**, nunca «altura»: «altura» es la
 del terreno sobre el mar, y las dos aparecen en la misma tarjeta.

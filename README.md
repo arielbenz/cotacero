@@ -60,7 +60,7 @@ que está prohibido decir, está en CLAUDE.md.
 | Serie desde 1925    | INA, serie 30                                               | `datos-abiertos/historia.json`, resumida      |
 | Puntos de encuentro | GeoServer municipal (`puntos_de_encuentro`)                 | escritos en `app/index.html`                  |
 | Callejero           | Georef (API de direcciones del Estado nacional)             | `datos-abiertos/calles.json`, se lee local    |
-| Mapa base           | tiles del IGN (TMS)                                         | en vivo; MapLibre self-hosteado en `vendor/`  |
+| Mapa base           | OpenFreeMap (vectorial, esquema OpenMapTiles); foto del IGN | en vivo; MapLibre self-hosteado en `vendor/`  |
 | Lluvia y caudal     | Open-Meteo (lluvia; caudal de GloFAS, Copernicus)           | en vivo, con las coordenadas fijas del centro |
 
 Ninguna pide clave ni tiene cuota. Es deliberado: un proveedor con cuota se
@@ -152,6 +152,7 @@ de `api/` de la raíz. `public/datos/index.html` se sirve en `/datos`.
       lib/                     lo que usan Node Y el navegador: comun, comun-clasico,
                                fuentes, listas
       css/ img/ vendor/        estilos, íconos, MapLibre
+      mapa/                    el estilo del mapa en sus dos temas (lo emite el generador)
       datos-abiertos/          curvas, cotas-costa, historia, calles y puntos, en JSON
       guia.pdf                 la hoja para imprimir (artefacto, no fuente)
 
@@ -274,7 +275,7 @@ nunca.
   tocando el mapa (con confirmación). La altura guarda de qué fuente salió
   (`cc_cota_fuente`), porque de eso depende el margen. Al marcar, el fondo pasa a la foto
   aérea del IGN (vuelos de 2013 y 2014) con los nombres de las calles: el
-  argenmap no dibuja edificios. La fecha se dice en pantalla, porque una casa
+  plano casi no tiene edificios de Santa Fe. La fecha se dice en pantalla, porque una casa
   más nueva sale como baldío. En Rincón y Arroyo Leyes las curvas no llegan
   y la altura sale de los puntos con cota de la Provincia
   (`datos-abiertos/cotas-costa.json`), con un metro de margen en vez de medio.
@@ -291,9 +292,12 @@ nunca.
   de Contingencia; lo demás lo agregamos nosotros.
 - **Dónde ir.** Los 30 puntos, el más cercano y el mapa. MapLibre no se
   precachea —son 275 KB por una pestaña que mucha gente no abre— y se pregunta
-  por WebGL antes de bajarlo. El zoom se detiene en 18, el último nivel que
-  publica el IGN, y si el fondo no carga el mapa lo dice: con tema oscuro y
-  sin tiles quedaba gris liso, con los puntos encima y sin una palabra.
+  por WebGL antes de bajarlo. El fondo son tiles vectoriales de OpenFreeMap
+  con los colores de la app (`lib/estilo-mapa.js`): los nombres de las calles
+  salen al tamaño de la pantalla y el tema oscuro es oscuro de verdad. El zoom
+  se detiene en 18 por la foto aérea, que más cerca se ve borrosa, y si el
+  fondo no carga el mapa lo dice: sin tiles quedaba gris liso, con los puntos
+  encima y sin una palabra.
   `/app?ir=ayuda` abre la tarjeta «Si no sabés
   nada de esto»: el 103 y tres instrucciones, para afiches y mensajes.
 

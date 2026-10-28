@@ -541,110 +541,89 @@ function cargarMapLibre() {
   return promesaMapLibre;
 }
 
-/* Basemap del IGN (Instituto Geográfico Nacional). Sin clave y sin cuota, y
-   es el mismo que usa el GeoPortal de la Municipalidad de Santa Fe. El
-   servicio es TMS, con la Y contada desde abajo: de ahí scheme "tms".
-   Los ajustes de raster lo oscurecen para que entre en el tema de la app. */
-const ESTILO_IGN = {
-  version: 8,
-  sources: {
-    ign: {
-      type: "raster",
-      tiles: [
-        "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/" +
-          "capabaseargenmap@EPSG:3857@png/{z}/{x}/{y}.png",
-      ],
-      scheme: "tms",
-      tileSize: 256,
-      maxzoom: 18,
-      attribution:
-        '<a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a> · ' +
-        '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
-    },
-    /* La foto aérea, sólo para «Marcar mi casa»: el argenmap no dibuja
-       edificios ni numeración, y a la altura de una cuadra se veía una
-       manzana lisa. Son los vuelos fotogramétricos del IGN de 2013 (40 cm)
-       y del 9/7/2014 (30 cm), según su capa de áreas de vuelo; la app dice
-       la fecha en pantalla porque una casa más nueva sale como baldío.
-       Va por WMS en JPEG y no por su TMS en PNG: 15 KB contra 190 KB por
-       tile, y en una crecida se mira con datos móviles. Sin clave ni cuota,
-       como el resto del mapa. */
-    vuelos: {
-      type: "raster",
-      tiles: [
-        "https://imagenes.ign.gob.ar/geoserver/mosaicos_vuelos/wms?service=WMS" +
-          "&version=1.1.1&request=GetMap&layers=mosaicos_vuelos&styles=" +
-          "&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256" +
-          "&format=image/jpeg",
-      ],
-      tileSize: 256,
-      attribution:
-        'Foto aérea: <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>, vuelos de 2013 y 2014',
-    },
-    // Los nombres de las calles, transparentes, encima de la foto.
-    calles: {
-      type: "raster",
-      tiles: [
-        "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/" +
-          "mapabase_hibrido@EPSG:3857@png/{z}/{x}/{y}.png",
-      ],
-      scheme: "tms",
-      tileSize: 256,
-      maxzoom: 18,
-    },
-  },
-  layers: [
-    {
-      id: "fondo",
-      type: "background",
-      paint: { "background-color": "#16292f" },
-    },
-    {
-      id: "ign",
-      type: "raster",
-      source: "ign",
-      // El oscurecido lo hace un filtro CSS sobre el canvas (ver app.css):
-      // sobre un basemap claro da mucho mejor resultado que las propiedades
-      // raster, que sólo bajan brillo y dejan todo lavado.
-      paint: { "raster-saturation": -0.15 },
-    },
-    // Apagadas hasta que se marca: una capa oculta no pide tiles.
-    { id: "vuelos", type: "raster", source: "vuelos", layout: { visibility: "none" } },
-    { id: "calles", type: "raster", source: "calles", layout: { visibility: "none" } },
-  ],
-};
+/* El estilo del mapa: tiles vectoriales de OpenFreeMap, con los colores del
+   tema. Lo escribe scripts/paginas.js desde lib/estilo-mapa.js, que explica
+   el porqué de cada capa; hasta octubre de 2026 el fondo era el argenmap del
+   IGN, en PNG, oscurecido con un filtro CSS. Lo comparte con la portada. */
+function temaDelMapa() {
+  const t =
+    document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  return t === "light" ? "claro" : "oscuro";
+}
+const estiloDelTema = () => "/mapa/" + temaDelMapa() + ".json";
 
-/* Al marcar, la foto reemplaza al argenmap, que deja de pedir tiles. Antes
-   de que termine de cargar el estilo MapLibre no acepta cambios de capa:
+/* Las capas van en dos grupos por el prefijo del id: `base-` es el plano y
+   `foto-` la foto aérea con los nombres de las calles encima. Al marcar se
+   prende uno y se apaga el otro, y el que se apaga deja de pedir tiles. */
+let conFoto = false;
+
+function visibilidadDe(id) {
+  if (id.startsWith("base-")) return conFoto ? "none" : "visible";
+  if (id.startsWith("foto-")) return conFoto ? "visible" : "none";
+  return null;
+}
+
+/* Antes de que termine de cargar el estilo MapLibre no acepta cambios de capa:
    ahí se espera al `load`. */
 function fondoDeMarcar(prender) {
+  conFoto = prender;
   if (!mapa) return;
   try {
-    const v = prender ? "visible" : "none";
-    mapa.setLayoutProperty("vuelos", "visibility", v);
-    mapa.setLayoutProperty("calles", "visibility", v);
-    mapa.setLayoutProperty("ign", "visibility", prender ? "none" : "visible");
+    for (const { id } of mapa.getStyle().layers) {
+      const v = visibilidadDe(id);
+      if (v) mapa.setLayoutProperty(id, "visibility", v);
+    }
   } catch (e) {
-    mapa.once("load", () => fondoDeMarcar(prender));
+    mapa.once("load", () => fondoDeMarcar(conFoto));
   }
 }
 
-/* Si el IGN no contesta, el mapa quedaba con el fondo liso y los puntos
-   encima, sin decir nada: «se ve sólo gris», contó alguien. Pasa sin señal y
-   pasa cuando el servidor del IGN anda lento. Se cuentan los tiles que llegan
+/* Al cambiar el tema, el mapa cambia de estilo sin rearmarse: los pines son
+   DOM aparte y no se tocan. transformStyle deja el estilo nuevo en el mismo
+   modo —plano o foto— en que estaba el viejo. */
+function seguirAlTema() {
+  let actual = temaDelMapa();
+  const cambio = () => {
+    if (!mapa || temaDelMapa() === actual) return;
+    actual = temaDelMapa();
+    mapa.setStyle(estiloDelTema(), {
+      transformStyle: (_, nuevo) => ({
+        ...nuevo,
+        layers: nuevo.layers.map((l) => {
+          const v = visibilidadDe(l.id);
+          return v ? { ...l, layout: { ...l.layout, visibility: v } } : l;
+        }),
+      }),
+    });
+  };
+  new MutationObserver(cambio).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change", cambio);
+}
+
+/* Si el fondo no llega, el mapa quedaba liso con los puntos encima, sin
+   decir nada: «se ve sólo gris», contó alguien. Pasa sin señal y pasa cuando
+   el servidor anda lento. Se cuentan los tiles que llegan
    y los que fallan, y cuando el mapa se queda quieto se decide: si falló
    alguno y no llegó ninguno, se avisa. Un servidor colgado no dispara ningún
    error, así que 15 s sin un solo tile también cuentan como falla. */
 let llegaron = 0;
 let fallaron = 0;
 let relojFondo = null;
-const FONDOS = new Set(["ign", "vuelos", "calles"]);
+const FONDOS = new Set(["openmaptiles", "vuelos"]);
 
 function vigilarFondo() {
   mapa.on("data", (e) => {
     if (FONDOS.has(e.sourceId) && e.tile) llegaron++;
   });
   mapa.on("error", (e) => {
+    /* Un error de la fuente sin tile es el TileJSON de OpenFreeMap: sin él
+       no se pide un solo tile, así que no hay `dataloading` ni `idle` que
+       esperar. Pasa sin señal y si el servidor se cae: se avisa ya. */
+    if (FONDOS.has(e.sourceId) && !e.tile && !llegaron) avisoFondo(true);
     if (FONDOS.has(e.sourceId)) fallaron++;
     // Con un oyente propio MapLibre deja de escribir sus errores en la
     // consola: los que no son del fondo se siguen mostrando.
@@ -681,9 +660,12 @@ function avisoFondo(mostrar) {
     cont.appendChild(el);
   }
   el.innerHTML = navigator.onLine
-    ? "<b>El mapa de fondo no está cargando:</b> el servidor del Instituto " +
-      "Geográfico Nacional no responde. Probá en un rato. Los puntos de " +
-      "encuentro y la lista de abajo funcionan igual."
+    ? "<b>El mapa de fondo no está cargando:</b> " +
+      (conFoto
+        ? "el servidor de la foto aérea, del Instituto Geográfico Nacional,"
+        : "el servidor del mapa, OpenFreeMap,") +
+      " no responde. Probá en un rato. Los puntos de encuentro y la lista " +
+      "de abajo funcionan igual."
     : "<b>Sin conexión, el mapa de fondo no carga.</b> Los puntos de " +
       "encuentro y la lista de abajo funcionan igual.";
 }
@@ -739,14 +721,15 @@ async function construirMapa() {
   }
   mapa = new maplibregl.Map({
     container: "mapa",
-    style: ESTILO_IGN,
+    style: estiloDelTema(),
     center: [-60.7, -31.63],
     zoom: 11,
-    /* El IGN publica hasta el 18. Más cerca MapLibre estira el tile y sólo
-       se ve una manzana lisa y borrosa: parecía que el mapa no cargaba. */
+    /* La foto aérea del IGN es de 30 y 40 cm por píxel, y el 18 ya anda por
+       el medio metro. Más cerca se ve una manzana borrosa: parecía que el
+       mapa no cargaba. El plano vectorial aguantaría más; la foto no. */
     maxZoom: 18,
     attributionControl: { compact: true },
-    // Sin inclinar: con dos dedos el mapa también se inclina, y el IGN es un
+    // Sin inclinar: con dos dedos el mapa también se inclina, y esto es un
     // plano, no un 3D. Girar sí se deja, y por eso está la brújula.
     pitchWithRotate: false,
     touchPitch: false,
@@ -758,6 +741,7 @@ async function construirMapa() {
     },
   });
   vigilarFondo();
+  seguirAlTema();
   /* Con la brújula: el mapa se puede girar con dos dedos, y entonces el
      norte deja de estar arriba. Donde las calles no tienen cartel —lo que
      pidió una sugerencia del 23/10— la aguja dice para dónde está el norte y

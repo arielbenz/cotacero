@@ -158,7 +158,7 @@
             <tr role="row"><th scope="row" role="rowheader">Sugerencias</th><td role="cell" class="tp-sale">Tu texto</td><td role="cell">Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos.</td></tr>
             <tr role="row"><th scope="row" role="rowheader">Cuánta gente la usa</th><td role="cell" class="tp-sale">Un número al azar</td><td role="cell">Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno.</td></tr>
             <tr role="row"><th scope="row" role="rowheader">Buscar una dirección</th><td role="cell" class="tp-sale">Al tocar Buscar</td><td role="cell">Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada.</td></tr>
-            <tr role="row"><th scope="row" role="rowheader">Ver el mapa</th><td role="cell" class="tp-sale">Al abrirlo</td><td role="cell">El fondo del mapa y la foto aérea con la que marcás tu casa los pide tu teléfono al Instituto Geográfico Nacional, que recibe tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.</td></tr>
+            <tr role="row"><th scope="row" role="rowheader">Ver el mapa</th><td role="cell" class="tp-sale">Al abrirlo</td><td role="cell">El fondo del mapa lo pide tu teléfono a OpenFreeMap, y la foto aérea con la que marcás tu casa, al Instituto Geográfico Nacional. Los dos reciben tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.</td></tr>
             <tr role="row"><th scope="row" role="rowheader">Lluvia y caudal</th><td role="cell" class="tp-sale">Al abrir la app</td><td role="cell">El pronóstico de lluvia y la tendencia del caudal del Paraná los pide tu teléfono a Open-Meteo, para el centro de Santa Fe, con coordenadas fijas: no manda tu ubicación ni tu casa, sólo tu IP, como cualquier pedido web.</td></tr>
             <tr role="row"><th scope="row" role="rowheader">Estadísticas del sitio</th><td role="cell" class="tp-sale">Sólo en el sitio</td><td role="cell">Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie.</td></tr>
           </tbody>
@@ -172,7 +172,7 @@
 
       <section class="bloque" id="licencias">
         <h2>Sobre hombros de otros</h2>
-        <p>MapLibre GL JS · Georef · OpenStreetMap / Nominatim · Instituto Geográfico Nacional · Open-Meteo · Municipalidad de Santa Fe · Provincia de Santa Fe — IDESF · Comuna de Arroyo Leyes · INA · Plus Jakarta Sans y JetBrains Mono.</p>
+        <p>MapLibre GL JS · Georef · OpenStreetMap / Nominatim · OpenFreeMap / OpenMapTiles · Instituto Geográfico Nacional · Open-Meteo · Municipalidad de Santa Fe · Provincia de Santa Fe — IDESF · Comuna de Arroyo Leyes · INA · Plus Jakarta Sans y JetBrains Mono.</p>
         <details class="h-detalle">
           <summary>Licencias y atribuciones completas</summary>
           <div class="filas-licencia">
@@ -189,8 +189,12 @@
               <p>Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
             </div>
             <div>
+              <b>OpenFreeMap / OpenMapTiles</b>
+              <p>El fondo del mapa: tiles vectoriales de <a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> con el esquema de <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> (© OpenMapTiles), dibujados con los colores de la app. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.</p>
+            </div>
+            <div>
               <b>Instituto Geográfico Nacional</b>
-              <p>Mapa base (capa argenmap), la foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.</p>
+              <p>La foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.</p>
             </div>
             <div>
               <b>Open-Meteo</b>
