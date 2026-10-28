@@ -51,7 +51,7 @@ La app depende de que el INA publique y de servicios de terceros que pueden fall
 | Sugerencias | Tu texto | Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos. |
 | Cuánta gente la usa | Un número al azar | Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno. |
 | Buscar una dirección | Al tocar Buscar | Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada. |
-| Ver el mapa | Al abrirlo | El fondo del mapa y la foto aérea con la que marcás tu casa los pide tu teléfono al Instituto Geográfico Nacional, que recibe tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono. |
+| Ver el mapa | Al abrirlo | El fondo del mapa lo pide tu teléfono a OpenFreeMap, y la foto aérea con la que marcás tu casa, al Instituto Geográfico Nacional. Los dos reciben tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono. |
 | Lluvia y caudal | Al abrir la app | El pronóstico de lluvia y la tendencia del caudal del Paraná los pide tu teléfono a Open-Meteo, para el centro de Santa Fe, con coordenadas fijas: no manda tu ubicación ni tu casa, sólo tu IP, como cualquier pedido web. |
 | Estadísticas del sitio | Sólo en el sitio | Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie. |
 
@@ -59,7 +59,7 @@ No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni venta de 
 
 ## Sobre hombros de otros
 
-MapLibre GL JS · Georef · OpenStreetMap / Nominatim · Instituto Geográfico Nacional · Open-Meteo · Municipalidad de Santa Fe · Provincia de Santa Fe — IDESF · Comuna de Arroyo Leyes · INA · Plus Jakarta Sans y JetBrains Mono.
+MapLibre GL JS · Georef · OpenStreetMap / Nominatim · OpenFreeMap / OpenMapTiles · Instituto Geográfico Nacional · Open-Meteo · Municipalidad de Santa Fe · Provincia de Santa Fe — IDESF · Comuna de Arroyo Leyes · INA · Plus Jakarta Sans y JetBrains Mono.
 
 **Licencias y atribuciones completas**
 
@@ -75,9 +75,13 @@ Búsqueda de direcciones con altura y la lista de calles que sugiere el buscador
 
 Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), bajo licencia ODbL.
 
+**OpenFreeMap / OpenMapTiles**
+
+El fondo del mapa: tiles vectoriales de [OpenFreeMap](https://openfreemap.org/) con el esquema de [OpenMapTiles](https://www.openmaptiles.org/) (© OpenMapTiles), dibujados con los colores de la app. Datos © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), bajo licencia ODbL.
+
 **Instituto Geográfico Nacional**
 
-Mapa base (capa argenmap), la foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. [ign.gob.ar](https://www.ign.gob.ar/).
+La foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. [ign.gob.ar](https://www.ign.gob.ar/).
 
 **Open-Meteo**
 

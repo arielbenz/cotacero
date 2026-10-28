@@ -452,37 +452,12 @@ async function cargarHistoria() {
 /* 3. El mapa de los puntos de encuentro. Se carga recién cuando la sección
       entra en pantalla: MapLibre pesa, y arriba de todo lo que importa es el
       nivel del río, no el mapa. */
-const ESTILO_IGN = {
-  version: 8,
-  sources: {
-    ign: {
-      type: "raster",
-      tiles: [
-        "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/" +
-          "capabaseargenmap@EPSG:3857@png/{z}/{x}/{y}.png",
-      ],
-      // El servicio del IGN es TMS, con la Y contada desde abajo.
-      scheme: "tms",
-      tileSize: 256,
-      maxzoom: 18,
-      attribution:
-        '<a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">Instituto Geográfico Nacional</a>',
-    },
-  },
-  layers: [
-    {
-      id: "fondo",
-      type: "background",
-      paint: { "background-color": "#16292f" },
-    },
-    {
-      id: "ign",
-      type: "raster",
-      source: "ign",
-      paint: { "raster-saturation": -0.15 },
-    },
-  ],
-};
+/* El mismo estilo que la app, en el tema de la página: lo escribe
+   scripts/paginas.js desde lib/estilo-mapa.js. Antes era el argenmap del IGN
+   en PNG, siempre claro, también con el sitio en oscuro. */
+const temaClaro = matchMedia("(prefers-color-scheme: light)");
+const estiloDelTema = () =>
+  "/mapa/" + (temaClaro.matches ? "claro" : "oscuro") + ".json";
 
 function cargarMapLibre() {
   return new Promise((ok, mal) => {
@@ -512,7 +487,7 @@ async function dibujarMapa(caja) {
     const puntos = await r.json();
     const mapa = new maplibregl.Map({
       container: caja,
-      style: ESTILO_IGN,
+      style: estiloDelTema(),
       center: [-60.7, -31.63],
       zoom: 11,
       attributionControl: { compact: true },
@@ -525,6 +500,7 @@ async function dibujarMapa(caja) {
       new maplibregl.NavigationControl({ showCompass: false }),
       "top-right",
     );
+    temaClaro.addEventListener("change", () => mapa.setStyle(estiloDelTema()));
     mapa.on("load", () => {
       for (const [nombre, dir, lon, lat] of puntos) {
         const el = document.createElement("div");

@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-763cc3dae6";
+const VERSION = "cota-cero-2185af6b43";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -162,6 +162,12 @@ const DEL_APP = [
   // Lo mismo para Rincón y Arroyo Leyes, donde las curvas no llegan: los
   // puntos con cota de la costa (elevacion.js). 24 KB comprimidos.
   "/datos-abiertos/cotas-costa.json",
+  /* El estilo del mapa, en sus dos temas (lib/estilo-mapa.js). Sin él,
+     MapLibre no dibuja nada sin señal, ni el fondo liso: con él quedan el
+     fondo y los 30 puntos. Precacheado entra en VERSION, y un cambio de
+     colores llega a los teléfonos. */
+  "/mapa/claro.json",
+  "/mapa/oscuro.json",
   "/manifest.webmanifest",
   "/img/icon-192.png",
   "/img/icon-512.png",

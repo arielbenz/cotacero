@@ -18,8 +18,12 @@ const LICENCIAS = [
     'Búsqueda de direcciones cuando Georef no la encuentra, y de barrios y parajes. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.',
   ],
   [
+    "OpenFreeMap / OpenMapTiles",
+    'El fondo del mapa: tiles vectoriales de <a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> con el esquema de <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> (© OpenMapTiles), dibujados con los colores de la app. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, bajo licencia ODbL.',
+  ],
+  [
     "Instituto Geográfico Nacional",
-    'Mapa base (capa argenmap), la foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
+    'La foto aérea con la que marcás tu casa (vuelos fotogramétricos de 2013 y 2014) y red de nivelación usada para validar las fuentes de elevación. <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">ign.gob.ar</a>.',
   ],
   [
     "Open-Meteo",
@@ -84,14 +88,13 @@ const PRIVACIDAD = [
     "Al tocar Buscar",
     "Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada.",
   ],
-  /* Faltaba: el mapa siempre le pidió el fondo al IGN, y la foto aérea de
-     «Marcar mi casa» sale del mismo organismo. Como pide la zona que se
-     mira, el IGN puede saber más o menos dónde buscaste tu casa; dónde
-     tocaste, no. */
+  /* El fondo y la foto aérea piden la zona que se mira: quien los sirve
+     puede saber más o menos dónde buscaste tu casa; dónde tocaste, no. El
+     fondo era del IGN hasta octubre de 2026 y pasó a OpenFreeMap. */
   [
     "Ver el mapa",
     "Al abrirlo",
-    "El fondo del mapa y la foto aérea con la que marcás tu casa los pide tu teléfono al Instituto Geográfico Nacional, que recibe tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.",
+    "El fondo del mapa lo pide tu teléfono a OpenFreeMap, y la foto aérea con la que marcás tu casa, al Instituto Geográfico Nacional. Los dos reciben tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono.",
   ],
   /* Faltaba, desde que existen el pronóstico y la tendencia: la app le
      pide los dos a Open-Meteo y /legal no lo nombraba. Lo encontró la

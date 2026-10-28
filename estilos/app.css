@@ -129,8 +129,6 @@
   --fondo-pie: #0a1114;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
   --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
-  --filtro-mapa: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95)
-    contrast(0.9);
   --filtro-iconos-mapa: invert(1) brightness(0.92);
 
   /* ---- medidas del sitio ----
@@ -235,7 +233,6 @@
   --c-sombra:
     0 1px 2px rgba(23, 36, 42, 0.05), 0 10px 28px rgba(23, 36, 42, 0.07);
   --c-sombra-nav: 0 -6px 24px rgba(23, 36, 42, 0.06);
-  --c-filtro-mapa: saturate(0.92);
   --c-filtro-iconos-mapa: none;
 }
 
@@ -286,7 +283,6 @@
     --linea-evac: var(--c-linea-evac);
     --sombra: var(--c-sombra);
     --sombra-nav: var(--c-sombra-nav);
-    --filtro-mapa: var(--c-filtro-mapa);
     --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
   }
 }
@@ -328,7 +324,6 @@ html[data-theme="light"] {
   --linea-evac: var(--c-linea-evac);
   --sombra: var(--c-sombra);
   --sombra-nav: var(--c-sombra-nav);
-  --filtro-mapa: var(--c-filtro-mapa);
   --filtro-iconos-mapa: var(--c-filtro-iconos-mapa);
 }
 * {
@@ -1877,22 +1872,6 @@ label.campo-dir {
 }
 
 /* ---------- mapa ---------- */
-/* El basemap del IGN es claro y la app es oscura. invert + hue-rotate(180)
-   invierte la luminosidad conservando los tonos: el agua sigue siendo azul y
-   los espacios verdes verdes, pero sobre fondo oscuro. Va sólo sobre el
-   canvas de los tiles; los pines y los controles son DOM aparte y no se
-   tocan. */
-#mapa .maplibregl-canvas {
-  /* saturate() baja el rojizo que deja la inversión sobre el beige urbano
-     del IGN: en una app que usa rojo para peligro, un mapa rojizo
-     confunde. El agua queda igual de reconocible. */
-  filter: var(--filtro-mapa);
-}
-@media (prefers-contrast: more) {
-  #mapa .maplibregl-canvas {
-    filter: none;
-  }
-}
 #mapa {
   width: 100%;
   height: 340px;
@@ -1901,29 +1880,35 @@ label.campo-dir {
   margin-bottom: var(--e-4);
   background: var(--panel-2);
 }
-/* MapLibre trae sus controles en blanco. Sobre un mapa que oscurecimos a
-   propósito quedaban como dos parches brillantes. */
-#mapa .maplibregl-ctrl-group {
+/* MapLibre trae sus controles en blanco. Sobre el mapa en tema oscuro
+   quedaban como dos parches brillantes: la app y la portada. */
+#mapa .maplibregl-ctrl-group,
+#mapa-landing .maplibregl-ctrl-group {
   background: var(--panel);
   border: 1px solid var(--linea);
   box-shadow: none;
 }
-#mapa .maplibregl-ctrl-group button + button {
+#mapa .maplibregl-ctrl-group button + button,
+#mapa-landing .maplibregl-ctrl-group button + button {
   border-top-color: var(--linea);
 }
-#mapa .maplibregl-ctrl-group button:hover {
+#mapa .maplibregl-ctrl-group button:hover,
+#mapa-landing .maplibregl-ctrl-group button:hover {
   background: var(--panel-2);
 }
 /* Los íconos son SVG oscuros embebidos: no se recolorean, se invierten. */
-#mapa .maplibregl-ctrl-icon {
+#mapa .maplibregl-ctrl-icon,
+#mapa-landing .maplibregl-ctrl-icon {
   filter: var(--filtro-iconos-mapa);
 }
-#mapa .maplibregl-ctrl-attrib {
+#mapa .maplibregl-ctrl-attrib,
+#mapa-landing .maplibregl-ctrl-attrib {
   background: var(--panel);
   color: var(--tenue);
   font-size: var(--t-xs);
 }
-#mapa .maplibregl-ctrl-attrib a {
+#mapa .maplibregl-ctrl-attrib a,
+#mapa-landing .maplibregl-ctrl-attrib a {
   color: var(--acento);
 }
 /* El aviso del modo «marcar mi casa» va SOBRE el mapa, no debajo: la
@@ -1968,11 +1953,9 @@ label.campo-dir {
 }
 #mapa.marcando .maplibregl-canvas {
   cursor: crosshair;
-  /* Al marcar se ve la foto aérea (fondoDeMarcar en mapa.js): invertida
-     para el tema oscuro sería un negativo en el que no se reconoce nada. */
-  filter: none;
 }
-#mapa .maplibregl-ctrl-attrib-button {
+#mapa .maplibregl-ctrl-attrib-button,
+#mapa-landing .maplibregl-ctrl-attrib-button {
   filter: var(--filtro-iconos-mapa);
 }
 
