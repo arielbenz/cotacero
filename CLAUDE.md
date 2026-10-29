@@ -798,6 +798,17 @@ pisarían. Los pines de los mapas tienen el suyo (`.pin::after`), sin
 `position`: MapLibre ya les pone `absolute` y pisarlo los desarma. La «X» del
 popup mide 44.
 
+**Con la letra al 200 % nada sale de la pantalla** (octubre de 2026,
+medido en las 14 páginas y las cuatro pestañas, con el río normal, en alerta
+y en evacuación). Tres reglas: `body` lleva `overflow-wrap: break-word`; una
+fila flex que pone dos cosas lado a lado lleva `flex-wrap: wrap`; y
+`nowrap` va en el número —el «103», «5,85 m»—, nunca en el contenedor. Una
+grilla con `1fr` se escribe `minmax(0, 1fr)` y un ítem de flex con texto
+largo, `min-width: 0`. Lo rompía justo lo más grave: el «103» con
+`nowrap` quedaba fuera de su botón en evacuación y empujaba «Dónde ir»
+fuera de la vista. Se prueba con `document.documentElement.style.fontSize
+= "200%"` a 390 px.
+
 **A menos de 560 px la barra del sitio va en dos renglones fijos:** marca y
 menú arriba, la píldora abajo (un `::after` con `flex-basis: 100%` hace de
 salto). Sin el corte, a 390 px caía el menú solo al segundo renglón —marca,

@@ -361,6 +361,11 @@ body {
 }
 body {
   font-size: var(--t-base);
+  /* Una palabra que no entra en el renglón se parte en vez de empujar la
+     página de costado. Sólo actúa cuando no entra: con la letra al 200 %,
+     «inundaciones» en el título de /preguntas o la URL de la placa en
+     /para-medios ensanchaban la página entera. */
+  overflow-wrap: break-word;
   /* En rem: la barra de abajo crece con su etiqueta cuando el texto es más
      grande, y con 88px fijos tapaba el último bloque de cada pestaña. */
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
@@ -2713,6 +2718,12 @@ body.con-instalar:not([data-vista="rio"]) {
 .medida-widget b {
   color: var(--texto);
 }
+/* Ítems de flex: sin esto miden lo que su palabra más larga, y la URL de la
+   placa al 200 % empujaba /para-medios a 526 px. Con min-width: 0 la parte
+   el overflow-wrap del body. */
+.medida-widget > li {
+  min-width: 0;
+}
 @media (max-width: 700px) {
   .condiciones-tres,
   .muestras-widget {
@@ -2873,6 +2884,7 @@ body.con-instalar:not([data-vista="rio"]) {
    más, o el margen se queda en el del h2 general. Ya mordió cuatro veces. */
 .zp-cabeza {
   display: flex;
+  flex-wrap: wrap; /* con letra grande, «6 puntos» baja abajo del nombre */
   align-items: baseline;
   justify-content: space-between;
   gap: var(--e-3);
@@ -2902,8 +2914,14 @@ body.con-instalar:not([data-vista="rio"]) {
    de las páginas, que mide (0,8,1) y le pintaría el acento a toda la fila. */
 .landing a.fila-punto {
   border-bottom: none;
+  /* Sin el margen negativo de `.punto`, que es para la lista de la app: acá
+     la fila tiene su propio relleno y la tarjeta recorta (overflow: hidden),
+     así que la fila quedaba 8 px afuera de cada lado —16 al 200 %—. */
+  margin: 0;
   display: grid;
-  grid-template-columns: 38px 1fr auto;
+  /* minmax(0, …): con `1fr` la columna medía lo que su palabra más larga y
+     al 200 % la fila se salía de la tarjeta, que la recorta. */
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   gap: var(--e-4);
   align-items: center;
   padding: var(--e-4) var(--e-5);
@@ -3538,7 +3556,11 @@ body.landing {
   font-weight: 700;
   font-size: var(--t-s);
   text-decoration: none;
-  white-space: nowrap;
+  /* Sin `nowrap` en la píldora entera: con la letra al 200 % «5,85 m ·
+     evacuación de la ciudad» medía 490 px y se salía de la pantalla en todas
+     las páginas. A tamaño normal entra en un renglón igual (medido a 390);
+     con letra grande la palabra del estado baja. El número no se parte. */
+  max-width: 100%;
   /* Sin esto el ancho salta cada vez que llega una lectura nueva y la barra
      entera se corre. Es el mismo motivo por el que el número del hidrómetro
      va en cifras de ancho fijo. */
@@ -3591,6 +3613,9 @@ body.landing {
 }
 .pr-estado[hidden] {
   display: none;
+}
+#pildora-nivel {
+  white-space: nowrap;
 }
 .pildora-rio:focus-visible {
   outline: 2px solid var(--acento);
@@ -3850,8 +3875,11 @@ p.pie-frescura,
 .mockup-cabecera {
   padding: var(--e-5) var(--e-5) var(--e-4);
 }
+/* Las dos filas de la cabecera se parten con la letra grande: al 200 % el
+   «▲ +2 cm» y la «m» quedaban recortados por el borde del mockup. */
 .mc-fila {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--e-3);
@@ -3878,6 +3906,7 @@ p.pie-frescura,
 }
 .mockup-numero {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--e-2);
   margin-top: var(--e-2);
@@ -4012,7 +4041,12 @@ p.pie-frescura,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1.35;
-  white-space: nowrap;
+  /* Sin `nowrap`: el tanque recorta (overflow: hidden) y con la letra al
+     200 % el rótulo se cortaba por la izquierda —«ad · 5,70»—. Si no entra,
+     se parte; alerta crece hacia abajo y evacuación hacia arriba, así que
+     partidos tampoco se pisan. */
+  max-width: calc(100% - 2 * var(--e-2));
+  text-align: right;
   /* Chip opaco, igual que la regla grande de la app: con el tinte
      translúcido de antes el rótulo se desvanecía apenas el agua simulada le
      pasaba por encima. */
@@ -4489,10 +4523,13 @@ p.pie-frescura,
   border-radius: var(--r-m);
   background: var(--fondo);
 }
+/* Las dos filas se parten con la letra grande: al 200 % «Vista previa» y
+   la píldora de estado quedaban fuera de la tarjeta. */
 .wp-fila {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--e-3);
+  gap: 0 var(--e-3);
 }
 .wp-fila .eti {
   margin: 0;
@@ -4502,6 +4539,7 @@ p.pie-frescura,
 }
 .wp-numero {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 6px;
 }
@@ -5124,7 +5162,21 @@ html.texto-grande {
 .cuenta th + td,
 .cuenta td + th,
 .cuenta th + th {
-  padding-left: var(--e-3);
+  /* Tope en vw: el aire entre columnas no tiene por qué crecer con la letra,
+     y al 200 % eran 24 px por columna en una tabla que ya no entraba. */
+  padding-left: min(var(--e-3), 3vw);
+}
+/* Con la letra al 200 %, «Prefectura» o «Evacuación» ya no entran en tres
+   columnas a 390 px y la tabla empujaba la página. Con guiones la palabra se
+   corta donde corresponde en español (el lang es es-AR). A tamaño normal no
+   cambia nada: la tabla tiene lugar y no parte renglón. */
+.cuenta th,
+.cuenta td,
+.tabla-privacidad th,
+.tabla-privacidad td,
+.fichas-hist dt {
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
 /* ---------- /hidrometro: la regla dibujada ----------
@@ -5938,7 +5990,10 @@ button.enlace-crudo {
   font-family: var(--mono);
   font-size: var(--t-m);
   font-weight: 700;
-  white-space: nowrap;
+  /* Sin `nowrap`: al 200 % «13,92 m IGN» no entraba ni solo en su renglón y
+     la caja lo recortaba. Se parte antes de «IGN»; el número no se separa de
+     su «m» (datos.js pone un espacio duro). */
+  text-align: right;
 }
 .cv-op {
   padding: 0 var(--e-4) var(--e-1);
@@ -6302,8 +6357,11 @@ button.enlace-crudo {
   }
 }
 @media (max-width: 700px) {
+  /* Dos columnas en el teléfono; una sola si la letra está agrandada y una
+     ficha ya no entra en la mitad. Con `1fr 1fr` la segunda columna se
+     salía de la pantalla al 200 %. */
   .fichas-hist {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
   }
 }
 
@@ -6506,8 +6564,16 @@ button.enlace-crudo {
   color: var(--sobre-solido);
   font-family: var(--sans);
   font-weight: 700;
-  white-space: nowrap;
   text-decoration: none;
+  /* Con la letra agrandada al 200 % el botón entero en un renglón medía más
+     que la pantalla: el «103» quedaba afuera del rojo —blanco sobre blanco— y
+     empujaba la pestaña «Dónde ir» fuera de la vista, en plena evacuación.
+     Se parte el texto; el número, nunca. */
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.btn-emergencia b {
+  white-space: nowrap;
 }
 /* Dentro de la tarjeta de ayuda los dos controles van en su propio renglón:
    incrustados en medio de la oración partían la frase ("salí. [103] "). Y el
@@ -6788,9 +6854,10 @@ button.enlace-crudo {
 /* Cada lista en su tarjeta, con el título y la cuenta adentro. */
 .lp-cabeza {
   display: flex;
+  flex-wrap: wrap; /* con letra grande, la cuenta baja abajo del título */
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--e-3);
+  gap: 0 var(--e-3);
 }
 .lista-plan h2 {
   margin: 0;
@@ -6991,7 +7058,7 @@ button.enlace-crudo {
   }
   .tabla-privacidad tr {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--e-1) var(--e-3);
     padding: var(--e-3) 0;
     border-bottom: 1px solid var(--linea);

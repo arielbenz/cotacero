@@ -32,7 +32,12 @@
   display: flex;
   align-items: center;
   gap: var(--e-3);
+  max-width: 100%;
   color: var(--g-tinta);
+}
+/* Con la letra al 200 % el título no se partía y salía de la hoja. */
+.g-marca > div {
+  min-width: 0;
 }
 .g-marca b {
   display: block;
