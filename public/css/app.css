@@ -2241,11 +2241,11 @@ body.con-instalar:not([data-vista="rio"]) {
 }
 
 .bloque p,
-.bloque ul,
-.bloque ol,
+.bloque ul:not([class]),
+.bloque ol:not([class]),
 .pg-lead {
 
-  max-width: 100%;
+  max-width: 50ch;
 }
 
 .pg-cabecera {
@@ -3255,6 +3255,20 @@ body.landing {
   color: var(--sobre-solido);
 }
 
+.franja-estado .franja-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-4);
+  margin-left: auto;
+}
+
+.franja-estado .franja-enlaces a {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  margin-top: -12px;
+  margin-bottom: -12px;
+}
+
 p.pie-frescura,
 .pie-frescura {
   display: flex;
@@ -3279,7 +3293,8 @@ p.pie-frescura,
   .landing
     .franja-estado
     a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
-  .franja-estado a {
+  .franja-estado a,
+  .franja-estado .franja-enlaces {
     margin-left: 0;
   }
 }
@@ -4452,13 +4467,23 @@ html.texto-grande {
   color: var(--acento);
 }
 
-.cuenta th {
+.cuenta thead th,
+.cuenta thead td {
   padding: 0 0 var(--e-2);
   border-bottom: 1px solid var(--linea);
   font-size: var(--t-xs);
   font-weight: 600;
   color: var(--tenue);
   text-align: right;
+}
+
+.cuenta tbody th {
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-s);
+  font-weight: 400;
+  color: var(--tenue);
+  text-align: left;
 }
 .cuenta td.n {
   text-align: right;
@@ -4467,8 +4492,73 @@ html.texto-grande {
   color: var(--texto);
 }
 .cuenta td + td,
+.cuenta th + td,
+.cuenta td + th,
 .cuenta th + th {
   padding-left: var(--e-3);
+}
+
+.regla-svg {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: var(--e-5) 0;
+}
+.regla-svg text {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  fill: var(--texto);
+}
+.regla-svg .mono {
+  font-family: var(--mono);
+}
+.regla-svg .k {
+  fill: var(--tenue);
+}
+.regla-svg .cuerpo {
+  fill: var(--panel-2);
+  stroke: var(--linea);
+}
+.regla-svg .marca {
+  stroke: var(--tenue);
+}
+.regla-svg .marca.chica {
+  opacity: 0.45;
+}
+.regla-svg .l-alerta,
+.regla-svg .l-evac,
+.regla-svg .l-cero,
+.regla-svg .l-mar {
+  stroke-width: 2;
+}
+.regla-svg .l-alerta {
+  stroke: var(--linea-alerta);
+}
+.regla-svg .l-evac {
+  stroke: var(--linea-evac);
+}
+.regla-svg .t-alerta {
+  fill: var(--alerta-texto);
+}
+.regla-svg .t-evac {
+  fill: var(--peligro-texto);
+}
+
+.regla-svg .l-record,
+.regla-svg .l-minimo {
+  stroke: var(--tenue);
+  stroke-dasharray: 4 3;
+}
+.regla-svg .l-cero {
+  stroke: var(--texto);
+}
+.regla-svg .l-mar {
+  stroke: var(--acento);
+}
+.regla-svg .corte {
+  fill: none;
+  stroke: var(--tenue);
 }
 
 .pin-landing {

@@ -16,7 +16,7 @@ Una referencia para prepararte, no el minuto en que entra el agua. Cota Cero **n
 
 ## Lo mide el Estado, no nosotros
 
-El número grande de la app es la lectura del **hidrómetro del Puerto**: la lee Prefectura y la publica el INA. Cota Cero la muestra; no la mide, no la corrige y no la promedia.
+El número grande de la app es la lectura del [**hidrómetro del Puerto**](https://cotacerosf.com/hidrometro): la lee Prefectura y la publica el INA. Cota Cero la muestra; no la mide, no la corrige y no la promedia.
 
 Estación: Santa Fe · SAFE
 

@@ -161,8 +161,9 @@ const htmlDatos = pagina({
       kicker: "1 · El nivel del río",
       titulo: "Lo mide el Estado, no nosotros",
       html: `        <p>
-          El número grande de la app es la lectura del <b>hidrómetro del
-          Puerto</b>: la lee Prefectura y la publica el INA. Cota Cero la
+          El número grande de la app es la lectura del
+          <a href="/hidrometro"><b>hidrómetro del Puerto</b></a>: la lee
+          Prefectura y la publica el INA. Cota Cero la
           muestra; no la mide, no la corrige y no la promedia.
         </p>
         <div class="ficha-estacion">
