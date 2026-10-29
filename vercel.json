@@ -1,5 +1,6 @@
 {
   "outputDirectory": "public",
+  "buildCommand": "node scripts/portada-del-dia.js",
   "redirects": [
     {
       "source": "/mi-cota",
@@ -69,6 +70,15 @@
     },
     {
       "source": "/preguntas",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/hidrometro",
       "headers": [
         {
           "key": "Cache-Control",

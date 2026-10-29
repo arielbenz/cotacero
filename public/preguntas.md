@@ -46,10 +46,6 @@ Las dudas que más aparecen, contestadas sin vueltas. Primero la respuesta corta
 
 **Una vez por día.** El INA publica una lectura por día del hidrómetro del Puerto. La app la toma de ese reporte y muestra siempre la fecha del dato, así sabés qué tan fresco es.
 
-**¿Qué es la cota del río?**
-
-**Así se le suele decir al nivel del río: lo que marca el hidrómetro del Puerto.** El hidrómetro es la regla graduada del Puerto de Santa Fe, y el INA publica su lectura una vez por día. Sus metros no se cuentan desde el mar sino desde el cero de esa regla: «el río está en 5 m» no quiere decir que el agua esté a 5 m de altura. La cota, en cambio, es la altura de un terreno sobre el mar (la cota IGN de planos y escrituras). Para saber si el río puede llegar a tu terreno hay que pasar los dos números a la misma escala, y eso es tu nivel de aviso.
-
 ## En corto
 
 - Mide el río, no la lluvia.

@@ -4452,6 +4452,25 @@ html.texto-grande {
   color: var(--acento);
 }
 
+.cuenta th {
+  padding: 0 0 var(--e-2);
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--tenue);
+  text-align: right;
+}
+.cuenta td.n {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  color: var(--texto);
+}
+.cuenta td + td,
+.cuenta th + th {
+  padding-left: var(--e-3);
+}
+
 .pin-landing {
   width: 16px;
   height: 16px;

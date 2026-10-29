@@ -44,9 +44,9 @@ Las últimas líneas tienen que decir:
 ```
 portada, app y widget: coinciden con lib/paginas.js
 service worker: precachea los N módulos de la app
-service worker: precachea las 10 páginas generadas
+service worker: precachea las 11 páginas generadas
 proveedores: 9 en la CSP y en /legal; M hosts del código clasificados
-la marca: 29 copias, todas con el dibujo de scripts/marca.js
+la marca: 31 copias, todas con el dibujo de scripts/marca.js
 service worker: VERSION … 
 ```
 

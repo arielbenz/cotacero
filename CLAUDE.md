@@ -23,9 +23,12 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/guia-pdf.js          # imprime /guia a public/guia.pdf (Chrome headless)
     node scripts/charlas.js           # duración y miniatura de cada charla, de ted.com
     node scripts/vapid.js             # claves de push, se corre una sola vez
+    node scripts/portada-del-dia.js   # la lectura del día en index.html; lo corre Vercel (a mano: restaurar después)
 
 **No hay `package.json`, ni dependencias, ni build step, ni framework de
-tests, ni linter.** Es deliberado. Agregar cualquiera de esas cosas es una
+tests, ni linter.** Es deliberado. El único paso en el build de Vercel es
+`portada-del-dia.js`, que no transforma el sitio: escribe el dato del día en
+la portada (ver «SEO», más abajo). Agregar cualquiera de esas cosas es una
 decisión de proyecto, no un detalle de implementación: preguntá antes.
 
 Lo que sí hay, desde octubre de 2026 y con el OK del proyecto, es
@@ -315,7 +318,7 @@ una copia a mano; ya no hay dos listas que se puedan desincronizar.
 ### Páginas generadas: no editarlas
 
 `/puntos-de-encuentro`, `/datos`, `/historia`, `/preguntas`, `/legal`,
-`/charlas`, `/sobre`, `/contacto` y `/para-medios` los emite
+`/charlas`, `/sobre`, `/contacto`, `/para-medios` y `/hidrometro` los emite
 `scripts/paginas.js`. Editar el
 HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
 Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
@@ -414,6 +417,21 @@ que la portada, la app y el widget —que son HTML a mano— digan lo mismo. Si 
 coinciden, falla al generar.
 
 Agregar una página: ver «Páginas generadas: no editarlas», más arriba.
+
+**La portada trae el nivel del día en el HTML, pero no en el repo** (octubre
+de 2026). En «altura del río en santa fe hoy» Prefectura, la UNL y El Litoral
+ponen el número en el resultado y la portada no ponía ninguno: posición 6–9 y
+0 clics. Vercel corre `scripts/portada-del-dia.js` como `buildCommand`: escribe
+la meta description de `descripcionDelDia()` (`lib/paginas.js`) y el número del
+mockup con su fecha, que `landing.js` pisa al llegar el dato en vivo. Un deploy
+hook lo dispara a las 6:20 y 12:20 (`.github/workflows/portada-del-dia.yml`,
+secreto `VERCEL_DEPLOY_HOOK`). No es una función a propósito: una caída tiraba
+la portada; así, si el INA no contesta o el dato pasa de `VENCE_HORAS`, el
+build sigue y la portada sale sin número, como siempre. Si cambia el marcado
+del hero o la descripción, el script falla en el build en vez de escribir en
+cualquier lado. Corrido a mano deja `index.html` modificado, y
+`node scripts/paginas.js` falla hasta que se restaura: es la guarda contra
+commitear el número de un día.
 
 **Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
 `llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que

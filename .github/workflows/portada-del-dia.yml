@@ -1,0 +1,31 @@
+# Vuelve a publicar el sitio para que la portada traiga la lectura del día.
+# El build de Vercel corre scripts/portada-del-dia.js, que la escribe.
+#
+# A las 6:20 y a las 12:20 de Argentina, después de los crons de avisos de
+# esas horas. El INA sella la lectura a las 00:00 pero no está medido a qué
+# hora la publica: si la primera pasada no la encuentra, la segunda sí.
+#
+# El hook se crea en Vercel (Settings → Git → Deploy Hooks, rama main) y su
+# URL va como secreto VERCEL_DEPLOY_HOOK del repo: quien la tenga puede
+# disparar deploys.
+name: Portada del día
+
+on:
+  schedule:
+    - cron: "20 9 * * *"
+    - cron: "20 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar el deploy hook de Vercel
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "Falta el secreto VERCEL_DEPLOY_HOOK"
+            exit 1
+          fi
+          curl -fsS -X POST "$HOOK"

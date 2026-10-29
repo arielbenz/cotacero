@@ -5036,6 +5036,27 @@ html.texto-grande {
   font-weight: 800;
   color: var(--acento);
 }
+/* Con encabezado y dos columnas de números: /hidrometro, cada nivel en la
+   regla y sobre el mar. Con las dos unidades escritas en cada fila de una
+   ficha, a 390 px el número se separaba de su «m». */
+.cuenta th {
+  padding: 0 0 var(--e-2);
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--tenue);
+  text-align: right;
+}
+.cuenta td.n {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--mono);
+  color: var(--texto);
+}
+.cuenta td + td,
+.cuenta th + th {
+  padding-left: var(--e-3);
+}
 
 /* ---------- pines del mapa de la portada ---------- */
 .pin-landing {
