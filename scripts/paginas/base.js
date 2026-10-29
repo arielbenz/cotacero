@@ -198,6 +198,7 @@ const pie = ({ frescura = false, md = null } = {}) => `      <footer class="pie-
           <a href="/puntos-de-encuentro">Puntos de encuentro</a>
           <a href="/guia">Guía para imprimir</a>
           <a href="/historia">Cien años del Paraná</a>
+          <a href="/hidrometro">Qué mide el hidrómetro</a>
           <a href="/preguntas">Preguntas frecuentes</a>
           <a href="/charlas">Charlas para seguir pensando</a>
         </div>

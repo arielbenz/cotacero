@@ -1,0 +1,267 @@
+<!doctype html>
+<!-- Generado por scripts/paginas.js — no editar a mano -->
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cota del río Paraná: qué mide el hidrómetro | Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/hidrometro" />
+    <link rel="alternate" type="text/markdown" href="/hidrometro.md" />
+
+    <meta name="description" content="Qué marca el hidrómetro del Puerto de Santa Fe, desde dónde cuenta sus metros, cuánto es eso sobre el mar y por qué Prefectura y el INA no dan el mismo número." />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Cota del río Paraná: qué mide el hidrómetro | Cota Cero" />
+    <meta property="og:description" content="Qué marca el hidrómetro del Puerto de Santa Fe, desde dónde cuenta sus metros, cuánto es eso sobre el mar y por qué Prefectura y el INA no dan el mismo número." />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png?v=2" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/hidrometro" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Cota Cero",
+            "item": "https://cotacerosf.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "El hidrómetro",
+            "item": "https://cotacerosf.com/hidrometro"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Qué mide el hidrómetro del Puerto de Santa Fe",
+        "inLanguage": "es-AR",
+        "mainEntityOfPage": "https://cotacerosf.com/hidrometro",
+        "author": {
+          "@type": "Person",
+          "name": "Ariel Benz",
+          "url": "https://arielbenz.com"
+        }
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="96x96" />
+    
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    
+    <link rel="preload" href="/vendor/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/lib/comun-clasico.js" defer></script>
+    <script src="/js/rio-barra.js" defer></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <script src="/js/analitica.js" defer></script>
+  </head>
+  <body class="landing">
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
+    <div class="nav-envoltura">
+    <div class="ancho">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <span class="chip-borde">NO OFICIAL</span>
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="/#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span class="pr-regla" aria-hidden="true"
+            ><span class="pr-agua" id="pildora-agua"></span
+            ><span class="pr-alerta" id="pildora-alerta"></span
+          ></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span
+            ><span class="pr-estado" id="pildora-estado" hidden></span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
+            <a href="/contacto">Contacto</a>
+          </div>
+        </details>
+      </nav>
+    </div>
+    </div>
+
+    <div class="ancho">
+      <header class="pg-cabecera">
+        <h1>Qué mide el hidrómetro del Puerto de Santa Fe</h1>
+        <p class="pg-lead">Cuando se dice que el río está en 5 metros, es lo que marca esta regla. <b>No es la profundidad del río ni su altura sobre el mar.</b></p>
+      </header>
+
+      <main>
+      <section class="bloque" id="regla">
+        <h2>Una regla en el Puerto, leída por Prefectura</h2>
+        <p>
+          El hidrómetro es una regla graduada en el Dique 2 del Puerto de Santa
+          Fe. La lee <b>Prefectura Naval</b> y el <b>INA</b> guarda sus
+          lecturas desde el 2 de enero de 1925.
+        </p>
+        <p>
+          Lo que en los diarios aparece como «la altura del río» o «la cota del
+          río» —y que en la app de Cota Cero se llama el nivel del río— es lo que
+          marca esa regla. Son tres nombres para el mismo número.
+        </p>
+        <div class="ficha-estacion">
+          <div><span class="k">Estación</span><span class="v">Hidrómetro del Puerto de Santa Fe</span></div>
+          <div><span class="k">Río</span><span class="v">Paraná</span></div>
+          <div><span class="k">Quién la lee</span><span class="v">Prefectura Naval Argentina</span></div>
+          <div><span class="k">Quién la publica</span><span class="v">INA, serie n.º 30</span></div>
+        </div>
+      </section>
+
+      <section class="bloque" id="cero">
+        <h2>Cuenta desde su propio cero</h2>
+        <p>
+          Los metros del hidrómetro se cuentan desde el <b>cero de la regla</b>,
+          que está a unos <b>8,42 m sobre el nivel del mar</b>, en
+          metros IGN: los mismos de los planos y las escrituras.
+        </p>
+        <p>
+          Por eso no es la profundidad: en la bajante de 2022 la regla marcó
+          <b>-0,23 m</b>, por debajo de su cero, y el río seguía
+          ahí. Y tampoco es la altura sobre el mar: para eso hay que sumarle el
+          cero. Esa suma es la «cota» del agua, y es la que se compara con la
+          de un terreno.
+        </p>
+        <table class="cuenta">
+          <thead><tr><th></th><th scope="col">En la regla</th><th scope="col">Sobre el mar</th></tr></thead>
+          <tbody>
+            <tr><td>Alerta de la ciudad</td><td class="n">5,30 m</td><td>≈ 13,7 m</td></tr>
+            <tr><td>Evacuación de la ciudad</td><td class="n">5,70 m</td><td>≈ 14,1 m</td></tr>
+            <tr><td>Récord, 1992</td><td class="n">7,43 m</td><td>≈ 15,9 m</td></tr>
+            <tr><td>La más baja, 2022</td><td class="n">-0,23 m</td><td>≈ 8,2 m</td></tr>
+          </tbody>
+        </table>
+        <p class="chico">
+          Entre fuentes oficiales el cero varía unos centímetros (el INA midió
+          8,378), por eso la altura sobre el mar va con un decimal.
+          <a href="/datos#abiertas">De dónde sale el 8,42</a>.
+          Las mayores crecidas, año por año, están en
+          <a href="/historia">cien años del Paraná</a>.
+        </p>
+      </section>
+
+      <section class="bloque" id="horarios">
+        <h2>Por qué Prefectura y el INA no dicen lo mismo</h2>
+        <p>
+          Prefectura lee la regla <b>cada 12 horas</b>, a las 00:00 y a las
+          12:00, y publica cada lectura. El INA guarda <b>una por día</b>, la de
+          las 00:00, y es la que muestra Cota Cero. Los diarios citan una u otra.
+        </p>
+        <p>
+          Un ejemplo: el 29 de octubre de 2026, Prefectura mostraba 4,25 m de
+          las 00:00 de ese día y 4,24 m de las 12:00 del anterior; el INA,
+          4,23 m de las 00:00 del 28. No se contradicen: son lecturas de horas
+          distintas. Por eso cada número, acá y en la app, va con su fecha.
+        </p>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>La regla no sabe dónde está tu casa</h2>
+        <p>
+          El mismo número del hidrómetro no significa lo mismo en cada barrio:
+          depende de la altura de tu terreno y de cuántos kilómetros río arriba
+          esté. Cota Cero hace esa cuenta con tu dirección y te da tu nivel de
+          aviso: el nivel del río a partir del cual el agua puede llegar a tu
+          terreno. Es un cálculo aproximado. <a href="/">La altura del río hoy, en la portada</a>.
+        </p>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
+    </div>
+
+    <div class="pie-envoltura">
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Hecha por un vecino de Santa Fe. Sin vínculo con el municipio: la
+            orden de evacuación la da la Defensa Civil.
+          </p>
+          <a class="chip-tel" href="tel:103">Emergencias <b>103</b></a>
+        </div>
+        <div>
+          <span class="eti">La app</span>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/guia">Guía para imprimir</a>
+          <a href="/historia">Cien años del Paraná</a>
+          <a href="/hidrometro">Qué mide el hidrómetro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+        </div>
+        <div>
+          <span class="eti">Transparencia</span>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/sobre">Quién hace Cota Cero</a>
+          <a href="/legal">Legal y privacidad</a>
+          <a href="/contacto">Contacto y sugerencias</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/hidrometro.md" type="text/markdown">Ver como agente de IA</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefecturanaval" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/" target="_blank" rel="noopener">Gestión de Riesgos</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>
+      <p class="pie-cierre">
+        Última actualización del sitio: 28/10/2026 · Hecho en Santa Fe
+      </p>
+
+    </div>
+  </body>
+</html>

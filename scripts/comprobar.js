@@ -122,6 +122,26 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
   const g = comun.textoGrave(5.8, R.alerta, R.evacuacion);
   caso("pantalla, evacuación: el verbo y el 103", g.verbo === comun.ESTADOS.evacuacion.verbo && g.resto.includes("103"), true);
   caso("pantalla, debajo de la alerta: nada grave", comun.textoGrave(5.2, R.alerta, R.evacuacion), null);
+
+  /* La descripción de la portada con el dato del día (lib/paginas.js): la
+     del 28/10/2026, que el INA dio en 4,23 m, y los dos estados graves. Google
+     corta cerca de los 160 caracteres. */
+  const { descripcionDelDia } = await import("../lib/paginas.js");
+  const dd = (altura) => descripcionDelDia({ altura, fecha: "28/10", ...R });
+  caso(
+    "portada del día, debajo de la alerta",
+    dd(4.23),
+    "Río Paraná: 4,23 m el 28/10 en el Puerto de Santa Fe (INA), a 1,1 m de la alerta de la ciudad (5,30 m). Calculá a qué nivel el agua puede llegar a tu terreno.",
+  );
+  caso("portada del día, a 95 cm se dice en centímetros", dd(4.35).includes("a 95 cm de la alerta"), true);
+  for (const [n, altura, verbo] of [
+    ["alerta", 5.69, comun.ESTADOS.alerta.verbo],
+    ["evacuación", 7.43, comun.ESTADOS.evacuacion.verbo],
+  ]) {
+    const d = dd(altura);
+    caso(`portada del día, ${n}: empieza con el verbo y lleva el 103`, d.startsWith(verbo) && d.includes("103"), true);
+    caso(`portada del día, ${n}: ≤ 160 caracteres (${d.length})`, d.length <= 160, true);
+  }
 }
 
 console.log("Qué sube a la vista en la pestaña Río (destacar.js)");

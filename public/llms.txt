@@ -14,10 +14,11 @@ lo más importante que hay que conservar.
 
 ## Páginas
 
-- [Nivel del río Paraná en Santa Fe hoy](https://cotacerosf.com/index.html.md): Alerta y evacuación de la ciudad: 5,30 y 5,70 m en el Puerto. Calculá con tu dirección a qué nivel del río el agua puede llegar a tu terreno. Datos del INA.
+- [Altura del río Paraná en Santa Fe hoy](https://cotacerosf.com/index.html.md): Alerta y evacuación de la ciudad: 5,30 y 5,70 m en el Puerto. Calculá con tu dirección a qué nivel del río el agua puede llegar a tu terreno. Datos del INA.
 - [Puntos de encuentro por inundación en Santa Fe](https://cotacerosf.com/puntos-de-encuentro.md): Los 30 puntos de encuentro del Plan de Contingencia de la Municipalidad de Santa Fe, con su dirección y cómo llegar. Fuente: Gestión de Riesgos.
 - [Cota de tu terreno y datos del río en Santa Fe](https://cotacerosf.com/datos.md): Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso.
 - [Crecidas históricas del río Paraná en Santa Fe](https://cotacerosf.com/historia.md): Las mayores crecidas y las bajantes más hondas del Paraná en Santa Fe, con la serie diaria del INA desde 1925. La de 1992 sigue siendo el récord.
+- [Cota del río Paraná: qué mide el hidrómetro](https://cotacerosf.com/hidrometro.md): Qué marca el hidrómetro del Puerto de Santa Fe, desde dónde cuenta sus metros, cuánto es eso sobre el mar y por qué Prefectura y el INA no dan el mismo número.
 - [Preguntas sobre el río Paraná en Santa Fe](https://cotacerosf.com/preguntas.md): Cuál es el nivel de alerta y el de evacuación, qué significa la altura del río, cómo saber la cota de tu terreno y de dónde salen los datos.
 - [Sobre Cota Cero: qué es y quién lo hace](https://cotacerosf.com/sobre.md): Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe.
 - [Contacto](https://cotacerosf.com/contacto.md): Escribinos si encontraste un dato mal, si falta tu zona o si algo no se entiende. Lo lee una persona. No es una vía para pedir ayuda en una emergencia.
