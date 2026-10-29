@@ -553,6 +553,29 @@ function temaDelMapa() {
 }
 const estiloDelTema = () => "/mapa/" + temaDelMapa() + ".json";
 
+/* Los textos de MapLibre, que vienen en inglés: los nombres de los botones,
+   del mapa y de los pines para un lector de pantalla, y el aviso de gestos.
+   Están todas las claves de los controles que usan los dos mapas, aunque la app
+   no use alguna (los gestos cooperativos son de la portada): así un control
+   nuevo no vuelve a hablar en inglés. Las claves salen de
+   vendor/maplibre-gl.js (v5.24.0); si se actualiza, buscar ahí "Map marker".
+   COPIA de TEXTOS_MAPA en js/landing.js: la portada es un script clásico y
+   no puede importar un módulo. Se cambian las dos juntas. */
+const TEXTOS_MAPA = {
+  "Map.Title": "Mapa de los puntos de encuentro",
+  "Marker.Title": "Marca en el mapa",
+  "Popup.Close": "Cerrar",
+  "NavigationControl.ZoomIn": "Acercar",
+  "NavigationControl.ZoomOut": "Alejar",
+  "NavigationControl.ResetBearing": "Orientar el mapa al norte",
+  "AttributionControl.ToggleAttribution": "Ver los créditos del mapa",
+  "CooperativeGesturesHandler.MobileHelpText": "Usá dos dedos para mover el mapa",
+  "CooperativeGesturesHandler.MacHelpText":
+    "Usá ⌘ + la rueda del mouse para acercar el mapa",
+  "CooperativeGesturesHandler.WindowsHelpText":
+    "Usá Ctrl + la rueda del mouse para acercar el mapa",
+};
+
 /* Las capas van en dos grupos por el prefijo del id: `base-` es el plano y
    `foto-` la foto aérea con los nombres de las calles encima. Al marcar se
    prende uno y se apaga el otro, y el que se apaga deja de pedir tiles. */
@@ -733,12 +756,7 @@ async function construirMapa() {
     // plano, no un 3D. Girar sí se deja, y por eso está la brújula.
     pitchWithRotate: false,
     touchPitch: false,
-    locale: {
-      "NavigationControl.ZoomIn": "Acercar",
-      "NavigationControl.ZoomOut": "Alejar",
-      "NavigationControl.ResetBearing": "Orientar el mapa al norte",
-      "AttributionControl.ToggleAttribution": "Ver los créditos del mapa",
-    },
+    locale: TEXTOS_MAPA,
   });
   vigilarFondo();
   seguirAlTema();
@@ -758,13 +776,20 @@ async function construirMapa() {
     const el = document.createElement("div");
     el.className = "pin";
     el.dataset.nombre = n;
+    // Cada pin es un botón que se recorre con Tab: sin nombre propio, un
+    // lector de pantalla decía treinta veces «Marca en el mapa». MapLibre
+    // respeta el aria-label que ya trae. ubicarmeEnMapa() le suma el orden.
+    el.dataset.etiqueta = "Punto de encuentro: " + n + ", " + d;
+    el.setAttribute("aria-label", el.dataset.etiqueta);
     // MapLibre v5 no acepta `new Marker(elemento)`: hay que pasar {element}.
     // Con la firma vieja ignoraba el pin propio y dibujaba el suyo.
     new maplibregl.Marker({ element: el })
       .setLngLat(c)
       .setPopup(
+        // El tenue y no un gris escrito acá: #7E959D daba 3,15:1 sobre el
+        // panel claro, y el popup sigue al tema.
         new maplibregl.Popup({ offset: 14 }).setHTML(
-          `<strong>${n}</strong><br><span style="font-size: var(--t-s);color:#7E959D">${d}</span>`,
+          `<strong>${n}</strong><br><span style="font-size: var(--t-s);color:var(--tenue)">${d}</span>`,
         ),
       )
       .addTo(mapa);
@@ -784,6 +809,9 @@ export function distanciaKm(a, b) {
   return 2 * R * Math.asin(Math.sqrt(x));
 }
 
+/* El número de los tres más cercanos, dicho para un lector de pantalla. */
+const ORDEN = ["El más cercano", "El segundo más cercano", "El tercero más cercano"];
+
 export function ubicarmeEnMapa() {
   const e = document.getElementById("estado-mapa");
   if (!navigator.geolocation) {
@@ -799,6 +827,7 @@ export function ubicarmeEnMapa() {
         else {
           const el = document.createElement("div");
           el.className = "pin yo";
+          el.setAttribute("aria-label", "Estás acá");
           pinYo = new maplibregl.Marker({ element: el })
             .setLngLat(miPos)
             .setPopup(
@@ -831,12 +860,15 @@ export function ubicarmeEnMapa() {
       Object.values(pinDe).forEach((el) => {
         el.classList.remove("cerca");
         el.textContent = "";
+        el.setAttribute("aria-label", el.dataset.etiqueta);
       });
       tres.forEach((o, i) => {
         const el = pinDe[o.nombre];
         if (!el) return;
         el.classList.add("cerca");
         el.textContent = String(i + 1);
+        // El número se ve pero no se oye: el aria-label tapa el contenido.
+        el.setAttribute("aria-label", ORDEN[i] + ". " + el.dataset.etiqueta);
       });
       if (mapa) {
         // MapLibre toma un array plano [a, b] como [sw, ne] al pie de la
@@ -928,6 +960,7 @@ function ponerPin(lngLat) {
   if (pinCasa) pinCasa.remove();
   const el = document.createElement("div");
   el.className = "pin yo";
+  el.setAttribute("aria-label", "Tu casa, marcada a mano");
   pinCasa = new maplibregl.Marker({ element: el })
     .setLngLat(lngLat)
     .setPopup(
@@ -979,9 +1012,60 @@ async function alTocar(e) {
   );
 }
 
+/* Mientras se marca, la hoja es un diálogo modal. Tapa la pantalla entera,
+   pero el foco se quedaba en la sección de abajo: con Tab se recorrían el 103
+   y botones que no se veían, y un lector de pantalla los leía como si
+   estuvieran ahí. #mapa vive adentro de la sección, así que un `inert` en el
+   <main> lo dejaría inerte también a él: se vuelve inerte cada hermano de
+   cada ancestro, y se anotan para soltar sólo ésos. */
+let inertes = [];
+let quienAbrio = null; // el botón que abrió la hoja, para volver a él
+
+function hacerModal(cont) {
+  cont.setAttribute("role", "dialog");
+  cont.setAttribute("aria-modal", "true");
+  cont.setAttribute("aria-label", "Marcar tu casa en el mapa");
+  for (let el = cont; el !== document.body; el = el.parentElement) {
+    for (const h of el.parentElement.children) {
+      if (h === el || h.inert) continue; // el que ya era inerte no es nuestro
+      h.inert = true;
+      inertes.push(h);
+    }
+  }
+}
+
+function soltarModal(cont) {
+  if (cont) {
+    cont.removeAttribute("role");
+    cont.removeAttribute("aria-modal");
+    cont.removeAttribute("aria-label");
+  }
+  for (const h of inertes) h.inert = false;
+  inertes = [];
+}
+
+/* El foco va al pedido, que dice qué hacer, y no a un botón: lo primero que
+   se oye es «tocá tu casa». Se llama de nuevo cada vez que el pedido se
+   reescribe con el foco adentro, porque innerHTML se lleva el botón enfocado. */
+function enfocarPedido() {
+  const el = document.querySelector("#mapa .mapa-aviso");
+  if (!el) return;
+  el.tabIndex = -1;
+  el.focus({ preventScroll: true });
+}
+
+/* Sólo si se puede ver: al confirmar desde «Cambiar», el formulario se
+   pliega y el botón desaparece con él; ahí el foco queda en la pestaña. */
+function devolverFoco() {
+  const b = quienAbrio;
+  quienAbrio = null;
+  if (b && b.isConnected && b.getClientRects().length) b.focus();
+}
+
 function salirDeMarcar() {
   const cont = document.getElementById("mapa");
   if (cont) cont.classList.remove("marcando");
+  soltarModal(cont);
   document.body.classList.remove("marcando-mapa");
   document.removeEventListener("keydown", escapeDeMarcar);
   encuadrarAlVolver = true;
@@ -1019,6 +1103,8 @@ function escapeDeMarcar(ev) {
 /* `centro` y `calle` los pasa la búsqueda cuando encontró la calle pero no la
    altura exacta: el mapa arranca sobre ella y el pedido la nombra. */
 export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
+  // Antes de irA(), que enfoca la pestaña nueva.
+  const desde = document.activeElement;
   irA("donde");
   await armarMapa();
   if (!mapa) {
@@ -1034,11 +1120,17 @@ export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
   // irA() dejó la página arriba de todo y el mapa puede quedar bajo el
   // pliegue: el pedido tiene que verse, no sólo existir.
   aLaVista(cont);
-  if (estaMarcando()) return; // ya está esperando el toque: no armar dos
+  if (estaMarcando()) {
+    enfocarPedido(); // ya está esperando el toque: no armar dos
+    return;
+  }
+  quienAbrio =
+    desde && desde !== document.body && !cont.contains(desde) ? desde : null;
   /* A pantalla completa y no en los 340 px de la pestaña: con la barra de
      abajo y el pedido encima quedaban ~170 px de foto para tocar, y es la única
      forma de cargar la casa para quien no sabe su dirección. */
   cont.classList.add("marcando");
+  hacerModal(cont);
   document.body.classList.add("marcando-mapa");
   document.addEventListener("keydown", escapeDeMarcar);
   mapa.resize();
@@ -1057,6 +1149,7 @@ export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
         ? "Encontramos «" + calle + "». Acercá el mapa y tocá tu casa."
         : undefined),
   );
+  enfocarPedido();
   mapa.once("click", alTocar);
 }
 
@@ -1073,6 +1166,7 @@ export function confirmarMarca() {
   );
   irA("cota");
   irAlResultadoDeLaCasa();
+  devolverFoco();
 }
 
 export function marcarDeNuevo() {
@@ -1083,6 +1177,7 @@ export function marcarDeNuevo() {
   }
   marca = null;
   pedirToque();
+  enfocarPedido(); // el botón «Marcar de nuevo» ya no existe
   mapa.once("click", alTocar);
 }
 
@@ -1095,5 +1190,14 @@ export function cancelarMarca(volver = true) {
     pinCasa = null;
   }
   salirDeMarcar();
-  if (volver) irA("cota");
+  if (volver) {
+    irA("cota");
+    devolverFoco();
+    return;
+  }
+  /* Desde ver(), que enfocó la pestaña nueva ANTES de llamar acá, cuando
+     todavía era inerte: el foco se perdía en el <body>. */
+  quienAbrio = null;
+  if (document.activeElement === document.body)
+    document.querySelector(".vista.on")?.focus({ preventScroll: true });
 }

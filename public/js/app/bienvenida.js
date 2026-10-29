@@ -52,14 +52,20 @@ export function cerrarBienvenida(ir) {
 
 /* El número de la bienvenida sale del mismo estado que el resto: no se pide
    el nivel dos veces. */
-export function pintarBienvenida() {
+/* `guardado` lo decide rio.js, que ya importa este archivo (importarlo al
+   revés armaba un ciclo): con el último dato guardado o vencido en pantalla
+   —mientras viaja el pedido, o si falló— el pie dice de cuándo es y no el
+   estado de la ciudad, que sería la cara de un dato de hoy. */
+export function pintarBienvenida({ guardado = false } = {}) {
   const n = document.getElementById("bv-nivel");
   const pie = document.getElementById("bv-pie");
   if (!n || !pie || estado.rio == null) return;
   n.textContent = m(estado.rio);
   n.appendChild(pie);
-  pie.textContent =
-    estado.rio >= EVACUACION
+  pie.textContent = guardado
+    ? "Último dato guardado" +
+      (estado.rioFecha ? ", del " + estado.rioFecha.slice(0, 5) : "")
+    : estado.rio >= EVACUACION
       ? "Nivel de evacuación"
       : estado.rio >= ALERTA
         ? "Nivel de alerta"

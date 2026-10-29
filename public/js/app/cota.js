@@ -427,6 +427,15 @@ function pintarSinPlano(z) {
     SALIDA_SIN_DATO;
 }
 
+/* Lo que se anuncia del resultado: el titular y el número, no la tarjeta.
+   #resultado era role="status" y cada recálculo —cada vez que llega el nivel
+   del río— le releía ~230 palabras y seis botones a un lector de pantalla.
+   Sólo si cambió: repetir lo mismo también es ruido. */
+function anunciarResultado(texto) {
+  const a = document.getElementById("anuncio-resultado");
+  if (a && a.textContent !== texto) a.textContent = texto;
+}
+
 export function calcular() {
   const sel = document.getElementById("sel-zona");
   if (sel) estado.zona = sel.value;
@@ -446,6 +455,7 @@ export function calcular() {
       '<p class="chico" style="margin:0">Elegila arriba. No la damos por ' +
       "supuesta a propósito: suponer el centro daría el resultado más " +
       "optimista de todos.</p></div>";
+    anunciarResultado("Falta tu zona.");
     pintarRio();
     return;
   }
@@ -473,6 +483,7 @@ export function calcular() {
     cont.innerHTML =
       '<div class="veredicto v-neutro"><div class="titu">Falta la altura de tu terreno</div>' +
       '<p class="chico" style="margin:0">Cargala arriba y estimo el resto.</p></div>';
+    anunciarResultado("Falta la altura de tu terreno.");
     pintarRio();
     return;
   }
@@ -740,6 +751,18 @@ ${
 
   cont.innerHTML = html;
   cont.classList.toggle("provisorio", Boolean(estado.zonaAjena));
+  /* El titular sale de lo que quedó pintado, no de una segunda redacción:
+     así el anuncio no puede decir otra cosa que la tarjeta. */
+  const dicho = cont.querySelector(".veredicto .titu")?.textContent.trim() || titu;
+  anunciarResultado(
+    dicho.replace(/\.?$/, ".") +
+      " Tu nivel de aviso: " +
+      (alto ? "más alto que el récord" : mU(ref) + ", aproximado") +
+      "." +
+      (estado.zonaAjena
+        ? " Es provisorio: la dirección no coincide con tu zona."
+        : ""),
+  );
   pintarRio();
 }
 

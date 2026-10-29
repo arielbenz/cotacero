@@ -13,7 +13,17 @@
       name="description"
       content="La herramienta: el nivel del río Paraná, tu nivel de aviso, el plan familiar y los puntos de encuentro. Funciona sin señal una vez cargada."
     />
-    <meta name="theme-color" content="#0B1418" />
+    <!-- Uno por tema, como la portada; tema.js sigue la elección manual -->
+    <meta
+      name="theme-color"
+      content="#fafbfc"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0e1619"
+      media="(prefers-color-scheme: dark)"
+    />
     <!-- og: para cuando se comparte por WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Cota Cero" />
@@ -82,6 +92,37 @@
     />
     <!-- MapLibre no va acá: se carga al abrir Dónde ir -->
     <link rel="stylesheet" href="/css/app.css" />
+    <!-- PRECARGA:inicio · emitir.js -->
+    <link rel="modulepreload" href="/js/app/principal.js" />
+    <link rel="modulepreload" href="/js/app/avisos.js" />
+    <link rel="modulepreload" href="/js/app/bienvenida.js" />
+    <link rel="modulepreload" href="/js/app/calles.js" />
+    <link rel="modulepreload" href="/js/app/compartir.js" />
+    <link rel="modulepreload" href="/js/app/config.js" />
+    <link rel="modulepreload" href="/js/app/zonas.js" />
+    <link rel="modulepreload" href="/js/app/cota.js" />
+    <link rel="modulepreload" href="/js/app/estado.js" />
+    <link rel="modulepreload" href="/js/app/formato.js" />
+    <link rel="modulepreload" href="/js/app/instalar.js" />
+    <link rel="modulepreload" href="/js/app/lluvia.js" />
+    <link rel="modulepreload" href="/js/app/mapa.js" />
+    <link rel="modulepreload" href="/js/app/metricas.js" />
+    <link rel="modulepreload" href="/js/app/plan.js" />
+    <link rel="modulepreload" href="/js/app/puntos.js" />
+    <link rel="modulepreload" href="/js/app/rio.js" />
+    <link rel="modulepreload" href="/js/app/tema.js" />
+    <link rel="modulepreload" href="/js/app/vista.js" />
+    <link rel="modulepreload" href="/js/app/oficiales.js" />
+    <link rel="modulepreload" href="/lib/comun.js" />
+    <link rel="modulepreload" href="/js/app/alias.js" />
+    <link rel="modulepreload" href="/lib/listas.js" />
+    <link rel="modulepreload" href="/js/app/elevacion.js" />
+    <link rel="modulepreload" href="/js/app/fuentes.js" />
+    <link rel="modulepreload" href="/js/app/modelo.js" />
+    <link rel="modulepreload" href="/js/app/destacar.js" />
+    <link rel="modulepreload" href="/js/app/ahora.js" />
+    <link rel="modulepreload" href="/lib/fuentes.js" />
+    <!-- PRECARGA:fin -->
   </head>
   <body class="app" data-vista="rio">
     <!-- Salto al contenido: sólo visible con el foco -->
@@ -586,7 +627,9 @@
         </div>
       </div>
 
-      <div id="resultado" role="status"></div>
+      <!-- Lo que se anuncia: el veredicto, no la tarjeta. Lo llena cota.js -->
+      <p id="anuncio-resultado" class="solo-lectores" role="status"></p>
+      <div id="resultado"></div>
       <div id="avisos"></div>
     </section>
 

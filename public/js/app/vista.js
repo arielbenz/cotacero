@@ -111,7 +111,9 @@ export function ocupar(selector, texto) {
 /* El renglón de estado vive debajo de los botones: en el teléfono queda tapado
    por el teclado. Lo traemos a la vista. */
 export function aLaVista(el) {
+  // Con movimiento reducido pedido, el salto es directo.
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
   try {
-    el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    el.scrollIntoView({ block: "nearest", behavior: quieto ? "auto" : "smooth" });
   } catch (e) {}
 }

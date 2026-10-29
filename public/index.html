@@ -116,13 +116,11 @@
     <script src="/js/rio-barra.js" defer></script>
     <script src="/js/landing.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
-    <!-- Analytics: la config va en /js/analitica.js (CSP) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
+    <!-- Analytics: lo carga /js/analitica.js después de load -->
     <script src="/js/analitica.js" defer></script>
   </head>
   <body class="landing">
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
     <!-- Franja de alerta: vacía mide cero. Ver README -->
     <div class="franja-estado" id="franja-estado" role="status"></div>
 
@@ -198,7 +196,7 @@
     </div>
     </div>
 
-    <div class="ancho">
+    <main class="ancho" id="contenido">
       <header class="hero">
         <div>
           <!-- Sin píldora acá: ver CLAUDE.md, «el mono en mayúsculas» -->
@@ -279,8 +277,7 @@
                 max="1000"
                 step="1"
                 value="0"
-                disabled
-                aria-label="Nivel del río a simular, en metros" />
+                disabled />
               <div class="ms-fila">
                 <p class="chico" id="rm-lectura">Buscando el nivel de hoy…</p>
                 <button type="button" class="ms-volver" id="rm-volver" hidden>
@@ -530,7 +527,7 @@
           >
         </div>
       </section>
-    </div>
+    </main>
 
     <div class="pie-envoltura">
       <!-- PIE:inicio — generado por scripts/paginas.js, no editar a mano -->

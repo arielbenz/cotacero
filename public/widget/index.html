@@ -17,41 +17,50 @@
     <style>
       /* El widget no usa app.css: es la hoja de todo el sitio para una
          tarjeta de 220 px de alto, y esto se embebe en el sitio de otro. Paleta propia, chica, con
-         los mismos valores que la app para que se vean como lo mismo. */
+         los mismos valores que los tokens de estilos/app.css para que se vean
+         como lo mismo. Es una COPIA: node scripts/comprobar.js la compara con
+         los tokens (y mide sus pares de texto) y falla si se desincroniza. */
       @font-face {
         font-family: "Plus Jakarta Sans";
         src: url("/vendor/fonts/jakarta.woff2") format("woff2");
         font-weight: 500 800;
         font-display: swap;
       }
+      /* La tarjeta es un panel: --fondo es el --panel de la app. Los colores
+         de estado que van como TEXTO son los -texto de la app, calibrados para
+         leerse sobre su tinte; las marcas de la regla usan los --linea-*. */
       :root {
         --fondo: #ffffff;
         --texto: #1b262c;
-        --tenue: #66747a;
-        --linea: rgba(27, 38, 44, 0.12);
-        --pista: rgba(27, 38, 44, 0.07);
-        --agua: #1f7a9e;
-        --acento: #1f7a9e;
-        --alerta: #c4410e;
-        --peligro: #a5271a;
+        --tenue: #5f6c72;
+        --linea: rgba(27, 38, 44, 0.09);
+        --pista: rgba(27, 38, 44, 0.055);
+        --agua: #5fc8e8;
+        --acento: #127296;
+        --alerta: #bf3d05;
+        --peligro: #bc3e2a;
+        --linea-alerta: #cf440d;
+        --linea-evac: #a5271a;
         --alerta-tinte: #ffefe3;
         --peligro-tinte: #fbe9e5;
-        --ok: #35785e;
+        --ok: #33765c;
         --ok-tinte: #e6f2ec;
       }
       html[data-theme="dark"] {
         --fondo: #17232a;
         --texto: #e9eef0;
         --tenue: #93a6ad;
-        --linea: rgba(233, 238, 240, 0.14);
-        --pista: rgba(233, 238, 240, 0.09);
-        --agua: #2e9bc4;
+        --linea: rgba(233, 238, 240, 0.1);
+        --pista: rgba(233, 238, 240, 0.07);
+        --agua: #5fc8e8;
         --acento: #5fc8e8;
         --alerta: #e8a33d;
-        --peligro: #e57563;
-        --alerta-tinte: rgba(232, 163, 61, 0.16);
-        --peligro-tinte: rgba(224, 90, 68, 0.18);
-        --ok: #51ab8e;
+        --peligro: #ef7e6b;
+        --linea-alerta: #e8a33d;
+        --linea-evac: #e57563;
+        --alerta-tinte: rgba(232, 163, 61, 0.14);
+        --peligro-tinte: rgba(224, 90, 68, 0.16);
+        --ok: #54ae90;
         --ok-tinte: rgba(79, 168, 139, 0.15);
       }
       * {
@@ -322,11 +331,11 @@
         <span
           class="marca"
           id="m-alerta"
-          style="background: var(--alerta)"></span>
+          style="background: var(--linea-alerta)"></span>
         <span
           class="marca"
           id="m-evac"
-          style="background: var(--peligro)"></span>
+          style="background: var(--linea-evac)"></span>
       </div>
       <div class="marcas" aria-hidden="true"></div>
 

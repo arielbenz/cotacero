@@ -9,8 +9,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B1418",
-  "theme_color": "#0B1418",
+  "background_color": "#0e1619",
+  "theme_color": "#0e1619",
   "categories": ["utilities", "weather", "government"],
   "icons": [
     {
