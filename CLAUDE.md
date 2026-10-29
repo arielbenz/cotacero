@@ -999,6 +999,17 @@ afloja: media app cacheada abre y se rompe callada, que es lo peor de los dos
 mundos. Si esa tanda falla, la instalación **no** se cae —el sitio igual anda
 sin señal— y los módulos se cachean igual por la rama de red primero.
 
+**Un deploy no puede dejar a `/app` sin copia** (octubre de 2026). El worker
+nuevo se activa sólo con `CRITICOS`, y antes borraba toda caché ajena:
+quien había abierto la app una vez la perdía sin señal después de cada
+deploy, que con la portada del día son dos por día. Ahora `podarViejas()`
+conserva la última caché vieja con `/app` hasta que la nueva tenga `DEL_APP`
+entera, `buscar()` mira primero la caché de esta versión —`caches.match()`
+recorre en orden de creación y la vieja ganaría— e `instalar.js` vuelve a
+pedir la tanda en `controllerchange`, porque el pedido del arranque le llega
+al worker viejo. Probado con un deploy simulado desde `/legal` y con `/app`
+abierta.
+
 **El service worker no toca NADA de otro origen.** Era una lista de hosts
 —IGN, OpenStreetMap, Open-Meteo— y se quedó corta el día que el worker empezó a
 correr también en las páginas del sitio, que son las que llevan analytics: el

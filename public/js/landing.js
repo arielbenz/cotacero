@@ -528,6 +528,9 @@ async function dibujarMapa(caja) {
         el.className = "pin-landing";
         // Cada pin es un botón que se recorre con Tab: sin esto los treinta
         // se llamaban igual. MapLibre respeta el aria-label que ya trae.
+        // Por eso #mapa-landing ya no es role="img": un img esconde a sus
+        // hijos, y el lector de pantalla pasaba por treinta paradas mudas.
+        // El nombre del mapa lo pone MapLibre en el lienzo (Map.Title).
         el.setAttribute("aria-label", "Punto de encuentro: " + nombre + ", " + dir);
         new maplibregl.Marker({ element: el })
           .setLngLat([lon, lat])

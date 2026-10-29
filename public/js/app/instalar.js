@@ -241,4 +241,13 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => registrar().then(calentar), {
       once: true,
     });
+
+  /* Y otra vez cuando entra un worker nuevo. Después de un deploy, el pedido
+     de arriba le llega al worker VIEJO, que ya tenía la app; el nuevo se
+     activa sólo con la tanda del sitio y, sin este segundo pedido, nadie le
+     pedía la de /app (ver podarViejas en sw.js). */
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    const sw = navigator.serviceWorker.controller;
+    if (sw) sw.postMessage({ tipo: "calentar-app" });
+  });
 }
