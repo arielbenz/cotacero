@@ -127,7 +127,13 @@ function unaSugerencia(s) {
 /* La página se arma acá, sin JavaScript: la CSP del sitio prohíbe los scripts
    en línea y además un tablero que depende de JS es un tablero que un día no
    carga. Las solapas son dos enlaces y las barras, divs con ancho en
-   porcentaje. */
+   porcentaje.
+   La paleta es una COPIA de los tokens de estilos/app.css, por tema: --f
+   fondo, --p panel, --s panel-2, --t texto, --m tenue, --a acento, --g agua,
+   --sa sobre-agua, y --cd/--cf/--cc los -texto de alerta, ok y peligro.
+   node scripts/comprobar.js la compara con los tokens y mide sus pares. Los
+   grises van con color y no con opacity: con opacity nadie los mide, y la
+   hora de cada sugerencia daba 3,0:1 en claro. */
 function pagina(d, ver, clave) {
   const url = (v) =>
     `/api/metricas?clave=${encodeURIComponent(clave)}${v ? "&ver=" + v : ""}`;
@@ -144,37 +150,39 @@ function pagina(d, ver, clave) {
 <meta name="robots" content="noindex,nofollow">
 <title>Cota Cero · ${ver === "sugerencias" ? "sugerencias" : "métricas"}</title>
 <style>
-:root{color-scheme:dark light;--f:#0e1619;--p:#17232a;--t:#e9eef0;--a:#2e9bc4}
-@media(prefers-color-scheme:light){:root{--f:#fafbfc;--p:#fff;--t:#1b262c;--a:#127296}}
+:root{color-scheme:dark light;--f:#0e1619;--p:#17232a;--s:rgba(233,238,240,.07);--t:#e9eef0;--m:#93a6ad;--a:#5fc8e8;
+  --g:#5fc8e8;--sa:#0e1619;--cd:#e8a33d;--cf:#54ae90;--cc:#ef7e6b}
+@media(prefers-color-scheme:light){:root{--f:#fafbfc;--p:#fff;--s:rgba(27,38,44,.055);--t:#1b262c;--m:#5f6c72;--a:#127296;
+  --cd:#bf3d05;--cf:#33765c;--cc:#bc3e2a}}
 *{box-sizing:border-box}
 body{font:15px/1.55 system-ui,sans-serif;margin:0 auto;padding:24px 18px 64px;
   max-width:640px;background:var(--f);color:var(--t)}
 h1{font-size:22px;margin:0 0 4px}
-h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;opacity:.6;
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--m);
   margin:32px 0 10px;font-weight:600}
-.fecha{opacity:.6;margin:0 0 18px;font-size:13px}
+.fecha{color:var(--m);margin:0 0 18px;font-size:13px}
 .solapas{display:flex;gap:8px;margin:0 0 24px}
 .solapas a{flex:1;text-align:center;padding:10px;border-radius:99px;
-  text-decoration:none;color:var(--t);background:rgba(127,127,127,.12);font-weight:600;font-size:14px}
-.solapas a.on{background:var(--a);color:#fff}
+  text-decoration:none;color:var(--t);background:var(--s);font-weight:600;font-size:14px}
+.solapas a.on{background:var(--g);color:var(--sa)}
 .tarjetas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.c{background:rgba(127,127,127,.12);border-radius:16px;padding:14px}
+.c{background:var(--s);border-radius:16px;padding:14px}
 .c b{display:block;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
-.c span{font-size:12px;opacity:.65}
+.c span{font-size:12px;color:var(--m)}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th{text-align:left;font-weight:400;opacity:.6;font-size:12px;width:44px}
+th{text-align:left;font-weight:400;color:var(--m);font-size:12px;width:44px}
 td i{display:block;height:12px;border-radius:99px;background:var(--a);min-width:2px}
 td.n{width:40px;text-align:right;font-size:13px}
 tr>*{padding:3px 0}
 ul{list-style:none;padding:0;margin:0}
-li{background:rgba(127,127,127,.12);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-li b{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.75}
-li time{font-size:12px;opacity:.5;float:right}
+li{background:var(--s);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+li b{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+li time{font-size:12px;color:var(--m);float:right}
 li p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
-li small{display:block;margin-top:8px;opacity:.6}
-.c-dato{color:#e8a33d}.c-falta{color:#4fa88b}.c-confuso{color:#e15f49}
+li small{display:block;margin-top:8px;color:var(--m)}
+.c-dato{color:var(--cd)}.c-falta{color:var(--cf)}.c-confuso{color:var(--cc)}
 .mas{display:block;text-align:center;padding:12px;color:var(--a);font-weight:600;text-decoration:none}
-.vacio{opacity:.6}
+.vacio{color:var(--m)}
 </style></head><body>
 <h1>Cota Cero</h1>
 <p class="fecha">Día ${escapar(d.dia)} · generado ${escapar(d.generado.slice(0, 16).replace("T", " "))} UTC</p>

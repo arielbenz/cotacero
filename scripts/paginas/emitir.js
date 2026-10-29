@@ -541,6 +541,80 @@ console.log("portada, app, widget y placa: coinciden con lib/paginas.js");
   }
 }
 
+/* ---------- los modulepreload de app/index.html ----------
+   La app carga UN <script type="module"> y el navegador descubre el resto
+   de a un nivel por vez: baja principal.js, lo lee, pide sus imports, los
+   lee, pide los de ellos… Son cuatro niveles, y con Slow 4G el pedido a
+   /api/nivel —que sale de rio.js, al fondo del grafo— salía a los 5,7 s.
+   Con un <link rel="modulepreload"> por módulo, el navegador los pide todos
+   juntos apenas lee el <head>.
+
+   La lista sale de seguir los import ESTÁTICOS desde principal.js, no de la
+   carpeta: así entran los de /lib/ que la app importa y no entra nada que no
+   se use (eso daría «preloaded but not used»). La escribe este script entre
+   los marcadores PRECARGA:inicio / PRECARGA:fin, como la de MODULOS en sw.js:
+   una lista a mano se desincroniza el día que alguien agrega un módulo. */
+{
+  const rutaApp = join(PUBLICO, "app", "index.html");
+  const texto = await readFile(rutaApp, "utf8");
+  const ini = texto.indexOf("    <!-- PRECARGA:inicio");
+  const fin = texto.indexOf("    <!-- PRECARGA:fin -->");
+  if (ini < 0 || fin < ini)
+    throw new Error(
+      "app/index.html: faltan los marcadores PRECARGA:inicio / PRECARGA:fin en el <head>.",
+    );
+  /* Sólo los import y export…from que arrancan el renglón: es como están
+     escritos todos los de js/app/, y así un «import» dentro de un comentario
+     o de un texto no cuenta. Sin `;` ni comillas entre la palabra y el
+     `from`, para que el patrón no cruce de una sentencia a otra. */
+  const IMPORTS =
+    /^(?:import|export)\b[^;'"]*?\bfrom\s*["']([^"']+)["']|^import\s*["']([^"']+)["']/gm;
+  const entrada = "/js/app/principal.js";
+  const vistos = new Set([entrada]);
+  const cola = [entrada];
+  // principal.js también: el <script> va al final del <body> y, sin esto,
+  // se pedía después que todos los módulos que importa.
+  const orden = [entrada];
+  while (cola.length) {
+    const ruta = cola.shift();
+    let fuente;
+    try {
+      fuente = await readFile(join(PUBLICO, ruta.slice(1)), "utf8");
+    } catch {
+      throw new Error(
+        `app/index.html: ${ruta} se importa desde la app y no existe en public/.`,
+      );
+    }
+    for (const [, desde, solo] of fuente.matchAll(IMPORTS)) {
+      const destino = new URL(desde || solo, "https://x" + ruta).pathname;
+      if (vistos.has(destino)) continue;
+      vistos.add(destino);
+      cola.push(destino);
+      orden.push(destino);
+    }
+  }
+  if (orden.length < 10)
+    throw new Error(
+      "app/index.html: el grafo de principal.js dio " +
+        orden.length +
+        " módulos. ¿Cambió la forma de los import?",
+    );
+  const corte = texto.indexOf("\n", ini) + 1;
+  const nuevo =
+    texto.slice(0, corte) +
+    orden.map((r) => `    <link rel="modulepreload" href="${r}" />\n`).join("") +
+    texto.slice(fin);
+  if (nuevo !== texto) {
+    await writeFile(rutaApp, nuevo);
+    console.log("actualizado: los modulepreload de app/index.html");
+  }
+  console.log(
+    "app/index.html: precarga principal.js y los " +
+      (orden.length - 1) +
+      " módulos que importa",
+  );
+}
+
 /* La app son módulos ES y el service worker los precachea uno por uno: si
    alguien agrega un módulo y se olvida de la lista de sw.js, /app deja de
    abrir sin conexión — y el modo de falla es mudo, aparece recién el día que

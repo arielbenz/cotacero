@@ -399,6 +399,178 @@ console.log("CONTRASTE");
       caso(`${tema}: «${t}» pasa 4,5:1 en todos los fondos (peor ${peor.toFixed(2)})`, peor >= 4.5, true);
     }
   }
+
+  /* LAS COPIAS DE LA PALETA. El widget, la placa y la página de métricas no
+     pueden leer app.css —el widget y la placa se embeben o se capturan
+     sueltos, y métricas es HTML que arma una función— y llevan su propia
+     copia de los colores. Las tres se quedaron con la paleta vieja (el agua
+     #1f7a9e en claro, #2e9bc4 en oscuro) cuando la marca pasó a ser #5fc8e8
+     en los dos temas, y la auditoría del 29/10/2026 midió «Dato viejo» del
+     widget en 4,23:1 y la solapa activa de métricas en 3,18.
+
+     Cada copia lleva un mapa explícito «variable → token de app.css»; el
+     valor del tema claro es el --c-<token> si existe y si no el del oscuro
+     (--sobre-agua es uno solo). `null` es una variable PROPIA, sin token
+     equivalente, y va con el motivo. Falla si una variable no es igual a su
+     token, si la copia tiene una variable que el mapa no nombra (hay que
+     decidir a qué token corresponde) o si el mapa nombra una que ya no está.
+     Y mide los pares de texto de cada copia sobre su fondo real: [texto,
+     [capas de fondo, de arriba hacia abajo; la última es opaca]].
+
+     Comprobado contra la fuente (los tokens de este mismo archivo) y en el
+     navegador el 29/10/2026: «Dato viejo» del widget queda en 4,88:1 en
+     claro y 5,25 en oscuro, la evacuación del widget oscuro en 5,04 y el
+     tenue de la placa clara sobre su panel en 4,88. */
+  const leer = (r) => readFileSync(join(PUBLICO, "..", r), "utf8");
+  const tokenDe = (nombre, tema) => {
+    const v = (tema === "claro" && tok("c-" + nombre)) || tok(nombre);
+    if (!v || v.startsWith("var(")) throw new Error(`el token --${nombre} no es un color de app.css`);
+    return v;
+  };
+  // Las variables CSS (--x: valor) de un bloque, desde `inicio` hasta la primera «}».
+  const varsCss = (texto, inicio) => {
+    const i = texto.indexOf(inicio);
+    if (i < 0) throw new Error(`no se encontró «${inicio}»`);
+    const bloque = texto.slice(i + inicio.length, texto.indexOf("}", i));
+    return Object.fromEntries([...bloque.matchAll(/--([\w-]+):\s*([^;}]+)/g)].map((m) => [m[1], m[2].trim()]));
+  };
+  // #fff y #ffffff son el mismo color: se comparan los números, no el texto.
+  const largo = (v) => (/^#[0-9a-f]{3}$/i.test(v) ? "#" + [...v.slice(1)].map((c) => c + c).join("") : v);
+  const igual = (a, b) => rgb(largo(a)).every((x, i) => Math.abs(x - rgb(largo(b))[i]) < 1e-9);
+
+  const placa = leer("public/js/placa.js").match(/const PAL = CLARO\s*\?\s*\{([^}]*)\}\s*:\s*\{([^}]*)\}/);
+  // En la placa: `clave: "valor"`; el panel del oscuro es un ternario y el
+  // que se mide es el de fondo pintado (el último literal), no el transparente.
+  const varsPal = (bloque) =>
+    Object.fromEntries(
+      [...bloque.matchAll(/(\w+):\s*(?:TRANSPARENTE\s*\?\s*"[^"]*"\s*:\s*)?"([^"]+)"/g)].map((m) => [m[1], m[2]]),
+    );
+  const metricas = leer("api/metricas.js");
+  const metOscuro = varsCss(metricas, ":root{");
+  const widget = leer("public/widget/index.html");
+
+  const COPIAS = [
+    {
+      nombre: "el widget",
+      temas: {
+        claro: varsCss(widget, ":root {"),
+        oscuro: varsCss(widget, 'html[data-theme="dark"] {'),
+      },
+      mapa: {
+        fondo: "panel", // la tarjeta es un panel, no el papel de la página
+        texto: "texto",
+        tenue: "tenue",
+        linea: "linea", // las marcas de 10 cm: copia de .marcas-rio.h
+        pista: "panel-2", // la pista de la regla y la píldora «Dato viejo», como .be-pista
+        agua: "agua", // el agua de la regla y del logo: la marca
+        acento: "acento", // el enlace «vía Cota Cero»
+        // Estos tres van como TEXTO (el estado, los umbrales, la tendencia),
+        // también sobre su tinte: son los -texto, no los de relleno.
+        alerta: "alerta-texto",
+        peligro: "peligro-texto",
+        ok: "ok-texto",
+        "linea-alerta": "linea-alerta", // las dos marcas de la regla
+        "linea-evac": "linea-evac",
+        "alerta-tinte": "alerta-tinte",
+        "peligro-tinte": "peligro-tinte",
+        "ok-tinte": "ok-tinte",
+      },
+      pares: [
+        ["texto", ["fondo"]],
+        ["tenue", ["fondo"]],
+        ["tenue", ["pista", "fondo"]],
+        ["acento", ["fondo"]],
+        ["alerta", ["fondo"]],
+        ["alerta", ["alerta-tinte", "fondo"]],
+        ["peligro", ["fondo"]],
+        ["peligro", ["peligro-tinte", "fondo"]],
+        ["ok", ["fondo"]],
+        ["ok", ["ok-tinte", "fondo"]],
+      ],
+    },
+    {
+      nombre: "la placa",
+      temas: { claro: varsPal(placa[1]), oscuro: varsPal(placa[2]) },
+      mapa: {
+        fondo: "panel", // el lienzo: el mismo que la tarjeta del widget
+        panel: "panel-2",
+        texto: "texto",
+        tenue: "tenue",
+        // La pista de la regla y la grilla de 30 días en una lámina de
+        // 1920 px que se mira de lejos: no tiene equivalente en la app.
+        linea: null,
+        agua: "agua",
+        alerta: "alerta-texto", // estado, rótulos y fecha vencida: texto
+        peligro: "peligro-texto",
+        ok: "ok-texto",
+        lineaAlerta: "linea-alerta", // las marcas de la regla y la grilla
+        lineaEvac: "linea-evac",
+      },
+      pares: ["texto", "tenue", "alerta", "peligro", "ok"].flatMap((t) => [
+        [t, ["fondo"]],
+        [t, ["panel", "fondo"]],
+      ]),
+    },
+    {
+      nombre: "métricas",
+      temas: {
+        oscuro: metOscuro,
+        // El claro sólo redefine lo que cambia; el resto lo hereda.
+        claro: { ...metOscuro, ...varsCss(metricas, "prefers-color-scheme:light){:root{") },
+      },
+      mapa: {
+        f: "fondo",
+        p: "panel",
+        s: "panel-2", // las tarjetas, las solapas y cada sugerencia
+        t: "texto",
+        m: "tenue",
+        a: "acento", // «Ver las N →» y las barras
+        g: "agua", // la solapa activa, con --sa encima: es el .btn.sec
+        sa: "sobre-agua",
+        cd: "alerta-texto", // las categorías de las sugerencias
+        cf: "ok-texto",
+        cc: "peligro-texto",
+      },
+      pares: [
+        ["t", ["f"]],
+        ["t", ["s", "f"]],
+        ["m", ["f"]],
+        ["m", ["s", "f"]],
+        ["a", ["f"]],
+        ["sa", ["g"]],
+        ["cd", ["s", "f"]],
+        ["cf", ["s", "f"]],
+        ["cc", ["s", "f"]],
+      ],
+    },
+  ];
+
+  for (const { nombre, temas, mapa, pares } of COPIAS) {
+    for (const [tema, vars] of Object.entries(temas)) {
+      const distintas = [];
+      for (const v of Object.keys(vars))
+        if (!(v in mapa)) distintas.push(`--${v} no está en el mapa`);
+      for (const [v, token] of Object.entries(mapa)) {
+        if (!(v in vars)) distintas.push(`--${v} ya no está en la copia`);
+        else if (token && !igual(vars[v], tokenDe(token, tema)))
+          distintas.push(
+            `--${v} ${vars[v]} ≠ --${tema === "claro" && tok("c-" + token) ? "c-" : ""}${token} ${tokenDe(token, tema)}`,
+          );
+      }
+      caso(`${nombre}, ${tema}: cada color es su token de app.css`, distintas, []);
+
+      let peor = Infinity;
+      let cual = "";
+      for (const [texto, capas] of pares) {
+        const col = (v) => rgb(largo(vars[v]));
+        const base = col(capas.at(-1)).slice(0, 3);
+        const f = capas.slice(0, -1).reduceRight((abajo, c) => sobre(col(c), abajo), base);
+        const r = razon(col(texto).slice(0, 3), f);
+        if (r < peor) [peor, cual] = [r, `${texto} sobre ${capas.join("+")}`];
+      }
+      caso(`${nombre}, ${tema}: sus pares de texto pasan 4,5:1 (peor ${peor.toFixed(2)}, ${cual})`, peor >= 4.5, true);
+    }
+  }
 }
 
 {

@@ -61,133 +61,213 @@ function adoptarUmbrales(j) {
   fijarUmbrales(a, e);
 }
 
-export async function cargarRio() {
-  // Marcamos que estamos buscando: sin esto, entre el "Cargando" inicial y
-  // el resultado no había diferencia visible con el estado de falla.
-  const ver = document.getElementById("veredicto-rio");
-  if (estado.rio == null) ver.classList.add("cargando");
-  document.getElementById("origen-dato").textContent =
-    "Buscando el nivel del río…";
-  let valor = null,
-    origen = "",
-    extra = "";
-  // El delta pertenece a la lectura fresca: si caemos a un valor
-  // guardado no corresponde arrastrar el de la sesión anterior.
-  estado.delta = null;
-  estado.rioFecha = "";
-  estado.rioVencido = false;
-  ultimoRefresco = Date.now();
+/* Cuánto se espera a /api/nivel antes de darlo por perdido. Sin tope, con
+   señal mala —la que hay en la vereda durante una crecida— el pedido podía
+   quedar colgado medio minuto y la tarjeta seguía en «Buscando…» todo ese
+   tiempo. 8 s alcanzan de sobra para un JSON chico con 3G floja, y la
+   función casi siempre contesta desde la CDN (s-maxage en api/nivel.js).
+   Si se corta, se cae a lo guardado como con cualquier otra falla, y
+   «Volver a buscar» sigue estando. AbortController y no
+   AbortSignal.timeout(), por los Android viejos (ver mapa.js). */
+const ESPERA_NIVEL_MS = 8000;
 
-  // Fuente 1: nuestra función que lee el reporte diario del INA
+/* Cuántos pedidos a /api/nivel hay en el aire (un contador y no un sí/no:
+   «Volver a buscar» puede salir con otro todavía en camino). Mientras tanto
+   lo que se ve es lo guardado, y la pantalla tiene que decir que el de hoy
+   se está buscando —no que no hay conexión, que todavía no pasó—. */
+let enVuelo = 0;
+const buscando = () => enVuelo > 0;
+
+/* La frase que acompaña a la fuente («Medición del…»). Se guarda aparte para
+   poder repintar la fuente sin volver a pedir nada. */
+let extraOrigen = "";
+
+const ORIGEN_GUARDADO = "último dato del INA guardado";
+
+/* Lo guardado se reconoce por la fuente, como esManual(). */
+export const esGuardado = () => estado.rioOrigen === ORIGEN_GUARDADO;
+
+/* Fuente 1: nuestra función, que lee el SIyAH del INA (o su reporte diario).
+   Devuelve la lectura, o null si no contestó a tiempo o contestó mal. */
+async function delINA() {
+  const ctl =
+    typeof AbortController === "function" ? new AbortController() : null;
+  const t = ctl && setTimeout(() => ctl.abort(), ESPERA_NIVEL_MS);
+  let j;
   try {
-    const r = await fetch(CONFIG.NIVEL_ENDPOINT, { cache: "no-store" });
-    if (r.ok) {
-      const j = await r.json();
-      if (typeof j.altura === "number") {
-        valor = j.altura;
-        origen =
-          j.origen === "api"
-            ? "INA · Sistema de Alerta Hidrológico (SIyAH)"
-            : "INA · reporte diario";
-        estado.rioVia = j.origen || "";
-        estado.rioVerificar = j.verificar || "";
-        // El cero IGN que publica el INA para esta escala. No entra en el
-        // cálculo —ver /datos, "Discusiones abiertas"—, se guarda para poder
-        // mostrarlo al lado del que sí usamos.
-        estado.ceroINA = typeof j.cero_ign === "number" ? j.cero_ign : null;
-        adoptarUmbrales(j);
-        if (j.fecha_dato) {
-          extra = " Medición del " + j.fecha_dato + ".";
-          estado.rioFecha = j.fecha_dato;
-        }
-        /* La API puede contestar bien con una lectura vieja: pasa si el INA
-           deja de publicar. Vence igual que la guardada, o la tarjeta
-           mostraría la cara de hoy con un número de la semana pasada. */
-        const horas = horasDesde(fechaINA(j.fecha_dato));
-        estado.rioVencido = horas !== null && horas > VENCE_HORAS;
-        /* El INA sube UNA lectura por día, hacia media tarde y también los
-           domingos. Antes de eso la última es la de ayer, y quien la ve piensa
-           que el río no se mueve o que faltan datos. */
-        const fd = fechaINA(j.fecha_dato);
-        const hoy = new Date().setHours(0, 0, 0, 0);
-        if (fd && !estado.rioVencido && fd.getTime() < hoy)
-          extra +=
-            " El INA publica una lectura por día, hacia media tarde: la de hoy todavía no salió.";
-        if (typeof j.delta === "number") estado.delta = j.delta;
-        guardado.set("cc_rio_auto", String(j.altura));
-        guardado.set("cc_rio_fecha", j.fecha_dato || "");
-      }
-    }
+    const r = await fetch(CONFIG.NIVEL_ENDPOINT, {
+      cache: "no-store",
+      signal: ctl ? ctl.signal : undefined,
+    });
+    if (!r.ok) return null;
+    j = await r.json();
   } catch (e) {
-    /* pasamos a la siguiente */
+    return null;
+  } finally {
+    if (t) clearTimeout(t);
   }
+  if (!j || typeof j.altura !== "number") return null;
+  estado.rioVia = j.origen || "";
+  estado.rioVerificar = j.verificar || "";
+  // El cero IGN que publica el INA para esta escala. No entra en el
+  // cálculo —ver /datos, "Discusiones abiertas"—, se guarda para poder
+  // mostrarlo al lado del que sí usamos.
+  estado.ceroINA = typeof j.cero_ign === "number" ? j.cero_ign : null;
+  adoptarUmbrales(j);
+  let extra = j.fecha_dato ? " Medición del " + j.fecha_dato + "." : "";
+  /* La API puede contestar bien con una lectura vieja: pasa si el INA
+     deja de publicar. Vence igual que la guardada, o la tarjeta
+     mostraría la cara de hoy con un número de la semana pasada. */
+  const horas = horasDesde(fechaINA(j.fecha_dato));
+  const vencido = horas !== null && horas > VENCE_HORAS;
+  /* El INA sube UNA lectura por día, hacia media tarde y también los
+     domingos. Antes de eso la última es la de ayer, y quien la ve piensa
+     que el río no se mueve o que faltan datos. */
+  const fd = fechaINA(j.fecha_dato);
+  const hoy = new Date().setHours(0, 0, 0, 0);
+  if (fd && !vencido && fd.getTime() < hoy)
+    extra +=
+      " El INA publica una lectura por día, hacia media tarde: la de hoy todavía no salió.";
+  guardado.set("cc_rio_auto", String(j.altura));
+  guardado.set("cc_rio_fecha", j.fecha_dato || "");
+  return {
+    valor: j.altura,
+    origen:
+      j.origen === "api"
+        ? "INA · Sistema de Alerta Hidrológico (SIyAH)"
+        : "INA · reporte diario",
+    fecha: j.fecha_dato || "",
+    vencido,
+    extra,
+    delta: typeof j.delta === "number" ? j.delta : null,
+  };
+}
 
-  // Fuente 2: último valor automático conocido
-  if (valor === null) {
-    const a = guardado.get("cc_rio_auto");
-    if (a) {
-      valor = parseFloat(a);
-      origen = "último dato del INA guardado";
-      // cc_rio_fecha se guardaba y no se leía nunca. Decir de cuándo es
-      // el número importa más que avisar en abstracto que puede ser
-      // viejo, y pasadas VENCE_HORAS deja de presentarse como vigente:
-      // durante una crecida, un nivel de hace cinco días con la misma
-      // tipografía que el de hoy es peor que no tener ninguno.
-      const f = guardado.get("cc_rio_fecha");
-      const horas = horasDesde(fechaINA(f));
-      estado.rioFecha = f || "";
-      estado.rioVencido = horas === null || horas > VENCE_HORAS;
-      extra = f
-        ? " Es la medición del " + f + ", no el valor de ahora."
-        : " Puede estar desactualizado.";
+/* Fuente 2: el último valor automático conocido. Es lo que se pinta DE
+   ENTRADA mientras viaja el pedido, y lo que queda si el pedido falla.
+   cc_rio_fecha se guardaba y no se leía nunca. Decir de cuándo es el número
+   importa más que avisar en abstracto que puede ser viejo, y pasadas
+   VENCE_HORAS deja de presentarse como vigente: durante una crecida, un
+   nivel de hace cinco días con la misma tipografía que el de hoy es peor que
+   no tener ninguno. Sin delta: pertenece a la lectura fresca, y arrastrar el
+   de la sesión anterior sería ponerle movimiento a un número quieto. */
+function delGuardado() {
+  const a = guardado.get("cc_rio_auto");
+  const valor = a ? parseFloat(a) : NaN;
+  if (!isFinite(valor)) return null;
+  const f = guardado.get("cc_rio_fecha");
+  const horas = horasDesde(fechaINA(f));
+  return {
+    valor,
+    origen: ORIGEN_GUARDADO,
+    fecha: f || "",
+    vencido: horas === null || horas > VENCE_HORAS,
+    extra: f
+      ? " Es la medición del " + f + ", no el valor de ahora."
+      : " Puede estar desactualizado.",
+    delta: null,
+  };
+}
+
+/* Fuente 3: el último valor que cargó la persona. */
+function delManual() {
+  const g = guardado.get("cc_rio");
+  const valor = g ? parseFloat(g) : NaN;
+  if (!isFinite(valor)) return null;
+  return {
+    valor,
+    origen: "último valor cargado a mano",
+    fecha: "",
+    vencido: true, // no sabemos de cuándo es ni de dónde salió
+    extra: "",
+    delta: null,
+  };
+}
+
+export async function cargarRio() {
+  const ver = document.getElementById("veredicto-rio");
+  ultimoRefresco = Date.now();
+  enVuelo++;
+  /* Con señal mala, lo guardado no puede esperar a que el pedido falle: eran
+     8 s —o medio minuto, antes del tope— con la tarjeta en «Buscando…» y un
+     número perfectamente útil en el teléfono. Se pinta ya, rotulado como lo
+     que es, y lo reemplaza la red cuando conteste. Si ya hay un número en
+     pantalla (un refresco al volver a la app), se queda ése. */
+  if (estado.rio == null) {
+    const g = delGuardado();
+    if (g) mostrar(g);
+    else {
+      // Sin esto, entre el "Cargando" inicial y el resultado no había
+      // diferencia visible con el estado de falla.
+      ver.classList.add("cargando");
+      document.getElementById("origen-dato").textContent =
+        "Buscando el nivel del río…";
     }
-  }
+  } else pintarOrigen();
 
-  // Fuente 3: último valor que cargó la persona
-  if (valor === null) {
-    const g = guardado.get("cc_rio");
-    if (g) {
-      valor = parseFloat(g);
-      origen = "último valor cargado a mano";
-      estado.rioVencido = true; // no sabemos de cuándo es ni de dónde salió
-    }
-  }
+  const l = await delINA();
+  enVuelo--;
+  mostrar(l || delGuardado() || delManual());
+}
 
-  if (valor === null) {
+/* Aplica una lectura —o ninguna— al estado y repinta todo lo que la lee. */
+function mostrar(l) {
+  if (!l) {
     estado.rio = null;
     estado.rioOrigen = "";
+    estado.delta = null;
+    estado.rioFecha = "";
+    estado.rioVencido = false;
     document.getElementById("origen-dato").innerHTML =
       '<b style="color:var(--alerta-texto)">Sin dato automático.</b> Cargá la altura a mano acá abajo. ' +
       "La publican el INA, Prefectura y la FICH-UNL todos los días.";
     document.getElementById("det-manual").open = true;
   } else {
-    estado.rio = valor;
-    estado.rioOrigen = origen;
-    /* La fuente deja de ser una frase y pasa a ser algo que se puede abrir.
-       Es la diferencia entre "confiá en nosotros" y "andá a mirarlo": el
-       enlace apunta al reporte del INA, y cuando contestó la API también al
-       pedido exacto que devolvió este número. */
-    document.getElementById("origen-dato").innerHTML =
-      (estado.rioVencido
-        ? '<b style="color:var(--alerta-texto)">Dato vencido.</b> '
-        : "") +
-      "Fuente: " +
-      origen +
-      "." +
-      extra +
-      ' <a href="' +
-      atr(FUENTE_RIO) +
-      '" target="_blank" rel="noopener">Ver el reporte del INA</a>' +
-      (estado.rioVerificar
-        ? ' · <a href="' +
-          atr(estado.rioVerificar) +
-          '" target="_blank" rel="noopener">ver el dato crudo</a>'
-        : "");
-    if (estado.rioVencido) document.getElementById("det-manual").open = true;
+    estado.rio = l.valor;
+    estado.rioOrigen = l.origen;
+    estado.delta = l.delta;
+    estado.rioFecha = l.fecha;
+    estado.rioVencido = l.vencido;
+    extraOrigen = l.extra;
+    pintarOrigen();
+    // Mientras se busca el de hoy no se abre: si la red contesta, sobraba.
+    if (l.vencido && !buscando())
+      document.getElementById("det-manual").open = true;
   }
-  ver.classList.remove("cargando");
+  document.getElementById("veredicto-rio").classList.remove("cargando");
   pintarRio();
   calcular();
+}
+
+/* La fuente deja de ser una frase y pasa a ser algo que se puede abrir.
+   Es la diferencia entre "confiá en nosotros" y "andá a mirarlo": el
+   enlace apunta al reporte del INA, y cuando contestó la API también al
+   pedido exacto que devolvió este número. */
+function pintarOrigen() {
+  const el = document.getElementById("origen-dato");
+  const busca = buscando() ? " Buscando el dato de hoy…" : "";
+  // Lo cargado recién a mano no tiene reporte que abrir (fijarRioManual).
+  if (estado.rioOrigen === "cargado a mano") {
+    el.textContent = "Fuente: cargado a mano." + busca;
+    return;
+  }
+  el.innerHTML =
+    (estado.rioVencido
+      ? '<b style="color:var(--alerta-texto)">Dato vencido.</b> '
+      : "") +
+    "Fuente: " +
+    estado.rioOrigen +
+    "." +
+    extraOrigen +
+    busca +
+    ' <a href="' +
+    atr(FUENTE_RIO) +
+    '" target="_blank" rel="noopener">Ver el reporte del INA</a>' +
+    (estado.rioVerificar
+      ? ' · <a href="' +
+        atr(estado.rioVerificar) +
+        '" target="_blank" rel="noopener">ver el dato crudo</a>'
+      : "");
 }
 
 /* ---- Río arriba (escalas del INA aguas arriba del Puerto) ----
@@ -392,6 +472,7 @@ export function fijarRioManual() {
   estado.delta = null;
   estado.rioVencido = false;
   estado.rioFecha = "";
+  extraOrigen = "";
   guardado.set("cc_rio", String(v));
   document.getElementById("origen-dato").textContent =
     "Fuente: cargado a mano.";
@@ -464,12 +545,15 @@ export function pintarRio() {
       txt: `<b>${n2(RECORD)}</b> récord de ${RECORD_ANIO}`,
     },
   ];
-  // Vencido, el número no es «de hoy»: la etiqueta no puede decirlo.
+  /* Vencido, el número no es «de hoy»: la etiqueta no puede decirlo. Y lo
+     guardado tampoco, aunque esté vigente: es el de la última vez que hubo
+     señal, y lo que diga la red de hoy todavía no se sabe. */
+  const deHoy = !estado.rioVencido && !esGuardado();
   if (r != null)
     lineas.push({
       pos: acotar(pct(r)),
       cls: "l-hoy" + (estado.rioVencido ? " viejo" : ""),
-      txt: `<b>${n2(r)}</b> ${estado.rioVencido ? "último dato" : "hoy"}`,
+      txt: `<b>${n2(r)}</b> ${deHoy ? "hoy" : "último dato"}`,
     });
   /* Tu nivel de aviso, en la escala del hidrómetro. Si cae afuera de la
      regla no tiene línea, pero la etiqueta se queda en el borde: callarlo
@@ -523,7 +607,7 @@ export function pintarRio() {
         " metros. " +
         (r == null
           ? "Sin dato de hoy. "
-          : (estado.rioVencido ? "Último dato guardado, " : "Hoy ") +
+          : (deHoy ? "Hoy " : "Último dato guardado, ") +
             m(r) +
             ". ") +
         "Alerta de la ciudad " +
@@ -556,7 +640,7 @@ export function pintarRio() {
 
   // Las dos leen estado.rio, así que se repintan con el mismo dato.
   pintarContexto();
-  pintarBienvenida();
+  pintarBienvenida({ guardado: estado.rioVencido || esGuardado() });
 }
 
 /* Sin cota, la app no puede responder su propia pregunta — y en la pestaña
@@ -679,10 +763,13 @@ function pintarVeredictoRio() {
   }
   ${
     /* Si contestó la API, hay conexión: lo que falta es una medición nueva.
-       Decir «no hay conexión» mandaría a revisar el wifi. */
+       Decir «no hay conexión» mandaría a revisar el wifi. Y mientras el
+       pedido viaja tampoco: es una falla que todavía no pasó. */
     (estado.rioOrigen || "").startsWith("INA")
       ? "El INA no publicó una medición nueva desde entonces."
-      : "No hay conexión con el INA."
+      : buscando()
+        ? "Estamos buscando una nueva."
+        : "No hay conexión con el INA."
   }
   Cargá la altura a mano acá abajo antes de decidir nada con este número.</div>`
     : "";
@@ -811,10 +898,19 @@ function pintarVeredictoRio() {
             ? "Te faltan <b>" + falta + "</b> cosas de la mochila."
             : "Tu mochila está completa."
         }<button class="btn mini" style="margin-top:9px;display:block" data-accion="ir" data-vista="plan">Abrir mi plan</button></p>`;
+  /* Lo guardado y todavía vigente lleva su fecha pegada al número, no sólo
+     en la fuente, que queda una regla más abajo: se pinta de entrada en cada
+     arranque, mientras viaja el pedido, y no puede pasar por el de hoy. */
+  const guardadoVigente =
+    !viejo && esGuardado()
+      ? `<p class="chico" style="margin:0 0 10px">Es el último dato guardado${
+          estado.rioFecha ? ", la medición del " + estado.rioFecha : ""
+        }.${buscando() ? " Buscando el de hoy…" : " No es el valor de ahora."}</p>`
+      : "";
   c.className = "veredicto " + cls;
   c.innerHTML = `${vencido}<div class="titu">${titu}</div>
     <div class="dato dato-rio">${nm(r, 2)}<span class="u">m</span><span class="eti">en el puerto</span></div>
-    ${mov}
+    ${guardadoVigente}${mov}
     ${celdas}
     ${txt ? `<p class="chico" style="margin:0 0 10px">${txt}</p>` : ""}${glosa}${plan}`;
   pintarFranjaCiudad(viejo || esManual() ? null : r);

@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-6ed718e62a";
+const VERSION = "cota-cero-84cf2406fc";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -75,9 +75,6 @@ const CRITICOS = [
      importScripts —eso el navegador lo guarda solo—, pero las páginas del
      sitio lo piden con un <script> común y sin esto no abrirían sin señal. */
   "/lib/comun-clasico.js",
-  /* Y el original, que importan los módulos de la app: sin esto /app no abre
-     sin conexión. Son el mismo código, uno para cada mundo. */
-  "/lib/comun.js",
   "/js/rio-barra.js",
   /* Las páginas de contenido, TODAS. Antes no se precacheaba ninguna —la app
      explicaba todo adentro justamente porque sin señal no había adónde ir— y
@@ -111,6 +108,11 @@ const CRITICOS = [
 
 const DEL_APP = [
   "/app",
+  /* El original de lib/comun-clasico.js, que importan los módulos de la app:
+     sin esto /app no abre sin conexión. Ninguna página del sitio lo pide —ésas
+     cargan el gemelo clásico, arriba—, así que va en la tanda de /app y no en
+     la que paga todo el que entra a leer /legal. */
+  "/lib/comun.js",
   "/lib/fuentes.js",
   // MODULOS:inicio — uno por archivo de js/app/; los escribe scripts/paginas/emitir.js
   "/js/app/principal.js",
@@ -180,11 +182,16 @@ const DEL_APP = [
    muerta. */
 const ESENCIALES = CRITICOS.concat(DEL_APP);
 
-// `cache: "reload"` salta el caché HTTP del navegador. Sin esto, subir
-// VERSION puede volver a guardar los mismos archivos viejos y el bump no
-// sirve de nada — pasó con el manifest.
+/* `cache: "no-cache"`: el pedido va siempre al servidor, pero condicional.
+   Si el archivo no cambió vuelve un 304 y se usa la copia de la caché HTTP;
+   si cambió, viene el nuevo. Sin esto, subir VERSION podía volver a guardar
+   los mismos archivos viejos y el bump no servía de nada — pasó con el
+   manifest. Antes era `cache: "reload"`, que también lo evitaba pero salteaba
+   la caché HTTP sin preguntar: el precache volvía a bajar entero lo que la
+   página acababa de bajar para pintarse. `no-cache` revalida siempre, así que
+   lo viejo no entra, y lo que no cambió no se baja dos veces. */
 const frescas = (rutas) =>
-  rutas.map((u) => new Request(u, { cache: "reload" }));
+  rutas.map((u) => new Request(u, { cache: "no-cache" }));
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -242,6 +249,64 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+/* Red primero, pero no a cualquier precio. Con señal que va y viene —el
+   «lie-fi»: el teléfono dice que hay red y los paquetes no llegan— un fetch
+   puede tardar medio minuto en fallar, y mientras tanto la pantalla queda en
+   blanco aunque la copia esté acá. Así que la red corre contra un reloj:
+
+   · si contesta antes de ESPERA_RED_MS, gana ella, como siempre, y su
+     respuesta actualiza la caché;
+   · si no, y hay copia, se sirve la copia. La red sigue en curso y, cuando
+     llega, igual actualiza la caché para la próxima vez (waitUntil, para
+     que el navegador no mate al worker antes de guardarla);
+   · si no hay copia, se sigue esperando a la red: cortar ahí no deja nada
+     mejor para mostrar.
+
+   Devuelve la respuesta, o undefined si no hubo red ni copia: qué se hace
+   entonces depende de la rama. `deCache` es una función porque cada rama
+   busca distinto (la navegación ignora el ?ir=).
+
+   El precio es el mismo de estar sin señal: con la copia de la caché puede
+   salir un HTML nuevo con un módulo viejo de la misma versión, o al revés.
+   4 s es bastante más de lo que tarda un 304 con 3G floja y bastante menos
+   de lo que alguien mira una pantalla en blanco antes de cerrarla. */
+const ESPERA_RED_MS = 4000;
+
+function redPrimero(e, req, deCache) {
+  const red = fetch(req).then((r) => {
+    if (r.ok) {
+      const copia = r.clone();
+      e.waitUntil(caches.open(VERSION).then((c) => c.put(req, copia)));
+    }
+    return r;
+  });
+  // Que la red siga viva aunque ya hayamos contestado con la copia.
+  e.waitUntil(red.catch(() => {}));
+  return new Promise((ok) => {
+    let listo = false;
+    const dar = (r) => {
+      if (listo) return;
+      listo = true;
+      ok(r);
+    };
+    const reloj = setTimeout(() => {
+      deCache().then((hit) => {
+        if (hit) dar(hit);
+      }, () => {});
+    }, ESPERA_RED_MS);
+    red.then(
+      (r) => {
+        clearTimeout(reloj);
+        dar(r);
+      },
+      () => {
+        clearTimeout(reloj);
+        deCache().then(dar, () => dar(undefined));
+      },
+    );
+  });
+}
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
@@ -294,49 +359,33 @@ self.addEventListener("fetch", (e) => {
   // (ya sabemos que es del propio origen: lo de afuera salió arriba)
   if (/\.(js|css)$/.test(url.pathname)) {
     e.respondWith(
-      fetch(req)
-        .then((r) => {
-          if (r.ok) {
-            const copia = r.clone();
-            caches.open(VERSION).then((c) => c.put(req, copia));
-          }
-          return r;
-        })
-        .catch(() =>
-          caches.match(req).then(
-            (hit) =>
-              hit ||
-              new Response("Sin conexión y sin copia guardada.", {
-                status: 504,
-                headers: { "Content-Type": "text/plain; charset=utf-8" },
-              }),
-          ),
-        ),
+      redPrimero(e, req, () => caches.match(req)).then(
+        (r) =>
+          r ||
+          new Response("Sin conexión y sin copia guardada.", {
+            status: 504,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+          }),
+      ),
     );
     return;
   }
 
   // Navegación (el HTML): red primero.
   if (req.mode === "navigate") {
+    /* Se guarda bajo SU propia URL (lo hace redPrimero). Antes TODA navegación
+       se guardaba como "/index.html": con la landing y la app en documentos
+       distintos, visitar una dejaba su HTML como copia offline de la otra.
+       ignoreSearch porque la app navega a /app?ir=cota, ?ir=plan y ?ir=donde:
+       sin esto cada deep link sería un fallo de caché. A la espera sólo
+       contesta la copia propia: servir la portada en lugar de /legal porque la
+       red tarda sería el error de siempre, el que parece que anduvo. */
     e.respondWith(
-      fetch(req)
-        .then((r) => {
-          // Se guarda bajo SU propia URL. Antes TODA navegación se guardaba
-          // como "/index.html": con la landing y la app en documentos
-          // distintos, visitar una dejaba su HTML como copia offline de la
-          // otra.
-          if (r.ok) {
-            const copia = r.clone();
-            caches.open(VERSION).then((c) => c.put(req, copia));
-          }
-          return r;
-        })
-        .catch(async () => {
-          // ignoreSearch porque la app navega a /app?ir=cota, ?ir=plan y
-          // ?ir=donde: sin esto cada deep link sería un fallo de caché.
-          const propia = await caches.match(req, { ignoreSearch: true });
-          if (propia) return propia;
-          // Último recurso: la app para sus rutas, la landing para el resto.
+      redPrimero(e, req, () => caches.match(req, { ignoreSearch: true })).then(
+        async (r) => {
+          if (r) return r;
+          // Último recurso, ya sin red: la app para sus rutas, la landing
+          // para el resto.
           const alApp =
             url.pathname === "/app" || url.pathname.startsWith("/app/");
           return (
@@ -346,7 +395,8 @@ self.addEventListener("fetch", (e) => {
               headers: { "Content-Type": "text/plain; charset=utf-8" },
             })
           );
-        }),
+        },
+      ),
     );
     return;
   }

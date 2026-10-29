@@ -242,10 +242,10 @@ ${
    con vuelta a la portada, cabecera con chip y título grande, y el cuerpo en
    bloques de tarjeta. `bloques` es una lista de {kicker, titulo, html, oscuro};
    si un bloque no lleva kicker ni título, sale como texto suelto. */
-function bloque({ id, kicker, kickerAlerta, titulo, html, oscuro, borde }) {
+function bloque({ id, kicker, titulo, html, oscuro, borde }) {
   const clases = "bloque" + (oscuro ? " oscuro" : "") + (borde ? " borde" : "");
   return `      <section class="${clases}"${id ? ` id="${id}"` : ""}>
-${kicker ? `        <p class="kicker${kickerAlerta ? " kicker-alerta" : ""}">${esc(kicker)}</p>\n` : ""}${titulo ? `        <h2>${esc(titulo)}</h2>\n` : ""}${html}
+${kicker ? `        <p class="kicker">${esc(kicker)}</p>\n` : ""}${titulo ? `        <h2>${esc(titulo)}</h2>\n` : ""}${html}
       </section>`;
 }
 
@@ -357,15 +357,15 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <script src="/js/rio-barra.js" defer></script>
     <script defer src="/_vercel/insights/script.js"></script>
     ${
-      /* El cargador va externo y la configuración en /js/analitica.js: el
-         <script> en línea del snippet oficial lo bloquea la CSP. No va en
-         /app ni en /widget — ver el encabezado de js/analitica.js. */ ""
-    }<script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-4ZWXFWZC9X"></script>
-    <script src="/js/analitica.js" defer></script>
+      /* La configuración va en /js/analitica.js (el <script> en línea del
+         snippet oficial lo bloquea la CSP), y el cargador de Google lo
+         inyecta ese mismo archivo después de `load`: escrito acá, el
+         navegador lo bajaba apenas leía el <head>, 181 KB compitiendo con
+         app.css. No va en /app ni en /widget — ver js/analitica.js. */ ""
+    }<script src="/js/analitica.js" defer></script>
 ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <script defer src="${script}"></script>\n` : ""}  </head>
   <body class="landing">
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
     ${
       /* La barra es la MISMA que la de la portada: mismo ancho, mismo chip y
          los mismos cuatro destinos. Antes tenía dos enlaces propios y quedaba
@@ -422,6 +422,10 @@ ${css ? `    <link rel="stylesheet" href="${css}" />\n` : ""}${script ? `    <sc
     </div>
 
     <div class="ancho">
+${
+  /* El <main> arranca en la cabecera: el h1 quedaba afuera, y el <header>
+     de la página contaba como el banner del sitio en vez de la barra. */ ""
+}      <main id="contenido">
 ${antes ? antes + "\n" : ""}      <header class="pg-cabecera">
 ${chip ? `        <p class="chip-tinte">${esc(chip)}</p>\n` : ""}        <h1>${esc(h1)}</h1>
 ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones + "\n" : ""}${
@@ -434,7 +438,6 @@ ${lead ? `        <p class="pg-lead">${lead}</p>\n` : ""}${acciones ? acciones +
       : ""
   }      </header>
 
-      <main>
 ${[
   ...bloques.map(bloque),
   ...(sueltos || []),

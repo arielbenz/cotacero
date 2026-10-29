@@ -155,6 +155,15 @@
   --t-s: 0.8125rem; /* 13px */
   --t-xs: 0.75rem; /* 12px */
   --t-tick: 0.75rem; /* 12px */
+  /* La etiqueta del instrumento (.eti) y los rótulos chicos: estaba escrita a
+     mano seis veces, y dos piezas iban en 10 px, abajo de este piso. */
+  --t-etiqueta: 0.6875rem; /* 11px */
+  /* Los títulos del sitio, que vivían como clamp() sueltos en cada regla. */
+  --t-titulo-hero: clamp(2.4rem, 4.6vw, 3.6rem); /* h1 de la portada */
+  --t-titulo-pagina: clamp(2.2rem, 4.2vw, 3.1rem); /* h1 de las páginas */
+  --t-titulo-seccion: clamp(1.75rem, 3vw, 2.25rem); /* h2 de la portada */
+  --t-titulo-bloque: clamp(1.5rem, 2.6vw, 1.9rem); /* h2 de un bloque */
+  --t-bajada: 1.125rem; /* 18px · la bajada debajo del h1 */
 
   /* El espaciado también: si el texto crece y el aire no, a 130 % las
      palabras se pegan a los bordes de las tarjetas. */
@@ -182,11 +191,12 @@
    abajo sólo los remapean: duplicarlos garantiza que tarde o temprano uno se
    actualice y el otro no. */
 :root {
-  /* OJO: este hex está escrito a mano en cinco lugares más —el <meta
-     theme-color> de la portada y el de scripts/paginas.js, el respaldo de
-     js/app/tema.js, CLARO en scripts/iconos.js y el CSS embebido de
-     api/metricas.js—. Si se mueve acá, se mueven los seis o la barra del
-     navegador deja de coincidir con la página. */
+  /* OJO: este hex está escrito a mano en seis lugares más —el <meta
+     theme-color> de la portada, el de app/index.html y el de
+     scripts/paginas.js, el respaldo de js/app/tema.js, CLARO en
+     scripts/iconos.js y el CSS embebido de api/metricas.js—. Si se mueve
+     acá, se mueven los siete o la barra del navegador deja de coincidir con
+     la página. (El de metricas lo verifica comprobar.js.) */
   --c-fondo: #fafbfc;
   --c-panel: #ffffff;
   --c-panel-2: rgba(27, 38, 44, 0.055);
@@ -541,7 +551,7 @@ p {
 }
 .eti {
   font-family: var(--mono);
-  font-size: 0.6875rem; /* 11px */
+  font-size: var(--t-etiqueta);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--tenue);
@@ -654,7 +664,10 @@ p {
   padding: 0 var(--e-1);
   font-size: var(--t-xs);
   line-height: 1.3rem;
-  white-space: nowrap;
+  /* Tope y no `nowrap`: a tamaño normal la más larga mide 180 de 212 px y
+     queda igual, pero con el texto al 200 % estiraba la página a 531 px
+     (WCAG 1.4.10). Ahora parte renglón. */
+  max-width: calc(100% - 64px);
   transition: bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .marca-txt b {
@@ -716,7 +729,7 @@ p {
   border-radius: var(--r-full);
   background: var(--tierra);
   color: var(--fondo);
-  font-size: 0.625rem;
+  font-size: var(--t-etiqueta);
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1.6;
@@ -1094,7 +1107,6 @@ b.c-vos {
    esto decide qué se ve: son los mismos campos del formulario de siempre.
    Con id adelante para ganarle a .btn, .tarjeta y compañía. */
 #v-cota:not(.primera) .solo-primera,
-#v-cota:not(.paso-3) .solo-paso-3,
 #v-cota.primera .solo-formulario,
 #v-cota.primera #cota-intro,
 #v-cota.paso-1 #paso-zona,
@@ -1102,6 +1114,8 @@ b.c-vos {
 #v-cota.paso-3 .primera-cabeza,
 #v-cota.paso-1 #resultado,
 #v-cota.paso-2 #resultado,
+#v-cota.paso-1 #anuncio-resultado,
+#v-cota.paso-2 #anuncio-resultado,
 #v-cota.paso-1 #avisos,
 #v-cota.paso-2 #avisos {
   display: none;
@@ -1138,7 +1152,7 @@ b.c-vos {
 .zona-grupo {
   margin: var(--e-3) 0 var(--e-1);
   font-family: var(--mono);
-  font-size: 0.6875rem;
+  font-size: var(--t-etiqueta);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--tenue);
@@ -1193,24 +1207,6 @@ b.c-vos {
 .zona-opcion:has(input:focus-visible) {
   outline: 3px solid var(--acento);
   outline-offset: 2px;
-}
-.fila-pasos {
-  display: flex;
-  gap: var(--e-2);
-  margin-top: var(--e-4);
-}
-/* .btn trae width:100%: en la fila, «Atrás» se comía el renglón entero. */
-.fila-pasos .btn {
-  flex: 1;
-  width: auto;
-  margin: 0;
-}
-.fila-pasos .btn.sec {
-  flex: 0 0 auto;
-}
-.solo-paso-3 {
-  width: 100%;
-  margin-top: var(--e-3);
 }
 .casa-renglon {
   display: flex;
@@ -1429,6 +1425,11 @@ label.campo-dir {
 .sug-dir li:hover,
 .sug-dir li[aria-selected="true"] {
   background: var(--agua-tinte);
+}
+/* La elegida con las flechas: el tinte solo daba 1,13:1 contra el panel y no
+   se veía cuál era. El anillo es el mismo acento del foco. */
+.sug-dir li[aria-selected="true"] {
+  box-shadow: inset 0 0 0 2px var(--acento);
 }
 .pista-dir {
   margin: var(--e-2) 0 var(--e-3);
@@ -1979,6 +1980,13 @@ label.campo-dir {
 .maplibregl-popup-close-button {
   color: var(--tenue);
   font-size: var(--t-m);
+  /* La «X» de MapLibre mide 11×22 px: con el dedo apurado no se acierta. */
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+/* Lugar para la X agrandada, así el nombre del punto no queda debajo. */
+.maplibregl-popup-content {
+  padding-right: 2.75rem;
 }
 .pin {
   width: 15px;
@@ -2007,7 +2015,7 @@ label.campo-dir {
   height: 24px;
   color: var(--sobre-solido);
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 800;
   line-height: 1;
 }
@@ -2348,7 +2356,7 @@ label.campo-dir {
   background: var(--texto);
   color: var(--fondo);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--t-etiqueta);
   font-weight: 700;
   line-height: 17px;
   text-align: center;
@@ -2375,7 +2383,7 @@ label.campo-dir {
   margin: 0 0 var(--e-2);
 }
 .ahora-cabeza a.btn-emergencia {
-  color: #fff;
+  color: var(--sobre-solido);
 }
 .ahora-punto,
 .ahora-avisar {
@@ -2528,7 +2536,7 @@ body.con-instalar:not([data-vista="rio"]) {
   padding: calc(var(--e-7) * 1.5) 0 var(--e-6);
 }
 .pg-cabecera h1 {
-  font-size: clamp(2.2rem, 4.2vw, 3.1rem);
+  font-size: var(--t-titulo-pagina);
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.06;
@@ -2538,7 +2546,7 @@ body.con-instalar:not([data-vista="rio"]) {
 .pg-lead {
   max-width: 40em;
   margin: var(--e-4) 0 0;
-  font-size: 1.125rem; /* 18px */
+  font-size: var(--t-bajada);
   line-height: 1.6;
   color: var(--tenue);
 }
@@ -2569,7 +2577,7 @@ body.con-instalar:not([data-vista="rio"]) {
   margin-bottom: 0;
 }
 .bloque h2 {
-  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  font-size: var(--t-titulo-bloque);
   letter-spacing: -0.025em;
   margin: var(--e-2) 0 var(--e-4);
 }
@@ -2585,9 +2593,6 @@ body.con-instalar:not([data-vista="rio"]) {
   background: var(--fondo-invertido);
   color: var(--texto-invertido);
   box-shadow: none;
-}
-.bloque.oscuro .kicker {
-  color: var(--alerta);
 }
 .bloque.oscuro .chico,
 .bloque.oscuro .pasos {
@@ -3167,6 +3172,13 @@ body.con-instalar:not([data-vista="rio"]) {
   margin: var(--e-4) 0;
 }
 .firme-caja,
+.dm-caja,
+.fuente-ficha,
+.ficha-estacion > div {
+  /* Una palabra que no entra se parte en vez de empujar la caja. */
+  overflow-wrap: anywhere;
+}
+.firme-caja,
 .dm-caja {
   border-radius: var(--r-m);
   padding: var(--e-4) var(--e-5);
@@ -3296,7 +3308,7 @@ body.landing {
 /* Crece con la pantalla entre 28 y 36 px. En el teléfono manda la regla de
    abajo de 560 px. */
 .landing h2 {
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-size: var(--t-titulo-seccion);
   letter-spacing: -0.025em;
   line-height: 1.1;
   margin: var(--e-2) 0 var(--e-5);
@@ -3449,7 +3461,7 @@ body.landing {
   border: 1px solid var(--linea);
   border-radius: 6px;
   font-family: var(--mono);
-  font-size: 0.6875rem; /* 11px, como el resto de los rótulos */
+  font-size: var(--t-etiqueta);
   letter-spacing: 0.09em;
   color: var(--tenue);
 }
@@ -3678,6 +3690,13 @@ body.landing {
   margin-top: -12px;
   margin-bottom: -12px;
 }
+/* El anillo de siempre es el acento: sobre el naranja de la alerta daba
+   1,16:1 en claro, justo en «Dudas: 103». En la franja va del color del
+   texto, y hacia adentro para que no lo corte el borde de la pantalla. */
+.franja-estado a:focus-visible {
+  outline-color: var(--sobre-solido);
+  outline-offset: -2px;
+}
 
 /* ---------- la frescura, en el pie ----------
    Va con el tipo de elemento adelante para empatarle a `.landing p`, que le
@@ -3728,9 +3747,14 @@ p.pie-frescura,
 }
 /* La píldora estuvo escondida abajo de 560 px mientras la barra tuvo el botón
    "Abrir la app": eran cuatro elementos y el cuarto empujaba al botón a un
-   segundo renglón. Sin el botón entra, y el nivel del río en la barra vale
-   bastante más en un teléfono que un botón que la portada repite dos veces
-   más abajo. */
+   segundo renglón. El nivel del río en la barra vale más en un teléfono que
+   un botón que la portada repite dos veces más abajo.
+   Pero tampoco entraba sin el botón: a 390 px la marca, la píldora y el menú
+   suman 363 de 350, y con la alerta la píldora es más ancha. Caía el menú
+   solo al renglón de abajo. Ahora el corte es fijo: marca y menú arriba,
+   la píldora abajo. El ::after es el salto de renglón del flex. */
+/* (Las reglas van en la consulta de 560 px de más abajo, junto al `gap` de
+   la barra que las pisaba.) */
 
 /* ---------- hero ---------- */
 .hero {
@@ -3741,7 +3765,7 @@ p.pie-frescura,
   padding: calc(var(--e-7) * 1.75) 0 calc(var(--e-7) * 2);
 }
 .titulo-hero {
-  font-size: clamp(2.4rem, 4.6vw, 3.6rem);
+  font-size: var(--t-titulo-hero);
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.04;
@@ -3752,7 +3776,7 @@ p.pie-frescura,
   margin: 0;
 }
 .bajada {
-  font-size: 1.125rem; /* 18px */
+  font-size: var(--t-bajada);
   line-height: 1.6;
   color: var(--tenue);
   max-width: 30em;
@@ -3859,7 +3883,7 @@ p.pie-frescura,
   margin-top: var(--e-2);
 }
 .mockup .dato {
-  font-size: 56px;
+  font-size: 3.5rem; /* 56px */
 }
 .mockup-m {
   font-weight: 800;
@@ -3983,7 +4007,7 @@ p.pie-frescura,
   padding: 2px 6px;
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 0.6875rem;
+  font-size: var(--t-etiqueta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4073,7 +4097,7 @@ p.pie-frescura,
   bottom: 0;
   color: var(--sobre-agua);
   font-family: var(--mono);
-  font-size: 0.6875rem;
+  font-size: var(--t-etiqueta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4529,7 +4553,7 @@ p.pie-frescura,
   color: var(--peligro-texto);
 }
 .wp-fuente {
-  font-size: 0.6875rem;
+  font-size: var(--t-etiqueta);
   color: var(--tenue);
 }
 
@@ -4867,9 +4891,6 @@ html.texto-grande {
 .bloque[id] {
   scroll-margin-top: var(--e-5);
 }
-.kicker-alerta {
-  color: var(--alerta-texto) !important;
-}
 
 .rejilla-2 {
   display: grid;
@@ -5044,7 +5065,8 @@ html.texto-grande {
 }
 .cuenta td:last-child {
   text-align: right;
-  white-space: nowrap;
+  /* Sin `nowrap`: la tabla en automático sólo parte renglón si no entra, y
+     con el texto al 200 % «98 de 100» empujaba la caja de /datos a 527 px. */
   font-family: var(--mono);
   color: var(--texto);
 }
@@ -5095,7 +5117,6 @@ html.texto-grande {
 }
 .cuenta td.n {
   text-align: right;
-  white-space: nowrap;
   font-family: var(--mono);
   color: var(--texto);
 }
@@ -5194,6 +5215,16 @@ html.texto-grande {
 }
 
 /* ---------- pines del mapa de la portada ---------- */
+/* Los pines miden 15 a 24 px y agrandarlos amontona los 30: la zona de toque
+   crece con un pseudoelemento invisible. No llevan `position`: MapLibre ya
+   les pone `absolute` con .maplibregl-marker, y pisarlo los desarma. */
+.pin::after,
+.pin-landing::after {
+  content: "";
+  position: absolute;
+  inset: -0.875rem;
+  border-radius: 50%;
+}
 .pin-landing {
   width: 16px;
   height: 16px;
@@ -5234,7 +5265,9 @@ html.texto-grande {
   .tarjeta-seccion,
   .landing .cta,
   .landing section.tarjeta-medios {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): `1fr` no baja del ancho mínimo del contenido, y con el
+       texto al 200 % la portada se estiraba a 415 px. */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--e-6);
   }
   /* Cuarta vez, y por lo mismo: `.landing section.tarjeta-medios` es (0,2,1) y
@@ -5370,9 +5403,23 @@ html.texto-grande {
   }
   .nav-sitio {
     gap: var(--e-3);
+    /* Sin separación entre renglones: el salto es un renglón vacío y la
+       contaba dos veces. La da el margen de la píldora. */
+    row-gap: 0;
   }
   .nav-sitio .chip-borde {
     display: none;
+  }
+  /* Marca y menú arriba, la píldora abajo: ver «La píldora estuvo
+     escondida…», más arriba. */
+  .nav-sitio::after {
+    content: "";
+    flex-basis: 100%;
+    order: 2;
+  }
+  .nav-sitio .pildora-rio {
+    order: 3;
+    margin-top: var(--e-2);
   }
   .hero-botones .btn,
   .tarjeta-seccion .btn,
@@ -5424,7 +5471,7 @@ html.texto-grande {
   }
   .firme-tres,
   .dos-maneras {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   /* En el teléfono el valor del ejemplo baja debajo del texto. */
   .ej-fila {
@@ -5800,6 +5847,10 @@ button.enlace-crudo {
 }
 .fuentes-rejilla {
   display: grid;
+  /* minmax(0, …) y no `1fr` ni la pista implícita: ésas no bajan del ancho
+     mínimo del contenido, y con el texto al 200 % una palabra larga estiraba
+     /datos a 423 px. Lo mismo en .firme-tres y .ficha-estacion. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--e-4);
   margin-top: var(--e-4);
 }
@@ -5827,7 +5878,7 @@ button.enlace-crudo {
 /* La ficha de la estación: pares clave/valor que se leen salteando. */
 .ficha-estacion {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
   margin: var(--e-5) 0;
   border: 1px solid var(--linea);
@@ -5870,9 +5921,12 @@ button.enlace-crudo {
 }
 .cv-fila {
   display: flex;
+  /* Con el texto al 200 % el número no entra al lado del rótulo y estiraba
+     /datos a 566 px: baja al renglón de abajo, alineado a la derecha. */
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: var(--e-4);
+  gap: var(--e-1) var(--e-4);
   padding: var(--e-4);
 }
 .cv-k {
@@ -5880,6 +5934,7 @@ button.enlace-crudo {
   color: var(--tenue);
 }
 .cv-v {
+  margin-left: auto;
   font-family: var(--mono);
   font-size: var(--t-m);
   font-weight: 700;
@@ -5951,20 +6006,23 @@ button.enlace-crudo {
 
 /* Una cita textual de un documento. Va en monoespaciada para que se lea como
    lo que es: palabras copiadas de otro lado, no nuestras. */
+/* Con el color del texto: adentro de un .chico heredaba el tenue, y sobre el
+   tinte de --panel-2 daba 4,41:1 en claro y 4,31 en oscuro. */
 .cita {
   font-family: var(--mono);
   font-size: 0.92em;
   padding: 2px 6px;
   border-radius: var(--r-s);
   background: var(--panel-2);
+  color: var(--texto);
 }
 
 @media (min-width: 700px) {
   .fuentes-rejilla {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .ficha-estacion {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .ficha-estacion > div:nth-last-child(2) {
     border-bottom: none;
@@ -6445,7 +6503,7 @@ button.enlace-crudo {
   padding: var(--e-3) var(--e-5);
   border-radius: var(--r-full);
   background: var(--peligro-solido);
-  color: #fff;
+  color: var(--sobre-solido);
   font-family: var(--sans);
   font-weight: 700;
   white-space: nowrap;
@@ -6461,7 +6519,7 @@ button.enlace-crudo {
   margin: var(--e-3) 0 0;
 }
 #ayuda-simple a.btn-emergencia {
-  color: #fff;
+  color: var(--sobre-solido);
 }
 /* El 103 de la ayuda va como un renglón entero: «Defensa Civil» a la
    izquierda y el número grande a la derecha, que es lo que se busca. */
@@ -6634,8 +6692,14 @@ button.enlace-crudo {
 
 /* Con "más contraste" pedido por el sistema, el gris de los textos
    secundarios es lo primero que se pierde a pleno sol. */
+/* `html:not([data-theme="dark"])` va en la lista por especificidad: es el
+   selector del tema claro que sale del sistema (0,1,1), y con `:root` solo
+   (0,1,0) le ganaba aunque viniera antes. Así este modo no hacía nada en el
+   caso más común —ninguna página del sitio pone data-theme—, que es justo el
+   de pleno sol. */
 @media (prefers-contrast: more) {
   :root,
+  html:not([data-theme="dark"]),
   html[data-theme="light"],
   html[data-theme="dark"] {
     --tenue: var(--texto);
@@ -7002,11 +7066,16 @@ button.enlace-crudo {
    van en una lista, en cambio, crecen de verdad: dos filas de 20 px con
    zonas de toque superpuestas harían marcar el 911 al querer el 103.
    ========================================================================== */
+/* En el sitio, sólo en párrafos y avisos del <main>: los enlaces de una lista
+   o del pie van uno debajo del otro, y ahí las zonas se pisarían. Estaba sólo
+   en .app, y el «103» de una frase de la portada medía 22×17 px. */
 .app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class]),
+.landing main :where(p, .aviso) a:not([class]),
 button.enlace-crudo {
   position: relative;
 }
 .app :where(p, li, .chico, .aviso, .fuente, .sello-fuente, .nota, .firma) a:not([class])::after,
+.landing main :where(p, .aviso) a:not([class])::after,
 button.enlace-crudo::after {
   content: "";
   position: absolute;

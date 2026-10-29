@@ -407,6 +407,11 @@ scripts/paginas.js` reescribe la lista entre los marcadores `MODULOS:inicio`
   y `MODULOS:fin`, uno por archivo de `js/app/`. Antes se agregaba a mano, y
   un olvido dejaba a `/app` sin modo sin conexión en silencio. Lo que sigue
   siendo a mano es correr el generador.
+- **El mismo generador escribe la precarga** (`<link rel="modulepreload">`)
+  entre los marcadores `PRECARGA` del `<head>` de `app/index.html`, siguiendo
+  los import desde `principal.js`. Sin ella el grafo bajaba en cascada, cuatro
+  niveles, y `/api/nivel` salía recién a los 5,7 s con Slow 4G. Falla si faltan
+  los marcadores o si un import apunta a un archivo que no existe.
 
 ### SEO: los metadatos salen de `lib/paginas.js`
 
@@ -785,6 +790,19 @@ enlace en un contenedor nuevo (`.nota`, `.sello-fuente`…) hay que sumarlo al
 selector. `html` lleva `scroll-padding-bottom` del alto de la barra: sin eso
 `aLaVista()` dejaba un error 89 px detrás de ella.
 
+**En el sitio el `::after` va sólo en párrafos y avisos del `<main>`**
+(`.landing main :where(p, .aviso) a:not([class])`, octubre de 2026): estaba
+sólo en `.app`, y el «103» de una frase de la portada medía 22×17. No va en
+listas ni en el pie, donde los enlaces van uno debajo del otro y las zonas se
+pisarían. Los pines de los mapas tienen el suyo (`.pin::after`), sin
+`position`: MapLibre ya les pone `absolute` y pisarlo los desarma. La «X» del
+popup mide 44.
+
+**A menos de 560 px la barra del sitio va en dos renglones fijos:** marca y
+menú arriba, la píldora abajo (un `::after` con `flex-basis: 100%` hace de
+salto). Sin el corte, a 390 px caía el menú solo al segundo renglón —marca,
+píldora y menú suman 363 de 350—, y con la alerta la píldora es más ancha.
+
 **El resultado de Mi casa va en este orden:** veredicto —con «Al río le faltan
 unos X», el dato que antes vivía sólo en la pestaña Río; no se dice con el dato
 vencido—, la tarjeta de la casa, **«Armar mi plan»** (que estaba 2.000 px abajo), el
@@ -820,8 +838,16 @@ contra el papel: el tenue daba 4,12 y el acento 4,13 sobre el tinte de peligro.
 `estilos/app.css` (sección CONTRASTE): un color nuevo se mide solo. Los
 rellenos sólidos con texto blanco (`peligro-solido`, `alerta-solido`,
 `evac-solido`) también se miden ahí: el rojo del 103 en oscuro aprobaba por
-0,002. Los valores del tema claro viven una sola vez en las `--c-*`; el HTML del widget y
-el CSS embebido de `api/metricas.js` tienen su propia copia del acento.
+0,002. Los valores del tema claro viven una sola vez en las `--c-*`.
+
+**El widget, la placa (`PAL` en `js/placa.js`) y el CSS embebido de
+`api/metricas.js` llevan su propia copia de la paleta**, y `comprobar.js`
+(`COPIAS`) la compara con los tokens y mide sus pares: un color nuevo en una
+copia va con su renglón en el mapa. Antes no lo medía nadie y las tres habían
+quedado con la paleta vieja —el agua del logo del widget en #1f7a9e, el
+«Dato viejo» a 4,23:1—. Lo mismo vale para un color escrito en JS: el gris del
+popup del mapa estaba como `#7E959D` en `mapa.js` y daba 3,15:1, y ningún
+control lo veía.
 
 **La barra de «Instalar en el teléfono» sólo sale en Río.** `vista.js` pone
 `body[data-vista]` y el CSS la oculta en las otras tres pestañas, donde tapaba
@@ -912,8 +938,12 @@ Meter el tag en cualquiera de los dos vuelve falsas esas dos frases —la segund
 es una promesa sobre lectores que no son nuestros—.
 
 El arranque vive en `js/analitica.js` y no en línea, porque `script-src` es
-`'self'`. El cargador de googletagmanager está habilitado en la CSP general de
-`vercel.json`; las dos CSP del widget **no se tocaron**.
+`'self'`. **El cargador de googletagmanager también lo inyecta ese archivo,
+después de `load`** (octubre de 2026): escrito como `<script async>` en el
+`<head>`, el navegador bajaba sus 181 KB apenas lo leía, compitiendo con
+`app.css`, que bloquea el render. No lo vuelvas a poner en el HTML. Está
+habilitado en la CSP general de `vercel.json`; las dos CSP del widget **no se
+tocaron**.
 
 Lo **único** que sale del dispositivo son las sugerencias, y el formulario lo
 dice. El push va **sin contenido**: el servidor no sabe la cota ni el umbral de
@@ -937,12 +967,27 @@ instalarse_.
 
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
-| `CRITICOS` | los 11 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 94 KB  | todo el que entra al sitio |
-| `DEL_APP`  | los 24 módulos, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 229 KB | sólo quien abre `/app`     |
+| `CRITICOS` | los 12 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 99 KB  | todo el que entra al sitio |
+| `DEL_APP`  | `/app`, los 27 módulos, `lib/comun.js`, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 256 KB | sólo quien abre `/app`     |
 
-Medido con gzip el 23/10/2026, con los módulos nuevos (`modelo`, `zonas`) y
-`cotas-costa.json`. La medición anterior —87 y 224 KB— fue la de sacarle los
-comentarios a `app.css` y dejar las tipografías en un archivo por familia.
+Medido con gzip el 29/10/2026, con `/hidrometro` en la primera y
+`/lib/comun.js` pasado a la segunda (sólo lo piden los módulos de la app;
+estaba en la del sitio y lo pagaba cualquiera que leyera `/legal`). Las
+anteriores —94 y 229 KB el 23/10, 87 y 224 antes— quedaron viejas sin que
+nadie lo notara: si se agrega algo a una tanda, se vuelve a medir.
+
+**Las dos tandas se piden con `cache: "no-cache"`**, no `"reload"`: `reload`
+saltea la caché HTTP sin pedido condicional y en la primera visita a `/app`
+volvía a bajar enteros los módulos que la página acababa de bajar (unos
+165 KB). `no-cache` revalida y lo que no cambió vuelve como 304.
+
+**Red primero, pero no para siempre.** Las ramas de red primero del worker
+(JS, CSS y navegaciones) esperan 4 s (`ESPERA_RED_MS`): si la red no
+contestó y hay copia, sirven la copia y la red sigue de fondo actualizando
+la caché. Sin ese tope, con señal mala —hay conexión pero no pasa nada—
+cada módulo esperaba el timeout del navegador aunque tuviera copia. En la
+app, `rio.js` pinta de entrada el último nivel guardado, rotulado como
+guardado y con su fecha, y corta el pedido a los 8 s (`ESPERA_NIVEL_MS`).
 
 La segunda **no se pide en `install`**. La pide la app con un
 `postMessage({tipo:"calentar-app"})` desde `instalar.js`; si se pidiera en la

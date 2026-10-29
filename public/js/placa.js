@@ -23,29 +23,39 @@
   if (TRANSPARENTE) root.dataset.fondo = "transparente";
   if (params.has("limpio")) root.dataset.limpio = "";
 
-  /* Los mismos valores que el widget, que no puede leer app.css. */
+  /* Los mismos valores que los tokens de estilos/app.css (y que el widget),
+     porque esto no puede leer app.css. Es una COPIA: node scripts/comprobar.js
+     la compara con los tokens y mide sus pares de texto. El lienzo es el
+     --panel de la app, los paneles el --panel-2, y alerta/peligro/ok son los
+     -texto: acá casi todo lo que se pinta con ellos es texto. Las líneas de
+     alerta y evacuación van con los --linea-*, como en la app: con los -texto
+     en claro el naranja y el rojo casi no se distinguían. */
   const PAL = CLARO
     ? {
         fondo: "#ffffff",
-        panel: "rgba(27,38,44,0.05)",
+        panel: "rgba(27, 38, 44, 0.055)",
         texto: "#1b262c",
-        tenue: "#66747a",
+        tenue: "#5f6c72",
         linea: "rgba(27,38,44,0.16)",
-        agua: "#1f7a9e",
-        alerta: "#c4410e",
-        peligro: "#a5271a",
-        ok: "#35785e",
+        agua: "#5fc8e8",
+        alerta: "#bf3d05",
+        peligro: "#bc3e2a",
+        ok: "#33765c",
+        lineaAlerta: "#cf440d",
+        lineaEvac: "#a5271a",
       }
     : {
         fondo: "#17232a",
-        panel: TRANSPARENTE ? "rgba(15,24,29,0.78)" : "rgba(255,255,255,0.06)",
+        panel: TRANSPARENTE ? "rgba(15,24,29,0.78)" : "rgba(233, 238, 240, 0.07)",
         texto: "#e9eef0",
         tenue: "#93a6ad",
         linea: "rgba(233,238,240,0.16)",
-        agua: "#2e9bc4",
+        agua: "#5fc8e8",
         alerta: "#e8a33d",
-        peligro: "#e57563",
-        ok: "#51ab8e",
+        peligro: "#ef7e6b",
+        ok: "#54ae90",
+        lineaAlerta: "#e8a33d",
+        lineaEvac: "#e57563",
       };
 
   const ESCALA_MAX = 8; // la misma regla de 0 a 8 m que usa la app
@@ -179,9 +189,9 @@
       s +=
         `<line x1="${x(i)}" y1="745" x2="${x(i)}" y2="757" stroke="${PAL.tenue}" stroke-width="2" />` +
         t(x(i), 790, i, { size: 22, color: PAL.tenue, ancla: "middle", peso: 500 });
-    s += `<line x1="${x(ALERTA)}" y1="695" x2="${x(ALERTA)}" y2="745" stroke="${PAL.alerta}" stroke-width="4" />`;
+    s += `<line x1="${x(ALERTA)}" y1="695" x2="${x(ALERTA)}" y2="745" stroke="${PAL.lineaAlerta}" stroke-width="4" />`;
     s += t(x(ALERTA) - 8, 690, `Alerta ${dos(ALERTA)}`, { size: 24, color: PAL.alerta, ancla: "end" });
-    s += `<line x1="${x(EVAC)}" y1="695" x2="${x(EVAC)}" y2="745" stroke="${PAL.peligro}" stroke-width="4" />`;
+    s += `<line x1="${x(EVAC)}" y1="695" x2="${x(EVAC)}" y2="745" stroke="${PAL.lineaEvac}" stroke-width="4" />`;
     s += t(x(EVAC) + 8, 690, `Evacuación ${dos(EVAC)}`, { size: 24, color: PAL.peligro });
     if (record) {
       s += `<line x1="${x(record.m)}" y1="741" x2="${x(record.m)}" y2="805" stroke="${PAL.tenue}" stroke-width="2" stroke-dasharray="5 4" />`;
@@ -208,11 +218,11 @@
         s +=
           `<line x1="${X0}" y1="${py(v)}" x2="${X1}" y2="${py(v)}" stroke="${PAL.linea}" stroke-width="1.5" />` +
           t(X0 - 16, py(v) + 8, v, { size: 22, color: PAL.tenue, ancla: "end", peso: 500 });
-      for (const [val, col, rot] of [
-        [ALERTA, PAL.alerta, "Alerta de la ciudad"],
-        [EVAC, PAL.peligro, "Evacuación de la ciudad"],
+      for (const [val, col, linea, rot] of [
+        [ALERTA, PAL.alerta, PAL.lineaAlerta, "Alerta de la ciudad"],
+        [EVAC, PAL.peligro, PAL.lineaEvac, "Evacuación de la ciudad"],
       ]) {
-        s += `<line x1="${X0}" y1="${py(val)}" x2="${X1}" y2="${py(val)}" stroke="${col}" stroke-width="3" stroke-dasharray="14 10" />`;
+        s += `<line x1="${X0}" y1="${py(val)}" x2="${X1}" y2="${py(val)}" stroke="${linea}" stroke-width="3" stroke-dasharray="14 10" />`;
         s += t(X1, py(val) - 10, `${rot} ${dos(val)}`, { size: 22, color: col, ancla: "end" });
       }
       const pts = serie.map((p, i) => `${px(i).toFixed(1)},${py(p[1]).toFixed(1)}`);

@@ -95,7 +95,9 @@ async function enviar(ev) {
   } finally {
     boton.disabled = false;
     boton.textContent = textoBoton;
-    estado.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    // Con movimiento reducido pedido, el salto es directo.
+    const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    estado.scrollIntoView({ block: "nearest", behavior: quieto ? "auto" : "smooth" });
   }
 }
 

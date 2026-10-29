@@ -459,6 +459,26 @@ const temaClaro = matchMedia("(prefers-color-scheme: light)");
 const estiloDelTema = () =>
   "/mapa/" + (temaClaro.matches ? "claro" : "oscuro") + ".json";
 
+/* Los textos de MapLibre, que vienen en inglés. El aviso de gestos se VE: al
+   pasar un dedo decía «Use two fingers to move the map». Las claves salen de
+   vendor/maplibre-gl.js (v5.24.0).
+   COPIA de TEXTOS_MAPA en js/app/mapa.js: éste es un script clásico y aquél un
+   módulo, y no se pueden importar entre sí. Se cambian las dos juntas. */
+const TEXTOS_MAPA = {
+  "Map.Title": "Mapa de los puntos de encuentro",
+  "Marker.Title": "Marca en el mapa",
+  "Popup.Close": "Cerrar",
+  "NavigationControl.ZoomIn": "Acercar",
+  "NavigationControl.ZoomOut": "Alejar",
+  "NavigationControl.ResetBearing": "Orientar el mapa al norte",
+  "AttributionControl.ToggleAttribution": "Ver los créditos del mapa",
+  "CooperativeGesturesHandler.MobileHelpText": "Usá dos dedos para mover el mapa",
+  "CooperativeGesturesHandler.MacHelpText":
+    "Usá ⌘ + la rueda del mouse para acercar el mapa",
+  "CooperativeGesturesHandler.WindowsHelpText":
+    "Usá Ctrl + la rueda del mouse para acercar el mapa",
+};
+
 function cargarMapLibre() {
   return new Promise((ok, mal) => {
     const css = document.createElement("link");
@@ -495,6 +515,7 @@ async function dibujarMapa(caja) {
       // rueda haga zoom en vez de bajar la página es una trampa.
       scrollZoom: false,
       cooperativeGestures: true,
+      locale: TEXTOS_MAPA,
     });
     mapa.addControl(
       new maplibregl.NavigationControl({ showCompass: false }),
@@ -505,6 +526,9 @@ async function dibujarMapa(caja) {
       for (const [nombre, dir, lon, lat] of puntos) {
         const el = document.createElement("div");
         el.className = "pin-landing";
+        // Cada pin es un botón que se recorre con Tab: sin esto los treinta
+        // se llamaban igual. MapLibre respeta el aria-label que ya trae.
+        el.setAttribute("aria-label", "Punto de encuentro: " + nombre + ", " + dir);
         new maplibregl.Marker({ element: el })
           .setLngLat([lon, lat])
           .setPopup(
