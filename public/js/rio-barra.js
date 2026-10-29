@@ -23,7 +23,8 @@
    formato salen de lib/comun-clasico.js, que va cargado antes que éste.
    Es el mismo código que importan los módulos de la app y el que trae el
    service worker con importScripts: una sola coma decimal y un solo 5,30. */
-const { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm } = self.CC_COMUN;
+const { UMBRALES_RESPALDO, umbralesDe, VENCE_HORAS, nm, ESTADOS } =
+  self.CC_COMUN;
 
 const $ = (id) => document.getElementById(id);
 /* Acá el número va SIN la unidad: la píldora la pone aparte. */
@@ -318,16 +319,21 @@ function pintarFranja(r) {
     return;
   }
 
+  /* Empieza con el verbo de ESTADOS y lleva el 103, como todo estado grave
+     (CLAUDE.md). Decía «Alerta oficial activa: el río está a…»: sin qué
+     hacer, sin el 103 y con «oficial» en vez de «de la ciudad». En la app la
+     franja puede ser sólo un rótulo porque abajo está la tarjeta con el
+     verbo; en el sitio es lo único que se ve del aviso. */
   const evacua = nivel >= r.evacuacion;
   const texto = evacua
-    ? "Evacuación oficial en curso (río a " +
+    ? ESTADOS.evacuacion.verbo +
+      " El río pasó la evacuación de la ciudad: " +
       m(nivel) +
-      " m). La orden la da Defensa Civil — 103."
-    : "Alerta oficial activa: el río está a " +
+      " m."
+    : ESTADOS.alerta.verbo +
+      " El río pasó la alerta de la ciudad: " +
       m(nivel) +
-      " m, sobre los " +
-      m(r.alerta) +
-      " m de alerta.";
+      " m.";
 
   /* Se repinta sólo si cambió: el store avisa cada 30 segundos y volver a
      armar los nodos cortaría la animación del punto en cada vuelta. */
@@ -344,13 +350,21 @@ function pintarFranja(r) {
   const punto = document.createElement("span");
   punto.className = "punto-estado";
   punto.setAttribute("aria-hidden", "true");
-  p.append(punto, texto);
+  const dicho = document.createElement("span");
+  dicho.textContent = texto;
+  p.append(punto, dicho);
 
+  const enlaces = document.createElement("span");
+  enlaces.className = "franja-enlaces";
+  const tel = document.createElement("a");
+  tel.href = "tel:103";
+  tel.textContent = (evacua ? "Ayuda: " : "Dudas: ") + "103";
   const ir = document.createElement("a");
   ir.href = "/puntos-de-encuentro";
-  ir.textContent = "Ver puntos de encuentro";
+  ir.textContent = "Puntos de encuentro";
+  enlaces.append(tel, ir);
 
-  fila.append(p, ir);
+  fila.append(p, enlaces);
   franja.append(fila);
   caja.append(franja);
 }

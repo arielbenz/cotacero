@@ -2510,13 +2510,17 @@ body.con-instalar:not([data-vista="rio"]) {
    lee. El límite pasó del contenedor al renglón, que es donde tiene que
    estar: así una tabla o una rejilla usa todo el ancho y un párrafo no. */
 .bloque p,
-.bloque ul,
-.bloque ol,
+.bloque ul:not([class]),
+.bloque ol:not([class]),
 .pg-lead {
   /* 50ch y no 70: `ch` mide el ancho del cero, y en Plus Jakarta Sans el cero
      es bastante más ancho que la letra promedio, así que 72ch daban 104
-     caracteres reales. Medido, 50ch quedan en unos 72 por renglón. */
-  max-width: 100%;
+     caracteres reales. Medido, 50ch quedan en unos 72 por renglón.
+     Estuvo en 100% desde el 3/9/2026 (217148f), sin motivo escrito: a
+     1280 px los párrafos llegaban a ~130 caracteres por renglón. Va sólo a
+     la prosa: una lista CON clase es un componente —la grilla de tres de
+     /para-medios, las fichas de /datos— y con 50ch quedaba a la mitad. */
+  max-width: 50ch;
 }
 
 /* ---------- cabecera de página ---------- */
@@ -3656,6 +3660,24 @@ body.landing {
 .franja-estado a:hover {
   color: var(--sobre-solido);
 }
+/* El 103 y los puntos de encuentro, juntos a la derecha. El contenedor se
+   ajusta a su contenido, así que el `margin-left: auto` de cada enlace no
+   reparte nada adentro: lo empuja a la derecha el del contenedor. */
+.franja-estado .franja-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-4);
+  margin-left: auto;
+}
+/* 20 px de renglón no son un blanco para un dedo apurado: 12 px de cada lado
+   llevan la zona de toque a 44 sin mover la franja (CLAUDE.md, «Objetivos
+   táctiles»). Uno es el 103. */
+.franja-estado .franja-enlaces a {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  margin-top: -12px;
+  margin-bottom: -12px;
+}
 
 /* ---------- la frescura, en el pie ----------
    Va con el tipo de elemento adelante para empatarle a `.landing p`, que le
@@ -3686,7 +3708,8 @@ p.pie-frescura,
   .landing
     .franja-estado
     a:not(.btn):not(.lockup):not(.punto):not(.charla):not(.btn-emergencia):not(.g-103):not(.chip-tel),
-  .franja-estado a {
+  .franja-estado a,
+  .franja-estado .franja-enlaces {
     margin-left: 0;
   }
 }
@@ -5039,13 +5062,24 @@ html.texto-grande {
 /* Con encabezado y dos columnas de números: /hidrometro, cada nivel en la
    regla y sobre el mar. Con las dos unidades escritas en cada fila de una
    ficha, a 390 px el número se separaba de su «m». */
-.cuenta th {
+.cuenta thead th,
+.cuenta thead td {
   padding: 0 0 var(--e-2);
   border-bottom: 1px solid var(--linea);
   font-size: var(--t-xs);
   font-weight: 600;
   color: var(--tenue);
   text-align: right;
+}
+/* El nombre de la fila es un <th scope="row">, para que un lector de pantalla
+   lo diga junto a cada número; se ve igual que la primera celda de siempre. */
+.cuenta tbody th {
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--linea);
+  font-size: var(--t-s);
+  font-weight: 400;
+  color: var(--tenue);
+  text-align: left;
 }
 .cuenta td.n {
   text-align: right;
@@ -5054,8 +5088,78 @@ html.texto-grande {
   color: var(--texto);
 }
 .cuenta td + td,
+.cuenta th + td,
+.cuenta td + th,
 .cuenta th + th {
   padding-left: var(--e-3);
+}
+
+/* ---------- /hidrometro: la regla dibujada ----------
+   La misma regla de la app y de la portada, quieta y sin agua. La emite
+   scripts/paginas/hidrometro.js; acá van sólo los colores, que son los del
+   tema para que siga al oscuro sin una segunda copia del dibujo. */
+.regla-svg {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: var(--e-5) 0;
+}
+.regla-svg text {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  fill: var(--texto);
+}
+.regla-svg .mono {
+  font-family: var(--mono);
+}
+.regla-svg .k {
+  fill: var(--tenue);
+}
+.regla-svg .cuerpo {
+  fill: var(--panel-2);
+  stroke: var(--linea);
+}
+.regla-svg .marca {
+  stroke: var(--tenue);
+}
+.regla-svg .marca.chica {
+  opacity: 0.45;
+}
+.regla-svg .l-alerta,
+.regla-svg .l-evac,
+.regla-svg .l-cero,
+.regla-svg .l-mar {
+  stroke-width: 2;
+}
+.regla-svg .l-alerta {
+  stroke: var(--linea-alerta);
+}
+.regla-svg .l-evac {
+  stroke: var(--linea-evac);
+}
+.regla-svg .t-alerta {
+  fill: var(--alerta-texto);
+}
+.regla-svg .t-evac {
+  fill: var(--peligro-texto);
+}
+/* El récord y el mínimo son marcas históricas, no umbrales: de trazos y en
+   tenue, como el récord en la regla de la app. */
+.regla-svg .l-record,
+.regla-svg .l-minimo {
+  stroke: var(--tenue);
+  stroke-dasharray: 4 3;
+}
+.regla-svg .l-cero {
+  stroke: var(--texto);
+}
+.regla-svg .l-mar {
+  stroke: var(--acento);
+}
+.regla-svg .corte {
+  fill: none;
+  stroke: var(--tenue);
 }
 
 /* ---------- pines del mapa de la portada ---------- */
