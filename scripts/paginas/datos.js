@@ -78,7 +78,7 @@ ${filas
     tipo === "op"
       ? `          <div class="cv-op" aria-hidden="true">${k}</div>`
       : `          <div class="cv-fila${tipo ? " cv-" + tipo : ""}">
-            <span class="cv-k">${esc(k)}</span><span class="cv-v">${esc(v)}</span>
+            <span class="cv-k">${esc(k)}</span><span class="cv-v">${esc(v).replace(/(\d) m\b/g, "$1&nbsp;m")}</span>
           </div>`,
   )
   .join("\n")}
