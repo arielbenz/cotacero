@@ -4477,6 +4477,16 @@ html.texto-grande {
   text-align: right;
 }
 
+.bloque > .cuenta,
+.bloque > .h-detalle > .cuenta {
+  max-width: 36rem;
+}
+.bloque > .cuenta {
+  margin-bottom: var(--e-5);
+}
+.cuenta thead th:first-child {
+  text-align: left;
+}
 .cuenta tbody th {
   padding: var(--e-3) 0;
   border-bottom: 1px solid var(--linea);
@@ -4501,14 +4511,30 @@ html.texto-grande {
 .regla-svg {
   display: block;
   width: 100%;
-  max-width: 26rem;
+  max-width: 22rem;
   height: auto;
-  margin: var(--e-5) 0;
+  margin: var(--e-2) 0 var(--e-5);
 }
+
 .regla-svg text {
   font-family: var(--sans);
-  font-size: 12.5px;
+  font-size: 14px;
   fill: var(--texto);
+}
+
+@media (min-width: 900px) {
+  .regla-y-texto {
+    display: grid;
+    grid-template-columns: 22rem minmax(0, 1fr);
+    gap: var(--e-7);
+    align-items: start;
+  }
+  .regla-y-texto {
+    margin-bottom: var(--e-5);
+  }
+  .regla-y-texto .regla-svg {
+    margin: 0;
+  }
 }
 .regla-svg .mono {
   font-family: var(--mono);

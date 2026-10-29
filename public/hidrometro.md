@@ -4,13 +4,15 @@
 
 # Qué mide el hidrómetro del Puerto de Santa Fe
 
-Cuando se dice que el río está en 5 metros, es lo que marca una regla en el Puerto, **contada desde su propio cero**, que está a unos 8,42 m sobre el mar. No es la profundidad del río ni su altura sobre el mar.
+Lo que los diarios llaman la altura o la cota del río es lo que marca una regla en el Puerto, **contada desde su propio cero**, que está a unos 8,42 m sobre el mar. No es la profundidad del río ni su altura sobre el mar.
+
+¿Buscás el nivel de hoy? Está en la barra de arriba, con su fecha, y en [la portada](https://cotacerosf.com/).
 
 ## Una regla en el Puerto, leída por Prefectura
 
 El hidrómetro es una regla graduada en el Dique 2 del Puerto de Santa Fe. La lee **Prefectura Naval** y el **Instituto Nacional del Agua (INA)** guarda sus lecturas desde el 2 de enero de 1925.
 
-Los diarios dicen «la altura del río» o «la cota del río», y en la app de Cota Cero se llama el nivel del río: en los tres casos es lo que marca esa regla.
+Los diarios dicen «la altura del río» o «la cota del río», y en la app de Cota Cero se llama el nivel del río: es lo que marca esa regla. Ojo con «cota»: en los planos y las escrituras es otra cosa, **la altura sobre el mar**, en metros del Instituto Geográfico Nacional (IGN). La del agua es lo que marca la regla más su cero.
 
 Fuente: INA · serie 30, altura hidrométrica [ver](https://alerta.ina.gob.ar/a5/diario/reporte_diario)
 
@@ -18,9 +20,9 @@ Fuente: INA · serie 30, altura hidrométrica [ver](https://alerta.ina.gob.ar/a5
 
 Los metros del hidrómetro se cuentan desde el **cero de la regla**, que está a unos **8,42 m sobre el nivel del mar**.
 
-Por eso no es la profundidad: en la bajante de 2022 la regla marcó **−0,23 m**, por debajo de su cero, y el río seguía ahí. Y tampoco es la altura sobre el mar: para eso hay que sumarle el cero.
+Por eso no es la profundidad: en la bajante de 2022 la regla marcó **−0,23 m**, por debajo de su cero, y el río seguía ahí. Y tampoco es la altura sobre el mar: para eso hay que sumarle el cero. Es la columna de la derecha.
 
-**La cota, en sentido estricto, es esa altura sobre el mar**: la de los planos y las escrituras, en metros del Instituto Geográfico Nacional (IGN). Es la columna de la derecha, y es la que se compara con la de un terreno.
+Esa columna está en la misma escala que las escrituras, pero **no alcanza con comparar tu terreno contra ella**. Río arriba del Puerto, para la misma lectura de la regla, el agua está más alta, y la altura de un terreno tiene error. Esa cuenta, con su margen, la hace [la app de Cota Cero](https://cotacerosf.com/app) con tu dirección.
 
 Entre fuentes oficiales el cero varía unos centímetros (el INA midió 8,378), por eso la altura sobre el mar va con un decimal. [De dónde sale el 8,42](https://cotacerosf.com/datos#abiertas). Las mayores crecidas, año por año, están en [cien años del Paraná](https://cotacerosf.com/historia).
 
@@ -38,12 +40,15 @@ Entre fuentes oficiales el cero varía unos centímetros (el INA midió 8,378), 
 
 Prefectura lee la regla **cada 12 horas**, a las 00:00 y a las 12:00, y publica cada lectura. El INA guarda **una por día**, la de las 00:00, y es la que muestra Cota Cero. Los diarios citan una u otra.
 
-Un ejemplo: el 29 de octubre de 2026, [la tabla de Prefectura](https://contenidosweb.prefecturanaval.gob.ar/alturas/) mostraba 4,25 m de las 00:00 de ese día y 4,24 m de las 12:00 del anterior; el INA, 4,23 m de las 00:00 del 28. No se contradicen: son lecturas de horas distintas. Por eso cada número, acá y en la app, va con su fecha.
+| Lectura | Prefectura | INA |
+| --- | --- | --- |
+| 28/10, 12:00 | 4,24 m | no la guarda |
+| 29/10, 00:00 | 4,25 m | 4,25 m |
+
+La mañana del 29, [la tabla de Prefectura](https://contenidosweb.prefecturanaval.gob.ar/alturas/) ya mostraba la lectura de las 00:00 y el INA todavía no la había publicado: seguía la del 28, 4,23 m. Más tarde esa mañana llegó la misma, 4,25 m. Es una sola regla; cambia la hora que se mira y cuándo se publica. Por eso cada número, acá y en la app, va con su fecha.
 
 ## La regla no sabe dónde está tu casa
 
 El mismo número del hidrómetro no significa lo mismo en cada barrio: depende de la altura de tu terreno y de cuántos kilómetros río arriba del Puerto esté. Cota Cero hace esa cuenta con tu dirección y te da tu nivel de aviso: el nivel del río a partir del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.
-
-El nivel del río de hoy está en la barra de arriba y en [la portada](https://cotacerosf.com/).
 
 [Abrir Cota Cero](https://cotacerosf.com/app)
