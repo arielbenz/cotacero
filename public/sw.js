@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-84cf2406fc";
+const VERSION = "cota-cero-a585fff7d2";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -114,6 +114,10 @@ const DEL_APP = [
      la que paga todo el que entra a leer /legal. */
   "/lib/comun.js",
   "/lib/fuentes.js",
+  /* El respaldo para teléfonos que no corren módulos. Va con `defer` en
+     app/index.html, así que la app no arranca hasta que llega: sin copia,
+     con la señal colgada, frenaba todo el arranque los 4 s de ESPERA_RED_MS. */
+  "/js/sin-modulos.js",
   // MODULOS:inicio — uno por archivo de js/app/; los escribe scripts/paginas/emitir.js
   "/js/app/principal.js",
   "/js/app/ahora.js",
@@ -226,6 +230,8 @@ self.addEventListener("message", (e) => {
   calentando = caches
     .open(VERSION)
     .then((c) => c.addAll(frescas(DEL_APP)))
+    // Ya está la app entera en esta versión: la copia vieja sobra.
+    .then(podarViejas)
     .catch((err) => {
       calentando = null;
       console.warn(
@@ -236,18 +242,48 @@ self.addEventListener("message", (e) => {
   e.waitUntil(calentando);
 });
 
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches
-      .keys()
-      .then((ks) =>
-        Promise.all(
-          ks.filter((k) => k !== VERSION).map((k) => caches.delete(k)),
-        ),
-      )
-      .then(() => self.clients.claim()),
+/* Cada deploy cambia VERSION, y la portada se publica dos veces por día.
+   Antes, al activarse, el worker nuevo borraba toda caché que no fuera la
+   suya, y la suya sólo tenía CRITICOS: la tanda de /app la pide la página, y
+   el mensaje le llegaba al worker VIEJO. Quien había abierto la app una vez
+   se quedaba sin modo sin conexión después de cada deploy, sin enterarse.
+
+   Ahora la última caché vieja que tenga la app se conserva hasta que la
+   nueva tenga la app entera (la poda vuelve a correr al terminar de
+   calentar, arriba). Mientras tanto, /app abre sin señal con la copia
+   anterior, completa y coherente consigo misma; `buscar()` se encarga de que
+   esa copia no le gane a la nueva en lo que ésta ya tiene. Si la persona no
+   vuelve a abrir la app con señal, la copia vieja se queda: es una, ~600 KB,
+   y es la que la deja abrirla el día que no haya señal. */
+async function podarViejas() {
+  const nuestra = await caches.open(VERSION);
+  const hits = await Promise.all(DEL_APP.map((u) => nuestra.match(u)));
+  const appEntera = hits.every(Boolean);
+  const viejas = (await caches.keys()).filter((k) => k !== VERSION);
+  let conservar = null;
+  if (!appEntera) {
+    // caches.keys() viene en orden de creación: la última con /app es la más
+    // nueva de las viejas.
+    for (const k of viejas)
+      if (await (await caches.open(k)).match("/app")) conservar = k;
+  }
+  await Promise.all(
+    viejas.filter((k) => k !== conservar).map((k) => caches.delete(k)),
   );
+}
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(podarViejas().then(() => self.clients.claim()));
 });
+
+/* Busca primero en la caché de esta versión y recién después en las demás.
+   caches.match() las recorre en orden de creación, así que con la copia
+   vieja de la app conservada (ver podarViejas) sin señal ganaría la /legal
+   de ayer aunque la de hoy estuviera guardada. */
+async function buscar(req, opciones) {
+  const hit = await (await caches.open(VERSION)).match(req, opciones);
+  return hit || caches.match(req, opciones);
+}
 
 /* Red primero, pero no a cualquier precio. Con señal que va y viene —el
    «lie-fi»: el teléfono dice que hay red y los paquetes no llegan— un fetch
@@ -297,7 +333,12 @@ function redPrimero(e, req, deCache) {
     red.then(
       (r) => {
         clearTimeout(reloj);
-        dar(r);
+        /* Un 5xx no es una respuesta mejor que la copia: con Vercel caído o
+           la red del barrio devolviendo su propio error, la página se cambiaba
+           por un error aunque estuviera guardada. Si no hay copia, va el 5xx. */
+        if (r.status >= 500)
+          deCache().then((hit) => dar(hit || r), () => dar(r));
+        else dar(r);
       },
       () => {
         clearTimeout(reloj);
@@ -359,7 +400,7 @@ self.addEventListener("fetch", (e) => {
   // (ya sabemos que es del propio origen: lo de afuera salió arriba)
   if (/\.(js|css)$/.test(url.pathname)) {
     e.respondWith(
-      redPrimero(e, req, () => caches.match(req)).then(
+      redPrimero(e, req, () => buscar(req)).then(
         (r) =>
           r ||
           new Response("Sin conexión y sin copia guardada.", {
@@ -381,7 +422,7 @@ self.addEventListener("fetch", (e) => {
        contesta la copia propia: servir la portada en lugar de /legal porque la
        red tarda sería el error de siempre, el que parece que anduvo. */
     e.respondWith(
-      redPrimero(e, req, () => caches.match(req, { ignoreSearch: true })).then(
+      redPrimero(e, req, () => buscar(req, { ignoreSearch: true })).then(
         async (r) => {
           if (r) return r;
           // Último recurso, ya sin red: la app para sus rutas, la landing
@@ -389,7 +430,7 @@ self.addEventListener("fetch", (e) => {
           const alApp =
             url.pathname === "/app" || url.pathname.startsWith("/app/");
           return (
-            (await caches.match(alApp ? "/app" : "/")) ||
+            (await buscar(alApp ? "/app" : "/")) ||
             new Response("Sin conexión y sin copia guardada.", {
               status: 504,
               headers: { "Content-Type": "text/plain; charset=utf-8" },
@@ -403,7 +444,7 @@ self.addEventListener("fetch", (e) => {
 
   // Todo lo demás: caché primero.
   e.respondWith(
-    caches.match(req).then((hit) => {
+    buscar(req).then((hit) => {
       if (hit) return hit;
       return fetch(req)
         .then((r) => {

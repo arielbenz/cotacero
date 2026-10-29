@@ -756,6 +756,12 @@ async function construirMapa() {
     // plano, no un 3D. Girar sí se deja, y por eso está la brújula.
     pitchWithRotate: false,
     touchPitch: false,
+    /* Un dedo desplaza la página, dos mueven el mapa, como en la portada. Con
+       un dedo el mapa se quedaba con el deslizamiento: quien bajaba hacia la
+       lista de puntos y apoyaba el dedo sobre el mapa no podía seguir. En la
+       hoja de «Marcarla» se apaga (marcarCasaEnMapa), porque ahí el mapa es
+       toda la pantalla y no hay página que desplazar. */
+    cooperativeGestures: true,
     locale: TEXTOS_MAPA,
   });
   vigilarFondo();
@@ -1069,6 +1075,7 @@ function salirDeMarcar() {
   document.body.classList.remove("marcando-mapa");
   document.removeEventListener("keydown", escapeDeMarcar);
   encuadrarAlVolver = true;
+  if (mapa) mapa.cooperativeGestures.enable();
   fondoDeMarcar(false);
   avisoMapa(null);
   if (mapa) {
@@ -1134,6 +1141,7 @@ export async function marcarCasaEnMapa({ centro, calle, mensaje } = {}) {
   document.body.classList.add("marcando-mapa");
   document.addEventListener("keydown", escapeDeMarcar);
   mapa.resize();
+  mapa.cooperativeGestures.disable();
   fondoDeMarcar(true);
   // Si ya pidió «el más cercano a mí», arrancamos sobre su posición: le
   // ahorra el viaje a dedo desde la vista de toda la ciudad.
