@@ -76,7 +76,8 @@ const MARCAS = [
    (8,42 m) no entra a escala: va cortado, y la medida se escribe. */
 const PX = 30;
 const ARRIBA = 40;
-const y = (v) => ARRIBA + (8 - v) * PX;
+/* Redondeada: sin esto el HTML llevaba «127.00000000000001». */
+const y = (v) => Math.round((ARRIBA + (8 - v) * PX) * 100) / 100;
 const ANCHO = 340;
 const Y_CORTE = y(-1) + 22;
 const Y_MAR = Y_CORTE + 34;
@@ -102,7 +103,7 @@ function dibujoRegla() {
     );
   const lineas = MARCAS.map((mk) => {
     const yy = y(mk.v);
-    const ty = ABAJO.has(mk.clave) ? yy + 16 : yy - 6;
+    const ty = ABAJO.has(mk.clave) ? yy + 17 : yy - 6;
     return (
       `<line class="l-${mk.clave}" x1="40" x2="${ANCHO - 4}" y1="${yy}" y2="${yy}"/>` +
       `<text class="t-${mk.clave}" x="66" y="${ty}">${mk.nombre} · <tspan class="mono">${regla2(mk.v)}</tspan></text>` +
@@ -137,13 +138,17 @@ const htmlHidrometro = pagina({
   clave: "hidrometro",
   migaja: "El hidrómetro",
   h1: "Qué mide el hidrómetro del Puerto de Santa Fe",
-  /* La respuesta entera arriba: quien llega desde un buscador lee el primer
-     pantallazo y se va. Decía sólo lo que el número NO es. */
+  /* La respuesta entera arriba, con la palabra con la que más se llega desde
+     Google («cota del río paraná», 171 impresiones en 28 días). */
   lead:
-    "Cuando se dice que el río está en 5 metros, es lo que marca una regla en " +
-    "el Puerto, <b>contada desde su propio cero</b>, que está a unos " +
+    "Lo que los diarios llaman la altura o la cota del río es lo que marca " +
+    "una regla en el Puerto, <b>contada desde su propio cero</b>, que está a " +
+    "unos " +
     nm(CERO, 2) +
     " m sobre el mar. No es la profundidad del río ni su altura sobre el mar.",
+  /* Quien buscó «cota del río» casi seguro quería el número de hoy, y la
+     página no lo lleva a propósito: se le dice dónde está, arriba. */
+  acciones: `        <p class="chico">¿Buscás el nivel de hoy? Está en la barra de arriba, con su fecha, y en <a href="/">la portada</a>.</p>`,
   jsonld: {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -156,10 +161,8 @@ const htmlHidrometro = pagina({
     {
       id: "regla",
       titulo: "Una regla en el Puerto, leída por Prefectura",
-      /* «Cota» se decía de dos maneras en la página —el número de la regla acá,
-         la suma con el cero más abajo— y es la palabra con la que más se llega
-         desde Google. Ahora se nombra acá como la usan los diarios y se define
-         una sola vez, en #cero. */
+      /* Las dos acepciones de «cota», juntas y acá, donde aparece la palabra.
+         Estaban a una pantalla de distancia y el lector las conciliaba solo. */
       html: `        <p>
           El hidrómetro es una regla graduada en el Dique 2 del Puerto de Santa
           Fe. La lee <b>Prefectura Naval</b> y el <b>Instituto Nacional del Agua
@@ -167,35 +170,53 @@ const htmlHidrometro = pagina({
         </p>
         <p>
           Los diarios dicen «la altura del río» o «la cota del río», y en la app
-          de Cota Cero se llama el nivel del río: en los tres casos es lo que
-          marca esa regla.
+          de Cota Cero se llama el nivel del río: es lo que marca esa regla. Ojo
+          con «cota»: en los planos y las escrituras es otra cosa, <b>la altura
+          sobre el mar</b>, en metros del Instituto Geográfico Nacional (IGN).
+          La del agua es lo que marca la regla más su cero.
         </p>
         ${selloFuente("nivelRio", "serie " + ESTACION.serieId + ", altura hidrométrica")}`,
     },
     {
       id: "cero",
       titulo: "Cuenta desde su propio cero",
-      html: `        <p>
-          Los metros del hidrómetro se cuentan desde el <b>cero de la regla</b>,
-          que está a unos <b>${nm(CERO, 2)} m sobre el nivel del mar</b>.
-        </p>
-        <p>
-          Por eso no es la profundidad${
-            MINIMO
-              ? `: en la bajante de ${MINIMO[4].slice(0, 4)} la regla marcó
-          <b>${regla2(MINIMO[3])} m</b>, por debajo de su cero, y el río seguía
-          ahí`
-              : ""
-          }. Y tampoco es la altura sobre el mar: para eso hay que sumarle el
-          cero.
-        </p>
+      /* El dibujo primero: es lo que explica la página, y abajo de dos párrafos
+         quedaba en la segunda pantalla y media del teléfono. En escritorio va
+         al lado del texto (.regla-y-texto).
+
+         El último párrafo existe porque la columna «sobre el mar» invita a
+         comparar la escritura contra ella. Esa cuenta se saltea el margen de
+         la altura y el desnivel río arriba (umbralDe en modelo.js): en Arroyo
+         Leyes, una cota de 14,2 daba «5,78» a mano y ≈ 3,7 en la app. Decía
+         «es la que se compara con la de un terreno»; ya no. */
+      html: `        <div class="regla-y-texto">
 ${dibujoRegla()}
-        <p>
-          <b>La cota, en sentido estricto, es esa altura sobre el mar</b>: la de
-          los planos y las escrituras, en metros del Instituto Geográfico
-          Nacional (IGN). Es la columna de la derecha, y es la que se compara
-          con la de un terreno.
-        </p>
+          <div>
+            <p>
+              Los metros del hidrómetro se cuentan desde el <b>cero de la
+              regla</b>, que está a unos <b>${nm(CERO, 2)} m sobre el nivel del
+              mar</b>.
+            </p>
+            <p>
+              Por eso no es la profundidad${
+                MINIMO
+                  ? `: en la bajante de ${MINIMO[4].slice(0, 4)} la regla marcó
+              <b>${regla2(MINIMO[3])} m</b>, por debajo de su cero, y el río
+              seguía ahí`
+                  : ""
+              }. Y tampoco es la altura sobre el mar: para eso hay que sumarle
+              el cero. Es la columna de la derecha.
+            </p>
+            <p>
+              Esa columna está en la misma escala que las escrituras, pero
+              <b>no alcanza con comparar tu terreno contra ella</b>. Río arriba
+              del Puerto, para la misma lectura de la regla, el agua está más
+              alta, y la altura de un terreno tiene error. Esa cuenta, con su
+              margen, la hace <a href="/app">la app de Cota Cero</a> con tu
+              dirección.
+            </p>
+          </div>
+        </div>
         <p class="chico">
           Entre fuentes oficiales el cero varía unos centímetros (el INA midió
           8,378), por eso la altura sobre el mar va con un decimal.
@@ -216,18 +237,30 @@ ${MARCAS.map(filaTabla).join("\n")}
     {
       id: "horarios",
       titulo: "Por qué Prefectura y el INA no dicen lo mismo",
+      /* Era una oración con tres lecturas y tres horas. Los números, todos
+         comprobados: 4,24 (12:00 del 28) y 4,25 (00:00 del 29) en la tabla de
+         Prefectura el 29/10/2026; 4,23 (00:00 del 28) en el INA esa mañana, y
+         4,25 (00:00 del 29) en el INA el mismo día, en el log del build de la
+         portada. Que las dos 00:00 coincidan muestra que es la misma regla. */
       html: `        <p>
           Prefectura lee la regla <b>cada 12 horas</b>, a las 00:00 y a las
           12:00, y publica cada lectura. El INA guarda <b>una por día</b>, la de
           las 00:00, y es la que muestra Cota Cero. Los diarios citan una u otra.
         </p>
+        <table class="cuenta">
+          <thead><tr><th scope="col">Lectura</th><th scope="col">Prefectura</th><th scope="col">INA</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">28/10, 12:00</th><td class="n">4,24 m</td><td>no la guarda</td></tr>
+            <tr><th scope="row">29/10, 00:00</th><td class="n">4,25 m</td><td>4,25 m</td></tr>
+          </tbody>
+        </table>
         <p>
-          Un ejemplo: el 29 de octubre de 2026,
+          La mañana del 29,
           <a href="https://contenidosweb.prefecturanaval.gob.ar/alturas/" target="_blank" rel="noopener">la tabla de Prefectura</a>
-          mostraba 4,25 m de las 00:00 de ese día y 4,24 m de las 12:00 del
-          anterior; el INA, 4,23 m de las 00:00 del 28. No se contradicen: son
-          lecturas de horas distintas. Por eso cada número, acá y en la app, va
-          con su fecha.
+          ya mostraba la lectura de las 00:00 y el INA todavía no la había
+          publicado: seguía la del 28, 4,23 m. Más tarde esa mañana llegó la
+          misma, 4,25 m. Es una sola regla; cambia la hora que se mira y cuándo se
+          publica. Por eso cada número, acá y en la app, va con su fecha.
         </p>`,
     },
     {
@@ -242,8 +275,7 @@ ${MARCAS.map(filaTabla).join("\n")}
           del Puerto esté. Cota Cero hace esa cuenta con tu dirección y te da tu
           nivel de aviso: el nivel del río a partir del cual el agua puede
           llegar a tu terreno. Es un cálculo aproximado.
-        </p>
-        <p>El nivel del río de hoy está en la barra de arriba y en <a href="/">la portada</a>.</p>`,
+        </p>`,
     },
   ],
 });
