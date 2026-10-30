@@ -843,6 +843,13 @@ regla el navegador pone #757575: 4,14:1 en claro y 2,87 en oscuro, en el campo
 principal y en los de Mi plan. Ningún barrido de nodos de texto lo ve; por eso
 `comprobar.js` verifica que la regla exista y use el tenue, que ya está medido.
 
+**El contorno de un campo es `--borde-campo`** (octubre de 2026), y pasa 3:1
+contra el papel, el panel y el propio relleno del campo (WCAG 1.4.11, lo mide
+`comprobar.js`). Antes el borde era transparente y el campo de la dirección
+quedaba en 1,1–1,3:1 contra la tarjeta: a pleno sol no se veía dónde
+escribir. Con `prefers-contrast: more` pasa al color del texto. Un campo
+nuevo usa ese token, no `--linea`, que es para separadores.
+
 **Los colores de texto se miden contra todos los fondos donde caen**, no sólo
 contra el papel: el tenue daba 4,12 y el acento 4,13 sobre el tinte de peligro.
 `node scripts/comprobar.js` lo verifica en los dos temas leyendo
@@ -851,12 +858,14 @@ rellenos sólidos con texto blanco (`peligro-solido`, `alerta-solido`,
 `evac-solido`) también se miden ahí: el rojo del 103 en oscuro aprobaba por
 0,002. Los valores del tema claro viven una sola vez en las `--c-*`.
 
-**El widget, la placa (`PAL` en `js/placa.js`) y el CSS embebido de
-`api/metricas.js` llevan su propia copia de la paleta**, y `comprobar.js`
+**El widget, la placa (`PAL` en `js/placa.js`), la imagen para compartir
+(`C` en `js/app/compartir.js`) y el CSS embebido de `api/metricas.js` llevan
+su propia copia de la paleta**, y `comprobar.js`
 (`COPIAS`) la compara con los tokens y mide sus pares: un color nuevo en una
 copia va con su renglón en el mapa. Antes no lo medía nadie y las tres habían
 quedado con la paleta vieja —el agua del logo del widget en #1f7a9e, el
-«Dato viejo» a 4,23:1—. Lo mismo vale para un color escrito en JS: el gris del
+«Dato viejo» a 4,23:1—. La imagen para compartir entró el 30/10/2026: tenía
+un naranja de alerta que no existía en ninguna otra parte. Lo mismo vale para un color escrito en JS: el gris del
 popup del mapa estaba como `#7E959D` en `mapa.js` y daba 3,15:1, y ningún
 control lo veía.
 

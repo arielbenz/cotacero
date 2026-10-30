@@ -165,7 +165,6 @@ function pintarNivel(r) {
        saltearse una, y ahí el delta abarca dos. Lo mismo que el widget. */
     d.textContent = (cm > 0 ? "▲ +" : "▼ −") + Math.abs(cm) + " cm";
     d.title = "Desde la medición anterior del INA";
-    d.classList.toggle("baja", cm < 0);
     // Vencido, el ▲ sería el movimiento de hace días contado como de ahora.
     d.hidden = cm === 0 || viejo;
   }

@@ -82,7 +82,6 @@ function pintar(d) {
        día, pero puede saltearse una, y ahí el delta abarca dos. */
     $("delta").textContent = (delta > 0 ? "▲ +" : "▼ −") + cm + " cm";
     $("delta").title = "Desde la medición anterior del INA";
-    $("delta").classList.toggle("baja", delta < 0);
     $("delta").hidden = false;
   }
 
