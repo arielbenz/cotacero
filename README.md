@@ -424,10 +424,11 @@ hoy, 7 y 30 días (unión, no suma), suscriptos y sugerencias; `&ver=sugerencias
 las lista y `&formato=json` da todo en JSON. Sin clave configurada no responde,
 y ante una clave mala da 404, no 401.
 
-**Analítica:** Google Analytics y Vercel Web Analytics van **sólo en las
-páginas del sitio**, nunca en `/app` ni en `/widget`, porque `/legal` y
-`/para-medios` prometen por escrito que ahí no hay rastreo. Vercel Analytics
-hay que habilitarlo en el panel; en local da 404.
+**Analítica:** Google Analytics va **sólo en las páginas del sitio**, nunca
+en `/app` ni en `/widget`, porque `/legal` y `/para-medios` prometen por
+escrito que ahí no hay rastreo. Vercel Web Analytics estuvo también y salió
+en octubre de 2026: duplicaba lo que ya mide Google y sumaba dos pedidos de
+CDN por página vista (el script y el evento).
 
 ## A quién no le llegamos todavía
 

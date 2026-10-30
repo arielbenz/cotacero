@@ -355,7 +355,6 @@ ${estructurados.map((b) => `    <script type="application/ld+json">\n${JSON.stri
     <link rel="stylesheet" href="/css/app.css" />
     <script src="/lib/comun-clasico.js" defer></script>
     <script src="/js/rio-barra.js" defer></script>
-    <script defer src="/_vercel/insights/script.js"></script>
     ${
       /* La configuración va en /js/analitica.js (el <script> en línea del
          snippet oficial lo bloquea la CSP), y el cargador de Google lo

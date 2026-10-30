@@ -1043,4 +1043,22 @@ la tipografía del sistema. Es legible, y no vale bajar dos veces 59 KB.
 guardado avisando que puede estar viejo, antes que servir el de ayer como si
 fuera de hoy. `datos-abiertos/curvas.json` va precacheado porque es el cálculo central,
 y `cotas-costa.json` por lo mismo en Rincón y Arroyo Leyes.
-El HTML, los módulos y `app.css` van por red primero; el resto por caché primero.
+**Lo precacheado sale de la caché de su versión, sin ir a la red** (octubre
+de 2026). Cada apertura de `/app` eran 37 pedidos a Vercel —los módulos,
+`lib/`, `app.css`, todos 304— y dos tercios de los pedidos de CDN del
+proyecto. `deSuVersion()` en `sw.js` sirve `/app`, sus módulos, `lib/` y los
+JS y CSS de `CRITICOS` desde la caché de `VERSION`; ahora una apertura
+repetida son 4 o 5 (la API, `sw.js` y `comun-clasico.js`, que el navegador
+revisa en cada navegación). No se desfasa porque `VERSION` es el resumen de
+todo lo precacheado: un módulo nuevo cambia `sw.js` y el worker nuevo arma
+su caché entera. El precio, aceptado: **después de un deploy que cambia la
+app, la primera apertura corre la versión anterior completa y la segunda la
+nueva** (probado con dos deploys simulados). La app sale de la caché sólo si
+está entera en esa versión; si no, va por el camino de antes. El HTML del
+sitio, los JS que no están en el precache (`landing.js`, `analitica.js`…) y
+las navegaciones siguen por red primero —la portada cambia todos los días
+sin que cambie `VERSION`—; el resto, por caché primero.
+
+**Vercel Web Analytics salió** (octubre de 2026): duplicaba a Google
+Analytics y sumaba dos pedidos de CDN por página vista. Si vuelve, `/legal`
+lo tiene que nombrar otra vez.
