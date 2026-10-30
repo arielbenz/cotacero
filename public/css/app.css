@@ -32,6 +32,8 @@
   --texto: #e9eef0;
   --tenue: #93a6ad;
 
+  --borde-campo: #6e7f86;
+
   --agua: #5fc8e8;
   --agua-clara: #5fc8e8;
   --acento: #5fc8e8;
@@ -127,6 +129,7 @@
   --c-texto: #1b262c;
 
   --c-tenue: #5f6c72;
+  --c-borde-campo: #7c868b;
   --c-agua: #5fc8e8;
   --c-agua-clara: #5fc8e8;
 
@@ -170,6 +173,7 @@
     --linea: var(--c-linea);
     --texto: var(--c-texto);
     --tenue: var(--c-tenue);
+    --borde-campo: var(--c-borde-campo);
     --agua: var(--c-agua);
     --agua-clara: var(--c-agua-clara);
     --acento: var(--c-acento);
@@ -220,6 +224,7 @@ html[data-theme="light"] {
   --linea: var(--c-linea);
   --texto: var(--c-texto);
   --tenue: var(--c-tenue);
+  --borde-campo: var(--c-borde-campo);
   --agua: var(--c-agua);
   --agua-clara: var(--c-agua-clara);
   --acento: var(--c-acento);
@@ -1205,7 +1210,7 @@ select,
 textarea {
   width: 100%;
   background: var(--panel-2);
-  border: 1px solid transparent;
+  border: 1px solid var(--borde-campo);
   border-radius: var(--r-m);
   padding: var(--e-3) var(--e-4);
   min-height: 52px;
@@ -3466,17 +3471,14 @@ p.pie-frescura,
 .chip-delta[hidden] {
   display: none;
 }
-.chip-delta.baja {
-  background: var(--ok-tinte);
-  color: var(--ok-texto);
-}
+
 .chip-delta {
   flex: none;
   white-space: nowrap;
   padding: 4px 9px;
   border-radius: var(--r-full);
-  background: var(--alerta-tinte);
-  color: var(--alerta-texto);
+  background: var(--panel-2);
+  color: var(--texto);
   font-family: var(--mono);
   font-size: var(--t-xs);
   font-weight: 700;
@@ -5840,7 +5842,7 @@ button.enlace-crudo {
 #form-contacto input[type="text"] {
   width: 100%;
   padding: var(--e-4);
-  border: 1px solid var(--linea);
+  border: 1px solid var(--borde-campo);
   border-radius: var(--r-m);
   background: var(--panel-2);
   color: var(--texto);
@@ -5924,6 +5926,7 @@ button.enlace-crudo {
   html[data-theme="dark"] {
     --tenue: var(--texto);
     --tenue-invertido: var(--texto-invertido);
+    --borde-campo: var(--texto);
   }
 }
 

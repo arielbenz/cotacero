@@ -398,6 +398,12 @@ console.log("CONTRASTE");
       const peor = Math.min(...fondos.map((f) => razon(c, f)));
       caso(`${tema}: «${t}» pasa 4,5:1 en todos los fondos (peor ${peor.toFixed(2)})`, peor >= 4.5, true);
     }
+    /* El contorno de los campos es un control, no texto: 3:1 (WCAG 1.4.11)
+       contra el papel, el panel y el propio relleno del campo. Con el borde
+       transparente que había, el campo quedaba en 1,1–1,3:1. */
+    const borde = rgb(tok(pre + "borde-campo")).slice(0, 3);
+    const peorBorde = Math.min(...fondos.slice(0, 4).map((f) => razon(borde, f)));
+    caso(`${tema}: el borde de los campos pasa 3:1 (peor ${peorBorde.toFixed(2)})`, peorBorde >= 3, true);
   }
 
   /* LAS COPIAS DE LA PALETA. El widget, la placa y la página de métricas no
@@ -448,6 +454,9 @@ console.log("CONTRASTE");
   const metricas = leer("api/metricas.js");
   const metOscuro = varsCss(metricas, ":root{");
   const widget = leer("public/widget/index.html");
+  // La imagen para compartir: `const C = { clave: "valor", … }`. Sale siempre
+  // oscura, así que tiene un solo tema.
+  const imagen = varsPal(leer("public/js/app/compartir.js").match(/const C = \{([^}]*)\}/)[1]);
 
   const COPIAS = [
     {
@@ -510,6 +519,35 @@ console.log("CONTRASTE");
         [t, ["fondo"]],
         [t, ["panel", "fondo"]],
       ]),
+    },
+    {
+      nombre: "la imagen para compartir",
+      temas: { oscuro: imagen },
+      mapa: {
+        fondo: "fondo",
+        claro: "texto", // el número grande, la marca y los titulares
+        // El cuerpo de la frase, un paso abajo del claro para que el número
+        // mande; y el texto de apoyo, entre ése y el tenue. Una imagen de
+        // 1080 px no tiene esas jerarquías en la app. Se miden abajo.
+        texto: null,
+        suave: null,
+        tenue: "tenue",
+        // Trazos, no texto: las marcas finas de la regla, la pista y los
+        // separadores.
+        linea: null,
+        pista: null,
+        viejo: null,
+        agua: "agua",
+        ok: "ok-texto",
+        alerta: "alerta-texto", // atención y alerta, como en la placa
+        evac: "peligro-texto",
+        vos: "tierra", // la línea punteada del nivel de aviso propio
+      },
+      pares: [
+        ...["claro", "texto", "suave", "tenue", "agua", "ok", "alerta", "evac", "vos"].map((t) => [t, ["fondo"]]),
+        // El nombre del estado va en oscuro sobre un rótulo de su color.
+        ...["ok", "alerta", "evac", "tenue"].map((f) => ["fondo", [f]]),
+      ],
     },
     {
       nombre: "métricas",

@@ -104,17 +104,15 @@
       }
       /* La tendencia va en la cabecera, a la derecha. «▲ +3 cm» y no «cm/día»:
          el INA puede saltearse una lectura y ahí el delta abarca dos días. */
+      /* Sin color de estado: ver .mov-rio en estilos/app.css. */
       .delta {
         margin-left: auto;
-        color: var(--alerta);
+        color: var(--texto);
         font-size: 12px;
         letter-spacing: 0;
         text-transform: none;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
-      }
-      .delta.baja {
-        color: var(--ok);
       }
       .delta[hidden] {
         display: none;

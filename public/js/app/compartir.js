@@ -19,8 +19,15 @@ const ALTO = 1350;
 const MARGEN_X = 84;
 const MARGEN_Y = 80;
 
-// Los colores del tema oscuro de la app, escritos acá porque la imagen sale
-// oscura aunque la persona use el tema claro.
+/* Los colores del tema oscuro de la app, escritos acá porque la imagen sale
+   oscura aunque la persona use el tema claro. Es una copia de la paleta, y
+   scripts/comprobar.js (COPIAS) la compara con los tokens de app.css y mide
+   cada texto sobre su fondo: un color nuevo acá va con su renglón allá.
+   Hasta el 30/10/2026 no la medía nadie y se había corrido sola: el verde
+   de «normal» era otro, la alerta llevaba un naranja que no existía en
+   ninguna otra parte y la evacuación, el color de la línea de la regla.
+   Los estados van como en la placa y el widget, las otras imágenes que
+   viajan solas: atención y alerta en el ámbar, evacuación en el rojo. */
 const C = {
   fondo: "#0e1619",
   claro: "#e9eef0",
@@ -30,10 +37,9 @@ const C = {
   linea: "rgba(233,238,240,0.14)",
   pista: "rgba(233,238,240,0.08)",
   agua: "#5fc8e8",
-  ok: "#51ab8e",
-  atencion: "#e8a33d",
-  alerta: "#e8843f",
-  evac: "#e57563",
+  ok: "#54ae90",
+  alerta: "#e8a33d",
+  evac: "#ef7e6b",
   vos: "#c9a227",
   viejo: "#5d6f76",
 };
@@ -84,7 +90,7 @@ function estadoImagen(r, viejo) {
   if (r >= ALERTA - ATENCION_ANTES_M)
     return {
       nombre: ESTADOS.atencion.titulo,
-      color: C.atencion,
+      color: C.alerta,
       frase: [
         [ESTADOS.atencion.verbo, B],
         [" Faltan " + mCm(ALERTA - r) + " para la alerta de la ciudad.", N],
