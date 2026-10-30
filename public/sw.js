@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-90227aa2e8";
+const VERSION = "cota-cero-f7e6515303";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -230,6 +230,9 @@ self.addEventListener("message", (e) => {
   calentando = caches
     .open(VERSION)
     .then((c) => c.addAll(frescas(DEL_APP)))
+    .then(() => {
+      appLista = Promise.resolve(true);
+    })
     // Ya está la app entera en esta versión: la copia vieja sobra.
     .then(podarViejas)
     .catch((err) => {
@@ -283,6 +286,50 @@ self.addEventListener("activate", (e) => {
 async function buscar(req, opciones) {
   const hit = await (await caches.open(VERSION)).match(req, opciones);
   return hit || caches.match(req, opciones);
+}
+
+/* Lo precacheado sale de la caché de SU versión, sin preguntarle a la red.
+   ---------------------------------------------------------------------------
+   Antes JS y CSS iban por red primero, y cada vez que alguien abría /app
+   eran 37 pedidos a Vercel —28 módulos, lib/, app.css— aunque todo volviera
+   como 304: cada uno cuenta como un pedido de CDN, y eran dos tercios de los
+   del proyecto (medido el 30/10/2026). Ahora son 6: la API, sw.js y lo que
+   éste importa.
+
+   No hay desfasaje posible porque VERSION es un resumen del contenido de
+   TODO lo precacheado (scripts/version-sw.js): si cambia un módulo, cambia
+   sw.js, el navegador lo nota en la próxima navegación y el worker nuevo
+   arma su caché entera con addAll, que es todo o nada. El precio: después de
+   un deploy que cambia la app, quien la abre la ve una vez con la versión
+   anterior, y la siguiente con la nueva. El nivel del río y los umbrales no
+   se atrasan: /api/ no pasa nunca por la caché.
+
+   /app, sus módulos y lib/ salen de la caché sólo si está la app ENTERA en
+   esta versión. Si no —el worker recién se activó y todavía no calentó— van
+   por el camino de siempre: un HTML de una versión con módulos de otra es
+   justo el desfasaje que hay que evitar. Lo del sitio (app.css,
+   comun-clasico.js, rio-barra.js, guia.css) entra con la instalación, así
+   que está siempre. El HTML del sitio sigue por red primero: la portada
+   cambia todos los días con el dato del río sin que cambie VERSION. */
+const FIJOS_DEL_SITIO = new Set(CRITICOS.filter((u) => /\.(css|js)$/.test(u)));
+const DE_LA_APP = new Set(DEL_APP);
+
+let appLista = null;
+function tieneLaApp() {
+  if (!appLista)
+    appLista = caches
+      .open(VERSION)
+      .then((c) => Promise.all(DEL_APP.map((u) => c.match(u))))
+      .then((hits) => hits.every(Boolean));
+  return appLista;
+}
+
+async function deSuVersion(req, url) {
+  const ruta = url.pathname;
+  if (!FIJOS_DEL_SITIO.has(ruta) && !DE_LA_APP.has(ruta)) return undefined;
+  if (DE_LA_APP.has(ruta) && !(await tieneLaApp())) return undefined;
+  // ignoreSearch: la app navega a /app?ir=cota, ?ir=plan y ?ir=donde.
+  return (await caches.open(VERSION)).match(req, { ignoreSearch: true });
 }
 
 /* Red primero, pero no a cualquier precio. Con señal que va y viene —el
@@ -357,8 +404,8 @@ self.addEventListener("fetch", (e) => {
   // Datos en vivo: siempre a la red, sin respaldo en caché.
   if (url.pathname.startsWith("/api/")) return;
 
-  // Analytics: ni cachear el script ni interceptar los envíos. Si lo
-  // cacheáramos serviríamos una versión vieja para siempre.
+  // Lo que agregue Vercel (analítica, insights): ni cachearlo ni interceptar
+  // sus envíos. Hoy no se usa ninguno; la regla queda por si vuelve.
   if (url.pathname.startsWith("/_vercel/")) return;
 
   // robots.txt, sitemap.xml, llms.txt, el catálogo de API y las versiones en
@@ -392,24 +439,27 @@ self.addEventListener("fetch", (e) => {
      próxima vez. */
   if (url.origin !== location.origin) return;
 
-  // app.js y app.css: red primero, igual que el HTML, y por el mismo motivo.
-  // Si fueran caché primero, alguien podría quedar con el HTML nuevo y el JS
-  // viejo — y en esta app eso significa cálculos mal apareados con la
-  // interfaz que los muestra. Revalidar cuesta un 304; el desfasaje no se
-  // paga con nada.
-  // (ya sabemos que es del propio origen: lo de afuera salió arriba)
+  e.respondWith(
+    deSuVersion(req, url).then((hit) => hit || segunElTipo(e, req, url)),
+  );
+});
+
+/* Lo que no sale de la caché de su versión (ver deSuVersion): JS y CSS que no
+   están en el precache, el HTML del sitio, y la app mientras no esté entera. */
+function segunElTipo(e, req, url) {
+  // JS y CSS: red primero, igual que el HTML, y por el mismo motivo. Si
+  // fueran caché primero sin una versión que los ate, alguien podría quedar
+  // con el HTML nuevo y el JS viejo — y en esta app eso significa cálculos
+  // mal apareados con la interfaz que los muestra.
   if (/\.(js|css)$/.test(url.pathname)) {
-    e.respondWith(
-      redPrimero(e, req, () => buscar(req)).then(
-        (r) =>
-          r ||
-          new Response("Sin conexión y sin copia guardada.", {
-            status: 504,
-            headers: { "Content-Type": "text/plain; charset=utf-8" },
-          }),
-      ),
+    return redPrimero(e, req, () => buscar(req)).then(
+      (r) =>
+        r ||
+        new Response("Sin conexión y sin copia guardada.", {
+          status: 504,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        }),
     );
-    return;
   }
 
   // Navegación (el HTML): red primero.
@@ -421,51 +471,46 @@ self.addEventListener("fetch", (e) => {
        sin esto cada deep link sería un fallo de caché. A la espera sólo
        contesta la copia propia: servir la portada en lugar de /legal porque la
        red tarda sería el error de siempre, el que parece que anduvo. */
-    e.respondWith(
-      redPrimero(e, req, () => buscar(req, { ignoreSearch: true })).then(
-        async (r) => {
-          if (r) return r;
-          // Último recurso, ya sin red: la app para sus rutas, la landing
-          // para el resto.
-          const alApp =
-            url.pathname === "/app" || url.pathname.startsWith("/app/");
-          return (
-            (await buscar(alApp ? "/app" : "/")) ||
-            new Response("Sin conexión y sin copia guardada.", {
-              status: 504,
-              headers: { "Content-Type": "text/plain; charset=utf-8" },
-            })
-          );
-        },
-      ),
+    return redPrimero(e, req, () => buscar(req, { ignoreSearch: true })).then(
+      async (r) => {
+        if (r) return r;
+        // Último recurso, ya sin red: la app para sus rutas, la landing
+        // para el resto.
+        const alApp =
+          url.pathname === "/app" || url.pathname.startsWith("/app/");
+        return (
+          (await buscar(alApp ? "/app" : "/")) ||
+          new Response("Sin conexión y sin copia guardada.", {
+            status: 504,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+          })
+        );
+      },
     );
-    return;
   }
 
   // Todo lo demás: caché primero.
-  e.respondWith(
-    buscar(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req)
-        .then((r) => {
-          if (r.ok) {
-            const copia = r.clone();
-            caches.open(VERSION).then((c) => c.put(req, copia));
-          }
-          return r;
-        })
-        .catch(
-          () =>
-            // Antes devolvía `hit`, que en esta rama es undefined: respondWith
-            // recibía undefined y el navegador tiraba un error de red pelado.
-            new Response("Sin conexión y sin copia guardada de este recurso.", {
-              status: 504,
-              headers: { "Content-Type": "text/plain; charset=utf-8" },
-            }),
-        );
-    }),
-  );
-});
+  return buscar(req).then((hit) => {
+    if (hit) return hit;
+    return fetch(req)
+      .then((r) => {
+        if (r.ok) {
+          const copia = r.clone();
+          caches.open(VERSION).then((c) => c.put(req, copia));
+        }
+        return r;
+      })
+      .catch(
+        () =>
+          // Antes devolvía `hit`, que en esta rama es undefined: respondWith
+          // recibía undefined y el navegador tiraba un error de red pelado.
+          new Response("Sin conexión y sin copia guardada de este recurso.", {
+            status: 504,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+          }),
+      );
+  });
+}
 
 /* ==========================================================================
    AVISOS

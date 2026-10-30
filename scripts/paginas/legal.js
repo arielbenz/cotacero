@@ -108,7 +108,7 @@ const PRIVACIDAD = [
   [
     "Estadísticas del sitio",
     "Sólo en el sitio",
-    "Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie.",
+    "Google Analytics, que deja cookies y manda los datos de tu visita a Google. No corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie.",
   ],
 ];
 

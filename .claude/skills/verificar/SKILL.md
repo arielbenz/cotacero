@@ -93,9 +93,7 @@ datos guardados de otra sesión):
 - **Escritorio: 1280 px.**
 - **Claro y oscuro** (`colorScheme`). Las cuatro pestañas de la app tienen
   versión oscura en el diseño.
-- **Consola limpia.** En local siempre aparecen dos errores de
-  `/_vercel/insights/script.js` (404 y MIME): no existen fuera de Vercel y se
-  ignoran. Cualquier otro error es real.
+- **Consola limpia.** Cualquier error es real.
 - **Sin scroll de costado:** `document.documentElement.scrollWidth` tiene que
   dar el ancho de la ventana (390 o 1265 con barra de scroll).
 

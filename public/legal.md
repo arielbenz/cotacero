@@ -53,7 +53,7 @@ La app depende de que el INA publique y de servicios de terceros que pueden fall
 | Buscar una dirección | Al tocar Buscar | Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada. |
 | Ver el mapa | Al abrirlo | El fondo del mapa lo pide tu teléfono a OpenFreeMap, y la foto aérea con la que marcás tu casa, al Instituto Geográfico Nacional. Los dos reciben tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono. |
 | Lluvia y caudal | Al abrir la app | El pronóstico de lluvia y la tendencia del caudal del Paraná los pide tu teléfono a Open-Meteo, para el centro de Santa Fe, con coordenadas fijas: no manda tu ubicación ni tu casa, sólo tu IP, como cualquier pedido web. |
-| Estadísticas del sitio | Sólo en el sitio | Vercel Analytics, agregado y sin cookies, y Google Analytics, que sí deja cookies y manda los datos de tu visita a Google. Ninguno corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie. |
+| Estadísticas del sitio | Sólo en el sitio | Google Analytics, que deja cookies y manda los datos de tu visita a Google. No corre dentro de la app ni dentro del widget: a los lectores de un medio que lo embebe no los mide nadie. |
 
 No pedimos nombre, correo, teléfono ni registro. No hay publicidad ni venta de datos. Lo que dice esta tabla sobre el widget es la promesa que le hacemos a cada [medio que lo embebe](https://cotacerosf.com/para-medios).
 
