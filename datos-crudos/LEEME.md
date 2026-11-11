@@ -42,6 +42,18 @@ a mano y por separado.
 - `analisis-macotas-<fecha>.mjs` — si esos puntos sirven donde no llegan las
   curvas; salida en `salida-macotas-<fecha>.txt`.
 
+### 10/11/2026: diez mojones medidos en Arroyo Leyes
+
+- `leyes-mojones-<fecha>.json` — cotas medidas con estación satelital por un
+  ingeniero en recursos hídricos (planilla y captura de Google Earth). La
+  planilla no trae coordenadas: salen de georreferenciar la captura contra
+  imagen satelital, con 30 a 50 m de error, y el archivo guarda los puntos de
+  control, la transformación y el píxel de cada chinche. La captura no está
+  acá porque trae un teléfono personal.
+- `analisis-mojones-leyes-<fecha>.mjs` — compara esas cotas con lo que
+  calcula `elevacion.js` y pone lado a lado la conversión a hidrómetro de la
+  planilla y la de la app; salida en `salida-mojones-leyes-<fecha>.txt`.
+
 Los análisis importan el código de la app con `scripts/app-en-node.js`, que
 resuelve las rutas del navegador contra `public/` y presta un `fetch` que lee
 del disco. Los que miden las curvas filtran por `fuente === "curvas"`: desde el

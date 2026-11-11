@@ -1,0 +1,214 @@
+{
+  "fuente": "Toni Traba, ingeniero en recursos hídricos: planilla de cotas y captura de Google Earth «Cotas IGN — Determinación de cotas por medición con Estación Total Satelital», recibidas el 10/11/2026",
+  "sistema": "«IGN» según la planilla; el marco, el modelo de geoide y la marca de arranque no están declarados",
+  "planilla": {
+    "cero_hidrometro": 8.37,
+    "pendiente": 0,
+    "lectura": {
+      "fecha": "2026-11-09",
+      "metros": 5.02
+    },
+    "cuenta": "Dif. = cota − 8,37; Resto = Dif. − lectura del día"
+  },
+  "ubicacion": {
+    "metodo": "La planilla no trae coordenadas. Se georreferenció la captura (2880×1432 px) contra Esri World Imagery z16 con una similaridad (escala, giro, traslado) ajustada por mínimos cuadrados a cinco rasgos que se ven en las dos imágenes, y se tomó la punta de la aguja de cada chinche. Se controló superponiendo las dos imágenes: caminos, lagunas y la grilla del pueblo coinciden.",
+    "error_estimado_m": "30 a 50",
+    "residuos_control_px": [
+      5.8,
+      11.7,
+      18.6,
+      11.0,
+      12.2
+    ],
+    "metros_por_px": 3.58,
+    "giro_grados": 4.0,
+    "afin": {
+      "formula": "px_x = a·gx + c·gy + e ; px_y = b·gx + d·gy + f, con (gx, gy) en píxeles globales Web Mercator z16 (256·2^16 por vuelta)",
+      "a": 0.5671222435272096,
+      "b": 0.039750808171769236,
+      "c": -0.039750808171769236,
+      "d": 0.5671222435272096,
+      "e": -2761986.90296502,
+      "f": -5856906.665262487
+    },
+    "control": [
+      {
+        "que": "puente de la Ruta 1 sobre el arroyo, al norte",
+        "lat": -31.51373,
+        "lon": -60.462163,
+        "px": [
+          2353,
+          282
+        ]
+      },
+      {
+        "que": "edificios junto a ese puente",
+        "lat": -31.513647,
+        "lon": -60.46096,
+        "px": [
+          2375,
+          291
+        ]
+      },
+      {
+        "que": "laguna rectangular al norte de la Ruta 1",
+        "lat": -31.52008,
+        "lon": -60.478297,
+        "px": [
+          1932,
+          459
+        ]
+      },
+      {
+        "que": "recinto redondeado al oeste del pueblo",
+        "lat": -31.537963,
+        "lon": -60.512841,
+        "px": [
+          957,
+          955
+        ]
+      },
+      {
+        "que": "laguna al norte de ese recinto",
+        "lat": -31.534941,
+        "lon": -60.505977,
+        "px": [
+          1149,
+          852
+        ]
+      }
+    ],
+    "captura": "No está en el repositorio: trae un teléfono personal."
+  },
+  "puntos": [
+    {
+      "id": "PF1",
+      "ubicacion": "Villa Juana - Rosillo",
+      "cota": 14.264,
+      "lat": -31.524713,
+      "lon": -60.485758,
+      "px": [
+        1706.6,
+        584.5
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "M1",
+      "ubicacion": "Pertovt - Plaza",
+      "cota": 15.058,
+      "lat": -31.512388,
+      "lon": -60.471925,
+      "px": [
+        2099,
+        228
+      ],
+      "nota": "aguja tapada, ±20 m más"
+    },
+    {
+      "id": "M2",
+      "ubicacion": "Pertovt - Entrada",
+      "cota": 16.328,
+      "lat": -31.513718,
+      "lon": -60.463401,
+      "px": [
+        2321.4,
+        285
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "M3",
+      "ubicacion": "Villa Juana - Pabla V.",
+      "cota": 14.764,
+      "lat": -31.524949,
+      "lon": -60.482852,
+      "px": [
+        1782.9,
+        597.2
+      ],
+      "nota": "M3/M4 podrían estar intercambiados"
+    },
+    {
+      "id": "M4",
+      "ubicacion": "Villa Juana - Escalada",
+      "cota": 14.54,
+      "lat": -31.525341,
+      "lon": -60.483796,
+      "px": [
+        1757.1,
+        607.6
+      ],
+      "nota": "M3/M4 podrían estar intercambiados"
+    },
+    {
+      "id": "PF2",
+      "ubicacion": "Callejón Gamboa",
+      "cota": 16.094,
+      "lat": -31.53084,
+      "lon": -60.492277,
+      "px": [
+        1521,
+        762.4
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "PF3",
+      "ubicacion": "C. 86 - Figueredo",
+      "cota": 16.564,
+      "lat": -31.543252,
+      "lon": -60.50415,
+      "px": [
+        1180.2,
+        1125.3
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "M5",
+      "ubicacion": "C. 86 - Narvaez",
+      "cota": 16.11,
+      "lat": -31.540287,
+      "lon": -60.509188,
+      "px": [
+        1053.5,
+        1024
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "M6",
+      "ubicacion": "Lagos - Plaza (C.78)",
+      "cota": 14.34,
+      "lat": -31.543132,
+      "lon": -60.518224,
+      "px": [
+        808.5,
+        1095.5
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "M7",
+      "ubicacion": "Lagos - Monolito (C.78)",
+      "cota": 15.59,
+      "lat": -31.547128,
+      "lon": -60.513052,
+      "px": [
+        936.5,
+        1229
+      ],
+      "nota": "buena"
+    },
+    {
+      "id": "PF4",
+      "ubicacion": "C. 60",
+      "cota": 18.181,
+      "lat": null,
+      "lon": null,
+      "px": null,
+      "nota": "no aparece en la captura"
+    }
+  ]
+}
