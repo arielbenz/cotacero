@@ -1,0 +1,35 @@
+1. Cota medida contra la que calcula la app
+
+   punto  medida    app   fuente  a (m)   app−medida   app a ±30 m
+   PF1    14,26   14,08  puntos    69   -0,18      13,87 …  14,47
+   M1     15,06    —    —          —     —        14,72 …  14,94
+   M2     16,33   15,47  puntos     7   -0,86      15,47 …  18,07
+   M3     14,76   15,03  puntos   120    0,26      14,90 …  15,14
+   M4     14,54   14,83  puntos    26    0,29      14,75 …  15,00
+   PF2    16,09    —    —          —     —         sin dato
+   PF3    16,56   17,09  puntos    48    0,53      16,73 …  17,27
+   M5     16,11   14,66  puntos    62   -1,45      14,58 …  14,77
+   M6     14,34   13,78  puntos    98   -0,56      13,77 …  13,78
+   M7     15,59   14,31  puntos    48   -1,28      14,29 …  14,33
+   PF4    18,18   sin ubicación (no aparece en la captura)
+
+   n = 8   mediana -0,37   media -0,41
+   la app más de 0,5 m ARRIBA de lo medido (avisaría tarde): 1
+   la app más de 1,0 m ARRIBA de lo medido (fuera del margen): 0
+
+2. Nivel del Puerto al que el agua alcanza cada cota medida (Arroyo Leyes, 24 km)
+
+   punto  cota   planilla   app sin margen   app con margen
+   PF1    14,26   5,89       4,76           3,76
+   M1     15,06   6,69       5,56           4,56
+   M2     16,33   7,96       6,83           5,83
+   M3     14,76   6,39       5,26           4,26
+   M4     14,54   6,17       5,04           4,04
+   PF2    16,09   7,72       6,59           5,59
+   PF3    16,56   8,19       7,06           6,06
+   M5     16,11   7,74       6,61           5,61
+   M6     14,34   5,97       4,84           3,84
+   M7     15,59   7,22       6,09           5,09
+   PF4    18,18   9,81       8,68           7,68
+
+   diferencia planilla − app sin margen:  1,13 m en todos los puntos

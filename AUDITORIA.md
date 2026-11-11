@@ -4,7 +4,8 @@ Qué número usa la app, de dónde salió, qué tan firme es y qué habría que
 preguntarle a quién para cerrarlo. Es documentación interna: lo que de acá va
 a la interfaz está en `/datos`, escrito para cualquiera.
 
-Última revisión: **26 de octubre de 2026** (el cero pasó a 8,4214; §1).
+Última revisión: **10 de noviembre de 2026** (mojones medidos en Arroyo Leyes;
+§7, después de la pregunta 25). Antes: 26/10/2026, el cero pasó a 8,4214 (§1).
 
 Regla de jerarquía, en este orden: **organismo oficial → universidad →
 normativa → prensa**. Ningún número que entre en el cálculo puede tener a la
@@ -24,7 +25,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | **Cero del hidrómetro 8,4214** | `js/app/config.js`             | Vías Navegables + IGN     | sí        | sí — datum de las curvas  | no                     |
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso       | **no**    | **discutido — ver abajo** | no                     |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)   | no        | sí                        | no                     |
-| Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24)     | no        | sí                        | no                     |
+| Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24 y mojones de Leyes) | no | sí                  | no                     |
 | Km río arriba por zona         | `js/app/zonas.js`              | 1 publicado, 9 propios    | parcial   | sí                        | no                     |
 | Niveles observados por zona    | `js/app/zonas.js` (`ZONAS`)    | municipio en prensa, 2016 | **no**    | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio           | no        | sí                        | no                     |
@@ -303,6 +304,22 @@ mínimo de obra, o la pendiente real en ese tramo es muy distinta. No lo sabemos
 > Rincón que usara ~0,03 m/km y **no se encontró**. Lo que sí está documentado
 > es lo de arriba, que implica pendiente cero en ese tramo. Se anota la
 > diferencia para que nadie dé por buena la cifra de 0,03 leyéndola acá.
+
+**Una segunda fuente con pendiente cero (10/11/2026).** La planilla de los
+mojones de Arroyo Leyes (§7, después de la pregunta 25), hecha por un
+ingeniero en recursos hídricos, convierte cota a hidrómetro con 8,37 y sin
+corrección por los 24 km: 1,13 m menos de descuento que la app en cada punto.
+Tampoco es una medición de la pendiente: es la misma simplificación que el
+reglamento de Rincón. Pero hay un hecho que encaja mejor con ella que con la
+app: el 4/1/2016, con 6,53 m en el Puerto, evacuaron los barrios bajos del
+oeste (§9), entre 125 y 200 personas. Con pendiente cero el agua llega ahí a
+14,90 IGN, lo justo para cubrir los mojones más bajos (14,3 a 14,8, en Villa
+Juana y Lagos); con 0,045 llegaría a 16,03 y cubría también los de 15 a 16 m,
+como M1 en Pertovt y M7 en Lagos. No sabemos qué barrios fueron exactamente,
+ni si había defensas provisorias en el medio. **No alcanza para cambiar
+la constante**, pero es el primer indicio con fecha y lugar. Lo que la
+cerraría es una sola medición: la cota IGN del agua en el arroyo, frente al
+pueblo, un día con la lectura del Puerto conocida.
 
 **Por qué importa tanto.** La pendiente de la superficie del agua no es una
 constante del río: depende del tramo, del caudal, de la condición hidráulica
@@ -702,6 +719,63 @@ PF5N(55) (14,557, chapa sobre pilar al costado de la Ruta 1) el cálculo da
 15,56, justo un metro arriba. Es la marca contaminada de la pregunta 25, pero
 cae en el borde del margen, no adentro. Si aparece una marca al nivel del
 terreno en Rincón, es la primera comparación que hay que hacer.
+
+### Diez mojones medidos en Arroyo Leyes (10/11/2026)
+
+Llegó esa comparación, para Arroyo Leyes. Toni Traba, ingeniero en recursos
+hídricos, midió con estación satelital once mojones y puntos fijos del
+pueblo —Villa Juana, Pertovt, Lagos, calles 60 y 86— y los publicó en una
+planilla y una captura de Google Earth rotulada «Cotas IGN». Van de 14,26 a
+18,18 m. Es la primera medición independiente contra la que se pueden
+controlar los puntos de `MACotas` en la costa: el margen de 1,0 m salía hasta
+ahora de estimar cada punto con sus vecinos, que es consistencia interna.
+
+**Las coordenadas no son del autor.** La planilla no las trae. Salen de
+georreferenciar la captura contra imagen satelital, con una similaridad
+ajustada a cinco rasgos que se ven en las dos (el puente de la Ruta 1, dos
+lagunas, un recinto), y de tomar la punta de cada chinche: **30 a 50 m de
+error**. Por eso cada punto se mira también en una grilla de ±30 m. PF4 no
+aparece en la captura; la aguja de M1 está tapada por un rótulo; M3 y M4
+están a unos 100 m uno del otro y pueden estar intercambiados (si lo están, M3 pasa
+a +0,49 y M4 a +0,07). Todo en `datos-crudos/leyes-mojones-2026-11-10.json`.
+Tampoco se sabe en qué sistema de alturas está la planilla ni si la cota es
+la del terreno o la de la cara del mojón.
+
+    app − medida, 8 puntos con dato     mediana −0,37 m   media −0,41
+    la app más de 0,5 m arriba          1  (PF3, +0,53)
+    la app más de 1,0 m arriba          0
+    M5 y M7                             −1,45 y −1,28, sin cambio a ±30 m
+
+(`datos-crudos/analisis-mojones-leyes-2026-11-10.mjs`, salida al lado. M1 y
+PF2 caen a más de 150 m del punto de costa más cercano: la app no da altura
+ahí.)
+
+Lo que dice, con ocho puntos y esas coordenadas:
+
+- **El margen de 1,0 m aguanta.** Ninguno queda del lado que hace avisar
+  tarde por más de un metro; uno pasa el medio metro. No hay motivo para
+  tocar `ERROR_PUNTOS`.
+- **El sesgo es el de siempre.** La app ve el terreno 0,37 m más bajo que la
+  medición, del mismo lado y del mismo orden que `MACotas` contra la red
+  municipal (−0,26 y −0,64, más arriba) y que las curvas contra los puntos
+  fijos (§4). Ahora aparece con otro instrumento y en otro pueblo. Del lado
+  seguro: avisa antes.
+- **M5 y M7, 1,3 a 1,5 m más altos que lo que ve la app,** y no por la
+  ubicación: a ±30 m la app da lo mismo. Los dos están en loteos del oeste.
+  Una explicación posible es relleno posterior a 2005, el año del
+  relevamiento; no está comprobada. Si lo es, en los lotes rellenados la app
+  avisa temprano, no tarde.
+
+Lo que falta para cerrarlo: el KMZ con las coordenadas de verdad, el sistema
+de alturas (marco, geoide, marca de arranque) y si la cota es del terreno.
+
+**La planilla también convierte a hidrómetro, y no como la app.** Hace
+`cota − 8,37`, sin pendiente: el agua en Arroyo Leyes a la misma altura que
+en el Puerto. La app hace `cota − 8,4214 − 0,045 × 24`. Son **1,13 m** de
+diferencia en cada punto, antes del margen: para PF1 (14,26) la planilla
+dice 5,89 y la app 4,76 sin margen, 3,76 con él. Va a §2: es la segunda
+fuente local que usa pendiente cero en la costa, después del reglamento de
+Rincón.
 
 ---
 
