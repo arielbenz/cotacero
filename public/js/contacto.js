@@ -56,6 +56,19 @@ async function enviar(ev) {
     return;
   }
 
+  /* Sólo correo: se responde por escrito. La misma expresión que esCorreo en
+     lib/sugerencias.js, que este script clásico no puede importar. */
+  const c = contacto.value.trim();
+  if (c && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) {
+    aviso(
+      "<b>Ese correo no parece completo.</b> Revisalo, o dejalo vacío si no " +
+        "querés respuesta. No contestamos por teléfono.",
+      "mal",
+    );
+    contacto.focus();
+    return;
+  }
+
   const elegida = form.querySelector('input[name="categoria"]:checked');
   boton.disabled = true;
   const textoBoton = boton.textContent;
@@ -69,7 +82,7 @@ async function enviar(ev) {
       body: JSON.stringify({
         categoria: elegida ? elegida.value : "otro",
         texto: t,
-        contacto: contacto.value.trim(),
+        contacto: c,
       }),
     });
     const j = await r.json().catch(() => ({}));
@@ -79,7 +92,7 @@ async function enviar(ev) {
     contar();
     aviso(
       "<b>Gracias, llegó.</b> Lo va a leer una persona — no hay respuesta " +
-        "automática y puede tardar. Si dejaste un contacto y hace falta, te " +
+        "automática y puede tardar. Si dejaste tu correo y hace falta, te " +
         "escribimos.",
       "bien",
     );
@@ -106,6 +119,19 @@ async function enviar(ev) {
    scripts/paginas.js desde lib/sugerencias.js: este archivo no tiene ninguno
    escrito a mano. Sin JS queda la ayuda del tema por defecto. */
 function pintarAyuda() {
+  /* Sólo correo: se responde por escrito. La misma expresión que esCorreo en
+     lib/sugerencias.js, que este script clásico no puede importar. */
+  const c = contacto.value.trim();
+  if (c && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) {
+    aviso(
+      "<b>Ese correo no parece completo.</b> Revisalo, o dejalo vacío si no " +
+        "querés respuesta. No contestamos por teléfono.",
+      "mal",
+    );
+    contacto.focus();
+    return;
+  }
+
   const elegida = form.querySelector('input[name="categoria"]:checked');
   const ayuda = $("sug-ayuda");
   if (!elegida || !ayuda) return;

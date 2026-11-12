@@ -76,7 +76,7 @@ const PRIVACIDAD = [
   [
     "Sugerencias",
     "Tu texto",
-    "Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos.",
+    "Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos. Para que lo leamos, el mensaje y el correo que dejes se nos reenvían por Brevo, un servicio de envío de correo: pasan por sus servidores, tu IP no.",
   ],
   [
     "Cuánta gente la usa",

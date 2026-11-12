@@ -414,6 +414,17 @@ lo dice. Abre aclarando que **no es una vía para pedir ayuda**, con los
 teléfonos de emergencia. La IP no se guarda: se usa hasheada sólo para limitar
 a 3 envíos por hora. Se guardan en Redis (`cc:sugerencias`, tope 500).
 
+**Cada sugerencia avisa por correo** (`lib/correo.js`, noviembre de 2026). Con
+`BREVO_API_KEY` y `AVISO_CORREO` en Vercel, `api/sugerencias.js` la guarda
+como siempre y después la reenvía por Brevo a esa casilla, con el correo de
+la persona como «Responder a». Es un aviso, no el almacén: si Brevo falla, la
+sugerencia ya está guardada y la persona ve «Gracias, llegó»; el motivo queda
+en los registros de Vercel. Sale del servidor, así que la IP no llega a Brevo
+y la CSP no cambia; el texto sí pasa por ahí, y `/legal` lo dice. Brevo exige
+un remitente verificado en la cuenta: por defecto es la misma casilla que
+recibe, y `CORREO_REMITENTE` lo cambia. El contacto es **sólo un correo**: se
+responde por escrito, no por teléfono.
+
 **Cuántos la usan, sin saber quiénes.** `POST /api/visita` una vez por sesión,
 con un número al azar que entra a un HyperLogLog por día (hora argentina):
 cuenta distintos sin guardar ninguno. Va aparte de `/api/nivel` porque ése está

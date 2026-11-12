@@ -48,7 +48,7 @@ La app depende de que el INA publique y de servicios de terceros que pueden fall
 | --- | --- | --- |
 | Tu casa, tu nivel de aviso, tu plan | Nunca | Se guardan sólo en el dispositivo. Si borrás la app, se borran. |
 | Avisos | Un dato opaco | La dirección técnica que asigna tu navegador. El servidor no sabe la altura de tu terreno ni tu nivel de aviso: el aviso se arma en tu teléfono. Al desuscribirte, se borra. |
-| Sugerencias | Tu texto | Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos. |
+| Sugerencias | Tu texto | Lo único que manda texto tuyo, y el formulario lo dice. La IP no se guarda: se transforma de modo irreversible para limitar envíos. Para que lo leamos, el mensaje y el correo que dejes se nos reenvían por Brevo, un servicio de envío de correo: pasan por sus servidores, tu IP no. |
 | Cuánta gente la usa | Un número al azar | Lo genera el teléfono, para contar personas distintas por día. El servidor sabe cuántos distintos vio, pero no guarda ninguno. |
 | Buscar una dirección | Al tocar Buscar | Va a Georef (la API de direcciones del Estado nacional) y, si no la encuentra, a Nominatim (OpenStreetMap). Las calles que te sugiere mientras escribís salen de una lista guardada en la app: escribir no manda nada. |
 | Ver el mapa | Al abrirlo | El fondo del mapa lo pide tu teléfono a OpenFreeMap, y la foto aérea con la que marcás tu casa, al Instituto Geográfico Nacional. Los dos reciben tu IP y la zona que mirás. Dónde tocaste y la altura que salió no se mandan: se calculan en el teléfono. |
