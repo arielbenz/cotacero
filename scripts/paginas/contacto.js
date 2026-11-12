@@ -67,7 +67,8 @@ const htmlContacto = pagina({
   },
   bloques: [],
   sueltos: [
-    `      <section class="bloque">
+    `      <section class="bloque contacto-rejilla">
+        <div class="contacto-form">
         <form id="form-contacto" novalidate>
           <fieldset class="campo-cat">
             <legend>¿Sobre qué es?</legend>
@@ -83,7 +84,8 @@ ${opcionesCategoria}
 
           <label class="campo" for="sug-texto"><span>Tu mensaje</span></label>
           <textarea id="sug-texto" name="texto" required maxlength="${MAX_TEXTO}"
-            rows="6" aria-describedby="sug-ayuda" placeholder="${esc(AYUDAS[CATEGORIA_POR_DEFECTO][1])}"></textarea>
+            rows="6" aria-describedby="sug-ayuda sug-texto-error" placeholder="${esc(AYUDAS[CATEGORIA_POR_DEFECTO][1])}"></textarea>
+          <p class="chico error-campo" id="sug-texto-error" hidden></p>
           <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
 
           <label class="campo" for="sug-contacto">
@@ -91,14 +93,26 @@ ${opcionesCategoria}
           </label>
           <input type="email" inputmode="email" id="sug-contacto" name="contacto" maxlength="${MAX_CONTACTO}"
             autocomplete="email" autocapitalize="off" spellcheck="false"
-            aria-describedby="sug-contacto-pista" placeholder="nombre@ejemplo.com" />
-          <p class="chico" id="sug-contacto-pista">
+            aria-describedby="sug-contacto-pista sug-contacto-error" placeholder="nombre@ejemplo.com" />
+          <p class="chico error-campo" id="sug-contacto-error" hidden></p>
+          <p class="chico pista-campo" id="sug-contacto-pista">
             Sólo si querés respuesta. Contestamos por correo, no por teléfono.
           </p>
 
+          ${
+            /* Lo que contesta el servidor: el mismo renglón de respuesta de
+               «Mi casa» (.estado-casa), en su tipo de error. */ ""
+          }<div class="estado-casa" id="sug-estado" data-tipo="error" role="alert" hidden></div>
           <button class="btn" type="submit" id="sug-enviar">Enviar sugerencia</button>
-          <p class="chico" id="sug-estado" role="status" aria-live="polite"></p>
         </form>
+
+        ${
+          /* La confirmación reemplaza al formulario: js/contacto.js. */ ""
+        }<div class="form-gracias" id="sug-gracias" role="status" tabindex="-1" hidden>
+          <h2>Gracias, llegó.</h2>
+          <p id="sug-gracias-txt"></p>
+          <button class="btn sec" type="button" id="sug-otra">Mandar otra</button>
+        </div>
 
         <p class="chico letra-chica">
           Es lo único que manda texto tuyo a un servidor. <b>No se guarda tu
@@ -107,24 +121,29 @@ ${opcionesCategoria}
           responderte. <b>No pongas tu dirección.</b>
           <a href="/legal#privacidad">Qué se guarda</a>.
         </p>
-      </section>
+        </div>
 
-      <div class="rejilla-2 tarjetas-contacto">
-        <section class="mini-tarjeta">
-          <h2>¿Encontraste un dato mal?</h2>
-          <p>
-            Es lo más valioso que nos podés mandar. Decinos la dirección o el
-            lugar exacto: con eso se comprueba contra la fuente.
-          </p>
-        </section>
-        <section class="mini-tarjeta">
-          <h2>¿Sos de un organismo o de prensa?</h2>
-          <p>
-            El modelo busca revisión técnica. Si podés ayudar a validarlo,
-            escribinos. <a href="/datos">La metodología</a>.
-          </p>
-        </section>
-      </div>`,
+        ${
+          /* Al costado del formulario en escritorio, debajo en el teléfono.
+             Eran dos tarjetas sueltas después del bloque, y el formulario
+             dejaba media tarjeta vacía a su derecha. */ ""
+        }<aside class="tarjetas-contacto">
+          <div class="mini-tarjeta">
+            <h2>¿Encontraste un dato mal?</h2>
+            <p>
+              Es lo más valioso que nos podés mandar. Decinos la dirección o el
+              lugar exacto: con eso se comprueba contra la fuente.
+            </p>
+          </div>
+          <div class="mini-tarjeta">
+            <h2>¿Sos de un organismo o de prensa?</h2>
+            <p>
+              El modelo busca revisión técnica. Si podés ayudar a validarlo,
+              escribinos. <a href="/datos">La metodología</a>.
+            </p>
+          </div>
+        </aside>
+      </section>`,
   ],
 });
 
