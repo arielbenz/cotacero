@@ -1132,7 +1132,11 @@ b.c-vos {
 #v-cota.paso-1 #anuncio-resultado,
 #v-cota.paso-2 #anuncio-resultado,
 #v-cota.paso-1 #avisos,
-#v-cota.paso-2 #avisos {
+#v-cota.paso-2 #avisos,
+#v-cota.paso-1 #instalar-casa,
+#v-cota.paso-2 #instalar-casa,
+#v-cota.paso-1 #resultado-mas,
+#v-cota.paso-2 #resultado-mas {
   display: none;
 }
 .primera-cabeza {
@@ -1363,6 +1367,18 @@ b.c-vos {
 }
 .lista-niveles b {
   min-width: 3rem;
+}
+
+/* Un botón y un enlace en la misma fila —probar y desactivar los avisos—.
+   Con wrap: a 200 % de letra el enlace baja en vez de salirse. */
+.fila-botones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2) var(--e-4);
+}
+.fila-botones .enlace-crudo {
+  min-height: 44px;
 }
 
 /* ---------- controles ---------- */
@@ -2431,6 +2447,9 @@ label.campo-dir {
 }
 .ahora-pie {
   text-align: center;
+}
+.ahora-casa h3 {
+  margin-top: 0;
 }
 
 /* Barra de instalar: se queda hasta que la persona la cierre. Antes se
@@ -4812,6 +4831,17 @@ body.con-bienvenida {
   /* El renglón del número es de 0,9: la coma de «4,07» bajaba hasta tocar el
      rótulo de abajo. */
   margin-bottom: var(--e-2);
+}
+/* El estado de la ciudad bajo el número, con su color: bienvenida.js. */
+.bienvenida .unidad[data-tono="alerta"] {
+  color: var(--alerta-texto);
+}
+.bienvenida .unidad[data-tono="evacuacion"] {
+  color: var(--peligro-texto);
+}
+.bienvenida #bv-grave,
+.bienvenida #bv-ios {
+  margin: var(--e-4) 0 0;
 }
 .bienvenida-botones {
   display: flex;
@@ -7198,7 +7228,8 @@ button.enlace-crudo.enlace-solo::after {
    daban un significado que no tiene. Se desatura y no se aclara, así el
    texto conserva su contraste: bajarle la opacidad lo dejaba en 3,7:1. El
    aviso de arriba no se toca, y lleva el botón que lo resuelve. */
-#resultado.provisorio > :not(.zona-ajena) {
+#resultado.provisorio > :not(.zona-ajena),
+#resultado-mas.provisorio > * {
   filter: grayscale(1);
 }
 .zona-ajena .btn.mini {

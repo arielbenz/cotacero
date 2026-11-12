@@ -1,6 +1,6 @@
 /* js/app/puntos.js — la lista de puntos de encuentro y su filtro. */
 
-import { esIOS } from "./avisos.js";
+import { esIOS } from "./plataforma.js";
 import { PUNTOS } from "./estado.js";
 import { atr, m, nm } from "./formato.js";
 import { coordsPuntos, distanciaKm, mapa, miPos } from "./mapa.js";

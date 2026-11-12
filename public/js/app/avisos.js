@@ -11,6 +11,7 @@ import { estado, guardado } from "./estado.js";
 import { m, mU } from "./formato.js";
 import { ALERTA, EVACUACION, RECORD } from "./oficiales.js";
 import { sobreRecord } from "/lib/comun.js";
+import { iosSinInstalar } from "./plataforma.js";
 import { aLaVista, ocupar } from "./vista.js";
 
 /* ================= AVISOS =================
@@ -48,14 +49,6 @@ export async function guardarUmbral() {
     /* sin IndexedDB los avisos salen en genérico, la app anda igual */
   }
 }
-
-export const esIOS = () =>
-  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-export const estaInstalada = () =>
-  window.matchMedia("(display-mode: standalone)").matches ||
-  navigator.standalone === true;
 
 const avisosPosibles = () =>
   Boolean(CONFIG.VAPID_PUBLIC_KEY) &&
@@ -125,6 +118,8 @@ export async function activarAvisos() {
     await guardarUmbral();
     await pintarAvisos();
     aLaVista(caja);
+    // La confirmación es el propio aviso: se ve cómo va a llegar.
+    probarAviso();
   } catch (e) {
     tarjeta(
       '<p class="chico" style="margin:0"><b style="color:var(--alerta-texto)">No se pudieron ' +
@@ -150,6 +145,38 @@ export async function desactivarAvisos() {
     await sub.unsubscribe();
   }
   pintarAvisos();
+}
+
+/* Un aviso de prueba, armado en el teléfono. «Avisos activados» era la única
+   señal, y no decía si el teléfono los iba a mostrar: con las notificaciones
+   del navegador apagadas en los ajustes del sistema el permiso figura dado y
+   no aparece nada. No pasa por el servidor —no sale nada del dispositivo—,
+   así que prueba que el teléfono las muestra, no el camino del push. */
+export async function probarAviso() {
+  const decir = (t) =>
+    document
+      .querySelectorAll("[data-prueba-aviso]")
+      .forEach((p) => (p.textContent = t));
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification("Aviso de prueba de Cota Cero", {
+      body: "Así te va a llegar cuando el río suba. No hay que hacer nada.",
+      icon: "/img/icon-192.png",
+      badge: "/img/favicon-32.png",
+      lang: "es-AR",
+      tag: "cota-cero-prueba",
+      data: { ir: "/app?ir=cota" },
+    });
+    decir(
+      "Te mandamos uno de prueba. Si no lo viste, revisá en los ajustes del " +
+        "teléfono que las notificaciones del navegador estén permitidas.",
+    );
+  } catch (e) {
+    decir(
+      "No se pudo mostrar el aviso de prueba. Revisá en los ajustes del " +
+        "teléfono que las notificaciones del navegador estén permitidas.",
+    );
+  }
 }
 
 const LETRA_CHICA =
@@ -216,11 +243,17 @@ export async function pintarAvisos() {
   if (!avisosPosibles()) {
     // En iOS los avisos web sólo funcionan con la app instalada en la
     // pantalla de inicio. Callarse dejaría a esa gente sin entender por qué.
+    /* Con botón: decía «tocá Compartir y después Agregar a inicio» en texto
+       corrido, cuando la hoja con los pasos ya existía (instalar.js). Y dice
+       lo de la casa: en iPhone la app instalada no ve lo cargado acá. */
     caja.innerHTML = envoltura(
-      esIOS() && !estaInstalada()
-        ? '<p class="chico" style="margin:0">Para recibir avisos en iPhone, ' +
-            "primero <b>agregá la app a tu pantalla de inicio</b>: tocá Compartir " +
-            "y después “Agregar a inicio”. Safari sólo permite avisos así.</p>"
+      iosSinInstalar()
+        ? '<p class="chico" style="margin:0">En iPhone los avisos sólo ' +
+            "funcionan con la app <b>agregada a la pantalla de inicio</b>. " +
+            "Tu casa hay que cargarla de nuevo ahí: lo del navegador no pasa " +
+            "a la app instalada.</p>" +
+            '<button class="btn sec mini" type="button" style="margin-top:11px;display:block" ' +
+            'data-accion="instalar">Ver cómo agregarla</button>'
         : '<p class="chico" style="margin:0">Este navegador no permite avisos.</p>',
     );
     return;
@@ -244,8 +277,11 @@ export async function pintarAvisos() {
           : mU(umbral)) +
         "</b>), y también si pasa la alerta o la evacuación de la ciudad.</p>" +
         conmutadorCerca() +
-        '<button class="btn sec mini" style="margin-top:11px;display:block" ' +
-        'data-accion="avisos-off">Desactivar avisos</button>',
+        '<p class="chico" style="margin:9px 0 0" role="status" data-prueba-aviso></p>' +
+        '<div class="fila-botones" style="margin-top:11px">' +
+        '<button class="btn sec mini" type="button" data-accion="avisos-probar">Mandarme uno de prueba</button>' +
+        '<button class="enlace-crudo" type="button" data-accion="avisos-off">Desactivar avisos</button>' +
+        "</div>",
     );
     return;
   }

@@ -4,10 +4,10 @@
    navegador si llega, y si no una hoja con los pasos del navegador que
    corresponda. */
 
-import { esIOS, estaInstalada } from "./avisos.js";
+import { CONFIG } from "./config.js";
 import { cotaEnHidrometro } from "./cota.js";
 import { guardado } from "./estado.js";
-import { m } from "./formato.js";
+import { esIOS, estaInstalada, iosSinInstalar } from "./plataforma.js";
 
 /* ================= INSTALAR =================
    El evento beforeinstallprompt existe sólo en Chromium. En iPhone no existe
@@ -20,6 +20,7 @@ let promptInstalar = null;
 window.addEventListener("beforeinstallprompt", (ev) => {
   ev.preventDefault();
   promptInstalar = ev;
+  pintarEnlaceInstalar();
   mostrarBotonInstalar();
 });
 
@@ -54,6 +55,11 @@ function pasosInstalacion() {
       nota: enSafari
         ? null
         : "Si no aparece esa opción, abrí cotacerosf.com en Safari: en iPhone es el único que siempre la tiene.",
+      /* En iPhone la app instalada no ve lo que se cargó en el navegador
+         (plataforma.js): mejor decirlo acá que encontrarla vacía. */
+      despues: guardado.get("cc_cota")
+        ? "Después abrila desde el ícono nuevo. Tu casa hay que cargarla de nuevo ahí, una sola vez: lo del navegador no pasa a la app."
+        : "Después abrila desde el ícono nuevo y cargá tu casa ahí: lo del navegador no pasa a la app.",
     };
   }
   if (/Firefox/i.test(navigator.userAgent))
@@ -90,7 +96,7 @@ function mostrarComoInstalar() {
   const previo = document.getElementById("como-instalar");
   if (previo) previo.remove();
 
-  const { pasos, nota } = pasosInstalacion();
+  const { pasos, nota, despues } = pasosInstalacion();
   const d = document.createElement("dialog");
   d.id = "como-instalar";
   d.className = "hoja";
@@ -110,6 +116,12 @@ function mostrarComoInstalar() {
   });
 
   d.append(h, p, ol);
+  if (despues) {
+    const q = document.createElement("p");
+    q.className = "chico";
+    q.textContent = despues;
+    d.appendChild(q);
+  }
   if (nota) {
     const n = document.createElement("p");
     n.className = "aviso";
@@ -174,6 +186,7 @@ function mostrarBotonInstalar() {
    la persona está leyendo es el resultado. Una vez por sesión. */
 let ofrecidaConResultado = false;
 export function ofrecerConResultado() {
+  pintarEnlaceInstalar();
   if (ofrecidaConResultado || cotaEnHidrometro() == null) return;
   if (!promptInstalar && !esMovil()) return;
   ofrecidaConResultado = true;
@@ -191,10 +204,25 @@ function quitarBarraInstalar() {
    puede salir mal con la barra: que la hayan cerrado, que Chrome no dispare
    el evento, que sea un navegador que no lo implementa. Vivía en el pie de
    todas las pestañas, y con la barra eran dos avisos de instalar a la vez. */
-function pintarEnlaceInstalar() {
+export function pintarEnlaceInstalar() {
   const caja = document.getElementById("instalar-ajustes");
-  if (!caja) return;
-  caja.hidden = yaLaTiene();
+  if (caja) caja.hidden = yaLaTiene();
+
+  /* Y la tarjeta de Mi casa, debajo del resultado y de los avisos. La barra
+     flotante sólo sale en Río (tapaba el resultado), así que el ofrecimiento
+     «con el número recién calculado» no se veía justo donde se calculaba.
+     En iPhone sin instalar y con avisos desplegados no sale: ahí la tarjeta
+     de avisos ya pide instalar, y serían dos pedidos de lo mismo seguidos. */
+  const enCasa = document.getElementById("instalar-casa");
+  if (!enCasa) return;
+  enCasa.hidden =
+    yaLaTiene() ||
+    cotaEnHidrometro() == null ||
+    !(promptInstalar || esMovil()) ||
+    (iosSinInstalar() && Boolean(CONFIG.VAPID_PUBLIC_KEY));
+  const titu = document.getElementById("instalar-casa-titu");
+  if (titu)
+    titu.textContent = esMovil() ? "Instalala en el teléfono" : "Instalá la app";
 }
 
 /* Chrome dispara beforeinstallprompt cuando quiere, y a veces no lo dispara.

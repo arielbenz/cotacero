@@ -29,7 +29,12 @@ const PREGUNTAS = [
   [
     "¿La app avisa sola cuando el río sube?",
     "Sí, si activás los avisos.",
-    "Llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.",
+    "Se activan en la app, en «Mi casa», debajo de tu resultado: tocá «Avisarme» y aceptá el permiso del navegador. Te llega uno de prueba en el momento, para que veas que funciona. En iPhone hay que instalar la app primero: Safari sólo permite avisos así. Después llega una notificación cuando el nivel sube 15 cm desde el último aviso o cuando pasa la alerta o la evacuación de la ciudad. El aviso se arma en tu teléfono: el servidor no conoce tu nivel de aviso ni tu zona, sólo despierta a la app, que compara contra el número guardado en tu dispositivo.",
+  ],
+  [
+    "¿Cómo la instalo en el teléfono?",
+    "Desde el navegador, sin tienda de aplicaciones.",
+    "En Android, con Chrome: abrí la app, tocá el menú ⋮ y elegí «Instalar app» o «Agregar a la pantalla de inicio»; la app también te muestra un botón «Instalar». En iPhone, con Safari: tocá Compartir y elegí «Agregar a inicio». Queda como una app más y funciona sin señal. En iPhone conviene instalarla antes de cargar tu casa: lo que cargues en el navegador no pasa a la app instalada.",
   ],
   [
     "¿De dónde sale la altura de mi terreno?",

@@ -114,6 +114,7 @@
     <link rel="modulepreload" href="/js/app/vista.js" />
     <link rel="modulepreload" href="/js/app/oficiales.js" />
     <link rel="modulepreload" href="/lib/comun.js" />
+    <link rel="modulepreload" href="/js/app/plataforma.js" />
     <link rel="modulepreload" href="/js/app/alias.js" />
     <link rel="modulepreload" href="/lib/listas.js" />
     <link rel="modulepreload" href="/js/app/elevacion.js" />
@@ -324,6 +325,8 @@
         <div class="dato" id="bv-nivel">
           —<span class="unidad" id="bv-pie">buscando el dato…</span>
         </div>
+        <!-- Sólo en alerta o evacuación: bienvenida.js -->
+        <p class="aviso grave" id="bv-grave" hidden></p>
         <div class="tarjeta" style="margin: 20px 0 0">
           <b id="bv-titulo">¿Y para tu casa?</b>
           <p class="chico" style="margin: 6px 0 0">
@@ -332,11 +335,26 @@
             cálculo aproximado. Dos minutos, y queda sólo en este teléfono.
           </p>
         </div>
+        <!-- Sólo en iPhone sin instalar: plataforma.js dice por qué -->
+        <p class="aviso" id="bv-ios" hidden>
+          <b>En iPhone, primero agregala a la pantalla de inicio.</b> Lo que
+          cargues acá, en el navegador, no pasa a la app instalada, y los
+          avisos sólo funcionan desde ahí.
+        </p>
         <div class="bienvenida-botones">
-          <button class="btn" type="button" data-accion="bv-calcular">
+          <!-- En iPhone sin instalar los reescribe bienvenida.js -->
+          <button class="btn" type="button" id="bv-uno" data-accion="bv-calcular">
             Cargar mi casa
           </button>
-          <button class="btn sec" type="button" data-accion="bv-despues">
+          <button class="btn sec" type="button" id="bv-dos" data-accion="bv-despues">
+            Ahora no, ver el río
+          </button>
+          <button
+            class="enlace-crudo enlace-solo chico"
+            type="button"
+            id="bv-despues-ios"
+            data-accion="bv-despues"
+            hidden>
             Ahora no, ver el río
           </button>
           <!-- Enlace, no un tercer botón: «Dos botones, no tres» -->
@@ -630,7 +648,19 @@
       <!-- Lo que se anuncia: el veredicto, no la tarjeta. Lo llena cota.js -->
       <p id="anuncio-resultado" class="solo-lectores" role="status"></p>
       <div id="resultado"></div>
+      <!-- Fijas entre el resultado y su detalle: ver calcular() en cota.js -->
       <div id="avisos"></div>
+      <div class="tarjeta" id="instalar-casa" hidden>
+        <h3 style="margin-top: 0" id="instalar-casa-titu">Instalala en el teléfono</h3>
+        <p class="chico" style="margin: 0 0 12px">
+          Queda como una app más: entra sin buscarla en el navegador y
+          funciona sin señal.
+        </p>
+        <button class="btn sec mini" type="button" data-accion="instalar">
+          Instalar
+        </button>
+      </div>
+      <div id="resultado-mas"></div>
     </section>
 
     <!-- ======================= MI PLAN ======================= -->
