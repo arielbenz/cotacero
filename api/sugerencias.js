@@ -11,8 +11,10 @@ import {
   esCategoria,
   MAX_TEXTO,
   MAX_CONTACTO,
+  esCorreo,
   POR_HORA,
 } from "../lib/sugerencias.js";
+import { avisarSugerencia } from "../lib/correo.js";
 import { redis, hayAlmacen } from "../lib/push.js";
 import { CLAVE_SUGERENCIAS as CLAVE } from "../lib/metricas.js";
 
@@ -56,7 +58,11 @@ export default async function handler(req, res) {
       .status(400)
       .json({ error: "Quedó muy largo. Máximo " + MAX_TEXTO + " caracteres." });
   if (contacto.length > MAX_CONTACTO)
-    return res.status(400).json({ error: "El contacto es demasiado largo." });
+    return res.status(400).json({ error: "El correo es demasiado largo." });
+  if (contacto && !esCorreo(contacto))
+    return res.status(400).json({
+      error: "Ese correo no parece completo. Revisalo o dejalo vacío.",
+    });
 
   try {
     const clave = claveLimite(req);
@@ -67,17 +73,22 @@ export default async function handler(req, res) {
         error: "Ya mandaste varias seguidas. Probá de nuevo en un rato.",
       });
 
+    const fecha = new Date().toISOString();
     await redis(
       "LPUSH",
       CLAVE,
       JSON.stringify({
-        fecha: new Date().toISOString(),
+        fecha,
         categoria,
         texto,
         contacto: contacto || null,
       }),
     );
     await redis("LTRIM", CLAVE, 0, MAX_GUARDADAS - 1);
+    /* Ya está guardada: el correo es sólo el aviso de que llegó, y si falla
+       no cambia la respuesta (lib/correo.js nunca lanza). Se espera —con
+       tope de 4 s— porque una función de Vercel se congela al responder. */
+    await avisarSugerencia({ categoria, texto, contacto, fecha });
     return res.status(200).json({ ok: true });
   } catch (e) {
     return res

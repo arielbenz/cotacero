@@ -8,7 +8,7 @@ Cada dato corregido, cada zona que falta y cada texto que no se entiende mejora 
 
 _El formulario se completa en [la página](https://cotacerosf.com/contacto)._
 
-Es lo único que manda texto tuyo a un servidor. **No se guarda tu IP**: se usa sólo para limitar envíos, transformada de modo irreversible. Si dejás un contacto, se usa únicamente para responderte. **No pongas tu dirección.** [Qué se guarda](https://cotacerosf.com/legal#privacidad).
+Es lo único que manda texto tuyo a un servidor. **No se guarda tu IP**: se usa sólo para limitar envíos, transformada de modo irreversible. Si dejás tu correo, se usa únicamente para responderte. **No pongas tu dirección.** [Qué se guarda](https://cotacerosf.com/legal#privacidad).
 
 ## ¿Encontraste un dato mal?
 

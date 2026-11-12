@@ -87,10 +87,14 @@ ${opcionesCategoria}
           <p class="chico cuenta-texto" id="sug-cuenta" aria-live="polite"></p>
 
           <label class="campo" for="sug-contacto">
-            <span>Un contacto para responderte <i>(opcional)</i></span>
+            <span>Tu correo, para responderte <i>(opcional)</i></span>
           </label>
-          <input type="text" id="sug-contacto" name="contacto" maxlength="${MAX_CONTACTO}"
-            autocomplete="off" placeholder="Correo o teléfono — solo si querés respuesta" />
+          <input type="email" inputmode="email" id="sug-contacto" name="contacto" maxlength="${MAX_CONTACTO}"
+            autocomplete="email" autocapitalize="off" spellcheck="false"
+            aria-describedby="sug-contacto-pista" placeholder="nombre@ejemplo.com" />
+          <p class="chico" id="sug-contacto-pista">
+            Sólo si querés respuesta. Contestamos por correo, no por teléfono.
+          </p>
 
           <button class="btn" type="submit" id="sug-enviar">Enviar sugerencia</button>
           <p class="chico" id="sug-estado" role="status" aria-live="polite"></p>
@@ -99,7 +103,7 @@ ${opcionesCategoria}
         <p class="chico letra-chica">
           Es lo único que manda texto tuyo a un servidor. <b>No se guarda tu
           IP</b>: se usa sólo para limitar envíos, transformada de modo
-          irreversible. Si dejás un contacto, se usa únicamente para
+          irreversible. Si dejás tu correo, se usa únicamente para
           responderte. <b>No pongas tu dirección.</b>
           <a href="/legal#privacidad">Qué se guarda</a>.
         </p>
