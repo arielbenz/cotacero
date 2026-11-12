@@ -149,6 +149,20 @@ export function decir(tipo, html) {
   e.hidden = !html;
 }
 
+/* Trae a la vista la respuesta y, si ya hay altura, el «Seguir» de los pasos.
+   Antes se traía sólo el renglón: a 390 px quedaba el tilde verde a la vista
+   y «Seguir» debajo de la barra de pestañas, sin nada que dijera que había
+   que bajar. Con el botón oculto —el formulario de «Cambiar», o sin altura—
+   va al renglón, como siempre. */
+export function respuestaALaVista() {
+  const seguir = document.querySelector('[data-accion="primera-seguir"]');
+  aLaVista(
+    seguir && !seguir.hidden && seguir.offsetParent
+      ? seguir
+      : document.getElementById("estado-cota"),
+  );
+}
+
 /* Agrega una advertencia al «listo» que ya está puesto, y lo pasa a «aviso». */
 export function avisarCota(html) {
   const e = document.getElementById("estado-cota");
@@ -243,7 +257,7 @@ export async function estimarCota() {
   // rato y parece que no hizo nada.
   const liberar = ocupar('[data-accion="cota-gps"]', "Ubicando…");
   decir("busca", "Pidiendo tu ubicación…");
-  aLaVista(document.getElementById("estado-cota"));
+  respuestaALaVista();
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
       try {
@@ -288,7 +302,7 @@ export async function estimarCota() {
         }
       } finally {
         liberar();
-        aLaVista(document.getElementById("estado-cota"));
+        respuestaALaVista();
       }
     },
     (err) => {
@@ -303,7 +317,7 @@ export async function estimarCota() {
             BOTON_MARCAR +
             ".") + SALIDA_SIN_DATO,
       );
-      aLaVista(document.getElementById("estado-cota"));
+      respuestaALaVista();
     },
     { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 },
   );
@@ -441,13 +455,15 @@ export function calcular() {
   if (sel) estado.zona = sel.value;
   // Lo vuelve a poner el final, si hay veredicto y la zona no coincide.
   document.getElementById("resultado")?.classList.remove("provisorio");
+  const contMas = document.getElementById("resultado-mas");
+  contMas.classList.remove("provisorio");
 
   const z = ZONAS.find((z) => z.id === estado.zona);
   pintarSinPlano(z);
   const nz = document.getElementById("nota-zona");
   if (!estado.zona) {
     nz.innerHTML =
-      '<span style="color:var(--alerta-texto)">Elegí tu zona</span>: la distancia ' +
+      "<b>Elegí tu zona</b>: la distancia " +
       "río arriba cambia el resultado hasta 1,80 m.";
     pintarCasa(false);
     document.getElementById("resultado").innerHTML =
@@ -455,6 +471,7 @@ export function calcular() {
       '<p class="chico" style="margin:0">Elegila arriba. No la damos por ' +
       "supuesta a propósito: suponer el centro daría el resultado más " +
       "optimista de todos.</p></div>";
+    contMas.innerHTML = "";
     anunciarResultado("Falta tu zona.");
     pintarRio();
     return;
@@ -483,6 +500,7 @@ export function calcular() {
     cont.innerHTML =
       '<div class="veredicto v-neutro"><div class="titu">Falta la altura de tu terreno</div>' +
       '<p class="chico" style="margin:0">Cargala arriba y estimo el resto.</p></div>';
+    contMas.innerHTML = "";
     anunciarResultado("Falta la altura de tu terreno.");
     pintarRio();
     return;
@@ -659,8 +677,13 @@ export function calcular() {
   html +=
     '<button class="btn sec" type="button" data-accion="ir" data-vista="plan">Armar mi plan</button>';
 
+  /* Lo que sigue va en #resultado-mas, DESPUÉS de las tarjetas de avisos y
+     de instalar, que están fijas en el HTML entre los dos contenedores: así
+     «Avisarme» queda pegado al resultado y no una pantalla y media abajo, y
+     no se repinta —ni salta— cada vez que se recalcula. */
+  let mas = "";
   // desglose
-  html += `<details class="tarjeta plegable"><summary>Cómo sale ese número</summary>
+  mas += `<details class="tarjeta plegable"><summary>Cómo sale ese número</summary>
     <table class="desglose">
     <tr><td>Altura de tu terreno<br>
         <span class="nota">según ${(origenCota() || {}).corto || "—"}</span></td>
@@ -716,23 +739,23 @@ precisión que el dato no tiene.`
      Provincia en la costa, curvas del municipio en la ciudad. Cada una trae
      su párrafo en FUENTES_ALTURA (elevacion.js). */
   if (estado.cotaEsEstimada)
-    html +=
+    mas +=
       '<p class="chico" style="margin:10px 0 0">' +
       fuente.dice.explicacion(estado.cotaDistancia) +
       "</p>";
 
   if (r != null) {
     const falta = ref - r;
-    html += `<p class="chico" style="margin:10px 0 0">Hoy el río está en ${m(r)}.
+    mas += `<p class="chico" style="margin:10px 0 0">Hoy el río está en ${m(r)}.
 ${
   falta > 0
     ? "Faltan unos <b>" + mCm(falta) + "</b> para tu nivel de aviso."
     : '<b style="color:var(--peligro-texto)">Ya lo superó.</b>'
 }</p>`;
   }
-  html += "</details>";
+  mas += "</details>";
 
-  html += estado.zonaAjena ? tarjetaDefensaPendiente() : tarjetaDefensa(z);
+  mas += estado.zonaAjena ? tarjetaDefensaPendiente() : tarjetaDefensa(z);
 
   /* UNA advertencia fuerte por pantalla. Eran tres cajas —el aviso grave, el
      de la altura estimada y el de «ni la mejor cota»— y el mismo descargo
@@ -740,7 +763,7 @@ ${
      importaba. El detalle vive en /datos#no-dice.
      «Aunque acá diga que tenés margen» sólo donde la pantalla dice eso: en
      los estados graves sería falso, y ahí el verbo y el 103 ya van arriba. */
-  html +=
+  mas +=
     '<div class="aviso grave"><b>Si Defensa Civil dice que ' +
     "salgas, salí.</b> " +
     (cls === "v-ok" || cls === "v-neutro"
@@ -750,6 +773,8 @@ ${
     '<a href="/datos#no-dice">Qué no dice este número</a></div>';
 
   cont.innerHTML = html;
+  contMas.innerHTML = mas;
+  contMas.classList.toggle("provisorio", Boolean(estado.zonaAjena));
   cont.classList.toggle("provisorio", Boolean(estado.zonaAjena));
   /* El titular sale de lo que quedó pintado, no de una segunda redacción:
      así el anuncio no puede decir otra cosa que la tarjeta. */

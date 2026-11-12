@@ -10,6 +10,7 @@ Cota Cero traduce el nivel del Paraná a **tu nivel de aviso**: el nivel del rí
 
 - Gratis
 - Funciona sin señal una vez cargada
+- Avisa al teléfono cuando el río sube
 - Tus datos quedan en tu teléfono
 
 Santa Fe está en emergencia hídrica por la [Ley provincial 14.477](https://cotacerosf.com/datos#fuentes). Es el marco del que nace esta herramienta, y no la respalda.
@@ -96,7 +97,7 @@ Hecha por un vecino. No es una comunicación del municipio, y lo dice en cada pa
 
 ## Conocé tu número antes de que lo diga el río.
 
-Dos minutos para cargar tu terreno. Se instala desde el navegador, sin tienda de aplicaciones.
+Dos minutos para cargar tu terreno. Se instala desde el navegador, sin tienda de aplicaciones: [cómo instalarla y activar los avisos](https://cotacerosf.com/preguntas).
 
 [Abrir Cota Cero](https://cotacerosf.com/app)
 

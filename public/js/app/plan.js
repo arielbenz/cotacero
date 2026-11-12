@@ -79,13 +79,15 @@ function pintarProgreso() {
   const hechos = mo + pv;
   /* Lo que falta, también en la barra de abajo: se ve desde cualquier
      pestaña sin entrar al plan. Completo, no dice nada: un 0 se lee como un
-     aviso más. */
+     aviso más. Y sin nada tildado tampoco: un «26» antes
+     de haber abierto el plan era lo primero que veía quien entraba por
+     primera vez, y se leía como 26 pendientes. */
   const cuenta = document.querySelector(
     '.barra-app [data-vista="plan"] .cuenta-tab',
   );
   if (cuenta) {
     const faltan = total - hechos;
-    cuenta.hidden = faltan === 0;
+    cuenta.hidden = faltan === 0 || hechos === 0;
     cuenta.innerHTML =
       faltan + '<span class="solo-lectores"> cosas sin hacer</span>';
   }

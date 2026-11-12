@@ -816,9 +816,15 @@ píldora y menú suman 363 de 350—, y con la alerta la píldora es más ancha.
 
 **El resultado de Mi casa va en este orden:** veredicto —con «Al río le faltan
 unos X», el dato que antes vivía sólo en la pestaña Río; no se dice con el dato
-vencido—, la tarjeta de la casa, **«Armar mi plan»** (que estaba 2.000 px abajo), el
-desglose, la defensa (dos líneas y «Más sobre tu zona» plegado: es el mismo
-texto partido por la mitad, no se reescribió) y el aviso por push. Tras marcar
+vencido—, la tarjeta de la casa, **«Armar mi plan»** (que estaba 2.000 px abajo),
+**el aviso por push y la tarjeta de instalar** (noviembre de 2026: «Avisarme»
+estaba a 1.335 px, una pantalla y media debajo del veredicto), el desglose y la
+defensa (dos líneas y «Más sobre tu zona» plegado: es el mismo texto partido
+por la mitad, no se reescribió). Por eso el resultado son **dos contenedores**:
+`calcular()` escribe `#resultado` y `#resultado-mas`, y entre los dos están
+fijas en el HTML `#avisos` e `#instalar-casa`, que así no se repintan con cada
+recálculo. Algo nuevo que dependa del resultado se esconde en los pasos 1 y 2
+junto a ellos (`#v-cota.paso-1 …` en `estilos/app.css`). Tras marcar
 la casa en el mapa con el formulario de «Cambiar» abierto, `irAlResultadoDeLaCasa()`
 lo pliega y va al número; antes se caía arriba del formulario, que todavía
 decía lo anterior.
@@ -869,9 +875,29 @@ un naranja de alerta que no existía en ninguna otra parte. Lo mismo vale para u
 popup del mapa estaba como `#7E959D` en `mapa.js` y daba 3,15:1, y ningún
 control lo veía.
 
+**En iPhone, instalar va antes que cargar la casa** (noviembre de 2026). La
+app del ícono guarda sus datos aparte de los de Safari: la casa cargada en el
+navegador no aparece al abrirla instalada, y los avisos sólo existen
+instalada. Con `iosSinInstalar()` (`js/app/plataforma.js`, que no importa
+nada) la bienvenida pone de sólido «Ver cómo agregarla» y baja «ver el río» a
+enlace, la tarjeta de avisos lleva el botón que abre la hoja de pasos, y la
+hoja dice que la casa se carga desde el ícono. Sale de cómo funciona iOS; **no
+se probó en un iPhone**, y el paso «Compartir, en la barra de abajo de Safari»
+hay que mirarlo contra el Safari vigente.
+
+**Activar los avisos manda uno de prueba** (`probarAviso()` en `avisos.js`),
+y la tarjeta de «Avisos activados» tiene el botón para repetirlo. Lo arma el
+teléfono con `showNotification`: no pasa por el servidor, así que no toca lo
+que promete `/legal`, y por lo mismo prueba que el teléfono muestra avisos,
+no el camino del push (para eso está `api/probar-aviso.js`, con clave).
+
 **La barra de «Instalar en el teléfono» sólo sale en Río.** `vista.js` pone
 `body[data-vista]` y el CSS la oculta en las otras tres pestañas, donde tapaba
-el resultado, el plan y el 103. Es un `.btn.sec`, no el sólido.
+el resultado, el plan y el 103. Es un `.btn.sec`, no el sólido. En Mi casa la
+reemplaza la tarjeta `#instalar-casa`, debajo de los avisos: la barra se
+ofrecía «con el número recién calculado» justo en la pestaña donde el CSS la
+oculta. En iPhone sin instalar esa tarjeta no sale si hay avisos desplegados:
+la de avisos ya pide instalar.
 
 **La tendencia del río no lleva color de estado.** Es caudal, no la regla del
 puerto: un naranja o un verde ahí le quita su significado al de la alerta. El

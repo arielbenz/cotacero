@@ -962,7 +962,11 @@ b.c-vos {
 #v-cota.paso-1 #anuncio-resultado,
 #v-cota.paso-2 #anuncio-resultado,
 #v-cota.paso-1 #avisos,
-#v-cota.paso-2 #avisos {
+#v-cota.paso-2 #avisos,
+#v-cota.paso-1 #instalar-casa,
+#v-cota.paso-2 #instalar-casa,
+#v-cota.paso-1 #resultado-mas,
+#v-cota.paso-2 #resultado-mas {
   display: none;
 }
 .primera-cabeza {
@@ -1187,6 +1191,16 @@ b.c-vos {
 }
 .lista-niveles b {
   min-width: 3rem;
+}
+
+.fila-botones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2) var(--e-4);
+}
+.fila-botones .enlace-crudo {
+  min-height: 44px;
 }
 
 label.campo {
@@ -2174,6 +2188,9 @@ label.campo-dir {
 }
 .ahora-pie {
   text-align: center;
+}
+.ahora-casa h3 {
+  margin-top: 0;
 }
 
 .instalar {
@@ -4203,6 +4220,17 @@ body.con-bienvenida {
   margin-top: var(--e-2);
 
   margin-bottom: var(--e-2);
+}
+
+.bienvenida .unidad[data-tono="alerta"] {
+  color: var(--alerta-texto);
+}
+.bienvenida .unidad[data-tono="evacuacion"] {
+  color: var(--peligro-texto);
+}
+.bienvenida #bv-grave,
+.bienvenida #bv-ios {
+  margin: var(--e-4) 0 0;
 }
 .bienvenida-botones {
   display: flex;
@@ -6300,7 +6328,8 @@ button.enlace-crudo.enlace-solo::after {
   margin: 0;
 }
 
-#resultado.provisorio > :not(.zona-ajena) {
+#resultado.provisorio > :not(.zona-ajena),
+#resultado-mas.provisorio > * {
   filter: grayscale(1);
 }
 .zona-ajena .btn.mini {

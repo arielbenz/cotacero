@@ -21,6 +21,7 @@ import {
   fijarCotaEstimada,
   irAlResultadoDeLaCasa,
   pintarOrigenCota,
+  respuestaALaVista,
 } from "./cota.js";
 import { elevacionDe } from "./elevacion.js";
 import { PUNTOS, estado, fijarZonaAjena, guardado } from "./estado.js";
@@ -363,7 +364,7 @@ export async function buscarDireccion() {
   const liberar = ocupar('[data-accion="buscar-dir"]', "Buscando…");
   try {
     decir("busca", "Buscando la dirección…");
-    aLaVista(document.getElementById("estado-cota"));
+    respuestaALaVista();
     // Georef sólo con una altura o con dos calles: sin eso lo que escribió es
     // un barrio, una plaza o una calle entera, y eso lo sabe Nominatim.
     const esquina = esEsquina(consulta);
@@ -410,7 +411,7 @@ export async function buscarDireccion() {
         "error",
         noEncontrada({ esquina, v: elegida, dicha }) + deLaCasaAnterior(),
       );
-      aLaVista(document.getElementById("estado-cota"));
+      respuestaALaVista();
       return;
     }
     /* Arroyo Leyes: lo que Nominatim encuentra es la calle entera («Calle 53»),
@@ -497,7 +498,7 @@ export async function buscarDireccion() {
   if (estado.zonaAjena) calcular();
   const zona = avisoDeZona(r);
   if (zona) avisarCota(zona);
-  aLaVista(document.getElementById("estado-cota"));
+  respuestaALaVista();
 }
 
 /* Baja MapLibre bajo demanda. Una sola vez, aunque se pida de nuevo.

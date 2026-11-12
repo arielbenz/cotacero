@@ -6,7 +6,9 @@
 import { estado, guardado } from "./estado.js";
 import { m } from "./formato.js";
 import { ALERTA, EVACUACION } from "./oficiales.js";
+import { iosSinInstalar } from "./plataforma.js";
 import { irA } from "./vista.js";
+import { ESTADOS } from "/lib/comun.js";
 
 /* ================= BIENVENIDA =================
    Primera visita: se muestra el río antes de pedir nada. La app no sirve de
@@ -20,6 +22,25 @@ export function mostrarBienvenida() {
   if (!caja) return;
   // Si ya cargó la cota de su terreno alguna vez, esto no tiene nada que ofrecerle.
   if (guardado.get(YA_ENTRO) === "1" || guardado.get("cc_cota")) return;
+
+  /* En iPhone sin instalar el orden se invierte: primero agregarla a inicio
+     y recién ahí cargar la casa (plataforma.js). El sólido pasa a abrir los
+     pasos —la acción «instalar» de siempre—, cargar la casa en el navegador
+     queda de secundario, y «ver el río» baja a enlace: dos botones, no tres. */
+  if (iosSinInstalar()) {
+    const uno = document.getElementById("bv-uno");
+    const dos = document.getElementById("bv-dos");
+    const nota = document.getElementById("bv-ios");
+    const despues = document.getElementById("bv-despues-ios");
+    if (uno && dos && nota && despues) {
+      nota.hidden = false;
+      uno.textContent = "Ver cómo agregarla";
+      uno.dataset.accion = "instalar";
+      dos.textContent = "Cargar mi casa acá igual";
+      dos.dataset.accion = "bv-calcular";
+      despues.hidden = false;
+    }
+  }
 
   /* showModal() atrapa el foco, habilita Escape y deja el resto de la página
      inerte para un lector de pantalla. Si el navegador no tiene <dialog>
@@ -60,14 +81,32 @@ export function pintarBienvenida({ guardado = false } = {}) {
   const n = document.getElementById("bv-nivel");
   const pie = document.getElementById("bv-pie");
   if (!n || !pie || estado.rio == null) return;
+  /* En alerta o evacuación de la ciudad —con dato vigente— la bienvenida lo
+     dice como el resto de la app: «de la ciudad», con su color, y debajo el
+     verbo de lo que hay que hacer y el 103. Decía «Nivel de alerta» en gris:
+     era la primera pantalla de quien llega en plena crecida. */
+  const grave = guardado
+    ? null
+    : estado.rio >= EVACUACION
+      ? "evacuacion"
+      : estado.rio >= ALERTA
+        ? "alerta"
+        : null;
   n.textContent = m(estado.rio);
   n.appendChild(pie);
+  pie.dataset.tono = grave || "";
   pie.textContent = guardado
     ? "Último dato guardado" +
       (estado.rioFecha ? ", del " + estado.rioFecha.slice(0, 5) : "")
-    : estado.rio >= EVACUACION
-      ? "Nivel de evacuación"
-      : estado.rio >= ALERTA
-        ? "Nivel de alerta"
-        : "Por debajo del nivel de alerta";
+    : grave
+      ? ESTADOS[grave].titulo
+      : "Por debajo de la alerta de la ciudad";
+  const caja = document.getElementById("bv-grave");
+  if (!caja) return;
+  caja.hidden = !grave;
+  caja.innerHTML = grave
+    ? "<b>" +
+      ESTADOS[grave].verbo +
+      '</b> Dudas: Defensa Civil, <a href="tel:103">103</a>.'
+    : "";
 }

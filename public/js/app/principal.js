@@ -19,7 +19,7 @@
    activa siempre. */
 document.documentElement.classList.add("con-modulos");
 
-import { activarAvisos, desactivarAvisos } from "./avisos.js";
+import { activarAvisos, desactivarAvisos, probarAviso } from "./avisos.js";
 import { cerrarBienvenida, mostrarBienvenida } from "./bienvenida.js";
 import {
   cambioDeZona,
@@ -277,6 +277,7 @@ const ACCIONES = {
   "avisar-cerca": (el) => fijarAvisarCerca(el.dataset.on === "1"),
   "avisos-on": () => activarAvisos(),
   "avisos-off": () => desactivarAvisos(),
+  "avisos-probar": () => probarAviso(),
   ver: (el) => ver(el.dataset.vista, el),
   // Desde un botón que no es el de la nav: irA() busca el botón correcto para
   // que el resaltado y el aria-current queden donde tienen que quedar.

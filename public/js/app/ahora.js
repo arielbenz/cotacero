@@ -172,7 +172,14 @@ export function pintarAhora() {
     `<a class="btn sec" href="${atr(wa)}" target="_blank" rel="noopener">${evacua ? "Avisar que estoy bien" : "Avisarle a mi familia"}</a>` +
     `<p class="chico">Abre WhatsApp con el mensaje ya escrito y elegís a quién. Lo mandás vos desde WhatsApp: no pasa por ningún servidor nuestro.</p>` +
     `</div>` +
-    `<p class="chico ahora-pie"><button class="enlace-crudo" type="button" data-accion="ir" data-vista="cota">Mi casa y mi nivel de aviso</button></p>`;
+    /* Sin casa cargada, una tarjeta y no el enlace del pie: con «Ahora» en la
+       barra Mi casa no tiene pestaña, y quien llega por primera vez en plena
+       crecida no tenía por dónde entrar a cargarla. */
+    (estado.cota == null
+      ? `<div class="tarjeta ahora-casa"><h3>¿Y para tu casa?</h3>` +
+        `<p class="chico">Todavía no la cargaste. Con tu dirección la app calcula tu nivel de aviso: el nivel del río a partir del cual el agua puede llegar a tu terreno. Es un cálculo aproximado.</p>` +
+        `<button class="btn sec mini" type="button" data-accion="ir" data-vista="cota">Cargar mi casa</button></div>`
+      : `<p class="chico ahora-pie"><button class="enlace-crudo" type="button" data-accion="ir" data-vista="cota">Mi casa y mi nivel de aviso</button></p>`);
   // En alerta, lo tildado deja de faltar y sale de la lista: ahí el foco va a
   // la primera casilla que queda, o al enlace al plan si no queda ninguna.
   if (focoK)
