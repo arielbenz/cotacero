@@ -7404,3 +7404,285 @@ body.marcando-mapa {
   font-size: var(--t-s);
   color: var(--acento);
 }
+
+/* ---------- /comparar: todos los años, uno arriba del otro ----------
+   El gráfico es un <canvas> que pinta js/comparar.js leyendo estos mismos
+   tokens, así que sigue al tema. Acá va sólo lo que lo rodea. */
+/* Los años a mano: cada grupo es un rótulo y sus fichas. En el teléfono el
+   rótulo va arriba; desde 640 px, a la izquierda y con el mismo ancho, para
+   que las fichas queden encolumnadas. */
+.cmp-anios {
+  display: grid;
+  gap: var(--e-3);
+  margin-top: var(--e-5);
+  padding-top: var(--e-4);
+  border-top: 1px solid var(--linea);
+}
+.cmp-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2) var(--e-3);
+}
+.cmp-grupo-t {
+  flex: 0 0 100%;
+  font-weight: 600;
+  font-size: var(--t-s);
+}
+@media (min-width: 640px) {
+  .cmp-grupo-t {
+    flex-basis: 13rem;
+  }
+}
+/* Alto reservado: los parecidos llegan con la serie. */
+.cmp-fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  min-height: 2.75rem;
+}
+.cmp-grupo select {
+  width: auto;
+  min-width: 8rem;
+  min-height: 2.75rem;
+}
+/* El renglón de la alerta de la ciudad, arriba del dato. */
+/* Debajo de la cifra: arriba, en el teléfono, la empujaba una pantalla. */
+.cmp-aviso {
+  margin: 0 0 var(--e-4);
+  font-size: var(--t-base);
+}
+.cmp-grupo[hidden] {
+  display: none;
+}
+/* La respuesta a «¿esto ya pasó?»: la cifra grande, el resto en apoyo. No
+   es el número hero (ése es la lectura del río, en la barra): un escalón
+   abajo. */
+.cmp-cifra {
+  display: block;
+  font-weight: 800;
+  font-size: var(--t-xxl);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--e-1);
+}
+.cmp-dato {
+  /* La cifra y dos renglones: llega con la serie y no puede empujar el
+     gráfico. */
+  min-height: 6.5em;
+  margin: 0 0 var(--e-4);
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+}
+.cmp-vista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin-top: var(--e-3);
+}
+/* Alto reservado: el renglón cambia con cada movimiento del cursor y, sin
+   esto, el gráfico saltaba cuando el texto pasaba a dos líneas. */
+.cmp-lectura {
+  min-height: 3.2em;
+  margin: var(--e-3) 0 var(--e-2);
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+}
+/* En el teléfono, sin relleno: con la letra al 200 % el relleno en rem le
+   comía al gráfico un tercio del ancho. */
+@media (max-width: 559px) {
+  .cmp-caja {
+    padding: 0;
+  }
+}
+.cmp-caja {
+  padding: var(--e-2);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  background: var(--panel);
+}
+/* pan-y: el dedo recorre el gráfico de costado y la página sigue bajando. */
+.cmp-grafico {
+  display: block;
+  width: 100%;
+  cursor: crosshair;
+  border-radius: var(--r-s);
+  /* El alto vive acá y js/comparar.js lo lee: así queda reservado antes de
+     que llegue la serie. En el teléfono, casi cuadrado. */
+  /* Con tope en el ancho de la pantalla: con la letra grande, el alto en
+     rem crecía y el ancho no, y quedaba una tira. */
+  height: min(21.25rem, 110vw);
+  touch-action: pan-y;
+}
+/* En rem: con la letra grande el gráfico crece con ella (js/comparar.js
+   escala rótulos y márgenes con el mismo factor). */
+@media (min-width: 640px) {
+  .cmp-grafico {
+    height: 28.75rem;
+  }
+}
+.cmp-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-1) var(--e-5);
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-xs);
+  color: var(--tenue);
+}
+.cmp-leyenda li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.cmp-leyenda i {
+  flex: none;
+  width: 22px;
+  height: 0;
+  border-top: 3px solid var(--texto);
+}
+/* Sólido: el primero de los parecidos va sólido, y cada uno lleva su trazo
+   en su ficha. */
+.cmp-leyenda .cmp-l-parecido {
+  border-top: 2px solid var(--acento);
+}
+.cmp-leyenda .cmp-l-alto {
+  width: 8px;
+  height: 8px;
+  margin: 0 7px;
+  border: 1.5px solid var(--texto);
+  border-radius: 50%;
+}
+/* La franja del gráfico. Más cargada que allá (9 %): la muestra es chica. */
+.cmp-leyenda .cmp-l-ventana {
+  height: 12px;
+  border-top: 0;
+  background: var(--acento);
+  opacity: 0.18;
+}
+.cmp-parecidos {
+  display: grid;
+  gap: var(--e-3);
+  margin: var(--e-3) 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+}
+.cmp-parecidos li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2) var(--e-4);
+}
+.cmp-parecidos li span {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font-size: var(--t-base);
+}
+/* El trazo de cada año parecido: los mismos tres de TRAZOS en js/comparar.js. */
+.cmp-trazo {
+  flex: none;
+  width: 28px;
+  height: 0;
+  border-top: 2px solid var(--acento);
+}
+.cmp-trazo.cmp-t1 {
+  border-top-style: dashed;
+}
+.cmp-trazo.cmp-t2 {
+  border-top-style: dotted;
+}
+/* No es un tercer botón: es un interruptor, con la forma de .chips-ancla. */
+.cmp-ficha {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-width: 4.75rem;
+  min-height: 2.75rem;
+  padding: 0 var(--e-4);
+  border: 1.5px solid var(--borde-campo);
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--texto);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+/* Elegida: contorno de acento sobre el tinte del agua. Rellena de acento
+   se leía como un tercer botón, o como el principal de la página. */
+.cmp-ficha[aria-pressed="true"] {
+  border-color: var(--acento);
+  border-width: 2px;
+  background: var(--agua-tinte);
+  color: var(--texto);
+}
+.cmp-ficha:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.cmp-ficha:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+.cmp-tabla td,
+.cmp-tabla th {
+  white-space: nowrap;
+}
+/* La ayuda del teclado, sólo donde hay un puntero fino (y por lo tanto,
+   probablemente, un teclado). */
+@media (hover: none) {
+  .cmp-teclado {
+    display: none;
+  }
+}
+/* El récord en cualquier fecha, debajo de la cifra. */
+.cmp-record {
+  display: block;
+  margin-top: var(--e-1);
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+/* Sin JavaScript no hay gráfico ni nada que tocar: queda la tabla. */
+@media (scripting: none) {
+  .cmp-caja,
+  .cmp-leyenda,
+  #cmp-ayuda,
+  .cmp-vista,
+  .cmp-anios,
+  .cmp-dato,
+  #parecidos {
+    display: none;
+  }
+}
+/* Sin la serie: quedan el mensaje y la tabla (que se abre sola). */
+.cmp-sin-serie .cmp-caja,
+.cmp-sin-serie .cmp-leyenda,
+.cmp-sin-serie #cmp-ayuda,
+.cmp-sin-serie .cmp-vista,
+.cmp-sin-serie .cmp-anios,
+.cmp-sin-serie .cmp-dato {
+  display: none;
+}
+.cmp-leyenda + .chico {
+  margin-top: var(--e-3);
+}
+.cmp-grafico:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 4px;
+}
+/* La muestra del trazo dentro de una ficha: más corta, y del color del texto
+   cuando la ficha está elegida (si no, acento sobre acento). */
+.cmp-ficha > .cmp-trazo {
+  width: 18px;
+}
+.cmp-ficha[aria-pressed="true"] > .cmp-trazo {
+  border-top-color: var(--acento);
+}
+.cmp-parecidos li > .cmp-ficha {
+  min-width: 6rem;
+}

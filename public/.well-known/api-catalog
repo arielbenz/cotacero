@@ -32,7 +32,24 @@
     },
     {
       "anchor": "https://cotacerosf.com/datos-abiertos/historia.json",
-      "title": "Serie diaria del río en Santa Fe desde 1925 (INA)",
+      "title": "Resumen por año del río en Santa Fe desde 1925 (INA)",
+      "type": "application/json",
+      "service-doc": [
+        {
+          "href": "https://cotacerosf.com/datos",
+          "type": "text/html"
+        }
+      ],
+      "license": [
+        {
+          "href": "https://cotacerosf.com/legal",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://cotacerosf.com/datos-abiertos/serie-diaria.json",
+      "title": "Lectura diaria del río en Santa Fe, año por año, en centímetros (INA)",
       "type": "application/json",
       "service-doc": [
         {

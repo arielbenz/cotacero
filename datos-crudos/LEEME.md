@@ -168,3 +168,13 @@ ALTA. Eso no puede ser un gradiente. O los ceros declarados no están en el
 mismo sistema, o —más probable— el hidrómetro del Puerto de Santa Fe no está
 sobre el cauce principal del Paraná sino sobre el riacho, que es otra cosa
 hidráulicamente.
+
+## La serie diaria y /comparar (13/11/2026)
+
+- `analisis-serie-diaria-<fecha>.mjs` — el prototipo de dos gráficos (años
+  superpuestos y grilla año × día) con `ina-serie-30-1990-2026-<fecha>.json`;
+  escribe `prototipo-graficos-serie-<fecha>.html`. De ahí salió `/comparar`.
+- `serie-diaria-provisoria-<fecha>.mjs` — escribe
+  `public/datos-abiertos/serie-diaria.json` sin ir al INA, desde 1990 y con un
+  hueco en 2026, para mirar `/comparar` en una máquina sin red. **No es la que
+  se publica:** la de verdad, desde 1925, la escribe `node scripts/historia.js`.

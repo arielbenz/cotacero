@@ -1,0 +1,438 @@
+<!doctype html>
+<!-- Generado por scripts/paginas.js — no editar a mano -->
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Altura del río Paraná en Santa Fe, comparada año por año | Cota Cero</title>
+    <link rel="canonical" href="https://cotacerosf.com/comparar" />
+    <link rel="alternate" type="text/markdown" href="/comparar.md" />
+
+    <meta name="description" content="La altura del río Paraná en Santa Fe este año, día por día, al lado de cada año desde 1925, y los años que más se le parecen en estas fechas. Datos del INA, al día." />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Cota Cero" />
+    <meta property="og:title" content="Altura del río Paraná en Santa Fe, comparada año por año | Cota Cero" />
+    <meta property="og:description" content="La altura del río Paraná en Santa Fe este año, día por día, al lado de cada año desde 1925, y los años que más se le parecen en estas fechas. Datos del INA, al día." />
+    <meta property="og:image" content="https://cotacerosf.com/img/og.png?v=2" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://cotacerosf.com/comparar" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark light" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Cota Cero",
+            "item": "https://cotacerosf.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Este año y los anteriores",
+            "item": "https://cotacerosf.com/comparar"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": "Altura diaria del río Paraná en el Puerto de Santa Fe, año por año",
+        "description": "Lectura diaria del hidrómetro del Puerto de Santa Fe (río Paraná), ordenada por año y por día del año, publicada por el Instituto Nacional del Agua.",
+        "inLanguage": "es-AR",
+        "creator": {
+          "@type": "Organization",
+          "name": "Instituto Nacional del Agua",
+          "url": "https://alerta.ina.gob.ar/a5/diario/reporte_diario"
+        },
+        "isAccessibleForFree": true,
+        "temporalCoverage": "1925-01-02/2026-11-13",
+        "dateModified": "2026-11-13",
+        "spatialCoverage": "Puerto de Santa Fe, Santa Fe, Argentina",
+        "distribution": {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://cotacerosf.com/datos-abiertos/serie-diaria.json"
+        },
+        "variableMeasured": "Altura hidrométrica, en metros sobre el cero de escala",
+        "url": "https://cotacerosf.com/comparar"
+      }
+    </script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="96x96" />
+    
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    
+    <link rel="preload" href="/vendor/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/lib/comun-clasico.js" defer></script>
+    <script src="/js/rio-barra.js" defer></script>
+    <script src="/js/analitica.js" defer></script>
+    <script defer src="/js/comparar.js"></script>
+  </head>
+  <body class="landing">
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <div class="franja-estado" id="franja-estado" role="status"></div>
+
+    <div class="nav-envoltura">
+    <div class="ancho">
+      <nav class="nav-sitio" aria-label="Principal">
+        <a class="lockup" href="/" aria-label="Cota Cero, inicio">
+          <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mp"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mp)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+          <span class="lockup-nombre">Cota Cero</span>
+        </a>
+        <span class="chip-borde">NO OFICIAL</span>
+        <a
+          class="pildora-rio"
+          id="pildora-rio"
+          href="/#abrir"
+          aria-label="Nivel del río, todavía sin dato">
+          <span class="pr-regla" aria-hidden="true"
+            ><span class="pr-agua" id="pildora-agua"></span
+            ><span class="pr-alerta" id="pildora-alerta"></span
+          ></span>
+          <span>
+            <span class="pr-etiqueta">Río </span
+            ><span id="pildora-nivel">—</span
+            ><span class="pr-estado" id="pildora-estado" hidden></span>
+          </span>
+          <span
+            class="pr-tendencia"
+            id="pildora-tendencia"
+            aria-hidden="true"
+            hidden></span>
+        </a>
+        <details class="nav-menu">
+          <summary aria-label="Menú de secciones">
+            <span class="nav-burger" aria-hidden="true"></span>
+          </summary>
+          <div class="nav-enlaces">
+            <a href="/datos">Cómo se calcula</a>
+            <a href="/puntos-de-encuentro">Dónde ir</a>
+            <a href="/preguntas">Preguntas</a>
+            <a href="/contacto">Contacto</a>
+          </div>
+        </details>
+      </nav>
+    </div>
+    </div>
+
+    <div class="ancho">
+      <main id="contenido">
+      <header class="pg-cabecera">
+        <h1>La altura del río Paraná en Santa Fe, este año y todos los anteriores</h1>
+        <p class="pg-lead">Cada línea es un año del <a href="/hidrometro">hidrómetro</a> del Puerto de Santa Fe, de enero a diciembre, desde 1925. La más oscura es la de este año y termina en la última lectura. <b>Sirve para ver si esto ya pasó; no para saber cómo sigue.</b></p>
+      </header>
+
+      <section class="bloque cmp-seccion" id="cmp-seccion">
+        <p id="cmp-dato" class="cmp-dato"></p>
+        <p id="cmp-alerta" class="aviso neutro cmp-aviso" hidden></p>
+        <h2>Cada año, de enero a diciembre</h2>
+        <noscript><p>Sin JavaScript el gráfico no se dibuja. Los mismos datos, mes a mes, están en la tabla de más abajo.</p></noscript>
+        <div class="cmp-vista" role="group" aria-label="Qué parte del año se ve">
+          <button type="button" class="cmp-ficha" data-vista="anio" aria-pressed="true" disabled>Todo el año</button>
+          <button type="button" class="cmp-ficha" data-vista="cerca" aria-pressed="false" disabled>Cerca de hoy</button>
+        </div>
+        <p id="cmp-lectura" class="cmp-lectura" role="status"></p>
+        <div class="cmp-caja">
+          <canvas id="cmp-grafico" class="cmp-grafico" tabindex="0" role="slider"
+            aria-label="Gráfico de la altura del río Paraná en el Puerto de Santa Fe, una línea por año. Recorrelo día por día."
+            aria-describedby="cmp-ayuda" aria-valuemin="1" aria-valuemax="366" aria-valuenow="1"></canvas>
+        </div>
+        <ul class="cmp-leyenda" aria-hidden="true">
+          <li><i class="cmp-l-actual"></i>Este año</li>
+          <li><i class="cmp-l-parecido"></i>Los que más se le parecen</li>
+          <li><i class="cmp-l-ventana"></i>Los 30 días que se comparan</li>
+          <li><i class="cmp-l-alto"></i>Más alto que la última lectura, esa fecha</li>
+        </ul>
+        <p class="chico" id="cmp-ayuda">
+          Recorré el gráfico con el dedo o el cursor, o elegí un año debajo
+          para resaltarlo.
+          <span class="cmp-teclado">Con el teclado, sobre el gráfico: ← y →
+          cambian el día, Re Pág y Av Pág de a un mes, Inicio y Fin van a las
+          puntas, ↑ y ↓ pasan a la línea de arriba o de abajo, y Escape
+          suelta.</span>
+          Los mismos datos, mes a mes, están en
+          <a href="#cmp-tabla">la tabla de más abajo</a>.
+        </p>
+        <div class="cmp-anios">
+          <div class="cmp-grupo" role="group" aria-labelledby="cmp-g-alto" hidden>
+            <span class="cmp-grupo-t" id="cmp-g-alto">Más alto que ahora en esta fecha</span>
+            <span class="cmp-fichas" id="cmp-fichas-alto"></span>
+          </div>
+          <div class="cmp-grupo" role="group" aria-labelledby="cmp-g-par">
+            <span class="cmp-grupo-t" id="cmp-g-par">Los más parecidos a éste</span>
+            <span class="cmp-fichas" id="cmp-fichas-par"></span>
+          </div>
+          <div class="cmp-grupo" role="group" aria-labelledby="cmp-g-cre">
+            <span class="cmp-grupo-t" id="cmp-g-cre">Las crecidas más grandes</span>
+            <span class="cmp-fichas">
+              <button type="button" class="cmp-ficha" data-anio="1992" aria-pressed="false" aria-label="1992, máximo 7,43 m" disabled>1992</button>
+              <button type="button" class="cmp-ficha" data-anio="1983" aria-pressed="false" aria-label="1983, máximo 7,35 m" disabled>1983</button>
+              <button type="button" class="cmp-ficha" data-anio="1998" aria-pressed="false" aria-label="1998, máximo 7,26 m" disabled>1998</button>
+              <button type="button" class="cmp-ficha" data-anio="1982" aria-pressed="false" aria-label="1982, máximo 6,95 m" disabled>1982</button>
+              <button type="button" class="cmp-ficha" data-anio="1966" aria-pressed="false" aria-label="1966, máximo 6,94 m" disabled>1966</button>
+            </span>
+          </div>
+          <div class="cmp-grupo" role="group" aria-labelledby="cmp-g-baj">
+            <span class="cmp-grupo-t" id="cmp-g-baj">Las bajantes más hondas</span>
+            <span class="cmp-fichas">
+              <button type="button" class="cmp-ficha" data-anio="2022" aria-pressed="false" aria-label="2022, mínimo −0,23 m" disabled>2022</button>
+              <button type="button" class="cmp-ficha" data-anio="2021" aria-pressed="false" aria-label="2021, mínimo −0,19 m" disabled>2021</button>
+              <button type="button" class="cmp-ficha" data-anio="1944" aria-pressed="false" aria-label="1944, mínimo −0,18 m" disabled>1944</button>
+            </span>
+          </div>
+          <div class="cmp-grupo">
+            <label class="cmp-grupo-t" for="cmp-anio">Cualquier otro</label>
+            <select id="cmp-anio" disabled>
+              <option value="">Elegí un año</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque" id="parecidos">
+        <h2>Los años que más se parecen a éste</h2>
+        <p>
+          Se toman los últimos 30 días de este año y se comparan, fecha contra
+          fecha, con los mismos 30 días de cada año anterior. Los tres que
+          quedaron más cerca, en promedio, son los que el gráfico marca.
+        </p>
+        <p id="cmp-parecidos-texto" class="chico" role="status">Buscando los años más parecidos…</p>
+        <ul id="cmp-parecidos" class="cmp-parecidos"></ul>
+        <p class="chico">
+          <b>Que se parezcan hasta hoy no dice cómo sigue.</b> Esos años ya
+          terminaron y por eso su línea continúa; después de estas fechas cada
+          uno hizo algo distinto. Lo que hay que hacer lo marcan la alerta y
+          la evacuación de la ciudad, y lo decide la Defensa Civil
+          (<a href="tel:103">103</a>).
+        </p>
+      </section>
+
+      <section class="bloque">
+        <details class="h-detalle" id="cmp-tabla">
+          <summary>La tabla: la altura del río el día 1 de cada mes, año por año</summary>
+          <div class="h-tabla-caja">
+            <table class="h-tabla cmp-tabla">
+              <thead><tr><th scope="col">Año</th><th scope="col">ene</th><th scope="col">feb</th><th scope="col">mar</th><th scope="col">abr</th><th scope="col">may</th><th scope="col">jun</th><th scope="col">jul</th><th scope="col">ago</th><th scope="col">sep</th><th scope="col">oct</th><th scope="col">nov</th><th scope="col">dic</th></tr></thead>
+              <tbody>
+                  <tr><td>1925</td><td>—</td><td>2,84</td><td>2,36</td><td>1,77</td><td>2,57</td><td>3,43</td><td>1,60</td><td>0,89</td><td>0,19</td><td>0,29</td><td>0,98</td><td>2,38</td></tr>
+                  <tr><td>1926</td><td>3,32</td><td>3,88</td><td>5,25</td><td>—</td><td>4,77</td><td>4,74</td><td>4,37</td><td>3,60</td><td>2,30</td><td>1,90</td><td>1,08</td><td>2,29</td></tr>
+                  <tr><td>1927</td><td>3,02</td><td>3,88</td><td>4,07</td><td>4,15</td><td>3,32</td><td>1,96</td><td>1,76</td><td>1,02</td><td>0,60</td><td>3,20</td><td>1,00</td><td>2,80</td></tr>
+                  <tr><td>1928</td><td>0,70</td><td>0,89</td><td>2,97</td><td>3,15</td><td>4,16</td><td>4,49</td><td>4,63</td><td>3,94</td><td>3,30</td><td>3,30</td><td>4,31</td><td>3,19</td></tr>
+                  <tr><td>1929</td><td>3,03</td><td>4,38</td><td>5,68</td><td>6,40</td><td>—</td><td>3,50</td><td>3,58</td><td>2,22</td><td>—</td><td>3,26</td><td>4,55</td><td>4,24</td></tr>
+                  <tr><td>1930</td><td>2,96</td><td>4,26</td><td>4,64</td><td>5,17</td><td>3,69</td><td>3,47</td><td>2,66</td><td>1,63</td><td>1,91</td><td>1,20</td><td>3,10</td><td>3,43</td></tr>
+                  <tr><td>1931</td><td>3,71</td><td>4,92</td><td>4,95</td><td>5,82</td><td>5,48</td><td>5,41</td><td>5,47</td><td>4,84</td><td>3,12</td><td>3,28</td><td>3,22</td><td>2,95</td></tr>
+                  <tr><td>1932</td><td>3,30</td><td>3,93</td><td>4,57</td><td>4,85</td><td>5,13</td><td>5,10</td><td>4,85</td><td>4,34</td><td>3,32</td><td>3,18</td><td>4,42</td><td>3,61</td></tr>
+                  <tr><td>1933</td><td>4,26</td><td>4,56</td><td>4,63</td><td>4,46</td><td>3,43</td><td>2,69</td><td>1,71</td><td>1,48</td><td>1,03</td><td>0,96</td><td>1,41</td><td>0,69</td></tr>
+                  <tr><td>1934</td><td>1,81</td><td>2,75</td><td>2,56</td><td>2,59</td><td>2,19</td><td>1,66</td><td>1,14</td><td>0,46</td><td>0,01</td><td>0,41</td><td>0,44</td><td>−0,04</td></tr>
+                  <tr><td>1935</td><td>—</td><td>3,36</td><td>3,62</td><td>4,49</td><td>3,64</td><td>2,27</td><td>3,14</td><td>2,62</td><td>3,70</td><td>2,86</td><td>4,84</td><td>4,98</td></tr>
+                  <tr><td>1936</td><td>4,36</td><td>5,26</td><td>2,75</td><td>3,51</td><td>2,22</td><td>2,34</td><td>4,59</td><td>2,78</td><td>2,03</td><td>1,74</td><td>1,24</td><td>0,96</td></tr>
+                  <tr><td>1937</td><td>1,85</td><td>3,85</td><td>3,86</td><td>3,65</td><td>3,18</td><td>2,74</td><td>2,26</td><td>1,01</td><td>0,44</td><td>0,42</td><td>1,75</td><td>3,28</td></tr>
+                  <tr><td>1938</td><td>2,92</td><td>3,47</td><td>4,45</td><td>4,34</td><td>4,34</td><td>3,24</td><td>3,24</td><td>4,07</td><td>1,50</td><td>0,81</td><td>0,55</td><td>0,83</td></tr>
+                  <tr><td>1939</td><td>2,08</td><td>2,97</td><td>3,56</td><td>3,32</td><td>3,51</td><td>3,73</td><td>3,08</td><td>—</td><td>0,74</td><td>2,06</td><td>1,89</td><td>3,48</td></tr>
+                  <tr><td>1940</td><td>4,97</td><td>4,92</td><td>4,62</td><td>4,89</td><td>5,15</td><td>4,67</td><td>4,27</td><td>3,82</td><td>3,24</td><td>2,43</td><td>1,50</td><td>2,37</td></tr>
+                  <tr><td>1941</td><td>3,04</td><td>3,49</td><td>4,34</td><td>3,46</td><td>4,97</td><td>4,53</td><td>3,57</td><td>2,90</td><td>3,33</td><td>2,28</td><td>1,95</td><td>3,08</td></tr>
+                  <tr><td>1942</td><td>4,40</td><td>4,20</td><td>4,17</td><td>4,55</td><td>4,90</td><td>5,19</td><td>5,13</td><td>4,58</td><td>3,13</td><td>2,20</td><td>2,52</td><td>1,59</td></tr>
+                  <tr><td>1943</td><td>1,70</td><td>3,36</td><td>4,13</td><td>4,55</td><td>3,39</td><td>1,86</td><td>3,32</td><td>1,91</td><td>1,08</td><td>0,80</td><td>2,50</td><td>2,96</td></tr>
+                  <tr><td>1944</td><td>2,67</td><td>2,44</td><td>2,20</td><td>3,57</td><td>1,90</td><td>0,94</td><td>0,40</td><td>−0,02</td><td>−0,10</td><td>−0,13</td><td>−0,18</td><td>0,19</td></tr>
+                  <tr><td>1945</td><td>0,36</td><td>0,68</td><td>3,21</td><td>3,78</td><td>3,73</td><td>1,84</td><td>0,91</td><td>2,30</td><td>0,60</td><td>0,57</td><td>0,75</td><td>1,36</td></tr>
+                  <tr><td>1946</td><td>2,21</td><td>4,02</td><td>—</td><td>5,83</td><td>5,30</td><td>4,47</td><td>4,60</td><td>4,49</td><td>3,45</td><td>1,48</td><td>3,18</td><td>2,79</td></tr>
+                  <tr><td>1947</td><td>3,92</td><td>3,93</td><td>4,49</td><td>5,16</td><td>5,37</td><td>4,77</td><td>4,37</td><td>3,37</td><td>2,68</td><td>3,37</td><td>3,51</td><td>1,79</td></tr>
+                  <tr><td>1948</td><td>2,19</td><td>2,57</td><td>3,62</td><td>3,94</td><td>3,87</td><td>2,22</td><td>1,48</td><td>0,89</td><td>1,11</td><td>0,60</td><td>0,67</td><td>2,10</td></tr>
+                  <tr><td>1949</td><td>1,47</td><td>1,74</td><td>3,58</td><td>4,26</td><td>2,70</td><td>2,40</td><td>2,79</td><td>1,34</td><td>0,67</td><td>0,62</td><td>0,18</td><td>0,16</td></tr>
+                  <tr><td>1950</td><td>1,64</td><td>2,85</td><td>4,05</td><td>4,61</td><td>4,96</td><td>3,49</td><td>3,54</td><td>2,61</td><td>1,00</td><td>0,71</td><td>2,92</td><td>1,70</td></tr>
+                  <tr><td>1951</td><td>3,02</td><td>3,35</td><td>4,62</td><td>5,47</td><td>5,57</td><td>2,88</td><td>1,84</td><td>1,05</td><td>0,56</td><td>0,12</td><td>1,16</td><td>1,71</td></tr>
+                  <tr><td>1952</td><td>2,17</td><td>1,25</td><td>3,16</td><td>4,17</td><td>4,17</td><td>2,16</td><td>2,83</td><td>2,11</td><td>0,90</td><td>1,71</td><td>3,29</td><td>3,53</td></tr>
+                  <tr><td>1953</td><td>1,43</td><td>1,83</td><td>1,83</td><td>1,46</td><td>2,64</td><td>2,48</td><td>2,67</td><td>1,38</td><td>0,27</td><td>1,60</td><td>2,85</td><td>4,17</td></tr>
+                  <tr><td>1954</td><td>2,90</td><td>3,64</td><td>3,27</td><td>3,55</td><td>2,43</td><td>4,01</td><td>5,11</td><td>4,79</td><td>2,60</td><td>2,18</td><td>3,58</td><td>1,70</td></tr>
+                  <tr><td>1955</td><td>1,59</td><td>1,88</td><td>1,98</td><td>2,42</td><td>3,63</td><td>3,16</td><td>4,02</td><td>4,51</td><td>1,85</td><td>1,35</td><td>0,43</td><td>0,69</td></tr>
+                  <tr><td>1956</td><td>1,40</td><td>2,78</td><td>1,84</td><td>2,40</td><td>4,10</td><td>4,58</td><td>5,01</td><td>4,58</td><td>4,74</td><td>3,79</td><td>2,87</td><td>2,55</td></tr>
+                  <tr><td>1957</td><td>1,64</td><td>2,78</td><td>4,14</td><td>4,52</td><td>4,44</td><td>3,86</td><td>3,47</td><td>3,83</td><td>4,53</td><td>4,96</td><td>5,14</td><td>3,58</td></tr>
+                  <tr><td>1958</td><td>3,65</td><td>2,73</td><td>4,07</td><td>4,23</td><td>4,15</td><td>3,36</td><td>3,18</td><td>2,20</td><td>2,06</td><td>3,39</td><td>3,14</td><td>3,78</td></tr>
+                  <tr><td>1959</td><td>4,40</td><td>4,64</td><td>5,86</td><td>5,29</td><td>5,42</td><td>4,73</td><td>4,13</td><td>3,12</td><td>2,79</td><td>2,60</td><td>3,41</td><td>2,70</td></tr>
+                  <tr><td>1960</td><td>3,60</td><td>3,72</td><td>4,39</td><td>4,36</td><td>3,96</td><td>2,68</td><td>2,34</td><td>2,08</td><td>2,38</td><td>2,30</td><td>3,21</td><td>4,02</td></tr>
+                  <tr><td>1961</td><td>2,62</td><td>4,10</td><td>4,30</td><td>5,07</td><td>6,07</td><td>5,65</td><td>4,72</td><td>3,44</td><td>1,78</td><td>2,30</td><td>2,95</td><td>3,10</td></tr>
+                  <tr><td>1962</td><td>2,67</td><td>3,02</td><td>3,62</td><td>4,45</td><td>3,70</td><td>2,43</td><td>1,90</td><td>0,95</td><td>0,46</td><td>1,06</td><td>3,00</td><td>1,57</td></tr>
+                  <tr><td>1963</td><td>2,11</td><td>3,98</td><td>4,46</td><td>3,94</td><td>3,36</td><td>2,69</td><td>2,27</td><td>1,32</td><td>0,69</td><td>0,44</td><td>0,82</td><td>3,77</td></tr>
+                  <tr><td>1964</td><td>2,62</td><td>1,47</td><td>2,73</td><td>2,95</td><td>3,22</td><td>2,88</td><td>1,66</td><td>0,60</td><td>1,00</td><td>0,73</td><td>0,71</td><td>1,06</td></tr>
+                  <tr><td>1965</td><td>1,90</td><td>3,20</td><td>4,12</td><td>5,07</td><td>5,34</td><td>4,70</td><td>5,16</td><td>4,74</td><td>3,37</td><td>2,36</td><td>4,10</td><td>4,30</td></tr>
+                  <tr><td>1966</td><td>4,60</td><td>6,02</td><td>5,84</td><td>6,38</td><td>5,68</td><td>4,49</td><td>3,30</td><td>2,50</td><td>1,45</td><td>1,61</td><td>2,47</td><td>3,02</td></tr>
+                  <tr><td>1967</td><td>2,53</td><td>3,87</td><td>4,20</td><td>4,74</td><td>4,05</td><td>2,02</td><td>2,40</td><td>2,31</td><td>1,92</td><td>1,30</td><td>1,35</td><td>1,08</td></tr>
+                  <tr><td>1968</td><td>2,03</td><td>2,83</td><td>3,19</td><td>2,94</td><td>1,53</td><td>1,32</td><td>0,80</td><td>0,61</td><td>0,55</td><td>0,13</td><td>1,12</td><td>1,31</td></tr>
+                  <tr><td>1969</td><td>1,17</td><td>3,36</td><td>2,87</td><td>1,69</td><td>2,34</td><td>1,82</td><td>3,57</td><td>1,97</td><td>0,28</td><td>0,11</td><td>2,27</td><td>3,44</td></tr>
+                  <tr><td>1970</td><td>2,50</td><td>2,45</td><td>3,00</td><td>3,85</td><td>1,99</td><td>1,78</td><td>2,12</td><td>2,08</td><td>0,36</td><td>1,48</td><td>2,90</td><td>0,85</td></tr>
+                  <tr><td>1971</td><td>1,78</td><td>4,40</td><td>4,22</td><td>3,71</td><td>3,24</td><td>3,66</td><td>3,35</td><td>3,09</td><td>1,98</td><td>1,10</td><td>1,80</td><td>0,64</td></tr>
+                  <tr><td>1972</td><td>2,08</td><td>1,72</td><td>3,22</td><td>4,04</td><td>3,44</td><td>1,81</td><td>2,92</td><td>3,10</td><td>2,59</td><td>3,72</td><td>4,56</td><td>4,57</td></tr>
+                  <tr><td>1973</td><td>5,08</td><td>4,89</td><td>5,42</td><td>4,98</td><td>4,94</td><td>4,46</td><td>4,46</td><td>4,26</td><td>3,28</td><td>3,66</td><td>3,92</td><td>3,02</td></tr>
+                  <tr><td>1974</td><td>3,02</td><td>4,21</td><td>5,17</td><td>4,37</td><td>4,95</td><td>4,28</td><td>4,09</td><td>3,98</td><td>2,76</td><td>2,94</td><td>1,85</td><td>2,21</td></tr>
+                  <tr><td>1975</td><td>2,60</td><td>3,85</td><td>3,74</td><td>3,82</td><td>3,60</td><td>3,50</td><td>2,66</td><td>2,51</td><td>2,60</td><td>3,15</td><td>3,91</td><td>3,39</td></tr>
+                  <tr><td>1976</td><td>4,09</td><td>4,16</td><td>4,31</td><td>4,36</td><td>3,86</td><td>2,24</td><td>3,92</td><td>2,81</td><td>3,19</td><td>3,20</td><td>3,20</td><td>3,85</td></tr>
+                  <tr><td>1977</td><td>4,08</td><td>4,82</td><td>6,28</td><td>4,74</td><td>4,52</td><td>3,47</td><td>2,81</td><td>2,66</td><td>2,32</td><td>2,23</td><td>2,53</td><td>2,81</td></tr>
+                  <tr><td>1978</td><td>4,18</td><td>4,27</td><td>3,79</td><td>4,02</td><td>2,50</td><td>1,74</td><td>2,33</td><td>2,61</td><td>2,55</td><td>3,22</td><td>2,26</td><td>3,15</td></tr>
+                  <tr><td>1979</td><td>2,68</td><td>3,24</td><td>3,92</td><td>3,77</td><td>3,40</td><td>4,15</td><td>4,11</td><td>3,60</td><td>3,69</td><td>4,05</td><td>4,47</td><td>4,86</td></tr>
+                  <tr><td>1980</td><td>4,51</td><td>4,23</td><td>4,69</td><td>5,63</td><td>4,25</td><td>3,85</td><td>3,78</td><td>3,72</td><td>3,49</td><td>3,78</td><td>3,90</td><td>3,90</td></tr>
+                  <tr><td>1981</td><td>3,62</td><td>4,60</td><td>5,67</td><td>4,34</td><td>3,61</td><td>3,91</td><td>3,16</td><td>2,52</td><td>2,42</td><td>2,18</td><td>2,46</td><td>2,48</td></tr>
+                  <tr><td>1982</td><td>4,11</td><td>4,89</td><td>4,76</td><td>4,53</td><td>5,07</td><td>4,02</td><td>4,33</td><td>5,25</td><td>5,23</td><td>4,55</td><td>3,41</td><td>4,34</td></tr>
+                  <tr><td>1983</td><td>6,90</td><td>6,44</td><td>6,63</td><td>6,75</td><td>6,00</td><td>6,98</td><td>7,19</td><td>7,11</td><td>5,58</td><td>4,79</td><td>5,52</td><td>5,17</td></tr>
+                  <tr><td>1984</td><td>—</td><td>5,09</td><td>5,34</td><td>3,71</td><td>4,12</td><td>4,42</td><td>4,37</td><td>3,63</td><td>3,57</td><td>3,46</td><td>4,00</td><td>4,35</td></tr>
+                  <tr><td>1985</td><td>4,44</td><td>3,97</td><td>4,60</td><td>4,88</td><td>5,47</td><td>5,18</td><td>4,92</td><td>4,28</td><td>4,40</td><td>4,36</td><td>3,42</td><td>—</td></tr>
+                  <tr><td>1986</td><td>2,06</td><td>2,13</td><td>2,66</td><td>3,58</td><td>5,32</td><td>4,98</td><td>5,04</td><td>4,53</td><td>3,88</td><td>3,33</td><td>3,50</td><td>3,48</td></tr>
+                  <tr><td>1987</td><td>3,46</td><td>3,78</td><td>4,18</td><td>4,21</td><td>4,62</td><td>4,99</td><td>5,52</td><td>4,87</td><td>3,74</td><td>2,79</td><td>2,87</td><td>3,80</td></tr>
+                  <tr><td>1988</td><td>3,28</td><td>4,19</td><td>3,57</td><td>4,04</td><td>3,52</td><td>3,97</td><td>4,65</td><td>4,25</td><td>3,72</td><td>3,70</td><td>2,42</td><td>2,19</td></tr>
+                  <tr><td>1989</td><td>1,66</td><td>3,30</td><td>4,37</td><td>4,72</td><td>4,40</td><td>4,04</td><td>3,60</td><td>3,60</td><td>3,94</td><td>—</td><td>4,91</td><td>4,08</td></tr>
+                  <tr><td>1990</td><td>3,08</td><td>4,38</td><td>5,56</td><td>3,52</td><td>4,36</td><td>4,53</td><td>5,41</td><td>4,57</td><td>4,26</td><td>5,15</td><td>5,09</td><td>5,00</td></tr>
+                  <tr><td>1991</td><td>4,52</td><td>3,19</td><td>3,91</td><td>3,44</td><td>4,65</td><td>4,62</td><td>4,04</td><td>3,96</td><td>3,04</td><td>2,50</td><td>3,30</td><td>2,40</td></tr>
+                  <tr><td>1992</td><td>3,80</td><td>4,07</td><td>4,31</td><td>4,37</td><td>5,11</td><td>6,18</td><td>7,04</td><td>5,50</td><td>4,62</td><td>4,26</td><td>4,50</td><td>5,12</td></tr>
+                  <tr><td>1993</td><td>5,29</td><td>4,99</td><td>4,81</td><td>5,22</td><td>4,24</td><td>4,12</td><td>3,87</td><td>3,45</td><td>2,82</td><td>2,80</td><td>5,00</td><td>4,37</td></tr>
+                  <tr><td>1994</td><td>3,83</td><td>3,43</td><td>4,77</td><td>4,03</td><td>3,45</td><td>3,44</td><td>4,26</td><td>4,67</td><td>2,95</td><td>2,66</td><td>3,12</td><td>4,12</td></tr>
+                  <tr><td>1995</td><td>3,25</td><td>4,32</td><td>5,44</td><td>5,96</td><td>4,79</td><td>4,28</td><td>3,41</td><td>3,56</td><td>2,88</td><td>2,71</td><td>3,73</td><td>3,28</td></tr>
+                  <tr><td>1996</td><td>2,62</td><td>3,25</td><td>4,37</td><td>4,23</td><td>4,98</td><td>3,80</td><td>3,18</td><td>2,97</td><td>2,44</td><td>2,77</td><td>4,40</td><td>4,94</td></tr>
+                  <tr><td>1997</td><td>4,37</td><td>4,82</td><td>6,50</td><td>5,06</td><td>3,22</td><td>3,12</td><td>4,02</td><td>4,40</td><td>4,30</td><td>3,45</td><td>4,90</td><td>5,56</td></tr>
+                  <tr><td>1998</td><td>5,82</td><td>5,85</td><td>5,84</td><td>6,13</td><td>7,24</td><td>6,45</td><td>5,38</td><td>4,33</td><td>4,37</td><td>5,04</td><td>5,64</td><td>4,16</td></tr>
+                  <tr><td>1999</td><td>3,27</td><td>3,82</td><td>4,52</td><td>4,23</td><td>4,32</td><td>3,65</td><td>3,90</td><td>4,39</td><td>2,88</td><td>2,79</td><td>2,36</td><td>1,94</td></tr>
+                  <tr><td>2000</td><td>2,47</td><td>2,23</td><td>2,41</td><td>3,15</td><td>3,39</td><td>3,56</td><td>3,32</td><td>3,24</td><td>2,65</td><td>3,63</td><td>3,96</td><td>3,74</td></tr>
+                  <tr><td>2001</td><td>3,13</td><td>3,74</td><td>4,21</td><td>4,25</td><td>3,60</td><td>2,88</td><td>2,40</td><td>2,18</td><td>1,70</td><td>1,68</td><td>3,05</td><td>2,47</td></tr>
+                  <tr><td>2002</td><td>2,47</td><td>2,23</td><td>3,62</td><td>3,83</td><td>4,54</td><td>4,12</td><td>3,86</td><td>3,03</td><td>2,95</td><td>3,07</td><td>3,34</td><td>3,70</td></tr>
+                  <tr><td>2003</td><td>4,75</td><td>3,75</td><td>4,03</td><td>4,89</td><td>5,29</td><td>3,40</td><td>2,89</td><td>2,45</td><td>2,26</td><td>2,22</td><td>2,66</td><td>2,58</td></tr>
+                  <tr><td>2004</td><td>3,81</td><td>3,42</td><td>2,30</td><td>2,32</td><td>2,70</td><td>2,82</td><td>3,20</td><td>3,28</td><td>2,58</td><td>2,11</td><td>2,80</td><td>4,12</td></tr>
+                  <tr><td>2005</td><td>3,97</td><td>3,62</td><td>4,45</td><td>3,00</td><td>3,21</td><td>3,23</td><td>3,53</td><td>2,67</td><td>2,09</td><td>2,62</td><td>3,57</td><td>3,40</td></tr>
+                  <tr><td>2006</td><td>3,01</td><td>2,85</td><td>2,49</td><td>3,34</td><td>3,46</td><td>2,34</td><td>2,46</td><td>2,16</td><td>2,24</td><td>2,43</td><td>2,95</td><td>3,17</td></tr>
+                  <tr><td>2007</td><td>3,60</td><td>4,03</td><td>5,12</td><td>5,90</td><td>4,12</td><td>4,12</td><td>3,50</td><td>2,81</td><td>2,31</td><td>2,56</td><td>2,53</td><td>3,15</td></tr>
+                  <tr><td>2008</td><td>2,70</td><td>2,91</td><td>2,88</td><td>2,85</td><td>3,44</td><td>2,92</td><td>2,84</td><td>2,52</td><td>3,26</td><td>2,32</td><td>3,02</td><td>3,40</td></tr>
+                  <tr><td>2009</td><td>1,86</td><td>2,29</td><td>2,60</td><td>2,27</td><td>2,08</td><td>1,79</td><td>2,16</td><td>3,10</td><td>3,05</td><td>3,41</td><td>3,87</td><td>5,03</td></tr>
+                  <tr><td>2010</td><td>5,37</td><td>5,62</td><td>5,82</td><td>4,82</td><td>4,62</td><td>4,49</td><td>3,46</td><td>3,13</td><td>2,55</td><td>2,30</td><td>2,62</td><td>2,15</td></tr>
+                  <tr><td>2011</td><td>3,50</td><td>3,18</td><td>3,94</td><td>4,52</td><td>5,08</td><td>3,79</td><td>2,91</td><td>3,30</td><td>4,02</td><td>3,88</td><td>3,89</td><td>3,54</td></tr>
+                  <tr><td>2012</td><td>2,63</td><td>2,52</td><td>2,35</td><td>2,44</td><td>2,78</td><td>3,02</td><td>3,47</td><td>3,48</td><td>2,79</td><td>2,02</td><td>2,62</td><td>2,07</td></tr>
+                  <tr><td>2013</td><td>3,05</td><td>2,70</td><td>2,83</td><td>3,68</td><td>3,77</td><td>3,61</td><td>3,60</td><td>5,12</td><td>3,35</td><td>2,63</td><td>2,94</td><td>3,33</td></tr>
+                  <tr><td>2014</td><td>2,77</td><td>2,90</td><td>2,81</td><td>3,47</td><td>3,86</td><td>4,15</td><td>4,61</td><td>5,27</td><td>4,40</td><td>3,49</td><td>3,98</td><td>3,32</td></tr>
+                  <tr><td>2015</td><td>3,71</td><td>4,60</td><td>3,84</td><td>3,70</td><td>3,04</td><td>3,21</td><td>3,49</td><td>4,24</td><td>4,49</td><td>2,74</td><td>3,20</td><td>4,10</td></tr>
+                  <tr><td>2016</td><td>6,36</td><td>6,27</td><td>5,59</td><td>5,71</td><td>5,97</td><td>4,50</td><td>4,58</td><td>3,92</td><td>3,08</td><td>2,96</td><td>3,51</td><td>3,18</td></tr>
+                  <tr><td>2017</td><td>3,83</td><td>3,60</td><td>3,86</td><td>3,38</td><td>3,88</td><td>4,73</td><td>5,38</td><td>3,90</td><td>2,97</td><td>2,47</td><td>3,31</td><td>3,88</td></tr>
+                  <tr><td>2018</td><td>3,40</td><td>4,04</td><td>4,44</td><td>4,26</td><td>4,07</td><td>3,78</td><td>2,55</td><td>2,13</td><td>2,39</td><td>2,00</td><td>3,41</td><td>4,65</td></tr>
+                  <tr><td>2019</td><td>4,41</td><td>5,31</td><td>3,70</td><td>3,38</td><td>3,79</td><td>4,62</td><td>4,74</td><td>3,09</td><td>2,00</td><td>2,04</td><td>1,68</td><td>1,82</td></tr>
+                  <tr><td>2020</td><td>2,27</td><td>2,56</td><td>2,85</td><td>1,77</td><td>0,98</td><td>1,20</td><td>1,14</td><td>1,00</td><td>1,41</td><td>1,33</td><td>1,14</td><td>0,89</td></tr>
+                  <tr><td>2021</td><td>1,36</td><td>2,53</td><td>3,19</td><td>2,21</td><td>1,46</td><td>0,98</td><td>0,30</td><td>0,05</td><td>−0,08</td><td>0,39</td><td>1,72</td><td>1,05</td></tr>
+                  <tr><td>2022</td><td>0,36</td><td>−0,12</td><td>0,26</td><td>1,47</td><td>2,23</td><td>1,72</td><td>2,27</td><td>1,02</td><td>1,66</td><td>1,19</td><td>3,28</td><td>3,28</td></tr>
+                  <tr><td>2023</td><td>1,65</td><td>1,88</td><td>2,90</td><td>3,97</td><td>3,30</td><td>2,66</td><td>2,00</td><td>1,95</td><td>1,96</td><td>2,55</td><td>3,30</td><td>4,94</td></tr>
+                  <tr><td>2024</td><td>5,02</td><td>4,10</td><td>1,96</td><td>1,98</td><td>2,74</td><td>2,60</td><td>—</td><td>1,54</td><td>1,03</td><td>0,90</td><td>1,02</td><td>1,60</td></tr>
+                  <tr><td>2025</td><td>3,10</td><td>1,94</td><td>1,80</td><td>1,23</td><td>0,88</td><td>2,08</td><td>2,54</td><td>1,80</td><td>1,60</td><td>1,61</td><td>2,69</td><td>2,78</td></tr>
+                  <tr><td>2026</td><td>3,12</td><td>2,54</td><td>1,95</td><td>1,75</td><td>2,65</td><td>2,38</td><td>2,38</td><td>3,06</td><td>2,95</td><td>3,32</td><td>4,38</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="chico">
+            En metros del hidrómetro. La raya es un día sin lectura.
+          </p>
+        </details>
+      </section>
+
+      <section class="bloque oscuro">
+        <h2>Esto es historia, no pronóstico</h2>
+        <p>
+          El gráfico muestra dónde estuvo el río, no dónde va a estar. En cien
+          años cambiaron las presas aguas arriba y el régimen del río, y la
+          ciudad tampoco es la misma: un mismo número del hidrómetro no
+          significaba lo mismo antes que ahora.
+        </p>
+        <p>
+          La alerta de la ciudad es de <b>5,30 m</b> y la
+          evacuación, de <b>5,70 m</b>; las dos las
+          publica la estación del INA. Alcanzar una altura no significa que el
+          agua entre a una casa:
+          <a href="/datos#no-dice">por qué el nivel del río no es una predicción de inundación</a>.
+          El resumen de cada año, con sus máximos y sus días en alerta, está en
+          <a href="/historia">Cien años del Paraná</a>.
+        </p>
+      </section>
+
+      <section class="bloque borde">
+        <p class="kicker">La fuente</p>
+        <p class="chico">
+          Lectura diaria del hidrómetro del Puerto de Santa Fe:
+          <b>36.995 días medidos</b> en
+          102 años, del 2 de enero de 1925 al
+          13 de noviembre de 2026. Fuente: Instituto Nacional del Agua,
+          serie 30 (altura hidrométrica, medición directa).
+          Cuando un día tiene más de una lectura se toma la más alta. Los
+          últimos 30 días se actualizan solos con la lectura del día.
+        </p>
+        <p class="fuente-enlaces">
+          <a class="btn sec" href="https://alerta.ina.gob.ar/a5/obs/puntual/series/30" target="_blank" rel="noopener">Ver fuente</a>
+          <a class="enlace-crudo" href="/datos-abiertos/serie-diaria.json">Bajar la serie día por día</a>
+        </p>
+      </section>
+      </main>
+
+      <p class="pg-cta"><a class="btn sec" href="/app">Abrir Cota Cero</a></p>
+    </div>
+
+    <div class="pie-envoltura">
+      <footer class="pie-sitio">
+        <div>
+          <span class="lockup">
+            <svg width="30" height="30" viewBox="0 0 60 60" aria-hidden="true">
+            <defs><clipPath id="mpf"><rect x="0" y="33" width="60" height="27"/></clipPath></defs>
+            <circle cx="30" cy="30" r="21" fill="var(--agua)" clip-path="url(#mpf)"/>
+            <circle cx="30" cy="30" r="21" fill="none" stroke="currentColor" stroke-width="7"/>
+            <line x1="2" y1="33" x2="58" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+            <span class="lockup-nombre">Cota Cero</span>
+          </span>
+          <p class="chico">
+            Hecha por un vecino de Santa Fe. Sin vínculo con el municipio: la
+            orden de evacuación la da la Defensa Civil.
+          </p>
+          <a class="chip-tel" href="tel:103">Emergencias <b>103</b></a>
+        </div>
+        <div>
+          <span class="eti">La app</span>
+          <a href="/datos">Cómo se calcula tu nivel de aviso</a>
+          <a href="/puntos-de-encuentro">Puntos de encuentro</a>
+          <a href="/guia">Guía para imprimir</a>
+          <a href="/historia">Cien años del Paraná</a>
+          <a href="/comparar">Este año y los anteriores</a>
+          <a href="/hidrometro">Qué mide el hidrómetro</a>
+          <a href="/preguntas">Preguntas frecuentes</a>
+          <a href="/charlas">Charlas para seguir pensando</a>
+        </div>
+        <div>
+          <span class="eti">Transparencia</span>
+          <a href="/datos">De dónde salen los datos</a>
+          <a href="/sobre">Quién hace Cota Cero</a>
+          <a href="/legal">Legal y privacidad</a>
+          <a href="/contacto">Contacto y sugerencias</a>
+          <a href="/para-medios">Widget para medios</a>
+          <a href="/comparar.md" type="text/markdown">Ver como agente de IA</a>
+        </div>
+        <div>
+          <span class="eti">Datos públicos de</span>
+          <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">INA — reporte diario</a>
+          <a href="https://www.argentina.gob.ar/prefecturanaval" target="_blank" rel="noopener">Prefectura Naval</a>
+          <a href="https://geo.santafeciudad.gov.ar/" target="_blank" rel="noopener">Municipalidad de Santa Fe</a>
+          <a href="https://santafeciudad.gov.ar/direccion-de-gestion-de-riesgo/" target="_blank" rel="noopener">Gestión de Riesgos</a>
+          <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN</a>
+        </div>
+      </footer>
+      <p class="pie-cierre">
+        Última actualización del sitio: 13/11/2026 · Hecho en Santa Fe
+      </p>
+
+    </div>
+  </body>
+</html>

@@ -33,7 +33,7 @@ Santa Fe está en emergencia hídrica por la [Ley provincial 14.477](https://cot
 
    La lluvia volvió a anegar los barrios del oeste.
 
-Las grandes crecidas del Paraná —1983, 1992, 2016— llegaron con años de **El Niño**. [Cien años del río, año por año →](https://cotacerosf.com/historia)
+Las grandes crecidas del Paraná —1983, 1992, 2016— llegaron con años de **El Niño**. [Cien años del río, año por año →](https://cotacerosf.com/historia) [Este año al lado de los anteriores →](https://cotacerosf.com/comparar)
 
 Para que la próxima crecida encuentre a cada familia sabiendo su número, su plan y su punto de encuentro. [Quién la hace y con qué límites](https://cotacerosf.com/sobre).
 

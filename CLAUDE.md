@@ -15,7 +15,7 @@ entre archivos de una forma que no se ve leyendo uno solo.
     node scripts/servir.js            # http://localhost:3000 (PORT=3100 para otro puerto)
     node scripts/comprobar.js         # los casos del cálculo central; sale con error si uno cambia
     node scripts/paginas.js           # regenera las páginas de contenido y public/css/app.css
-    node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json
+    node scripts/historia.js          # baja la serie del INA -> public/datos-abiertos/historia.json y serie-diaria.json
     node scripts/curvas.js            # baja las curvas del municipio -> public/datos-abiertos/curvas.json
     node scripts/cotas-costa.js       # baja los puntos con cota de Rincón y Leyes -> public/datos-abiertos/cotas-costa.json
     node scripts/calles.js            # baja el callejero de Georef -> calles.json y calles-rincon.json
@@ -214,6 +214,76 @@ de mostrar un número con cara de actual. El récord sale de `historia.json`, no
 de un número escrito acá. Su CSP y su revalidación están en `vercel.json`
 aparte de la general, igual que el widget.
 
+**`/comparar` pone el año en curso al lado de todos los anteriores**
+(noviembre de 2026): una línea por año en un `<canvas>`, y marcados los tres
+años que más se le parecen en los últimos 30 días. Reglas:
+
+- **No es un pronóstico, y lo dice al lado de la lista**, no al pie: las
+  líneas de los años parecidos siguen después de hoy porque esos años ya
+  terminaron. La del año en curso termina en la última lectura y **no se
+  extiende ni se rellena**: un tramo sin lecturas queda en blanco.
+- **Los nombres de los años van junto a la raya de hoy**, a la altura que
+  tenía cada año ese día, apilados con una guía fina hasta su punto. En el
+  margen de diciembre quedaban al lado de la punta de otra línea y «1996» se
+  leía como 1972 (tercera crítica). Por eso el margen derecho no lleva nada.
+- **Debajo de la cifra va el récord en cualquier fecha** (de la serie): «2 de
+  101» compara sólo con esta fecha, y con el río subiendo se leía como «casi
+  nunca pasó». El renglón de la alerta va después de la cifra, no antes.
+- **Con el dato vencido, la línea de este año y su punto van en gris**, como
+  todo lo vencido del sitio. La leyenda tiene cuatro entradas (lo que el
+  gráfico rotula no se repite) y la ayuda del teclado sólo sale con mouse
+  (`.cmp-teclado`, `hover: none`). Sin JavaScript, el CSS
+  (`scripting: none`) deja sólo la tabla.
+- **El dibujo tampoco pronostica** (crítica del 13/11/2026). Después de la
+  raya de «hoy», los años parecidos y el elegido van finos y tenues: con el
+  mismo trazo, tres años que bajaron se leían como «este va a bajar». Los años
+  que esta fecha estaban **más alto que ahora** se marcan sobre la raya y
+  tienen sus fichas, y la escala de «Cerca de hoy» los incluye: son la
+  respuesta literal a «¿esto ya pasó?». La lista de parecidos hace las restas
+  y dice si ese año no llegó al nivel de ahora.
+- **Con el río arriba de la alerta de la ciudad, un renglón arriba del
+  gráfico** (`pintarAviso`) que dice que lo de abajo es el pasado, ofrece
+  el nivel de aviso como enlace (con su glosa) y lleva el 103. **No lleva
+  verbo propio, a propósito**: la franja de la barra ya empieza con el verbo
+  de la ciudad, y dos primeras acciones distintas en la misma pantalla
+  confundían (segunda crítica, 13/11/2026). Con el dato vencido no sale. Se
+  suscribe a `CC` desde el arranque, así sale aunque la serie no cargue.
+- **«Hoy» y «ahora» sólo con un dato reciente** (`fresco()`, con
+  `VENCE_HORAS`). Si `/api/nivel` no contesta, la última lectura es la de
+  `serie-diaria.json`, que puede tener semanas: la raya lleva la fecha
+  («16 oct») y los textos dicen «la última lectura que tenemos».
+- **Sin la serie, la sección se reduce al mensaje y a la tabla**, que se
+  abre sola (`.cmp-sin-serie`); hasta que llega, las fichas y las vistas
+  están desactivadas. La letra del canvas sigue a la del navegador, con un
+  tope según el ancho del gráfico.
+- **No dice «normal», «alto» ni «bajo».** Muestra dónde estuvo el río y a
+  cuántos centímetros quedó cada año del de ahora. «Parecido» es una resta
+  (30 días, hacen falta 20 con lectura en los dos), no un modelo.
+- **`js/comparar.js` se suscribe a `window.CC`**: los últimos 30 días son
+  `rio.serie`, que `rio-barra.js` guarda de `/api/nivel`. No hace su pedido.
+- **`serie-diaria.json` se regenera a mano con `node scripts/historia.js`, y
+  hace falta al menos una vez por mes**: la API trae 30 días, y con más
+  atraso la línea del año sale con un hueco. `comprobar.js` lo avisa (no
+  falla: depende del día en que se corre). Regenerarla cambia también
+  `historia.json`, que está precacheado: después, `node scripts/paginas.js`.
+- **La copia provisoria no se publica.** `datos-crudos/serie-diaria-provisoria-…`
+  la arma desde 1990 para mirar la página sin red; `comprobar.js` falla si
+  es la que quedó en `public/`.
+- **El alto del gráfico vive en `estilos/app.css`** (`.cmp-grafico`) y el JS
+  lo lee: queda reservado antes de que llegue la serie. Los colores salen de
+  los tokens al pintar; los tres trazos están en dos lados (`TRAZOS` y
+  `.cmp-trazo`) y `comprobar.js` los compara.
+- **Los años a mano salen de la serie**: las cinco crecidas más grandes y
+  las tres bajantes más hondas las calcula `scripts/paginas/comparar.js`, no
+  están escritas. Van debajo del gráfico: arriba lo empujaban una pantalla.
+  El año elegido y la vista («Cerca de hoy», con la escala ajustada) van en
+  la URL (`?anio=1992&vista=cerca`).
+- **El gráfico es un deslizador de días** (`role="slider"`): ← → cambian el
+  día, ↑ ↓ la línea, y cada paso se dice en `#cmp-lectura` y en
+  `aria-valuetext`. Con el dedo, el toque queda marcado al levantarlo.
+- `serie-diaria.json` **no se precachea** (42 KB con gzip, la pide sólo esta
+  página): sin señal quedan el texto y la tabla del día 1 de cada mes.
+
 ### `lib/` no es `api/`
 
 Cada archivo dentro de `api/` se publica como una función de Vercel, y el plan
@@ -249,7 +319,7 @@ Tres cosas de ahí:
 - **Tocar `public/lib/comun.js` sin correr `node scripts/paginas.js` deja el gemelo
   viejo**, y entonces la app dice un número y el sitio otro. Es el único modo
   de romperlo.
-- **`comun-clasico.js` se carga ANTES que `rio-barra.js`** en las once páginas
+- **`comun-clasico.js` se carga ANTES que `rio-barra.js`** en las trece páginas
   y antes que `widget.js`. Van con `defer`, que conserva el orden.
 
 `sw.js` lo trae con `importScripts`. Registrarlo como módulo habría sido más
@@ -299,6 +369,7 @@ es el error que este proyecto ya cometió y corrigió más de una vez:
 | Los servicios de otro origen (host, uso, CSP)                                             | `lib/proveedores.js`                                                                | `scripts/paginas/emitir.js`, que verifica la CSP de `vercel.json`, que `/legal` los nombre y que el código no use otros                                                |
 | Los colores y las capas del mapa                                                          | `lib/estilo-mapa.js` (colores de `estilos/app.css`)                                 | `public/mapa/claro.json` y `oscuro.json`, que emite `emitir.js` y leen `js/app/mapa.js` y `js/landing.js`                                                              |
 | La versión del service worker                                                             | se calcula: `scripts/version-sw.js`                                                 | `emitir.js` la escribe en `sw.js`; `comprobar.js` avisa si quedó vieja                                                                                                 |
+| La lectura de cada día, año por año                                                       | `datos-abiertos/serie-diaria.json`, que escribe `scripts/historia.js` con `scripts/serie-diaria.js`, de la misma bajada que `historia.json` | `js/comparar.js` y `scripts/paginas/comparar.js`; `comprobar.js` verifica que coincida con `historia.json` y que no sea la copia provisoria |
 | Récord histórico y serie                                                                  | `datos-abiertos/historia.json`                                                      | `js/app/rio.js`, `js/historia.js`, `scripts/paginas.js`                                                                                                                |
 | El nivel del río en la portada                                                            | objeto `rio` en `js/landing.js`                                                     | el mockup del hero, la píldora de la barra, la franja de alerta y la frescura del pie                                                                                  |
 | Los textos de los ocho estados                                                            | `public/lib/comun.js` (`ESTADOS`, `estadoDe`, `textoGrave`, `avisoDe`)              | `sw.js` (por el gemelo), `rio.js`, `cota.js`, `ahora.js`, `compartir.js`; `scripts/comprobar.js` verifica el verbo, el 103 y los 180 caracteres                        |
@@ -318,7 +389,7 @@ una copia a mano; ya no hay dos listas que se puedan desincronizar.
 ### Páginas generadas: no editarlas
 
 `/puntos-de-encuentro`, `/datos`, `/historia`, `/preguntas`, `/legal`,
-`/charlas`, `/sobre`, `/contacto`, `/para-medios` y `/hidrometro` los emite
+`/charlas`, `/sobre`, `/contacto`, `/para-medios`, `/hidrometro` y `/comparar` los emite
 `scripts/paginas.js`. Editar el
 HTML resultante se pisa en la próxima corrida. **Se edita el generador.**
 Ese script también escribe `datos-abiertos/puntos.json` y reemplaza el pie de
@@ -363,7 +434,7 @@ regla va acá, no en el JSON. Los dos que estaban escritos ahí:
 
 **La barra es la misma en todas las páginas, con el dato incluido.** La
 píldora del nivel y la franja de alerta las pinta `js/rio-barra.js`, que va en
-la portada **y** en las diez generadas. Se separó de `landing.js` por peso:
+la portada **y** en las doce generadas. Se separó de `landing.js` por peso:
 ése son 30 KB con el mockup y MapLibre, y mandarlos a `/legal` para pintar una
 píldora era pagar 30 KB por 7. **`rio-barra.js` va envuelto en una IIFE y expone
 un solo nombre, `window.CC`.** No es estilo: los `<script>` clásicos comparten
@@ -441,7 +512,7 @@ commitear el número de un día.
 **Para agentes hay tres cosas, y las tres nombran sólo lo que existe.**
 `llms.txt` (ya estaba), `/.well-known/api-catalog` —un linkset RFC 9727 que
 emite `scripts/paginas.js`— y cabeceras `Link` en `vercel.json`. El catálogo
-lista `/api/nivel` y los cuatro JSON abiertos —historia, puntos, curvas y
+lista `/api/nivel` y los cinco JSON abiertos —historia, serie diaria, puntos, curvas y
 cotas de la costa—, nada más: el resto de `api/` son
 POST de la app y publicarlos sería invitar a que alguien los llame sin motivo.
 No hay `service-desc` porque eso pide un OpenAPI, y un OpenAPI sería una **sexta
@@ -1001,7 +1072,7 @@ promesa que la app hace por escrito.
 ### Sin conexión
 
 **El service worker lo registran las dos mitades.** `js/app/instalar.js` para
-`/app` y `js/rio-barra.js` para las once páginas del sitio. Antes lo registraba
+`/app` y `js/rio-barra.js` para las trece páginas del sitio. Antes lo registraba
 sólo la app, y eso dejaba una promesa escrita sin cumplir: la bajada de
 `/puntos-de-encuentro` dice «esta página funciona sin conexión», pero quien
 llegaba ahí desde un buscador y nunca abría la app no tenía service worker.
@@ -1013,10 +1084,12 @@ instalarse_.
 
 | Tanda      | Qué                                                                    | Cuánto | Quién la paga              |
 | ---------- | ---------------------------------------------------------------------- | ------ | -------------------------- |
-| `CRITICOS` | los 12 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 99 KB  | todo el que entra al sitio |
-| `DEL_APP`  | `/app`, los 27 módulos, `lib/comun.js`, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 256 KB | sólo quien abre `/app`     |
+| `CRITICOS` | los 13 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 108 KB | todo el que entra al sitio |
+| `DEL_APP`  | `/app`, los 27 módulos, `lib/comun.js`, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 262 KB | sólo quien abre `/app`     |
 
-Medido con gzip el 29/10/2026, con `/hidrometro` en la primera y
+Medido con gzip el 13/11/2026, con `/comparar` en la primera: 7,8 KB, casi
+todo la tabla de 102 años —los números en el HTML, no sólo en el JS—. Antes,
+el 29/10/2026 —99 y 256 KB—, con `/hidrometro` en la primera y
 `/lib/comun.js` pasado a la segunda (sólo lo piden los módulos de la app;
 estaba en la del sitio y lo pagaba cualquiera que leyera `/legal`). Las
 anteriores —94 y 229 KB el 23/10, 87 y 224 antes— quedaron viejas sin que

@@ -18,6 +18,7 @@ lo más importante que hay que conservar.
 - [Puntos de encuentro por inundación en Santa Fe](https://cotacerosf.com/puntos-de-encuentro.md): Los 30 puntos de encuentro del Plan de Contingencia de la Municipalidad de Santa Fe, con su dirección y cómo llegar. Fuente: Gestión de Riesgos.
 - [Cota de tu terreno y datos del río en Santa Fe](https://cotacerosf.com/datos.md): Qué es la cota de un terreno, de dónde sale la de tu casa y cómo se relaciona con el nivel del río Paraná en Santa Fe. Con cada fuente y el cálculo paso a paso.
 - [Crecidas históricas del río Paraná en Santa Fe](https://cotacerosf.com/historia.md): Las mayores crecidas y las bajantes más hondas del Paraná en Santa Fe, con la serie diaria del INA desde 1925. La de 1992 sigue siendo el récord.
+- [Altura del río Paraná en Santa Fe, comparada año por año](https://cotacerosf.com/comparar.md): La altura del río Paraná en Santa Fe este año, día por día, al lado de cada año desde 1925, y los años que más se le parecen en estas fechas. Datos del INA, al día.
 - [Cota del río Paraná: qué mide el hidrómetro](https://cotacerosf.com/hidrometro.md): Qué marca el hidrómetro del Puerto de Santa Fe, desde dónde cuenta sus metros, cuánto es eso sobre el mar y por qué Prefectura y el INA no dan el mismo número.
 - [Preguntas sobre el río Paraná en Santa Fe](https://cotacerosf.com/preguntas.md): Cuál es el nivel de alerta y el de evacuación, qué significa la altura del río, cómo saber la cota de tu terreno y de dónde salen los datos.
 - [Sobre Cota Cero: qué es y quién lo hace](https://cotacerosf.com/sobre.md): Cota Cero es un proyecto ciudadano independiente sobre el riesgo hídrico en Santa Fe. No pertenece a ningún organismo. Qué usa, cómo y qué no sabe.
@@ -33,6 +34,8 @@ lo más importante que hay que conservar.
   hidrómetro del Puerto de Santa Fe, con su fecha, los umbrales oficiales
   que publica la estación y de cuál de las dos fuentes del INA salió.
 - [Serie histórica desde 1925](https://cotacerosf.com/datos-abiertos/historia.json)
+- [La misma serie, día por día](https://cotacerosf.com/datos-abiertos/serie-diaria.json):
+  366 casilleros por año, en centímetros; es la que dibuja /comparar.
 - [Los 30 puntos de encuentro](https://cotacerosf.com/datos-abiertos/puntos.json): los
   oficiales del Plan de Contingencia municipal, con coordenadas.
 - [Curvas de nivel](https://cotacerosf.com/datos-abiertos/curvas.json): las del
