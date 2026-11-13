@@ -597,6 +597,16 @@ esa pestaña va en `BLOQUES` de ese archivo, envuelto en su `.bloque-rio`, y
 decide si sube o queda siempre plegado. **Plegado no es borrado**: no se sacó
 ningún texto.
 
+**Debajo del veredicto va la tarjeta de la casa** (noviembre de 2026,
+`pintarCtaCota()` en `rio.js`, en `#cta-cota`): la dirección o la zona
+(`nombreCasa()` de `cota.js`), «Cambiar» —que lleva a Mi casa con el
+formulario abierto—, un solo dato grande con cuánto le falta al río para
+llegar al nivel de aviso, y la glosa. Reemplaza a las dos fichas que iban
+dentro del veredicto, que no decían de qué casa hablaban. El dato lo arma
+`pintarVeredictoRio()` (`fichaCasa`), que es donde se decide el estado. Sin
+casa, el mismo hueco invita a cargarla. El alto reservado pasó del veredicto
+a esa tarjeta (`#v-rio.con-casa #cta-cota`).
+
 ### CSP: nada de manejadores inline
 
 `script-src` es `'self'` a secas y **no hay un solo `onclick` en el HTML**.

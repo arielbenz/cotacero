@@ -1037,18 +1037,43 @@ export function alternarCasa() {
    entendió otra cosa —«Pje Mitre» por «Mitre»— se ve sin abrir nada. La zona
    pasa al renglón de abajo. Con el GPS, el mapa o la altura a mano no hay una
    dirección que mostrar, y el título sigue siendo la zona. */
-function renglonCasa(z, km) {
-  const o = origenCota() || {};
-  const nombre = estado.zonaAjena
+const nombreZona = () => {
+  const z = ZONAS.find((x) => x.id === estado.zona);
+  return estado.zonaAjena
     ? "Zona sin confirmar"
     : z
       ? z.n.replace(/^Santa Fe — /, "").replace(/ — .*/, "")
       : "";
+};
+const dirCasa = () =>
+  estado.cotaOrigen === "direccion" && estado.cotaDetalle
+    ? estado.cotaDetalle.split(",")[0].trim()
+    : "";
+
+/* Cómo se nombra la casa cargada fuera de Mi casa (la tarjeta de la pestaña
+   Río): la dirección si la hay y la zona debajo; si no, la zona y de dónde
+   salió la altura. */
+export function nombreCasa() {
+  const dir = dirCasa();
+  return {
+    titulo: dir || nombreZona(),
+    donde: dir ? nombreZona() : "Según " + ((origenCota() || {}).corto || "—"),
+  };
+}
+
+/* «Cambiar» desde otra pestaña: abre el formulario si estaba plegado. */
+export function abrirCambiarCasa() {
+  if (!casaAbierta || pasoPrimera != null) return alternarCasa();
+  const sel = document.getElementById("sel-zona");
+  aLaVista(document.getElementById("pasos-casa"));
+  sel.focus({ preventScroll: true });
+}
+
+function renglonCasa(z, km) {
+  const o = origenCota() || {};
+  const nombre = nombreZona();
   const donde = estado.zonaAjena ? nombre : nombre + " · " + km + " km del Puerto";
-  const dir =
-    estado.cotaOrigen === "direccion" && estado.cotaDetalle
-      ? estado.cotaDetalle.split(",")[0].trim()
-      : "";
+  const dir = dirCasa();
   const zonaARevisar =
     revisarZona != null && revisarZona === estado.zona && !estado.zonaAjena;
   return `<div class="tarjeta casa-renglon">

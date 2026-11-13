@@ -18,7 +18,7 @@ import {
 } from "./config.js";
 import { pintarCompartir } from "./compartir.js";
 import { ordenarRio, rioCerca } from "./destacar.js";
-import { calcular, cotaEnHidrometro } from "./cota.js";
+import { calcular, cotaEnHidrometro, nombreCasa } from "./cota.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";
@@ -652,9 +652,26 @@ function pintarCtaCota() {
   const cta = document.getElementById("cta-cota");
   if (!cta) return;
   const conCasa = estado.cota != null && !!estado.zona;
-  // Para la reserva de alto del veredicto: con casa, mide más.
+  // Para la reserva de alto de la tarjeta de la casa (app.css).
   document.getElementById("v-rio").classList.toggle("con-casa", conCasa);
-  if (conCasa) return (cta.innerHTML = "");
+  if (conCasa) {
+    /* Dónde está parada la persona, en una tarjeta: su casa, cuánto le falta
+       al río y «Cambiar». Antes eran dos fichas sin nombre dentro del
+       veredicto —no decían de qué casa hablaban— y para cambiarla había que
+       saber que eso se hacía en otra pestaña. La glosa va acá, pegada al
+       número que explica. */
+    const c = nombreCasa();
+    cta.innerHTML =
+      '<div class="tarjeta casa-rio"><div class="casa-renglon">' +
+      '<span class="casa-icono" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg></span>' +
+      '<span class="casa-txt"><b>' + atr(c.titulo) + "</b><span>" + atr(c.donde) + "</span></span>" +
+      '<button type="button" data-accion="cambiar-casa-rio">Cambiar</button></div>' +
+      fichaCasa +
+      '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
+      "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
+      "aproximado: <b>no dice cuándo entra el agua</b>.</p></div>";
+    return;
+  }
   cta.innerHTML =
     '<div class="tarjeta"><b>Todavía no sé dónde vivís.</b> ' +
     '<p class="chico" style="margin:4px 0 0">Cargá tu casa y te digo tu ' +
@@ -668,9 +685,25 @@ function pintarCtaCota() {
 export const faltanMochila = () =>
   MOCHILA.filter((_, i) => guardado.get("cc_mo" + i) !== "1").length;
 
+/* Lo que dice la tarjeta de la casa (pintarCtaCota) sobre el río y el nivel
+   de aviso: un dato grande y un renglón. La arma pintarVeredictoRio(), que
+   es donde se decide el estado. */
+let fichaCasa = "";
+const ficha = (tono, v, k, texto) =>
+  '<div class="casa-falta t-' + tono + '"><span class="v' +
+  (texto ? " v-texto" : "") + '">' + v + '</span><span class="k">' + k + "</span></div>";
+
 function pintarVeredictoRio() {
   const c = document.getElementById("veredicto-rio");
   const r = estado.rio;
+  const propio = cotaEnHidrometro();
+  // Sin dato del río, la casa igual dice su número.
+  fichaCasa =
+    propio == null
+      ? ""
+      : sobreRecord(propio, RECORD, r)
+        ? fichaAlto()
+        : ficha("vos", mU(propio), "es tu nivel de aviso.");
   /* Mientras viaja el dato, la tarjeta se queda con los bloques de carga. El
      arranque pinta la pantalla antes de que conteste el INA, y sin esta
      guarda reemplazaba los bloques por «no pudimos leer el nivel del INA»:
@@ -782,17 +815,7 @@ function pintarVeredictoRio() {
      falta: «le falta al río ≈ 5,4 m» es tan inútil como el número. En su
      lugar, el récord, que es la escala real (sobreRecord en lib/comun.js). */
   const alto = sobreRecord(u, RECORD, r);
-  const celdaAlto =
-    '<div class="celdas-umbral">' +
-    '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
-    '<span class="v v-texto">Sobre el récord</span></div>' +
-    '<div class="celda"><span class="k">Récord, ' +
-    RECORD_ANIO +
-    '</span><span class="v">' +
-    m(RECORD) +
-    "</span></div></div>";
-  let celdas = "",
-    glosa = "";
+
   /* El texto de la ciudad ya trae una instrucción en tres de los cuatro
      estados, y en los dos graves empieza con el verbo y lleva el 103. Con el
      umbral cargado se reemplazaba siempre por la frase del margen: con la
@@ -802,26 +825,17 @@ function pintarVeredictoRio() {
   const instruccionCiudad = cls !== "v-ok";
   /* La glosa va la primera vez que el número aparece en la pantalla, y
      ésta es la primera. */
-  const GLOSA =
-    '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
-    "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
-    "aproximado: <b>no dice cuándo entra el agua</b>.</p>";
   if (u != null && alto && !viejo) {
-    celdas = celdaAlto;
-    glosa = GLOSA;
+    fichaCasa = fichaAlto();
   } else if (u != null && viejo) {
     // Tu nivel de aviso no vence: lo que vence es cuánto le falta al río.
-    celdas = alto
-      ? celdaAlto
-      :
-      '<div class="celdas-umbral">' +
-      '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
-      '<span class="v">' +
-      mU(u) +
-      "</span></div>" +
-      '<div class="celda t-viejo"><span class="k">Le falta al río</span>' +
-      '<span class="v">—</span></div></div>';
-    glosa = GLOSA;
+    fichaCasa = alto
+      ? fichaAlto()
+      : ficha(
+          "vos",
+          mU(u),
+          "es tu nivel de aviso. Con un dato viejo no se sabe cuánto le falta al río.",
+        );
   } else if (u != null) {
     const margen = u - r;
     const superado = faltaCm(r, u) <= 0;
@@ -830,17 +844,18 @@ function pintarVeredictoRio() {
     if (superado) cls = "v-peligro";
     else if (margen <= 0.5 && cls === "v-ok") cls = "v-alerta";
     const tono = superado ? "peligro" : cls === "v-ok" ? "ok" : "alerta";
-    celdas =
-      '<div class="celdas-umbral">' +
-      '<div class="celda t-vos"><span class="k">Tu nivel de aviso</span>' +
-      '<span class="v">' +
-      mU(u) +
-      "</span></div>" +
-      '<div class="celda t-' +
-      tono +
-      '"><span class="k">Le falta al río</span><span class="v">' +
-      (superado ? "ya lo pasó" : "≈ " + mCm(margen)) +
-      "</span></div></div>";
+    fichaCasa = superado
+      ? ficha(
+          "peligro",
+          "El río ya lo pasó",
+          "Tu nivel de aviso es " + mU(u) + " y el río está en " + m(r) + ".",
+          true,
+        )
+      : ficha(
+          tono,
+          "≈ " + mCm(margen),
+          "le faltan al río para llegar a tu nivel de aviso, <b>" + mU(u) + "</b>.",
+        );
     /* Y una oración en prosa, que es como esto se cuenta en la vereda.
        El ritmo sale del delta que publica el INA, no de una proyección propia:
        sin delta no se promete ningún plazo. */
@@ -883,7 +898,6 @@ function pintarVeredictoRio() {
         ritmo;
     else if (instruccionCiudad) txt += ritmo;
     else txt = ritmo.trim();
-    glosa = GLOSA;
     if (superado) titu = ESTADOS.superado.titulo;
     else if (margen <= 0.5) titu = "Cerca de tu nivel de aviso";
   }
@@ -893,11 +907,11 @@ function pintarVeredictoRio() {
   const plan =
     cls === "v-ok" || viejo
       ? ""
-      : `<p class="chico" style="margin:10px 0 0;padding-top:9px;border-top:1px solid var(--linea)">${
+      : `<p class="chico plan-rio"><span>${
           falta
             ? "Te faltan <b>" + falta + "</b> cosas de la mochila."
             : "Tu mochila está completa."
-        }<button class="btn mini" style="margin-top:9px;display:block" data-accion="ir" data-vista="plan">Abrir mi plan</button></p>`;
+        }</span><button class="btn mini" data-accion="ir" data-vista="plan">Abrir mi plan</button></p>`;
   /* Lo guardado y todavía vigente lleva su fecha pegada al número, no sólo
      en la fuente, que queda una regla más abajo: se pinta de entrada en cada
      arranque, mientras viaja el pedido, y no puede pasar por el de hoy. */
@@ -911,12 +925,21 @@ function pintarVeredictoRio() {
   c.innerHTML = `${vencido}<div class="titu">${titu}</div>
     <div class="dato dato-rio">${nm(r, 2)}<span class="u">m</span><span class="eti">en el puerto</span></div>
     ${guardadoVigente}${mov}
-    ${celdas}
-    ${txt ? `<p class="chico" style="margin:0 0 10px">${txt}</p>` : ""}${glosa}${plan}`;
+    ${txt ? `<p class="chico" style="margin:var(--e-3) 0 10px">${txt}</p>` : ""}${plan}`;
   pintarFranjaCiudad(viejo || esManual() ? null : r);
   pintarPuntoRio(cls);
   pintarAhora();
 }
+
+/* Sobre el récord, sin número (sobreRecord en lib/comun.js). */
+const fichaAlto = () =>
+  ficha(
+    "vos",
+    "Más alto que el récord",
+    "Tu nivel de aviso queda arriba de la crecida más grande medida: " +
+      m(RECORD) + ", en " + RECORD_ANIO + ".",
+    true,
+  );
 
 /* El nivel lo cargó la persona: para probar un escenario o porque el INA no
    contestó. Sirve para la cuenta, no para anunciar el estado de la ciudad. */

@@ -716,53 +716,64 @@ p {
   margin-bottom: var(--e-2);
 }
 
-.celdas-umbral {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--e-2);
+.casa-rio .casa-renglon {
+  padding: 0 0 var(--e-3);
+  border-bottom: 1px solid var(--linea);
+}
+.casa-falta {
   margin: var(--e-3) 0;
 }
-.celdas-umbral .celda {
-  background: var(--panel);
-  border-radius: var(--r-m);
-  padding: var(--e-3) var(--e-3);
-  min-width: 0;
-}
-.celdas-umbral .k {
+.casa-falta .v {
   display: block;
-  font-family: var(--mono);
-  font-size: var(--t-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tenue);
-}
-.celdas-umbral .v {
-  display: block;
-  margin-top: var(--e-1);
   font-family: var(--sans);
   font-weight: 800;
-  font-size: var(--t-xl);
+  font-size: var(--t-xxl);
   letter-spacing: -0.02em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   color: var(--texto);
 }
-.celdas-umbral .t-vos .v {
-  color: var(--tierra);
-}
 
-.celdas-umbral .v.v-texto {
-  font-size: var(--t-l);
+.casa-falta .v.v-texto {
+  font-size: var(--t-xl);
   letter-spacing: -0.01em;
 }
-.celdas-umbral .t-ok .v {
+.casa-falta .k {
+  display: block;
+  margin-top: var(--e-1);
+  color: var(--texto);
+}
+.casa-falta.t-vos .v {
+  color: var(--tierra);
+}
+.casa-falta.t-ok .v {
   color: var(--ok-texto);
 }
-.celdas-umbral .t-alerta .v {
+.casa-falta.t-alerta .v {
   color: var(--alerta-texto);
 }
-.celdas-umbral .t-peligro .v {
+.casa-falta.t-peligro .v {
   color: var(--peligro-texto);
+}
+.casa-falta b {
+  white-space: nowrap;
+}
+.casa-rio .glosa {
+  margin: 0;
+}
+
+.plan-rio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-3);
+  margin: var(--e-3) 0 0;
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--linea);
+}
+.plan-rio .btn {
+  flex: none;
 }
 
 .v-ok {
@@ -807,8 +818,7 @@ p {
   box-shadow: none;
 }
 .v-viejo .titu,
-.v-viejo .dato-rio,
-.celdas-umbral .t-viejo .v {
+.v-viejo .dato-rio {
   color: var(--tenue);
 }
 
@@ -5701,8 +5711,8 @@ button.enlace-crudo {
   min-height: 225px;
 }
 
-#v-rio.con-casa #veredicto-rio {
-  min-height: 336px;
+#v-rio.con-casa #cta-cota {
+  min-height: 258px;
 }
 
 #origen-dato {
@@ -5745,7 +5755,7 @@ button.enlace-crudo {
 @media (min-width: 700px) {
 
   #veredicto-rio,
-  #v-rio.con-casa #veredicto-rio,
+  #v-rio.con-casa #cta-cota,
   #tendencia,
   #rio-arriba,
   #contexto-caja,
@@ -6013,7 +6023,6 @@ button.enlace-crudo {
   .tarjeta,
   .veredicto,
   .aviso,
-  .celda,
   .bloque,
   .aviso-app,
   .segmentado {

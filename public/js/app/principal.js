@@ -31,6 +31,7 @@ import { compartirImagen } from "./compartir.js";
 import { REFRESCO_MS } from "./config.js";
 import { ZONAS } from "./zonas.js";
 import {
+  abrirCambiarCasa,
   alternarCasa,
   calcular,
   elegirZona,
@@ -221,6 +222,11 @@ const ACCIONES = {
   "cota-gps": () => estimarCota(),
   // «Cambiar» / «Listo» del renglón de la casa, en Mi casa.
   "cambiar-casa": () => alternarCasa(),
+  // El mismo «Cambiar», desde la tarjeta de la casa de la pestaña Río.
+  "cambiar-casa-rio": () => {
+    irA("cota");
+    abrirCambiarCasa();
+  },
   // La primera vez, en tres pasos (cota.js).
   "primera-seguir": () => primeraSeguir(),
   "primera-atras": () => primeraAtras(),
