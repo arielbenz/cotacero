@@ -222,6 +222,18 @@ años que más se le parecen en los últimos 30 días. Reglas:
   líneas de los años parecidos siguen después de hoy porque esos años ya
   terminaron. La del año en curso termina en la última lectura y **no se
   extiende ni se rellena**: un tramo sin lecturas queda en blanco.
+- **Los nombres de los años van junto a la raya de hoy**, a la altura que
+  tenía cada año ese día, apilados con una guía fina hasta su punto. En el
+  margen de diciembre quedaban al lado de la punta de otra línea y «1996» se
+  leía como 1972 (tercera crítica). Por eso el margen derecho no lleva nada.
+- **Debajo de la cifra va el récord en cualquier fecha** (de la serie): «2 de
+  101» compara sólo con esta fecha, y con el río subiendo se leía como «casi
+  nunca pasó». El renglón de la alerta va después de la cifra, no antes.
+- **Con el dato vencido, la línea de este año y su punto van en gris**, como
+  todo lo vencido del sitio. La leyenda tiene cuatro entradas (lo que el
+  gráfico rotula no se repite) y la ayuda del teclado sólo sale con mouse
+  (`.cmp-teclado`, `hover: none`). Sin JavaScript, el CSS
+  (`scripting: none`) deja sólo la tabla.
 - **El dibujo tampoco pronostica** (crítica del 13/11/2026). Después de la
   raya de «hoy», los años parecidos y el elegido van finos y tenues: con el
   mismo trazo, tres años que bajaron se leían como «este va a bajar». Los años

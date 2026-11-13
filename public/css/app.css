@@ -6521,7 +6521,7 @@ body.marcando-mapa {
 }
 
 .cmp-aviso {
-  margin: var(--e-4) 0 0;
+  margin: 0 0 var(--e-4);
   font-size: var(--t-base);
 }
 .cmp-grupo[hidden] {
@@ -6557,6 +6557,12 @@ body.marcando-mapa {
   font-size: var(--t-base);
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 559px) {
+  .cmp-caja {
+    padding: 0;
+  }
+}
 .cmp-caja {
   padding: var(--e-2);
   border: 1px solid var(--linea);
@@ -6570,7 +6576,7 @@ body.marcando-mapa {
   cursor: crosshair;
   border-radius: var(--r-s);
 
-  height: 21.25rem;
+  height: min(21.25rem, 110vw);
   touch-action: pan-y;
 }
 
@@ -6604,13 +6610,6 @@ body.marcando-mapa {
 .cmp-leyenda .cmp-l-parecido {
   border-top: 2px solid var(--acento);
 }
-.cmp-leyenda .cmp-l-hoy {
-  width: 0;
-  height: 14px;
-  margin: 0 11px;
-  border-top: 0;
-  border-left: 1px dashed var(--texto);
-}
 .cmp-leyenda .cmp-l-alto {
   width: 8px;
   height: 8px;
@@ -6624,16 +6623,6 @@ body.marcando-mapa {
   border-top: 0;
   background: var(--acento);
   opacity: 0.18;
-}
-.cmp-leyenda .cmp-l-resto {
-  border-top: 1px solid var(--tenue);
-}
-.cmp-leyenda .cmp-l-alerta {
-  border-top: 2px dashed var(--linea-alerta);
-}
-
-.cmp-leyenda .cmp-l-evac {
-  border-top: 3px dotted var(--linea-evac);
 }
 .cmp-parecidos {
   display: grid;
@@ -6704,6 +6693,31 @@ body.marcando-mapa {
 .cmp-tabla td,
 .cmp-tabla th {
   white-space: nowrap;
+}
+
+@media (hover: none) {
+  .cmp-teclado {
+    display: none;
+  }
+}
+
+.cmp-record {
+  display: block;
+  margin-top: var(--e-1);
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+
+@media (scripting: none) {
+  .cmp-caja,
+  .cmp-leyenda,
+  #cmp-ayuda,
+  .cmp-vista,
+  .cmp-anios,
+  .cmp-dato,
+  #parecidos {
+    display: none;
+  }
 }
 
 .cmp-sin-serie .cmp-caja,

@@ -256,7 +256,9 @@
 
     /* El margen derecho es de los rótulos: el año de cada línea resaltada se
        escribe donde la línea termina. */
-    const M = { l: 38 * f, r: 40 * f, t: 24 * f, b: 26 * f };
+    /* El margen derecho ya no lleva nombres: alcanza con que el último
+       renglón de la grilla no toque el borde. */
+    const M = { l: 38 * f, r: 14 * f, t: 24 * f, b: 26 * f };
     const W = ancho - M.l - M.r;
     const X = (i) => M.l + ((i - i0) / (i1 - i0)) * W;
     const Y = (cm) => alto - M.b - ((cm - piso) / (techo - piso)) * (alto - M.t - M.b);
@@ -269,7 +271,7 @@
     /* Los 30 días que se comparan, de fondo: por qué esos años y no otros. */
     if (parecidos.length) {
       x.fillStyle = acento;
-      x.globalAlpha = 0.09;
+      x.globalAlpha = 0.12;
       const desde = Math.max(i0, hoy - VENTANA + 1);
       x.fillRect(X(desde), M.t, X(hoy) - X(desde), alto - M.t - M.b);
       x.globalAlpha = 1;
@@ -409,8 +411,7 @@
     };
     umbral(umbrales.alerta, "--linea-alerta", "alerta de la ciudad", 12 * f, [7, 5]);
     /* Otro trazo que la alerta, no sólo otro color: con daltonismo
-       rojo-verde las dos rayas eran iguales. Los mismos dos en la leyenda
-       (.cmp-l-alerta, .cmp-l-evac). */
+       rojo-verde las dos rayas eran iguales. */
     umbral(umbrales.evacuacion, "--linea-evac", "evacuación de la ciudad", -12 * f, [0.5, 4.5]);
 
     /* Los parecidos: el mismo color y un trazo distinto cada uno —el mismo
@@ -439,51 +440,57 @@
 
     x.restore();
 
-    /* El año de cada línea resaltada va en el margen, a la altura que tenía
-       ESE AÑO EL DÍA DE HOY, no donde terminó en diciembre: puesto al final,
-       el nombre llevaba el ojo al tramo que no hay que leer como pronóstico.
-       Si dos quedan a la misma altura, se corren para no pisarse. */
-    const finales = [];
-    for (const r of resaltados) {
-      let i = Math.min(hoy, i1);
-      while (i > hoy - 10 && valor(r.a, i) == null) i--;
-      const v = valor(r.a, i);
-      const y = v == null ? null : Y(v);
-      if (y != null && y >= M.t - 4 && y <= alto - M.b + 4) finales.push({ a: r.a, fuerte: r.fuerte, y });
-    }
-    finales.sort((p, q) => p.y - q.y);
-    for (let k = 1; k < finales.length; k++)
-      if (finales[k].y - finales[k - 1].y < 15 * f) finales[k].y = finales[k - 1].y + 15 * f;
-    for (const r of finales)
-      rotulo(r.a, ancho - M.r + 5, Math.max(M.t + 8, Math.min(alto - M.b - 8, r.y)), acento, "left", r.fuerte ? "800" : "600");
-
     for (const escribir of pendientes) escribir();
 
-    /* Los años que esta fecha estaban más alto que ahora, marcados sobre la
-       raya de hoy: un círculo hueco y el año. Es la respuesta literal a
-       «¿esto ya pasó?», y entre cien líneas grises no se veía. */
+    /* Los nombres de los años, todos junto a la raya de hoy y a la altura que
+       tenía cada año ese día: los parecidos y el elegido (en acento) y los
+       que estaban más alto que ahora (en el color del texto, con un círculo
+       hueco). Antes los parecidos iban en el margen derecho, donde termina
+       diciembre: a la altura correcta pero al lado de la punta de otra
+       línea, y «1996» se leía como 1972 (tercera crítica, 13/11/2026). Van
+       apilados de un mismo lado, con una guía fina hasta su punto cuando se
+       corren. Del lado derecho si entran; si no, del izquierdo. */
     {
       const px = X(hoy);
+      const enHoy = (a) => {
+        let i = Math.min(hoy, i1);
+        while (i > hoy - 10 && valor(a, i) == null) i--;
+        return valor(a, i);
+      };
+      const nombres = [];
+      for (const r of resaltados) {
+        const v = enHoy(r.a);
+        if (v != null) nombres.push({ a: r.a, y: Y(v), color: acento, peso: r.fuerte ? "800" : "600", circulo: false });
+      }
+      for (const h of altos)
+        if (!nombres.some((n) => n.a === h.a)) nombres.push({ a: h.a, y: Y(h.v), color: texto, peso: "600", circulo: true });
+      const visibles = nombres.filter((n) => n.y >= M.t && n.y <= alto - M.b).sort((p, q) => p.y - q.y);
+      const der = px + 70 * f <= ancho - M.r;
+      const lado = der ? 1 : -1;
       let ultimo = -Infinity;
-      const marcas = altos
-        .map((h) => ({ a: h.a, y: Y(h.v) }))
-        .filter((h) => h.y >= M.t && h.y <= alto - M.b)
-        .sort((p, q) => p.y - q.y);
-      /* Cerca del borde derecho van a la izquierda de la raya: a la derecha
-         pisaban los rótulos del margen. Y el círculo va corrido de la raya:
-         encima tapaba el punto de este año, que suele estar a centímetros. */
-      const izq = px + 60 * f > ancho - M.r;
-      const lado = izq ? -1 : 1;
-      for (const h of marcas) {
+      for (const n of visibles) {
         const cx = px + lado * 9 * f;
-        x.strokeStyle = texto;
-        x.lineWidth = 1.5;
-        x.beginPath();
-        x.arc(cx, h.y, 3.5 * f, 0, 7);
-        x.stroke();
-        const ly = Math.max(h.y, ultimo + 14 * f);
+        if (n.circulo) {
+          x.strokeStyle = n.color;
+          x.lineWidth = 1.5;
+          x.beginPath();
+          x.arc(cx, n.y, 3.5 * f, 0, 7);
+          x.stroke();
+        }
+        const ly = Math.max(n.y, ultimo + 14 * f);
         ultimo = ly;
-        ocupadas.push(rotulo(h.a, cx + lado * 8 * f, ly, texto, izq ? "right" : "left", "600", true, px11));
+        const lx = cx + lado * 8 * f;
+        if (ly - n.y > 4 * f) {
+          x.strokeStyle = n.color;
+          x.globalAlpha = 0.6;
+          x.lineWidth = 1;
+          x.beginPath();
+          x.moveTo(px + lado * (n.circulo ? 12 : 3) * f, n.y);
+          x.lineTo(lx - lado * 2, ly);
+          x.stroke();
+          x.globalAlpha = 1;
+        }
+        ocupadas.push(rotulo(n.a, lx, ly, n.color, der ? "left" : "right", n.peso, true, px11));
       }
     }
 
@@ -510,13 +517,17 @@
     x.beginPath();
     x.rect(M.l, M.t - 4, W, alto - M.t - M.b + 8);
     x.clip();
-    linea(actual, texto, 3, 1, null, hoy);
+    /* Con el dato vencido, la línea de este año y su punto van en gris, como
+       todo dato vencido del sitio (DESIGN.md): negra y gruesa decía «esto es
+       ahora» aunque el texto pusiera la fecha. */
+    const tinta = fresco() ? texto : tenue;
+    linea(actual, tinta, 3, 1, null, hoy);
     x.restore();
     const v = valor(actual, hoy);
     if (v != null) {
       const px = X(hoy);
       const py = Y(v);
-      x.fillStyle = texto;
+      x.fillStyle = tinta;
       x.beginPath();
       x.arc(px, py, 5 * f, 0, 7);
       x.fill();
@@ -543,7 +554,7 @@
       /* Si no hay lugar libre, no se escribe: tapaba el nombre de la alerta o
          de la evacuación, y el renglón de arriba del gráfico ya lo dice. */
       const lugar = lugares.find(libre);
-      if (lugar) rotulo(t, lugar[0], lugar[1], texto, "left", "700");
+      if (lugar) rotulo(t, lugar[0], lugar[1], tinta, "left", "700");
     }
 
     /* El cursor: una guía en el día, y el punto con su valor sobre la línea
@@ -670,7 +681,8 @@
          el nivel de hoy: decía «a 16 cm del río de ahora» al lado de «38 cm
          más bajo que ahora», dos números distintos contra lo mismo. */
       t.textContent =
-        "En estos 30 días anduvo, en promedio, a " +
+        (fresco() ? "En estos 30 días" : "En los 30 días hasta la última lectura") +
+        " anduvo, en promedio, a " +
         Math.round(p.dif) +
         " cm de lo que marcó este año esos mismos días." +
         hoyEra +
@@ -722,6 +734,18 @@
     const cifra = document.createElement("span");
     cifra.className = "cmp-cifra";
     cifra.textContent = mas ? mas + " de " + con : "Ninguno de " + con;
+    /* Al lado de la cifra, el récord en cualquier fecha: «2 de 101» con el
+       río subiendo se leía como «casi nunca pasó», y eso vale sólo para esta
+       fecha. Sale de la serie, no escrito a mano. */
+    let rec = null;
+    for (const a of anios) {
+      if (a === actual) continue;
+      const { mx, en } = maximoDe(a);
+      if (mx != null && (!rec || mx > rec.v)) rec = { a, v: mx, en };
+    }
+    const record = document.createElement("span");
+    record.className = "cmp-record";
+    if (rec) record.textContent = "En cualquier fecha, el máximo medido es " + m2(rec.v) + ", el " + fecha(rec.en) + " de " + rec.a + ".";
     dato.append(
       cifra,
       (mas
@@ -732,6 +756,7 @@
         ", en " +
         mejor.a +
         ".",
+      record,
     );
   }
 
@@ -772,12 +797,14 @@
       return;
     }
     const evacua = rio.evacuacion != null && n >= rio.evacuacion;
-    const nivel = nm(n, 2) + " m";
     aviso.className = "aviso neutro cmp-aviso";
     aviso.textContent = "";
+    /* Corto: la franja y la píldora de la barra ya dicen el nivel y que pasó
+       la alerta, y repetirlo acá empujaba la respuesta y el gráfico una
+       pantalla abajo en el teléfono (tercera crítica). La glosa del nivel de
+       aviso se queda: es su primera aparición en la pantalla (CLAUDE.md). */
     const b = document.createElement("b");
-    b.textContent =
-      "El río está en " + nivel + ", arriba de la " + (evacua ? "evacuación" : "alerta") + " de la ciudad, y este gráfico es el pasado: no dice cómo sigue.";
+    b.textContent = "Esto es el pasado: no dice cómo sigue.";
     const tel = document.createElement("a");
     tel.href = "tel:103";
     tel.textContent = "103";
@@ -788,9 +815,9 @@
       ir.textContent = "tu nivel de aviso";
       aviso.append(
         b,
-        " Lo que importa para tu casa es ",
+        " Para tu casa importa ",
         ir,
-        ": el nivel del río a partir del cual el agua puede llegar a tu terreno. Es un cálculo aproximado. Dudas: ",
+        ", el nivel del río a partir del cual el agua puede llegar a tu terreno (un cálculo aproximado). Dudas: ",
         tel,
         ".",
       );
@@ -1079,6 +1106,9 @@
       ir.href = "#cmp-tabla";
       ir.textContent = "la tabla";
       lectura.append(ir, ".");
-      if (textoParecidos) textoParecidos.textContent = "Sin la serie no se puede comparar.";
+      /* La sección de parecidos entera, con su método, para decir que no se
+         puede comparar: se va. */
+      const par = $("parecidos");
+      if (par) par.hidden = true;
     });
 })();

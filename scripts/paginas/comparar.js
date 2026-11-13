@@ -133,8 +133,8 @@ const htmlComparar = pagina({
        y la instrucción de uso abajo. En el teléfono la respuesta estaba a
        900 px y el gráfico a más de una pantalla (crítica del 13/11/2026). */
     `      <section class="bloque cmp-seccion" id="cmp-seccion">
-        <p id="cmp-alerta" class="aviso neutro cmp-aviso" hidden></p>
         <p id="cmp-dato" class="cmp-dato"></p>
+        <p id="cmp-alerta" class="aviso neutro cmp-aviso" hidden></p>
         <h2>Cada año, de enero a diciembre</h2>
         <noscript><p>Sin JavaScript el gráfico no se dibuja. Los mismos datos, mes a mes, están en la tabla de más abajo.</p></noscript>
         <div class="cmp-vista" role="group" aria-label="Qué parte del año se ve">
@@ -151,18 +151,16 @@ const htmlComparar = pagina({
           <li><i class="cmp-l-actual"></i>Este año</li>
           <li><i class="cmp-l-parecido"></i>Los que más se le parecen</li>
           <li><i class="cmp-l-ventana"></i>Los 30 días que se comparan</li>
-          <li><i class="cmp-l-hoy"></i>La última lectura</li>
-          <li><i class="cmp-l-alto"></i>Más alto que ahora en esa fecha</li>
-          <li><i class="cmp-l-resto"></i>Cada uno de los otros años</li>
-          <li><i class="cmp-l-alerta"></i>Alerta de la ciudad</li>
-          <li><i class="cmp-l-evac"></i>Evacuación de la ciudad</li>
+          <li><i class="cmp-l-alto"></i>Más alto que la última lectura, esa fecha</li>
         </ul>
         <p class="chico" id="cmp-ayuda">
           Recorré el gráfico con el dedo o el cursor, o elegí un año debajo
-          para resaltarlo. Con el teclado, sobre el gráfico: ← y → cambian el
-          día, Re Pág y Av Pág de a un mes, Inicio y Fin van a las puntas,
-          ↑ y ↓ pasan a la línea de arriba o de abajo, y Escape suelta. Los
-          mismos datos, mes a mes, están en
+          para resaltarlo.
+          <span class="cmp-teclado">Con el teclado, sobre el gráfico: ← y →
+          cambian el día, Re Pág y Av Pág de a un mes, Inicio y Fin van a las
+          puntas, ↑ y ↓ pasan a la línea de arriba o de abajo, y Escape
+          suelta.</span>
+          Los mismos datos, mes a mes, están en
           <a href="#cmp-tabla">la tabla de más abajo</a>.
         </p>
         <div class="cmp-anios">
@@ -189,7 +187,7 @@ const htmlComparar = pagina({
           <div class="cmp-grupo">
             <label class="cmp-grupo-t" for="cmp-anio">Cualquier otro</label>
             <select id="cmp-anio" disabled>
-              <option value="">Ninguno</option>
+              <option value="">Elegí un año</option>
             </select>
           </div>
         </div>

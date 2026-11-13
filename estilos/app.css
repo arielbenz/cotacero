@@ -7447,8 +7447,9 @@ body.marcando-mapa {
   min-height: 2.75rem;
 }
 /* El renglón de la alerta de la ciudad, arriba del dato. */
+/* Debajo de la cifra: arriba, en el teléfono, la empujaba una pantalla. */
 .cmp-aviso {
-  margin: var(--e-4) 0 0;
+  margin: 0 0 var(--e-4);
   font-size: var(--t-base);
 }
 .cmp-grupo[hidden] {
@@ -7488,6 +7489,13 @@ body.marcando-mapa {
   font-size: var(--t-base);
   font-variant-numeric: tabular-nums;
 }
+/* En el teléfono, sin relleno: con la letra al 200 % el relleno en rem le
+   comía al gráfico un tercio del ancho. */
+@media (max-width: 559px) {
+  .cmp-caja {
+    padding: 0;
+  }
+}
 .cmp-caja {
   padding: var(--e-2);
   border: 1px solid var(--linea);
@@ -7502,7 +7510,9 @@ body.marcando-mapa {
   border-radius: var(--r-s);
   /* El alto vive acá y js/comparar.js lo lee: así queda reservado antes de
      que llegue la serie. En el teléfono, casi cuadrado. */
-  height: 21.25rem;
+  /* Con tope en el ancho de la pantalla: con la letra grande, el alto en
+     rem crecía y el ancho no, y quedaba una tira. */
+  height: min(21.25rem, 110vw);
   touch-action: pan-y;
 }
 /* En rem: con la letra grande el gráfico crece con ella (js/comparar.js
@@ -7538,13 +7548,6 @@ body.marcando-mapa {
 .cmp-leyenda .cmp-l-parecido {
   border-top: 2px solid var(--acento);
 }
-.cmp-leyenda .cmp-l-hoy {
-  width: 0;
-  height: 14px;
-  margin: 0 11px;
-  border-top: 0;
-  border-left: 1px dashed var(--texto);
-}
 .cmp-leyenda .cmp-l-alto {
   width: 8px;
   height: 8px;
@@ -7558,17 +7561,6 @@ body.marcando-mapa {
   border-top: 0;
   background: var(--acento);
   opacity: 0.18;
-}
-.cmp-leyenda .cmp-l-resto {
-  border-top: 1px solid var(--tenue);
-}
-.cmp-leyenda .cmp-l-alerta {
-  border-top: 2px dashed var(--linea-alerta);
-}
-/* Los mismos dos trazos que el gráfico: rayas la alerta, puntos la
-   evacuación. Distintos por forma, no sólo por color. */
-.cmp-leyenda .cmp-l-evac {
-  border-top: 3px dotted var(--linea-evac);
 }
 .cmp-parecidos {
   display: grid;
@@ -7640,6 +7632,32 @@ body.marcando-mapa {
 .cmp-tabla td,
 .cmp-tabla th {
   white-space: nowrap;
+}
+/* La ayuda del teclado, sólo donde hay un puntero fino (y por lo tanto,
+   probablemente, un teclado). */
+@media (hover: none) {
+  .cmp-teclado {
+    display: none;
+  }
+}
+/* El récord en cualquier fecha, debajo de la cifra. */
+.cmp-record {
+  display: block;
+  margin-top: var(--e-1);
+  color: var(--tenue);
+  font-size: var(--t-s);
+}
+/* Sin JavaScript no hay gráfico ni nada que tocar: queda la tabla. */
+@media (scripting: none) {
+  .cmp-caja,
+  .cmp-leyenda,
+  #cmp-ayuda,
+  .cmp-vista,
+  .cmp-anios,
+  .cmp-dato,
+  #parecidos {
+    display: none;
+  }
 }
 /* Sin la serie: quedan el mensaje y la tabla (que se abre sola). */
 .cmp-sin-serie .cmp-caja,
