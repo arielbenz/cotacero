@@ -7,6 +7,7 @@
 import {
   aTitulo,
   cerrarSugerencias,
+  direccionEncontrada,
   restaurarPista,
   sinCiudad,
 } from "./calles.js";
@@ -498,6 +499,13 @@ export async function buscarDireccion() {
   if (estado.zonaAjena) calcular();
   const zona = avisoDeZona(r);
   if (zona) avisarCota(zona);
+  direccionEncontrada(document.getElementById("in-dir").value);
+  /* Con «Cambiar» abierto, se pliega y se va al número, como al marcar en el
+     mapa: el veredicto cambiaba debajo de la pantalla y el formulario seguía
+     diciendo «Listo». Sólo sin nada que avisar: el aviso —el número no
+     exacto, la zona que no coincide, con su botón— vive en el formulario, y
+     plegarlo lo escondería. La dirección encontrada queda en la tarjeta. */
+  if (r.exacta && !zona && irAlResultadoDeLaCasa()) return;
   respuestaALaVista();
 }
 

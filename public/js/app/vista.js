@@ -100,11 +100,18 @@ export function ocupar(selector, texto) {
   const b = document.querySelector(selector);
   if (!b) return () => {};
   const original = b.innerHTML;
+  /* Un botón deshabilitado pierde el foco y el navegador lo deja en <body>:
+     con teclado o lector de pantalla, después de «Buscar mi casa» había que
+     volver a recorrer la página desde arriba. Se le devuelve, salvo que
+     mientras tanto el foco haya ido a otro lado. */
+  const tenia = document.activeElement === b;
   b.disabled = true;
   b.textContent = texto;
   return () => {
     b.disabled = false;
     b.innerHTML = original;
+    const a = document.activeElement;
+    if (tenia && (!a || a === document.body)) b.focus({ preventScroll: true });
   };
 }
 

@@ -450,7 +450,15 @@ export function cambioDeZona() {
   pintarZonaDir();
   cerrarSugerencias();
   const inp = $("in-dir");
-  if (inp && inp.value.trim()) sugerirCalle();
+  if (inp && inp.value.trim() && inp.value !== encontrada) sugerirCalle();
+}
+
+/* Lo último que se escribió y se encontró. Elegir la zona después de
+   encontrarla volvía a opinar sobre el texto del campo, y junto al tilde
+   verde quedaba «Mitre 2600. Apretá Buscar.», como si faltara buscarla. */
+let encontrada = null;
+export function direccionEncontrada(valor) {
+  encontrada = valor;
 }
 
 /* Toca una sugerencia: queda la calle tal cual la conoce Georef, se
