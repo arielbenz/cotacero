@@ -762,6 +762,11 @@ p {
   margin: 0;
 }
 
+p.lado-salado {
+  margin: 0 0 var(--e-2);
+  color: var(--texto);
+}
+
 .plan-rio {
   display: flex;
   flex-wrap: wrap;

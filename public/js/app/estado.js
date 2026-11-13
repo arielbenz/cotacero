@@ -110,6 +110,9 @@ export let estado = {
      Mientras haya algo acá el veredicto es provisorio: la zona pone los km río
      arriba, y con una zona que no es la de la casa el número es de otro lado. */
   zonaAjena: "",
+  /* La casa queda más cerca del río Salado que del sistema del Paraná
+     (lado.js). El cálculo no cambia: es para decir que mide sólo el Paraná. */
+  ladoSalado: false,
   kmManual: null,
   lluvia: null,
 };
@@ -129,6 +132,13 @@ export const kmDeZona = () => {
 /* El desacuerdo entre la dirección y la zona se guarda: al recargar, la
    persona no tiene por qué ver el veredicto como confirmado si ayer no lo
    estaba. Se limpia al elegir zona o al cargar otra altura. */
+/* Se guarda con la casa: las coordenadas no se guardan, y al recargar hay
+   que seguir diciéndolo. */
+export function fijarLadoSalado(si) {
+  estado.ladoSalado = Boolean(si);
+  guardado.set("cc_lado_salado", estado.ladoSalado ? "1" : "");
+}
+
 export function fijarZonaAjena(valor) {
   estado.zonaAjena = valor || "";
   guardado.set("cc_zona_ajena", estado.zonaAjena);

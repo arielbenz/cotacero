@@ -26,7 +26,7 @@ const { umbralesDe, avisoDe } = self.CC_COMUN;
 // cambia cualquiera de ellos —antes había que acordarse de subirla en cada
 // deploy, y si no, íconos y tipografías quedaban congelados—.
 // scripts/comprobar.js avisa si quedó vieja.
-const VERSION = "cota-cero-7b1193ce86";
+const VERSION = "cota-cero-0090de9d58";
 /* El precache va en DOS TANDAS, y el motivo es de datos, no de arquitectura.
 
    Antes era una sola lista de 387 KB comprimidos y el service worker se
@@ -135,6 +135,7 @@ const DEL_APP = [
   "/js/app/formato.js",
   "/js/app/fuentes.js",
   "/js/app/instalar.js",
+  "/js/app/lado.js",
   "/js/app/lluvia.js",
   "/js/app/mapa.js",
   "/js/app/metricas.js",
