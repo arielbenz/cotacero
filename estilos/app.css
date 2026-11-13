@@ -914,6 +914,12 @@ p {
 .casa-rio .glosa {
   margin: 0;
 }
+/* La casa queda del lado del Salado (lado.js): un renglón en la tarjeta de
+   Río y un aviso neutro en Mi casa. Sin color de estado: no es una alerta. */
+p.lado-salado {
+  margin: 0 0 var(--e-2);
+  color: var(--texto);
+}
 /* La mochila al pie del veredicto, en un renglón con su botón: apilados
    empujaban la tarjeta de la casa fuera de la primera pantalla. */
 .plan-rio {

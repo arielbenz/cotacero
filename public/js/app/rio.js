@@ -18,7 +18,7 @@ import {
 } from "./config.js";
 import { pintarCompartir } from "./compartir.js";
 import { ordenarRio, rioCerca } from "./destacar.js";
-import { calcular, cotaEnHidrometro, nombreCasa } from "./cota.js";
+import { avisoSalado, calcular, cotaEnHidrometro, nombreCasa } from "./cota.js";
 import { estado, guardado } from "./estado.js";
 import { aNumero, atr, fechaINA, horasDesde, m, mCm, mU, nm } from "./formato.js";
 import { FUENTE_RIO } from "./fuentes.js";
@@ -667,6 +667,7 @@ function pintarCtaCota() {
       '<span class="casa-txt"><b>' + atr(c.titulo) + "</b><span>" + atr(c.donde) + "</span></span>" +
       '<button type="button" data-accion="cambiar-casa-rio">Cambiar</button></div>' +
       fichaCasa +
+      avisoSalado(true) +
       '<p class="chico glosa"><b>Tu nivel de aviso</b> es el nivel del río a ' +
       "partir del cual el agua puede llegar a tu terreno. Es un cálculo " +
       "aproximado: <b>no dice cuándo entra el agua</b>.</p></div>";

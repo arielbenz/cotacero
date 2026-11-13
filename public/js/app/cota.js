@@ -14,7 +14,14 @@ import {
 } from "./config.js";
 import { COBERTURA, KM_PUBLICADO, ZONAS } from "./zonas.js";
 import { elevacionDe, fuenteAltura } from "./elevacion.js";
-import { estado, fijarZonaAjena, guardado, kmDeZona } from "./estado.js";
+import {
+  estado,
+  fijarLadoSalado,
+  fijarZonaAjena,
+  guardado,
+  kmDeZona,
+} from "./estado.js";
+import { ladoDe } from "./lado.js";
 import { aNumero, atr, enCampo, m, mCm, mU, nm } from "./formato.js";
 import { FUENTES_APP, selloFuente } from "./fuentes.js";
 import { margenDe, umbralDe } from "./modelo.js";
@@ -36,7 +43,10 @@ import { cerrarSugerencias, restaurarPista } from "./calles.js";
    copias del mismo guardado es una que se olvida de un campo.
    `distancia` sólo la trae el camino del GPS y el del mapa. `fuente` es la
    que devolvió elevacionDe(): el id de una de FUENTES_ALTURA. */
-export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente) {
+/* `punto` es [lat, lon] de donde salió la altura: con él se sabe si la casa
+   queda del lado del Salado (lado.js). No se guarda. */
+export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente, punto) {
+  fijarLadoSalado(punto ? ladoDe(punto[0], punto[1]).salado : false);
   /* Otra casa en lugar de la que había, fuera de los pasos de la primera vez:
      la zona quedó la de antes, y en la ciudad no se deduce de la calle —son
      ocho, por los km río arriba, y mueven el resultado hasta 1,80 m—. La
@@ -245,6 +255,7 @@ export function marcarCotaManual() {
     return;
   }
   fijarZonaAjena("");
+  fijarLadoSalado(false); // a mano no hay punto: no se sabe de qué lado queda
   estado.cota = isNaN(v) ? null : v;
   estado.cotaEsEstimada = false;
   estado.cotaOrigen = isNaN(v) ? "" : "mano";
@@ -300,6 +311,7 @@ export async function estimarCota() {
             typeof prec === "number" ? "±" + Math.round(prec) + " m" : "",
             r.distancia,
             r.fuente,
+            [la, lo],
           );
         } catch (err) {
           decir(
@@ -683,7 +695,7 @@ export function calcular() {
     ${glosa}${barraCasa(ref, r, alto)}${faltaRio}
     <p class="veredicto-pie">${txt}</p></div>`;
 
-  html += renglonCasa(z, km);
+  html += avisoSalado() + renglonCasa(z, km);
   /* Antes estaba al final de la pantalla, unos 2.000 px abajo: lo que sigue a
      tu número es armar el plan, no leer el desglose. */
   html +=
@@ -801,6 +813,26 @@ ${
         : ""),
   );
   pintarRio();
+}
+
+/* La casa queda del lado del Salado (lado.js): el nivel de aviso mide sólo
+   el Paraná, y en el oeste eso es la mitad de la historia. No es un estado
+   ni cambia el cálculo: dice lo que el número no mira. `corto` es el renglón
+   de la tarjeta de la casa de la pestaña Río. */
+export function avisoSalado(corto) {
+  if (!estado.ladoSalado) return "";
+  if (corto)
+    return (
+      '<p class="chico lado-salado"><b>Queda del lado del río Salado.</b> ' +
+      "Este número mide sólo el Paraná.</p>"
+    );
+  return (
+    '<div class="aviso neutro lado-salado"><b>Tu casa queda más cerca del río ' +
+    "Salado que del Paraná.</b> Este número mide sólo el Paraná, con la regla " +
+    "del Puerto: la app no lee el nivel del Salado. De ese lado el agua " +
+    "también puede venir del Salado o de la lluvia, aunque el Paraná esté " +
+    'bajo. Para eso, guiate por Defensa Civil: <a href="tel:103">103</a>.</div>'
+  );
 }
 
 /* Cuando la dirección quedó en otro lado que la zona elegida, el veredicto de

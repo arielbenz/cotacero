@@ -148,6 +148,7 @@ function iniciar() {
   // vive la persona, y la más cómoda —el centro— es la más optimista.
   estado.zona = guardado.get("cc_zona") || "";
   estado.zonaAjena = guardado.get("cc_zona_ajena") || "";
+  estado.ladoSalado = guardado.get("cc_lado_salado") === "1";
   sel.value = estado.zona;
   sel.addEventListener("change", () => {
     fijarZonaAjena(""); // la persona la eligió: ya no hay nada que avisar

@@ -479,6 +479,7 @@ export async function buscarDireccion() {
     r.nombre.split(",").slice(0, 4).join(",").trim(),
     res.distancia,
     res.fuente,
+    [r.c[1], r.c[0]],
   );
   if (!r.exacta)
     avisarCota(
@@ -1013,7 +1014,7 @@ async function alTocar(e) {
     return;
   }
   ponerPin(e.lngLat);
-  marca = r;
+  marca = { ...r, punto: [e.lngLat.lat, e.lngLat.lng] };
   avisoMapa(
     "Marcaste un punto a <b>" +
       mU(r.cota) +
@@ -1180,6 +1181,7 @@ export function confirmarMarca() {
     "punto marcado a mano en el mapa",
     r.distancia,
     r.fuente,
+    r.punto,
   );
   irA("cota");
   irAlResultadoDeLaCasa();

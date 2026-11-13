@@ -144,6 +144,16 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
   }
 }
 
+console.log("De qué lado queda una casa (lado.js)");
+{
+  // Comprobados en el mapa: Barranquitas Sur da al Salado; el casco histórico
+  // y Guadalupe, al río Santa Fe y a la Setúbal.
+  const { ladoDe } = await import("/js/app/lado.js");
+  caso("Centenera 4100, Barranquitas Sur: Salado", ladoDe(-31.62988, -60.71979).salado, true);
+  caso("Plaza 25 de Mayo: Paraná", ladoDe(-31.6585, -60.7107).salado, false);
+  caso("Javier de la Rosa 500, Guadalupe: Paraná", ladoDe(-31.6065, -60.6787).salado, false);
+}
+
 console.log("Qué sube a la vista en la pestaña Río (destacar.js)");
 caso("río a 1,20 m de la alerta: plegado", destacar.rioCerca(4.1, 5.3, null), false);
 caso("río a 1 m justo de la alerta: arriba", destacar.rioCerca(4.3, 5.3, null), true);

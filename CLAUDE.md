@@ -876,6 +876,18 @@ pisa la anterior. Tres cosas que antes faltaban:
 `ocupar()` le devuelve el foco al botón al liberarlo: deshabilitado, el
 navegador lo dejaba en `<body>`.
 
+**Una casa del lado del Salado lo dice** (noviembre de 2026). La app calcula
+sólo contra el Paraná, y a «Centenera 4100», en Barranquitas Sur, le daba su
+nivel de aviso sin nombrar al Salado, que tiene a 700 m. `js/app/lado.js`
+—puro, lo prueba `comprobar.js`— compara la distancia al cauce del Salado con
+la distancia a la Setúbal y al río Santa Fe; las tres líneas son del IGN,
+simplificadas por `datos-crudos/lado-salado-2026-11-13.mjs`. Si el Salado
+queda más cerca, Mi casa pone un aviso neutro debajo del veredicto y la
+tarjeta de la casa de Río un renglón (`avisoSalado()` en `cota.js`). **No
+cambia el cálculo ni es un estado**: dice lo que el número no mira. El punto
+no se guarda; se guarda la respuesta (`cc_lado_salado`), y con la altura a
+mano se apaga porque no hay punto.
+
 ### Objetivos táctiles, contraste y la barra de instalar
 
 **Mínimo 44 px, y cómo se llega.** Los enlaces dentro de una frase —el «103» de

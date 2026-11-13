@@ -54,6 +54,14 @@ a mano y por separado.
   calcula `elevacion.js` y pone lado a lado la conversión a hidrómetro de la
   planilla y la de la app; salida en `salida-mojones-leyes-<fecha>.txt`.
 
+### 13/11/2026: de qué lado queda una casa
+
+- `lado-salado-<fecha>.mjs` — recorta y simplifica el río Salado, la laguna
+  Setúbal y el río Santa Fe de las capas `ign-*aguas_continentales*`, imprime
+  las líneas que van escritas en `public/js/app/lado.js` y controla el módulo
+  contra direcciones conocidas. Esto sí lo consume el sitio: es la única
+  excepción de esta carpeta, y el dato va copiado en el módulo, no leído de acá.
+
 Los análisis importan el código de la app con `scripts/app-en-node.js`, que
 resuelve las rutas del navegador contra `public/` y presta un `fetch` que lee
 del disco. Los que miden las curvas filtran por `fuente === "curvas"`: desde el
