@@ -378,6 +378,8 @@ const llms =
   `  hidrómetro del Puerto de Santa Fe, con su fecha, los umbrales oficiales\n` +
   `  que publica la estación y de cuál de las dos fuentes del INA salió.\n` +
   `- [Serie histórica desde 1925](${SITIO}/datos-abiertos/historia.json)\n` +
+  `- [La misma serie, día por día](${SITIO}/datos-abiertos/serie-diaria.json):\n` +
+  `  366 casilleros por año, en centímetros; es la que dibuja /comparar.\n` +
   `- [Los 30 puntos de encuentro](${SITIO}/datos-abiertos/puntos.json): los\n` +
   `  oficiales del Plan de Contingencia municipal, con coordenadas.\n` +
   `- [Curvas de nivel](${SITIO}/datos-abiertos/curvas.json): las del\n` +
@@ -443,7 +445,11 @@ const catalogo = {
     ...[
       [
         "/datos-abiertos/historia.json",
-        "Serie diaria del río en Santa Fe desde 1925 (INA)",
+        "Resumen por año del río en Santa Fe desde 1925 (INA)",
+      ],
+      [
+        "/datos-abiertos/serie-diaria.json",
+        "Lectura diaria del río en Santa Fe, año por año, en centímetros (INA)",
       ],
       [
         "/datos-abiertos/puntos.json",

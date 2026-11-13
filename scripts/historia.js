@@ -10,7 +10,9 @@
 //
 // La descarga completa son ~10 MB. Acá se resume a lo que la página de
 // historia necesita —un renglón por año— y queda en unos 8 KB, que el service
-// worker puede precachear sin pensarlo. El resumen se hace en el script y no
+// worker puede precachear sin pensarlo. De la misma bajada sale
+// datos-abiertos/serie-diaria.json, con todos los días, para /comparar: ése
+// no se precachea (ver scripts/serie-diaria.js). El resumen se hace en el script y no
 // en el navegador a propósito: procesar 39.000 registros en un teléfono el
 // día de una crecida no es aceptable.
 //
@@ -23,9 +25,12 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESTACION, ENDPOINTS } from "../public/lib/fuentes.js";
+import { armarSerieDiaria } from "./serie-diaria.js";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SALIDA = join(RAIZ, "public", "datos-abiertos", "historia.json");
+/* Todos los días, para /comparar. No se precachea: la pide sólo esa página. */
+const SALIDA_DIARIA = join(RAIZ, "public", "datos-abiertos", "serie-diaria.json");
 
 const URL_SERIE = `${ENDPOINTS.api}/${ESTACION.serieId}`;
 const URL_OBS = `${URL_SERIE}/observaciones?timestart=1900-01-01&timeend=2100-01-01`;
@@ -172,3 +177,16 @@ for (const b of bajantes) console.log("  ", b[0], String(b[3]).padStart(5), b[4]
 console.log("\nmediana de la serie diaria:", cuantiles[50], "m");
 console.log("tamaño      :", kb, "KB");
 console.log("escrito en  : datos-abiertos/historia.json");
+
+/* La serie día por día, del mismo mapa que el resumen de arriba. */
+const diaria = armarSerieDiaria(porDia, {
+  fuente: salida.fuente,
+  url: URL_OBS,
+  generado: salida.generado,
+});
+await writeFile(SALIDA_DIARIA, JSON.stringify(diaria));
+console.log(
+  "escrito en  : datos-abiertos/serie-diaria.json,",
+  (JSON.stringify(diaria).length / 1024).toFixed(0),
+  "KB",
+);

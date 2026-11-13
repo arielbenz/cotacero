@@ -367,6 +367,30 @@ lleva la única nota a mano: el Paraná quedó un centímetro debajo de la alert
 y la inundación la trajo el Salado. Nada anterior a 1925 se reconstruye desde
 recortes de diario.
 
+### `/comparar`: este año al lado de los anteriores
+
+De la misma bajada sale `datos-abiertos/serie-diaria.json`: todos los días,
+366 casilleros por año (calendario bisiesto, para que las fechas no se corran)
+y en centímetros. La forma está en `scripts/serie-diaria.js`. No se precachea:
+la pide sólo `/comparar`.
+
+`/comparar` dibuja una línea por año de enero a diciembre, con el año en curso
+resaltado hasta la última lectura. `js/comparar.js` se suscribe al `rio` de
+`rio-barra.js` —que ahora guarda también `serie`, los últimos 30 días de
+`/api/nivel`— y no hace un pedido propio. Si `serie-diaria.json` tiene más de
+30 días de atraso, la línea del año queda con un hueco: se ve, no se rellena.
+
+**Los años «que más se parecen»** son una resta, no un modelo: los últimos 30
+días de este año contra los mismos 30 días de cada año anterior, y el promedio
+de la diferencia en centímetros (hacen falta 20 días con lectura en los dos).
+Se marcan los tres más cercanos y se dice a cuántos centímetros quedó cada
+uno. Como esos años ya terminaron, su línea sigue después de hoy, y eso se lee
+solo como un pronóstico: por eso el texto que lo niega va al lado de la lista
+y no al pie. La línea del año en curso nunca se extiende.
+
+La tabla del HTML —el nivel del día 1 de cada mes— es el gráfico en números
+para quien no ejecuta JavaScript.
+
 ## La hoja para imprimir
 
 `/guia` sale **en blanco**, para llenar con birome y pegar en la heladera. Es

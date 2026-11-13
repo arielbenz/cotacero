@@ -106,6 +106,7 @@ const htmlHistoria = pagina({
           <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> del
           mismo instrumento, y es la misma serie de la que sale el número que
           la app muestra hoy.
+          <a href="/comparar">La altura del río este año, al lado de cada uno de los anteriores</a>.
         </p>
         ${
           /* Las cuatro fichas son los datos en el HTML, no en el JS: ver

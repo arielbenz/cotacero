@@ -8,7 +8,7 @@ El hidrómetro marca un número y el número solo no dice nada. Esta página lo 
 
 ## El Paraná en más de cien años de registros
 
-El Instituto Nacional del Agua publica la lectura diaria del hidrómetro del Puerto de Santa Fe desde el 2 de enero de 1925. Son **36.922 días medidos** del mismo instrumento, y es la misma serie de la que sale el número que la app muestra hoy.
+El Instituto Nacional del Agua publica la lectura diaria del hidrómetro del Puerto de Santa Fe desde el 2 de enero de 1925. Son **36.995 días medidos** del mismo instrumento, y es la misma serie de la que sale el número que la app muestra hoy. [La altura del río este año, al lado de cada uno de los anteriores](https://cotacerosf.com/comparar).
 
 **Mayor altura · 22 de junio de 1992**
 
@@ -133,7 +133,7 @@ Antes de 1925 el INA no publica esta serie. La crecida de 1905 que se cita segui
 | 2023 | 5,45 | 0,33 | 18 |
 | 2024 | 5,02 | 0,60 | 0 |
 | 2025 | 3,10 | 0,82 | 0 |
-| 2026 | 3,32 | 1,50 | 0 |
+| 2026 | 5,54 | 1,50 | 2 |
 
 ## ¿Qué significan estos números?
 
@@ -151,7 +151,7 @@ Lo que marca el hidrómetro hoy está en la [portada](https://cotacerosf.com/), 
 
 La fuente
 
-Serie diaria del hidrómetro del Puerto de Santa Fe: **36.922 días medidos** entre el 2 de enero de 1925 y el 1 de septiembre de 2026. Fuente: Instituto Nacional del Agua, serie 30 (altura hidrométrica, medición directa). Descargado el 2 de septiembre de 2026. Con la libreta incompleta: 2026.
+Serie diaria del hidrómetro del Puerto de Santa Fe: **36.995 días medidos** entre el 2 de enero de 1925 y el 13 de noviembre de 2026. Fuente: Instituto Nacional del Agua, serie 30 (altura hidrométrica, medición directa). Descargado el 13 de noviembre de 2026.
 
 [Ver fuente](https://alerta.ina.gob.ar/a5/obs/puntual/series/30) [Ver la serie cruda](https://alerta.ina.gob.ar/a5/obs/puntual/series/30/observaciones?timestart=1925-01-01&timeend=2100-01-01)
 

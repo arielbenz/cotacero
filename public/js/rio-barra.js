@@ -54,6 +54,7 @@ const rio = {
   delta: null, // variación contra la lectura anterior, en metros
   fechaTexto: "", // "DD/MM/AAAA HH:MM", tal como la publica el INA
   fecha: null, // la misma, ya parseada
+  serie: null, // los últimos 30 días, si contestó la API (la usa /comparar)
   // respaldo: los publica la estación y llegan en la respuesta
   alerta: UMBRALES_RESPALDO.alerta,
   evacuacion: UMBRALES_RESPALDO.evacuacion,
@@ -173,6 +174,9 @@ async function leerNivel() {
     rio.delta = typeof j.delta === "number" ? j.delta : null;
     rio.fechaTexto = j.fecha_dato || "";
     rio.fecha = fechaINA(rio.fechaTexto);
+    /* Los últimos 30 días, [«AAAA-MM-DD», metros]. Sólo viene cuando contesta
+       la API; la usa /comparar para completar la línea del año en curso. */
+    rio.serie = Array.isArray(j.serie) ? j.serie : null;
     rio.sinDato = false;
   } catch (e) {
     /* No se borra nada. Una lectura que ya tenemos se sigue mostrando —el

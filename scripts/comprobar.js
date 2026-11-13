@@ -644,5 +644,48 @@ console.log("CONTRASTE");
   }
 }
 
+console.log("/COMPARAR: la serie diaria y los trazos");
+{
+  /* serie-diaria.json sale de la misma bajada que historia.json
+     (scripts/historia.js): si no coinciden, una de las dos es vieja. Y la
+     copia provisoria de datos-crudos —desde 1990, para mirar la página sin
+     red— no se publica: la descripción de /comparar promete desde 1925. */
+  const leer = (n) => JSON.parse(readFileSync(join(PUBLICO, "datos-abiertos", n), "utf8"));
+  const diaria = leer("serie-diaria.json");
+  const resumen = leer("historia.json");
+  caso("no es la copia provisoria (si falla: node scripts/historia.js)", "provisoria" in diaria, false);
+  caso("arranca donde arranca historia.json", diaria.desde, resumen.desde);
+  caso("llega hasta donde llega historia.json", diaria.hasta, resumen.hasta);
+  caso("tiene los mismos días medidos", diaria.dias, resumen.dias);
+  caso(
+    "cada año son 366 casilleros",
+    Object.values(diaria.anios).every((a) => a.length === 366),
+    true,
+  );
+  /* /api/nivel trae 30 días: con más atraso que eso, la línea del año en
+     curso sale con un hueco. No es una falla —depende del día en que se
+     corre—, pero hay que saberlo antes de publicar. */
+  const atraso = Math.round((Date.now() - Date.parse(diaria.hasta)) / 864e5);
+  if (atraso > 30)
+    console.log(
+      `  ⚠  serie-diaria.json llega al ${diaria.hasta}, hace ${atraso} días: /comparar muestra un hueco. Corré node scripts/historia.js.`,
+    );
+
+  /* Los tres trazos de los años parecidos están en dos lados: TRAZOS, con
+     los que dibuja el canvas, y .cmp-trazo, la muestra junto a cada botón. */
+  const js = readFileSync(join(PUBLICO, "js", "comparar.js"), "utf8");
+  const css = readFileSync(join(PUBLICO, "..", "estilos", "app.css"), "utf8");
+  const trazos = JSON.parse(js.match(/const TRAZOS = (\[.*\]);/)[1]);
+  const estilo = (k) =>
+    k === 0
+      ? css.match(/\.cmp-trazo \{[^}]*border-top:[^;]*\b(solid|dashed|dotted)\b/)?.[1]
+      : css.match(new RegExp("\\.cmp-trazo\\.cmp-t" + k + " \\{[^}]*border-top-style:\\s*(\\w+)"))?.[1];
+  caso(
+    "TRAZOS de js/comparar.js = .cmp-trazo de app.css",
+    trazos.map((t) => (!t.length ? "solid" : t[0] >= 5 ? "dashed" : "dotted")),
+    trazos.map((_, k) => estilo(k)),
+  );
+}
+
 console.log(fallas ? `\n${fallas} caso(s) fallaron.` : "\nTodo en orden.");
 process.exit(fallas ? 1 : 0);
