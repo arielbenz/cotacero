@@ -22,6 +22,7 @@ import { ESTADOS, faltaCm, sobreRecord } from "/lib/comun.js";
 import { ALERTA, EVACUACION, RECORD, RECORD_ANIO } from "./oficiales.js";
 import { aniosQueLlegaron, pintarRio } from "./rio.js";
 import { aLaVista, ocupar } from "./vista.js";
+import { cerrarSugerencias, restaurarPista } from "./calles.js";
 
 /* Traduce una cota IGN a lectura de hidrómetro.
    Por defecto devuelve el escenario PESIMISTA: si la cota vino del modelo
@@ -36,6 +37,17 @@ import { aLaVista, ocupar } from "./vista.js";
    `distancia` sólo la trae el camino del GPS y el del mapa. `fuente` es la
    que devolvió elevacionDe(): el id de una de FUENTES_ALTURA. */
 export function fijarCotaEstimada(alt, origen, detalle, distancia, fuente) {
+  /* Otra casa en lugar de la que había, fuera de los pasos de la primera vez:
+     la zona quedó la de antes, y en la ciudad no se deduce de la calle —son
+     ocho, por los km río arriba, y mueven el resultado hasta 1,80 m—. La
+     tarjeta de la casa lo dice hasta que se cambie la zona o se abra
+     «Cambiar». Entre la ciudad y Rincón o Arroyo Leyes ya avisa zonaAjena. */
+  const otraCasa =
+    estado.cota != null &&
+    pasoPrimera == null &&
+    (alt !== estado.cota || (detalle || "") !== estado.cotaDetalle);
+  const z = ZONAS.find((x) => x.id === estado.zona);
+  revisarZona = otraCasa && z && !z.localidad && !z.sinPlano ? estado.zona : null;
   fijarZonaAjena(""); // lo decide quien la llama, con la dirección a la vista
   estado.cota = alt;
   estado.cotaEsEstimada = true;
@@ -855,6 +867,8 @@ export function elegirZonaDeLaCiudad() {
    se mueven de lugar en el DOM: sacar un nodo con el foco adentro cierra el
    teclado. */
 let casaAbierta = null;
+// La zona que había cuando entró otra casa (fijarCotaEstimada), o null.
+let revisarZona = null;
 
 function pintarCasa(conCasa) {
   // La primera vez se decide una sola vez, al arrancar, como el plegado.
@@ -983,18 +997,31 @@ export const primeraVer = () =>
    queda a un scroll de distancia. Se pliega y se va al número. En los pasos de
    la primera vez no: ahí lo que sigue es «Seguir». */
 export function irAlResultadoDeLaCasa() {
-  if (pasoPrimera != null || !casaAbierta) return;
+  if (pasoPrimera != null || !casaAbierta) return false;
   casaAbierta = false;
   calcular();
-  aLaVista(document.getElementById("resultado"));
+  const res = document.getElementById("resultado");
+  aLaVista(res);
+  // El botón que se apretó ya no se ve: sin esto el foco caía en <body>.
+  res.setAttribute("tabindex", "-1");
+  res.focus({ preventScroll: true });
+  return true;
 }
 
 export function alternarCasa() {
   // «Cambiar» abre el formulario de siempre, no los pasos de la primera vez.
   pasoPrimera = null;
   casaAbierta = !casaAbierta;
+  revisarZona = null; // el formulario arranca por la zona: ya la tiene enfrente
   calcular();
   if (casaAbierta) {
+    /* El campo vacío y su pista inicial: lo de la última búsqueda ya está
+       en la tarjeta de la casa, y la pista decía «Mitre 2600. Apretá
+       Buscar.» de una dirección que ya se había buscado. */
+    const dir = document.getElementById("in-dir");
+    if (dir) dir.value = "";
+    cerrarSugerencias();
+    restaurarPista();
     const sel = document.getElementById("sel-zona");
     aLaVista(document.getElementById("pasos-casa"));
     sel.focus({ preventScroll: true });
@@ -1005,15 +1032,30 @@ export function alternarCasa() {
   }
 }
 
+/* Con una dirección buscada, el título es la dirección que encontró el
+   callejero: con dos probadas, era la única forma de saber cuál quedó, y si
+   entendió otra cosa —«Pje Mitre» por «Mitre»— se ve sin abrir nada. La zona
+   pasa al renglón de abajo. Con el GPS, el mapa o la altura a mano no hay una
+   dirección que mostrar, y el título sigue siendo la zona. */
 function renglonCasa(z, km) {
   const o = origenCota() || {};
-  const nombre = z
-    ? z.n.replace(/^Santa Fe — /, "").replace(/ — .*/, "")
-    : "";
+  const nombre = estado.zonaAjena
+    ? "Zona sin confirmar"
+    : z
+      ? z.n.replace(/^Santa Fe — /, "").replace(/ — .*/, "")
+      : "";
+  const donde = estado.zonaAjena ? nombre : nombre + " · " + km + " km del Puerto";
+  const dir =
+    estado.cotaOrigen === "direccion" && estado.cotaDetalle
+      ? estado.cotaDetalle.split(",")[0].trim()
+      : "";
+  const zonaARevisar =
+    revisarZona != null && revisarZona === estado.zona && !estado.zonaAjena;
   return `<div class="tarjeta casa-renglon">
     <span class="casa-icono" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></svg></span>
-    <span class="casa-txt"><b>${estado.zonaAjena ? "Zona sin confirmar" : atr(nombre)} · terreno a ${mU(estado.cota)}</b>
-      <span>Según ${o.corto || "—"}${estado.zonaAjena ? "" : " · " + km + " km del Puerto"}</span>
+    <span class="casa-txt"><b>${atr(dir || nombre)} · terreno a ${mU(estado.cota)}</b>
+      <span>${dir ? donde : "Según " + (o.corto || "—") + (estado.zonaAjena ? "" : " · " + km + " km del Puerto")}</span>
+      ${zonaARevisar ? '<span class="ojo">La zona no cambia sola con la dirección: revisá que sea la de esta casa.</span>' : ""}
       ${o.ojo ? `<span class="ojo">${o.largo}</span>` : ""}</span>
     <button type="button" data-accion="cambiar-casa" aria-controls="pasos-casa"
       aria-expanded="${casaAbierta ? "true" : "false"}">${casaAbierta ? "Listo" : "Cambiar"}</button>

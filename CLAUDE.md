@@ -847,6 +847,25 @@ siendo el de ésa (`deLaCasaAnterior()`), y la pista del campo vuelve a la
 inicial (`restaurarPista()`, que lee `data-inicial`) para que no queden dos
 mensajes sobre la misma dirección.
 
+**Cambiar de casa** (noviembre de 2026). Hay una sola casa guardada: «Cambiar»
+abre el formulario con el campo vacío y su pista inicial, y una búsqueda nueva
+pisa la anterior. Tres cosas que antes faltaban:
+
+- La tarjeta de la casa lleva **la dirección encontrada como título**, y la
+  zona abajo (`renglonCasa()`). Decía «Según una dirección buscada» y, con dos
+  probadas, no había cómo saber cuál quedó.
+- Una búsqueda que encuentra la dirección exacta y sin avisos **pliega el
+  formulario y va al veredicto**, como al marcar en el mapa
+  (`irAlResultadoDeLaCasa()`). Con un aviso —número no exacto, zona que no
+  coincide— queda abierto, porque el aviso y su botón viven ahí.
+- **La zona no cambia sola**: si otra casa de la ciudad reemplaza a la
+  anterior, la tarjeta pide revisarla (`revisarZona` en `cota.js`) hasta que
+  se cambie la zona o se abra «Cambiar». Entre la ciudad y las vecinas ya
+  avisa `zonaAjena`.
+
+`ocupar()` le devuelve el foco al botón al liberarlo: deshabilitado, el
+navegador lo dejaba en `<body>`.
+
 ### Objetivos táctiles, contraste y la barra de instalar
 
 **Mínimo 44 px, y cómo se llega.** Los enlaces dentro de una frase —el «103» de
