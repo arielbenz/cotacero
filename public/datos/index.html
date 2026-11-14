@@ -151,8 +151,9 @@
         <p>
           El número grande de la app es la lectura del
           <a href="/hidrometro"><b>hidrómetro del Puerto</b></a>: la lee
-          Prefectura y la publica el INA. Cota Cero la
-          muestra; no la mide, no la corrige y no la promedia.
+          Prefectura, que publica cada lectura, y el INA guarda una por día.
+          Cota Cero muestra la última; no la mide, no la corrige y no la
+          promedia.
         </p>
         <div class="ficha-estacion">
           <div><span class="k">Estación</span><span class="v">Santa Fe · SAFE</span></div>
@@ -163,10 +164,13 @@
           <div><span class="k">Evacuación</span><span class="v">5,70 m</span></div>
         </div>
         <p class="chico">
-          Los umbrales los publica la propia estación en la API del sistema de
-          alerta del INA; si la API falla, la app cae sola al reporte diario.
-          Si tampoco contesta, muestra la última lectura con su fecha, y a las
-          48 horas deja de darla por vigente. <b>Nunca inventa un valor.</b>
+          La lectura de ahora sale de
+          <a href="https://contenidosweb.prefecturanaval.gob.ar/alturas/" target="_blank" rel="noopener">la tabla de Prefectura</a>;
+          si no contesta, de la serie del INA, y si la API del INA falla, de su
+          reporte diario. Los umbrales los publica la propia estación en la API
+          del INA. Si nada contesta, la app muestra la última lectura con su
+          fecha, y a las 48 horas deja de darla por vigente.
+          <b>Nunca inventa un valor.</b>
         </p>
         <p class="sello-fuente"><span class="k">Fuente</span> INA · serie 30, altura hidrométrica <a href="https://alerta.ina.gob.ar/a5/diario/reporte_diario" target="_blank" rel="noopener">ver</a></p>
       </section>

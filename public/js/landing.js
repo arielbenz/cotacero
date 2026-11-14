@@ -164,7 +164,7 @@ function pintarNivel(r) {
     /* «+4 cm» y no «cm/día»: el INA publica una lectura por día pero puede
        saltearse una, y ahí el delta abarca dos. Lo mismo que el widget. */
     d.textContent = (cm > 0 ? "▲ +" : "▼ −") + Math.abs(cm) + " cm";
-    d.title = "Desde la medición anterior del INA";
+    d.title = "Desde la lectura diaria anterior";
     // Vencido, el ▲ sería el movimiento de hace días contado como de ahora.
     d.hidden = cm === 0 || viejo;
   }
@@ -595,7 +595,10 @@ function pintarFrescura() {
   caja.hidden = false;
   punto.setAttribute("data-estado", vencido ? "alerta" : "ok");
   texto.textContent =
-    "Última lectura INA: " + haceCuanto(min) + (vencido ? " — dato viejo" : "");
+    "Última lectura " +
+    (rio.fuente === "Prefectura" ? "de Prefectura" : "del INA") +
+    ": " +
+    haceCuanto(min) + (vencido ? " — dato viejo" : "");
 }
 
 /* ==========================================================================
@@ -633,7 +636,7 @@ function pintarPrevia(r) {
   const f = $("wp-fuente");
   if (f)
     f.textContent =
-      (r.fechaTexto ? r.fechaTexto.slice(0, 10) + " · " : "") + "INA · cotacerosf.com";
+      (r.fechaTexto ? r.fechaTexto.slice(0, 10) + " · " : "") + "Prefectura e INA · cotacerosf.com";
 }
 
 /* La lectura ya la pide rio-barra.js: acá sólo se agregan los oyentes que

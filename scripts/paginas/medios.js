@@ -23,7 +23,7 @@ const CODIGO_WIDGET = `<iframe src="${SITIO}/widget"
 const CONDICIONES = [
   [
     "No recortes el crédito",
-    "Ni el «Datos: INA · vía Cota Cero» de adentro ni el renglón de abajo: es lo que le permite a tu lector ir a la fuente del número que estás publicando.",
+    "Ni el «Datos: Prefectura e INA · vía Cota Cero» de adentro ni el renglón de abajo: es lo que le permite a tu lector ir a la fuente del número que estás publicando.",
   ],
   [
     "No es un pronóstico",

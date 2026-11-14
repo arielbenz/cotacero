@@ -22,7 +22,10 @@ import { SITIO, historia, pagina, selloFuente } from "./base.js";
    js/app/config.js redondeado: si cambia, se cambia en los dos. Lo de
    Prefectura y sus 12 horas se comprobó en su tabla el 29/10/2026 (columna
    «Periodo: 12»; 4,25 m a las 00:00 del 29 y 4,24 m a las 12:00 del 28),
-   con el INA en 4,23 m a las 00:00 del 28. */
+   con el INA en 4,23 m a las 00:00 del 28. Lo de las 2 horas arriba de la
+   alerta, el 14/11/2026: «Periodo: 2» en Santa Fe y en los demás puertos en
+   alerta, y lecturas cada 2 horas en su histórico desde el 11/11 a las
+   12:00, cuando marcó 5,30. */
 const CERO = 8.42;
 
 const MESES =
@@ -244,8 +247,9 @@ ${MARCAS.map(filaTabla).join("\n")}
          portada. Que las dos 00:00 coincidan muestra que es la misma regla. */
       html: `        <p>
           Prefectura lee la regla <b>cada 12 horas</b>, a las 00:00 y a las
-          12:00, y publica cada lectura. El INA guarda <b>una por día</b>, la de
-          las 00:00, y es la que muestra Cota Cero. Los diarios citan una u otra.
+          12:00, y <b>cada 2 horas</b> desde que el río llega a la alerta de la
+          ciudad. Publica cada lectura. El INA guarda <b>una por día</b> y la
+          carga hacia el mediodía. Los diarios citan una u otra.
         </p>
         <table class="cuenta">
           <thead><tr><th scope="col">Lectura</th><th scope="col">Prefectura</th><th scope="col">INA</th></tr></thead>
@@ -261,6 +265,11 @@ ${MARCAS.map(filaTabla).join("\n")}
           publicado: seguía la del 28, 4,23 m. Más tarde esa mañana llegó la
           misma, 4,25 m. Es una sola regla; cambia la hora que se mira y cuándo se
           publica. Por eso cada número, acá y en la app, va con su fecha.
+        </p>
+        <p>
+          Cota Cero muestra <b>la última lectura de Prefectura</b>, con su hora.
+          Si esa tabla no contesta, muestra la del INA. La historia y los
+          gráficos salen siempre de la serie del INA, una lectura por día.
         </p>`,
     },
     {

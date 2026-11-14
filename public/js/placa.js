@@ -137,7 +137,7 @@
       deltaTxt =
         (delta > 0 ? "▲ +" : "▼ −") +
         Math.round(Math.abs(delta) * 100) +
-        " cm desde la lectura anterior";
+        " cm desde la lectura diaria anterior";
 
     const x = (v) => 130 + (Math.max(0, Math.min(ESCALA_MAX, v)) / ESCALA_MAX) * 800;
     let s = "";
@@ -166,7 +166,9 @@
         ? "Sin fecha"
         : viejo
           ? `Última lectura: ${esc(fecha.slice(0, 10))} · puede estar vencida`
-          : `Lectura del INA: ${esc(fecha.slice(0, 10))}`,
+          : d.fuente_corta === "Prefectura"
+            ? `Lectura de Prefectura: ${esc(fecha.slice(0, 16))}`
+            : `Lectura del INA: ${esc(fecha.slice(0, 10))}`,
       { size: 34, ancla: "end", color: viejo ? PAL.alerta : PAL.tenue },
     );
 
@@ -262,7 +264,7 @@
     }
 
     // Pie: el crédito va entero (condición 1 de /para-medios)
-    s += t(80, 1056, "Datos: INA (SIyAH) · vía Cota Cero · cotacerosf.com", {
+    s += t(80, 1056, "Datos: Prefectura Naval e INA · vía Cota Cero · cotacerosf.com", {
       size: 26,
       color: PAL.tenue,
       peso: 600,
@@ -289,7 +291,7 @@
     s += panel(480, 360, 960, 360);
     s += t(960, 520, "Sin dato", { size: 90, peso: 800, ancla: "middle" });
     s += t(960, 600, "No se pudo leer el INA. Probá en un rato.", { size: 34, color: PAL.tenue, ancla: "middle" });
-    s += t(960, 660, "Datos: INA (SIyAH) · vía Cota Cero · cotacerosf.com", { size: 26, color: PAL.tenue, ancla: "middle", peso: 600 });
+    s += t(960, 660, "Datos: Prefectura Naval e INA · vía Cota Cero · cotacerosf.com", { size: 26, color: PAL.tenue, ancla: "middle", peso: 600 });
     return s;
   }
 
@@ -396,7 +398,7 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      aviso.textContent = "Lista. Dice «Datos: INA · vía Cota Cero»: no la recortes.";
+      aviso.textContent = "Lista. Dice «Datos: Prefectura Naval e INA · vía Cota Cero»: no la recortes.";
     } catch (e) {
       aviso.textContent =
         "No se pudo armar la imagen en este navegador. Capturá la pantalla.";

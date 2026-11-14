@@ -53,7 +53,7 @@ que está prohibido decir, está en CLAUDE.md.
 
 | Dato                | De dónde                                                    | Cómo llega                                    |
 | ------------------- | ----------------------------------------------------------- | --------------------------------------------- |
-| Nivel del río       | API del SIyAH del INA, estación 30 (SAFE, Prefectura Naval) | `lib/ina.js` → `/api/nivel`, en cada consulta |
+| Nivel del río       | la tabla de Prefectura (última lectura) y la API del SIyAH del INA, estación 30 (serie, umbrales) | `lib/ina.js` → `/api/nivel`, en cada consulta |
 | Alerta y evacuación | la misma estación del INA                                   | vienen junto con el nivel                     |
 | Cota del terreno    | curvas de nivel del municipio (`sitmax:curvas_nivel`)       | `datos-abiertos/curvas.json`, se lee local    |
 | Cota en la costa    | puntos con cota de la Provincia (IDESF, capa `MACotas`)     | `datos-abiertos/cotas-costa.json`, local      |
@@ -72,11 +72,23 @@ está en la CSP de `vercel.json`, si `/legal` no lo nombra o si en el código
 aparece un host sin clasificar. Así salió que `/legal` nunca había nombrado a
 Open-Meteo.
 
-**El nivel tiene dos puertas.** Primero la API REST del SIyAH
+**La lectura de ahora es la de Prefectura** (noviembre de 2026). La regla
+la lee Prefectura —cada 12 horas, y cada 2 desde que el río llega a la
+alerta— y el INA copia una lectura por día, que carga hacia el mediodía.
+`lib/ina.js` pide las dos a la vez: si la de la tabla de Prefectura
+(`contenidosweb.prefecturanaval.gob.ar/alturas/`, HTML raspado) es más nueva
+que la del INA, es la que sale como `altura`, con `origen: "prefectura"`, el
+movimiento contado contra la lectura diaria anterior (`delta_desde`) y lo
+que decía el INA en `ina`. La serie, los umbrales y el cero siguen siendo
+del INA. Si Prefectura no contesta o su fila no convence, queda lo del INA y
+el motivo va en `sin_prefectura`. El cruce de las dos está en
+`AUDITORIA.md` §6.
+
+**El INA tiene dos puertas.** Primero la API REST del SIyAH
 (`alerta.ina.gob.ar/a5`), que trae además los umbrales oficiales y el
 `cero_ign` de la estación. Si falla, se raspa el reporte diario en HTML, que
 no trae umbrales: para ese caso quedan los de respaldo, 5,30 / 5,70, en
-`public/lib/comun.js`. La respuesta de `/api/nivel` dice `origen` (`"api"` o
+`public/lib/comun.js`. La respuesta de `/api/nivel` dice `origen` (`"prefectura"`, `"api"` o
 `"reporte"`) y, si hubo que usar el respaldo, `degradado` con el motivo:
 **si aparece `degradado`, algo se rompió**. La ruta que documenta
 argentina.gob.ar (`/pub/datos`) no anda; ver `AUDITORIA.md` §6.

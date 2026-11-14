@@ -247,6 +247,9 @@ export const ENDPOINTS = {
   api: "https://alerta.ina.gob.ar/a5/obs/puntual/series",
   // El reporte diario en HTML. Era la fuente única; ahora es el respaldo.
   reporte: "https://alerta.ina.gob.ar/a5/diario/reporte_diario",
+  // La tabla de Prefectura con la última lectura de cada puerto. La lee el
+  // servidor (lib/ina.js), nunca el navegador.
+  prefectura: "https://contenidosweb.prefecturanaval.gob.ar/alturas/",
   // El visor público. OJO: alerta.ina.gob.ar/pub/ se cae seguido (probado:
   // tres intentos seguidos con timeout de 30 s, cero respuestas). Por eso
   // ningún camino de la app depende de /pub/ — ni para leer ni para citar.

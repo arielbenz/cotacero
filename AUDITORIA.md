@@ -476,6 +476,55 @@ devolvió 2,95 m y el reporte diario 2,95 m, con la misma fecha y el mismo
 delta. El campo `origen` de la respuesta dice cuál contestó, y `degradado`
 aparece cuando hubo que usar el respaldo.
 
+### La última lectura sale de Prefectura (14/11/2026)
+
+El 14/11/2026, con el río arriba de la alerta de la ciudad y subiendo unos
+12 cm por día, a las 10:45 la app mostraba 5,54 m (la lectura del INA del
+13/11) y la tabla de Prefectura decía 5,66 m a las 10:00. El INA carga su
+lectura del día entre las 10:30 y las 16:30 (`timeupdate` de la serie 30,
+del 10/10 al 13/11/2026), y la del domingo 8/11 la cargó el lunes.
+
+**Es la misma medición.** La estación 30 del INA figura como
+`alturas_prefe`, propietario PNA. Se cruzaron 35 días (10/10 al 13/11/2026)
+de la serie 30 contra el histórico de Prefectura
+(`/alturas/?page=historico&tiempo=7&id=240`):
+
+- En **32 de 35** la lectura del INA es la de las **00:00** de Prefectura,
+  al centímetro.
+- El 8/11 difieren en 1 cm (4,76 el INA, 4,75 Prefectura a las 00:00).
+- El 12 y el 13/11, con Prefectura leyendo cada 2 horas, el INA guardó la
+  de las 04:00–06:00 (5,39) y la de las 08:00 (5,54) **con el mismo sello
+  de las 00:00**. O sea: en crecida, el «00:00» del INA no es la hora de la
+  lectura.
+
+**Cada cuánto lee Prefectura.** Cada 12 horas (00:00 y 12:00). Desde el
+11/11/2026 a las 12:00, cuando marcó 5,30 —la alerta—, cada 2 horas; la
+tabla lo dice en la columna «Periodo», y ese día los demás puertos en alerta
+estaban en 2 y los que no, en 12. No encontramos esa regla escrita: es lo
+que se observa.
+
+**Qué hace `lib/ina.js`.** Pide las dos fuentes a la vez. Si la lectura de
+Prefectura es más nueva que la del INA, se sirve ésa como nivel de ahora,
+con `origen: "prefectura"`. La serie, los umbrales y el cero siguen
+saliendo del INA. El movimiento (`delta`) se cuenta contra la lectura diaria
+anterior del INA y `delta_desde` dice cuál.
+
+**Lo que no se sabe o no se comprobó:**
+
+- Es HTML raspado. La fila se acepta sólo si es «SANTA FE», río Paraná, con
+  el id 240, un número plausible y una fecha legible que no sea futura; y,
+  con el INA al día, si no difiere en más de 1 m de su lectura. Ese metro es
+  un tope contra leer otra columna, no un dato medido.
+- Los meses se leen en letras («NOV»). Sólo se vio noviembre: los otros once
+  están escritos por la abreviatura castellana usual, con «SEP» y «SET». Un
+  mes que no se reconozca no rompe nada: se sirve lo del INA y la respuesta
+  lo dice en `sin_prefectura`.
+- El histórico de Prefectura va un día atrasado respecto de su tabla (el
+  14/11 a las 10:45 terminaba en el 13/11 a las 10:00). Por eso se lee la
+  tabla y no el histórico.
+- No se buscaron las condiciones de uso de esa tabla. Se la consulta desde
+  el servidor, a lo sumo 6 veces por hora, y nunca desde el navegador.
+
 ### Sobre el envoltorio documentado (`/pub/datos`)
 
 `argentina.gob.ar` documenta `https://alerta.ina.gob.ar/pub/datos/` como la

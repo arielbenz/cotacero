@@ -6,9 +6,12 @@ import { leerNivelINA } from "../lib/ina.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  // Vercel cachea en su CDN 1 hora y sirve el viejo mientras revalida.
-  // El INA actualiza una vez por día: no tiene sentido golpearlo más.
-  res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+  // Vercel cachea en su CDN 10 minutos y sirve el viejo mientras revalida.
+  // Era 1 hora, cuando la única fuente era la lectura diaria del INA; con
+  // el río arriba de la alerta Prefectura lee cada 2 horas, y una hora de
+  // caché era la mitad de ese intervalo. Son a lo sumo 6 pedidos por hora
+  // a cada organismo, no importa cuánta gente entre.
+  res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=86400");
 
   try {
     const datos = await leerNivelINA();
