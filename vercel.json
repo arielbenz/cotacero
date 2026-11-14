@@ -1,5 +1,6 @@
 {
   "outputDirectory": "public",
+  "regions": ["gru1"],
   "buildCommand": "node scripts/portada-del-dia.js",
   "redirects": [
     {
