@@ -217,8 +217,9 @@ sirve como `altura` con `origen: "prefectura"`, `fuente_corta`, la fecha
   de Prefectura no contesta: el primer deploy dio timeout en cada pedido y
   servía el INA. Sacar esa línea vuelve a dejar la app con la lectura de
   ayer, sin ningún error. El build de `portada-del-dia.js` no corre en esa
-  región: si ahí Prefectura no contesta, la portada sale con la del INA
-  hasta que `landing.js` la pisa.
+  región y ahí Prefectura no contesta: por eso, si su lectura no es la de
+  Prefectura, le pregunta a `/api/nivel` del sitio ya publicado y usa la
+  más nueva de las dos. Sin eso, el número que lee Google era el del INA.
 - **El borde cachea `/api/nivel` 10 minutos**, no una hora.
 - **Los créditos dicen «Prefectura e INA»** (widget, placa, imagen para
   compartir, `/para-medios`); donde se nombra la lectura sola, se nombra a

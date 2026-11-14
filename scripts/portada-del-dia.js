@@ -11,7 +11,14 @@
 // muestran el número y la portada no mostraba ninguno. La portada sigue
 // siendo un archivo estático —servirla desde una función se descartó: una
 // caída de la función tiraba la portada—; lo que cambia una vez por día es el
-// archivo. El INA publica una sola lectura por día, así que alcanza.
+// archivo.
+//
+// De dónde sale la lectura: primero de lib/ina.js, como /api/nivel. Pero el
+// build de Vercel corre en Estados Unidos y desde ahí la tabla de Prefectura
+// no contesta (AUDITORIA.md §6): queda la del INA, que hasta el mediodía es
+// la de ayer. Entonces se le pregunta a nuestro propio /api/nivel, el del
+// deploy que ya está publicado, que corre en San Pablo y sí llega. Se usa
+// sólo si es más nueva que la que ya hay.
 //
 // Escribe dos cosas: la meta description (descripcionDelDia en
 // lib/paginas.js) y el número grande del mockup con la fecha, que
@@ -30,7 +37,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { leerNivelINA } from "../lib/ina.js";
-import { PAGINAS, descripcionDelDia } from "../lib/paginas.js";
+import { PAGINAS, SITIO, descripcionDelDia } from "../lib/paginas.js";
 import {
   UMBRALES_RESPALDO,
   VENCE_HORAS,
@@ -63,11 +70,43 @@ function cambiar(html, buscado, nuevo, que) {
   return html.replace(buscado, nuevo);
 }
 
-let lectura;
+/* La lectura de /api/nivel en producción, o null. No confía en la forma:
+   un 404 con HTML, un JSON de error o un número raro dan null. */
+async function delSitio() {
+  try {
+    const r = await fetch(SITIO + "/api/nivel", {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (typeof j.altura !== "number" || !(j.altura > -2 && j.altura < 12)) return null;
+    if (horasDesde(j.fecha_dato) === null) return null;
+    return j;
+  } catch (e) {
+    return null;
+  }
+}
+
+let lectura = null;
 try {
   lectura = await leerNivelINA();
 } catch (e) {
-  console.warn("portada del día: el INA no contestó, queda sin número —", e.message);
+  console.warn("portada del día: las fuentes no contestaron desde acá —", e.message);
+}
+if (!lectura || lectura.origen !== "prefectura") {
+  const sitio = await delSitio();
+  const h = lectura ? horasDesde(lectura.fecha_dato) : null;
+  // Más nueva = menos horas. Sin lectura propia, o sin fecha, vale la del sitio.
+  if (sitio && (h === null || horasDesde(sitio.fecha_dato) < h)) {
+    console.log(
+      `portada del día: se usa /api/nivel del sitio (${sitio.origen}, ${sitio.fecha_dato})`,
+    );
+    lectura = sitio;
+  }
+}
+if (!lectura) {
+  console.warn("portada del día: nadie contestó, queda sin número");
   process.exit(0);
 }
 
