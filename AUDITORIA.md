@@ -522,6 +522,11 @@ anterior del INA y `delta_desde` dice cuál.
 - El histórico de Prefectura va un día atrasado respecto de su tabla (el
   14/11 a las 10:45 terminaba en el 13/11 a las 10:00). Por eso se lee la
   tabla y no el histórico.
+- **Prefectura no contesta desde Estados Unidos.** El primer deploy, con
+  las funciones en Washington (`iad1`), dio timeout a los 8 s en cada
+  pedido (14/11/2026, tres seguidos), mientras desde Santa Fe la tabla
+  respondía en 0,3 s. Con las funciones en San Pablo (`gru1`) contesta. No
+  sabemos qué filtra ni si va a seguir así.
 - No se buscaron las condiciones de uso de esa tabla. Se la consulta desde
   el servidor, a lo sumo 6 veces por hora, y nunca desde el navegador.
 
