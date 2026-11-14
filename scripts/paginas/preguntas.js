@@ -63,8 +63,8 @@ const PREGUNTAS = [
   ],
   [
     "¿Cada cuánto se actualiza el nivel?",
-    "Una vez por día.",
-    "El INA publica una lectura por día del hidrómetro del Puerto. La app la toma de ese reporte y muestra siempre la fecha del dato, así sabés qué tan fresco es.",
+    "Dos veces por día, y cada 2 horas con el río en alerta.",
+    "Prefectura lee el hidrómetro del Puerto a las 00:00 y a las 12:00, y cada 2 horas desde que el río llega a la alerta de la ciudad. La app toma la última y muestra siempre la fecha y la hora del dato, así sabés qué tan fresco es.",
   ],
   /* «¿Qué es la cota del río?» estaba acá y se mudó a /hidrometro (octubre de
      2026): con las dos respuestas, las dos páginas competían por la misma

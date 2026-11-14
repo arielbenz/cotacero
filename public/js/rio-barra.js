@@ -52,7 +52,8 @@ const m = (v) => nm(v, 2);
 const rio = {
   altura: null, // metros, la lectura del hidrómetro
   delta: null, // variación contra la lectura anterior, en metros
-  fechaTexto: "", // "DD/MM/AAAA HH:MM", tal como la publica el INA
+  fechaTexto: "", // "DD/MM/AAAA HH:MM", tal como llega de /api/nivel
+  fuente: "INA", // «Prefectura» o «INA»: de quién es la lectura que se muestra
   fecha: null, // la misma, ya parseada
   serie: null, // los últimos 30 días, si contestó la API (la usa /comparar)
   // respaldo: los publica la estación y llegan en la respuesta
@@ -173,6 +174,7 @@ async function leerNivel() {
     rio.altura = j.altura;
     rio.delta = typeof j.delta === "number" ? j.delta : null;
     rio.fechaTexto = j.fecha_dato || "";
+    rio.fuente = j.fuente_corta === "Prefectura" ? "Prefectura" : "INA";
     rio.fecha = fechaINA(rio.fechaTexto);
     /* Los últimos 30 días, [«AAAA-MM-DD», metros]. Sólo viene cuando contesta
        la API; la usa /comparar para completar la línea del año en curso. */

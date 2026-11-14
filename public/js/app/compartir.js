@@ -390,7 +390,7 @@ async function armarImagen(conVos) {
   g.font = SANS(500, 22);
   g.fillStyle = C.tenue;
   g.textAlign = "right";
-  g.fillText("Datos: INA", ANCHO - MARGEN_X, pie + 74);
+  g.fillText("Datos: Prefectura e INA", ANCHO - MARGEN_X, pie + 74);
   g.fillText("No oficial · Emergencias 103", ANCHO - MARGEN_X, pie + 104);
   g.textAlign = "left";
 

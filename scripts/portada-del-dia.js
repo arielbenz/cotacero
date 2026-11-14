@@ -87,6 +87,7 @@ const descripcion = descripcionDelDia({
   fecha: dia.slice(0, 5),
   alerta,
   evacuacion,
+  fuente: lectura.fuente_corta,
 });
 
 let html = await readFile(PORTADA, "utf8");

@@ -38,7 +38,7 @@ Entre fuentes oficiales el cero varía unos centímetros (el INA midió 8,378), 
 
 ## Por qué Prefectura y el INA no dicen lo mismo
 
-Prefectura lee la regla **cada 12 horas**, a las 00:00 y a las 12:00, y publica cada lectura. El INA guarda **una por día**, la de las 00:00, y es la que muestra Cota Cero. Los diarios citan una u otra.
+Prefectura lee la regla **cada 12 horas**, a las 00:00 y a las 12:00, y **cada 2 horas** desde que el río llega a la alerta de la ciudad. Publica cada lectura. El INA guarda **una por día** y la carga hacia el mediodía. Los diarios citan una u otra.
 
 | Lectura | Prefectura | INA |
 | --- | --- | --- |
@@ -46,6 +46,8 @@ Prefectura lee la regla **cada 12 horas**, a las 00:00 y a las 12:00, y publica 
 | 29/10, 00:00 | 4,25 m | 4,25 m |
 
 La mañana del 29, [la tabla de Prefectura](https://contenidosweb.prefecturanaval.gob.ar/alturas/) ya mostraba la lectura de las 00:00 y el INA todavía no la había publicado: seguía la del 28, 4,23 m. Más tarde esa mañana llegó la misma, 4,25 m. Es una sola regla; cambia la hora que se mira y cuándo se publica. Por eso cada número, acá y en la app, va con su fecha.
+
+Cota Cero muestra **la última lectura de Prefectura**, con su hora. Si esa tabla no contesta, muestra la del INA. La historia y los gráficos salen siempre de la serie del INA, una lectura por día.
 
 ## La regla no sabe dónde está tu casa
 

@@ -41,7 +41,7 @@ La placa, en vivo. Mide 1920×1080.
 
 ## Tres condiciones
 
-1. **No recortes el crédito**Ni el «Datos: INA · vía Cota Cero» de adentro ni el renglón de abajo: es lo que le permite a tu lector ir a la fuente del número que estás publicando.
+1. **No recortes el crédito**Ni el «Datos: Prefectura e INA · vía Cota Cero» de adentro ni el renglón de abajo: es lo que le permite a tu lector ir a la fuente del número que estás publicando.
 2. **No es un pronóstico**Muestra el nivel oficial y la alerta y la evacuación de la ciudad, no niveles de aviso personales. No lo presentes como predicción de inundación.
 3. **Mandan las autoridades**Si Defensa Civil dice algo distinto que el widget, vale Defensa Civil.
 

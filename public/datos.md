@@ -16,7 +16,7 @@ Una referencia para prepararte, no el minuto en que entra el agua. Cota Cero **n
 
 ## Lo mide el Estado, no nosotros
 
-El número grande de la app es la lectura del [**hidrómetro del Puerto**](https://cotacerosf.com/hidrometro): la lee Prefectura y la publica el INA. Cota Cero la muestra; no la mide, no la corrige y no la promedia.
+El número grande de la app es la lectura del [**hidrómetro del Puerto**](https://cotacerosf.com/hidrometro): la lee Prefectura, que publica cada lectura, y el INA guarda una por día. Cota Cero muestra la última; no la mide, no la corrige y no la promedia.
 
 Estación: Santa Fe · SAFE
 
@@ -30,7 +30,7 @@ Alerta: 5,30 m
 
 Evacuación: 5,70 m
 
-Los umbrales los publica la propia estación en la API del sistema de alerta del INA; si la API falla, la app cae sola al reporte diario. Si tampoco contesta, muestra la última lectura con su fecha, y a las 48 horas deja de darla por vigente. **Nunca inventa un valor.**
+La lectura de ahora sale de [la tabla de Prefectura](https://contenidosweb.prefecturanaval.gob.ar/alturas/); si no contesta, de la serie del INA, y si la API del INA falla, de su reporte diario. Los umbrales los publica la propia estación en la API del INA. Si nada contesta, la app muestra la última lectura con su fecha, y a las 48 horas deja de darla por vigente. **Nunca inventa un valor.**
 
 Fuente: INA · serie 30, altura hidrométrica [ver](https://alerta.ina.gob.ar/a5/diario/reporte_diario)
 

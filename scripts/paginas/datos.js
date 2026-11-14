@@ -1,6 +1,6 @@
 // scripts/paginas/datos.js — /datos. La escribe emitir.js.
 
-import { ORGANISMOS, NORMATIVA, ESTACION } from "../../public/lib/fuentes.js";
+import { ORGANISMOS, NORMATIVA, ESTACION, ENDPOINTS } from "../../public/lib/fuentes.js";
 import { nm } from "../../public/lib/comun.js";
 import {
   MEDICION,
@@ -163,8 +163,9 @@ const htmlDatos = pagina({
       html: `        <p>
           El número grande de la app es la lectura del
           <a href="/hidrometro"><b>hidrómetro del Puerto</b></a>: la lee
-          Prefectura y la publica el INA. Cota Cero la
-          muestra; no la mide, no la corrige y no la promedia.
+          Prefectura, que publica cada lectura, y el INA guarda una por día.
+          Cota Cero muestra la última; no la mide, no la corrige y no la
+          promedia.
         </p>
         <div class="ficha-estacion">
           <div><span class="k">Estación</span><span class="v">${esc(ESTACION.nombre)} · ${esc(ESTACION.abreviatura)}</span></div>
@@ -175,10 +176,13 @@ const htmlDatos = pagina({
           <div><span class="k">Evacuación</span><span class="v">${nm(ESTACION.evacuacion, 2)} m</span></div>
         </div>
         <p class="chico">
-          Los umbrales los publica la propia estación en la API del sistema de
-          alerta del INA; si la API falla, la app cae sola al reporte diario.
-          Si tampoco contesta, muestra la última lectura con su fecha, y a las
-          48 horas deja de darla por vigente. <b>Nunca inventa un valor.</b>
+          La lectura de ahora sale de
+          <a href="${ENDPOINTS.prefectura}" target="_blank" rel="noopener">la tabla de Prefectura</a>;
+          si no contesta, de la serie del INA, y si la API del INA falla, de su
+          reporte diario. Los umbrales los publica la propia estación en la API
+          del INA. Si nada contesta, la app muestra la última lectura con su
+          fecha, y a las 48 horas deja de darla por vigente.
+          <b>Nunca inventa un valor.</b>
         </p>
         ${selloFuente("nivelRio", "serie 30, altura hidrométrica")}`,
     },

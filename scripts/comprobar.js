@@ -123,6 +123,64 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
   caso("pantalla, evacuación: el verbo y el 103", g.verbo === comun.ESTADOS.evacuacion.verbo && g.resto.includes("103"), true);
   caso("pantalla, debajo de la alerta: nada grave", comun.textoGrave(5.2, R.alerta, R.evacuacion), null);
 
+  /* La última lectura, de la tabla de Prefectura (lib/ina.js). La fila es la
+     que publicaba el 14/11/2026 a las 10:45 —5,66 m de las 10:00, mirado en
+     la página—, con una de San Javier arriba, que también dice «SANTA FE»
+     (su id acá es cualquiera).
+     El INA tenía 5,54 m del 13/11. */
+  {
+    const { filaPrefectura, conPrefectura } = await import("../lib/ina.js");
+    const fila = (puerto, rio, valor, id) =>
+      `<tr class="row-alert" ><th data-label="Puerto:">${puerto}</th>
+        <td data-label="Río:">${rio}</td>
+        <td data-label="Ultimo Registro:" class="warning">${valor}</td>
+        <td data-label="Variacion">0.00</td><td data-label="Periodo">2</td>
+        <td data-label="Fecha Hora:"><b>14/NOV/26 - 1000</b></td>
+        <td data-label="Estado:">ALERTA ESTAC.</td>
+        <td data-label="Registro Anterior:">5.66</td>
+        <td data-label="Fecha Anterior:">14/NOV/26 - 0800</td>
+        <td data-label="Alerta:">5.30</td><td data-label="Evacuación:">5.70</td>
+        <td><a href="/alturas/?page=historico&tiempo=7&id=${id}
+" target="_blank"></a></td></tr>`;
+    const tabla =
+      fila("SAN JAVIER (SANTA FE)", "SAN JAVIER", "7.95", 195) +
+      fila("SANTA FE", "PARANA", "5.66", 240);
+    const pna = filaPrefectura(tabla);
+    caso("Prefectura: lee la fila de Santa Fe, no la de San Javier", pna.altura, 5.66);
+    caso("Prefectura: la fecha sale en el formato de siempre", pna.fecha_dato, "14/11/2026 10:00");
+    const falla = (f) => {
+      try {
+        f();
+        return false;
+      } catch (e) {
+        return true;
+      }
+    };
+    caso("Prefectura: otra estación en la fila de Santa Fe no se acepta", falla(() => filaPrefectura(fila("SANTA FE", "PARANA", "5.66", 2400))), true);
+    caso("Prefectura: un registro que no es un número no se acepta", falla(() => filaPrefectura(fila("SANTA FE", "PARANA", "S/E", 240))), true);
+
+    const ina = {
+      altura: 5.54,
+      delta: 0.15,
+      fecha_dato: "13/11/2026 00:00",
+      serie: [["2026-11-12", 5.39], ["2026-11-13", 5.54]],
+      alerta: 5.3,
+      evacuacion: 5.7,
+      origen: "api",
+    };
+    const ahora = pna.t + 45 * 60e3;
+    const r = conPrefectura(ina, pna, ahora);
+    caso("Prefectura más nueva que el INA: es la que se sirve", [r.altura, r.fecha_dato, r.origen].join(" · "), "5.66 · 14/11/2026 10:00 · prefectura");
+    caso("Prefectura: el movimiento se cuenta contra la lectura diaria anterior", [r.delta, r.delta_desde].join(" · "), "0.12 · 2026-11-13");
+    caso("Prefectura: la serie termina en la lectura que se muestra", r.serie[r.serie.length - 1].join(" · "), "2026-11-14 · 5.66");
+    caso("Prefectura: la serie del INA no se toca", ina.serie.length, 2);
+    caso("Prefectura: los umbrales siguen siendo los del INA", [r.alerta, r.evacuacion].join(" · "), "5.3 · 5.7");
+    const alDia = { ...ina, altura: 5.66, fecha_dato: "14/11/2026 10:00" };
+    caso("Prefectura igual de nueva que el INA: queda el INA", conPrefectura(alDia, pna, ahora).origen, "api");
+    caso("Prefectura a más de 1 m del INA: no se acepta", falla(() => conPrefectura(ina, { ...pna, altura: 6.9 }, ahora)), true);
+    caso("Prefectura con fecha futura: no se acepta", falla(() => conPrefectura(ina, pna, pna.t - 2 * 3600e3)), true);
+  }
+
   /* La descripción de la portada con el dato del día (lib/paginas.js): la
      del 28/10/2026, que el INA dio en 4,23 m, y los dos estados graves. Google
      corta cerca de los 160 caracteres. */
@@ -132,6 +190,16 @@ console.log("Los estados y cómo se dicen (README, «Los ocho estados»)");
     "portada del día, debajo de la alerta",
     dd(4.23),
     "Río Paraná: 4,23 m el 28/10 en el Puerto de Santa Fe (INA), a 1,1 m de la alerta de la ciudad (5,30 m). Calculá a qué nivel el agua puede llegar a tu terreno.",
+  );
+  caso(
+    "portada del día, con la lectura de Prefectura lo dice",
+    descripcionDelDia({ altura: 4.23, fecha: "28/10", fuente: "Prefectura", ...R }).includes("Puerto de Santa Fe (Prefectura)"),
+    true,
+  );
+  caso(
+    "portada del día, evacuación con Prefectura: el 103 entra en 160 caracteres",
+    descripcionDelDia({ altura: 5.75, fecha: "14/11", fuente: "Prefectura", ...R }).length <= 160,
+    true,
   );
   caso("portada del día, a 95 cm se dice en centímetros", dd(4.35).includes("a 95 cm de la alerta"), true);
   for (const [n, altura, verbo] of [

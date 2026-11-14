@@ -120,26 +120,32 @@ async function delINA() {
      mostraría la cara de hoy con un número de la semana pasada. */
   const horas = horasDesde(fechaINA(j.fecha_dato));
   const vencido = horas !== null && horas > VENCE_HORAS;
-  /* El INA sube UNA lectura por día, hacia media tarde y también los
-     domingos. Antes de eso la última es la de ayer, y quien la ve piensa
-     que el río no se mueve o que faltan datos. */
+  /* Con la tabla de Prefectura la lectura de hoy está desde la madrugada;
+     esto queda para cuando no contesta y sólo hay INA, que sube UNA por día
+     hacia el mediodía. Antes de eso la última es la de ayer, y quien la ve
+     piensa que el río no se mueve o que faltan datos. */
   const fd = fechaINA(j.fecha_dato);
   const hoy = new Date().setHours(0, 0, 0, 0);
   if (fd && !vencido && fd.getTime() < hoy)
     extra +=
-      " El INA publica una lectura por día, hacia media tarde: la de hoy todavía no salió.";
+      " El INA publica una lectura por día, hacia el mediodía: la de hoy todavía no salió.";
   guardado.set("cc_rio_auto", String(j.altura));
   guardado.set("cc_rio_fecha", j.fecha_dato || "");
   return {
     valor: j.altura,
     origen:
-      j.origen === "api"
-        ? "INA · Sistema de Alerta Hidrológico (SIyAH)"
-        : "INA · reporte diario",
+      j.origen === "prefectura"
+        ? "Prefectura Naval · registro del estado de los ríos"
+        : j.origen === "api"
+          ? "INA · Sistema de Alerta Hidrológico (SIyAH)"
+          : "INA · reporte diario",
     fecha: j.fecha_dato || "",
     vencido,
     extra,
     delta: typeof j.delta === "number" ? j.delta : null,
+    // «AAAA-MM-DD»: contra qué lectura diaria se cuenta el movimiento. Sólo
+    // viene con Prefectura, cuya lectura anterior es de hace 2 o 12 horas.
+    deltaDesde: typeof j.delta_desde === "string" ? j.delta_desde : "",
   };
 }
 
@@ -216,6 +222,7 @@ function mostrar(l) {
     estado.rio = null;
     estado.rioOrigen = "";
     estado.delta = null;
+    estado.deltaDesde = "";
     estado.rioFecha = "";
     estado.rioVencido = false;
     document.getElementById("origen-dato").innerHTML =
@@ -226,6 +233,7 @@ function mostrar(l) {
     estado.rio = l.valor;
     estado.rioOrigen = l.origen;
     estado.delta = l.delta;
+    estado.deltaDesde = l.deltaDesde || "";
     estado.rioFecha = l.fecha;
     estado.rioVencido = l.vencido;
     extraOrigen = l.extra;
@@ -260,10 +268,16 @@ function pintarOrigen() {
     "." +
     extraOrigen +
     busca +
-    ' <a href="' +
-    atr(FUENTE_RIO) +
-    '" target="_blank" rel="noopener">Ver el reporte del INA</a>' +
-    (estado.rioVerificar
+    // Con la lectura de Prefectura el enlace va a su tabla, que es donde
+    // está ese número; el reporte del INA todavía dice el de ayer.
+    (estado.rioVia === "prefectura" && estado.rioVerificar
+      ? ' <a href="' +
+        atr(estado.rioVerificar) +
+        '" target="_blank" rel="noopener">Ver la tabla de Prefectura</a>'
+      : ' <a href="' +
+        atr(FUENTE_RIO) +
+        '" target="_blank" rel="noopener">Ver el reporte del INA</a>') +
+    (estado.rioVerificar && estado.rioVia !== "prefectura"
       ? ' · <a href="' +
         atr(estado.rioVerificar) +
         '" target="_blank" rel="noopener">ver el dato crudo</a>'
@@ -776,15 +790,17 @@ function pintarVeredictoRio() {
     titu = "Último dato guardado";
     txt = "Con este número no se decide nada: puede haber cambiado.";
   }
-  // El INA publica la diferencia contra el registro anterior y hasta
-  // ahora se guardaba sin mostrarse nunca.
+  // El movimiento contra la lectura diaria anterior. Con Prefectura se dice
+  // contra cuál: su «medición anterior» sería la de hace 2 horas.
   const d = estado.delta;
+  const dd = /^\d{4}-(\d{2})-(\d{2})$/.exec(estado.deltaDesde || "");
+  const desde = dd ? "desde la lectura del " + dd[2] + "/" + dd[1] : "desde la medición anterior";
   const mov =
     !viejo && typeof d === "number" && Math.abs(d) >= 0.01
       ? `<div class="chico mov-rio"><b class="${d > 0 ? "sube" : "baja"}">${d > 0 ? "▲" : "▼"} ${nm(
           Math.abs(d),
           2,
-        )} m</b> desde la medición anterior</div>`
+        )} m</b> ${desde}</div>`
       : "";
   // Un dato vencido se sigue mostrando, pero nunca con la cara de un
   // dato de hoy: el cartel va arriba de todo, antes que el número.

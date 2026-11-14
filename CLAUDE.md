@@ -177,18 +177,46 @@ que hay que editar es otro.
 
     lib/ina.js  ──►  api/nivel.js  ──►  js/app/rio.js · landing.js · widget · sw.js
        │                                api/cron/avisar.js (importa lib/ina.js directo)
-       ├─ 1º: API REST del SIyAH (alerta.ina.gob.ar/a5), JSON estructurado
-       └─ 2º: raspado del reporte diario en HTML, sólo si la API falla
+       ├─ INA 1º: API REST del SIyAH (alerta.ina.gob.ar/a5), JSON estructurado
+       ├─ INA 2º: raspado del reporte diario en HTML, sólo si la API falla
+       └─ y a la vez, la tabla de Prefectura: la última lectura, si es más nueva
 
 Cuatro archivos leen `/api/nivel` y un quinto —el cron— importa `lib/ina.js`
 directo: **cambiar la forma de la respuesta toca los cinco**. Los
-campos `origen` (`"api"` / `"reporte"`) y `degradado` existen para que una
+campos `origen` (`"prefectura"` / `"api"` / `"reporte"`) y `degradado` existen para que una
 falla se vea en el JSON en vez de descubrirse meses después.
 
 Los umbrales oficiales (`alerta`, `evacuacion`) **los publica la estación del
 INA** y los cinco consumidores los adoptan con un filtro de plausibilidad. Las
 constantes 5,3 / 5,7 que quedan escritas son sólo el respaldo para cuando
 contesta el reporte diario, que no las trae.
+
+**La lectura de ahora es la de Prefectura** (noviembre de 2026). La regla
+la lee Prefectura —cada 12 horas, cada 2 desde que el río llega a la alerta—
+y el INA copia una por día, que carga hacia el mediodía (algún domingo, el
+lunes): el 14/11/2026 la app decía 5,54 m y Prefectura 5,66. `leerNivelINA()`
+pide las dos a la vez y, si la de la tabla de Prefectura es más nueva, la
+sirve como `altura` con `origen: "prefectura"`, `fuente_corta`, la fecha
+**con su hora de verdad** y lo que decía el INA en `ina`. Reglas:
+
+- **La serie, los umbrales y el cero siguen siendo del INA.** De Prefectura
+  sale un solo número. La punta de `serie` se reemplaza por esa lectura
+  para que `/comparar` y la placa no cierren en el número de ayer.
+- **`delta` se cuenta contra la lectura diaria anterior**, no contra el
+  registro anterior de Prefectura: a 2 horas, un río que sube 12 cm por día
+  daba «estable». `delta_desde` dice contra cuál y la app lo escribe.
+- **Es HTML raspado y desconfía**: fila «SANTA FE» exacta, río Paraná, id
+  240, fecha legible y no futura, y a menos de 1 m del INA. Si algo no
+  cierra queda lo del INA y el motivo va en `sin_prefectura`: **si aparece
+  ese campo, mirar la tabla**. `filaPrefectura()` y `conPrefectura()` son
+  puras y las prueba `comprobar.js`.
+- **La pide el servidor, nunca el navegador**: no va en la CSP ni en
+  `lib/proveedores.js`.
+- **El borde cachea `/api/nivel` 10 minutos**, no una hora.
+- **Los créditos dicen «Prefectura e INA»** (widget, placa, imagen para
+  compartir, `/para-medios`); donde se nombra la lectura sola, se nombra a
+  quien la dio (`rio.fuente` en `rio-barra.js`).
+- El cruce de las dos fuentes, día por día, está en `AUDITORIA.md` §6.
 
 **«Río arriba» y la serie del último mes** (octubre de 2026). `/api/nivel` trae
 ahora `serie` —los últimos 30 días, `[«AAAA-MM-DD», metros]`, sólo cuando

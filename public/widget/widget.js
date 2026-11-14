@@ -81,7 +81,7 @@ function pintar(d) {
        sería más lindo y sería una afirmación: el INA publica una lectura por
        día, pero puede saltearse una, y ahí el delta abarca dos. */
     $("delta").textContent = (delta > 0 ? "▲ +" : "▼ −") + cm + " cm";
-    $("delta").title = "Desde la medición anterior del INA";
+    $("delta").title = "Desde la lectura diaria anterior";
     $("delta").hidden = false;
   }
 

@@ -88,10 +88,11 @@ export function limpiarGuardadoViejo() {
 export let estado = {
   rio: null, // altura del hidrómetro en metros
   rioOrigen: "",
-  delta: null, // variación contra la medición anterior, en metros
+  delta: null, // variación contra la lectura diaria anterior, en metros
+  deltaDesde: "", // «AAAA-MM-DD» de esa lectura, si la respuesta lo dice
   rioFecha: "", // fecha de la medición, tal como la publica el INA
   rioVencido: false, // el dato guardado ya no se puede presentar como vigente
-  rioVia: "", // "api" | "reporte": cuál de las dos fuentes del INA contestó
+  rioVia: "", // "prefectura" | "api" | "reporte": quién dio la lectura
   rioVerificar: "", // la URL exacta con la que se puede comprobar el número
   ceroINA: null, // el cero IGN que publica el INA. No entra en el cálculo.
   cota: null, // cota IGN del terreno
