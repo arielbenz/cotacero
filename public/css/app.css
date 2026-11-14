@@ -6411,6 +6411,10 @@ button.enlace-crudo.enlace-solo {
   min-height: 2.75rem;
   padding: 0;
 }
+
+button.enlace-crudo.enlace-solo[hidden] {
+  display: none;
+}
 button.enlace-crudo.enlace-solo::after {
   content: none;
 }

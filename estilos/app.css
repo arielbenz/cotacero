@@ -7315,6 +7315,11 @@ button.enlace-crudo.enlace-solo {
   min-height: 2.75rem;
   padding: 0;
 }
+/* Explícito: el display:flex de arriba le gana al [hidden] del navegador, y
+   el «ver el río» que es sólo de iPhone salía duplicado en todos lados. */
+button.enlace-crudo.enlace-solo[hidden] {
+  display: none;
+}
 button.enlace-crudo.enlace-solo::after {
   content: none;
 }
