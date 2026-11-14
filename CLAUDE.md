@@ -212,6 +212,13 @@ sirve como `altura` con `origen: "prefectura"`, `fuente_corta`, la fecha
   puras y las prueba `comprobar.js`.
 - **La pide el servidor, nunca el navegador**: no va en la CSP ni en
   `lib/proveedores.js`.
+- **Las funciones corren en San Pablo** (`"regions": ["gru1"]` en
+  `vercel.json`). Desde Washington (`iad1`, el valor por defecto) la tabla
+  de Prefectura no contesta: el primer deploy dio timeout en cada pedido y
+  servía el INA. Sacar esa línea vuelve a dejar la app con la lectura de
+  ayer, sin ningún error. El build de `portada-del-dia.js` no corre en esa
+  región: si ahí Prefectura no contesta, la portada sale con la del INA
+  hasta que `landing.js` la pisa.
 - **El borde cachea `/api/nivel` 10 minutos**, no una hora.
 - **Los créditos dicen «Prefectura e INA»** (widget, placa, imagen para
   compartir, `/para-medios`); donde se nombra la lectura sola, se nombra a
