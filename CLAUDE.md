@@ -247,7 +247,15 @@ widget: **sin analytics** (`/para-medios` promete «sin rastreo»), **nunca el
 nivel de aviso de nadie**, y como una placa viaja sin contexto **la fecha de la
 lectura va dentro de la imagen** y con el dato vencido dice «Dato viejo» en vez
 de mostrar un número con cara de actual. El récord sale de `historia.json`, no
-de un número escrito acá. Su CSP y su revalidación están en `vercel.json`
+de un número escrito acá. **Con `?formato=vertical` la lámina es de 1080×1920**
+(noviembre de 2026), para estados e historias: el mismo contenido apilado, con
+la letra más grande —ninguna baja de 26, que en un teléfono son 9 px—. La
+regla y el gráfico son dos funciones (`regla()`, `ultimos30()`) que reciben
+coordenadas, así los dos formatos no llevan dos copias. Sin el parámetro, una
+ventana más alta que ancha recibe la vertical; **con `?limpio=1` no se adivina
+nada**, porque esa URL está puesta en transmisiones. «Compartir» usa la hoja
+del sistema (`navigator.share` con el PNG): la imagen se arma en el teléfono
+y acá no se envía nada. Su CSP y su revalidación están en `vercel.json`
 aparte de la general, igual que el widget.
 
 **`/comparar` pone el año en curso al lado de todos los anteriores**

@@ -14,9 +14,10 @@
       type="font/woff2"
       crossorigin />
     <style>
-      /* Placa 16:9 para televisión y redes. Sin app.css, como el widget: es
-         una sola lámina que se escala al tamaño de la ventana. Lo que se ve lo
-         dibuja js/placa.js en un SVG de 1920×1080. */
+      /* Placa para televisión y redes. Sin app.css, como el widget: es una
+         sola lámina que se escala al tamaño de la ventana. Lo que se ve lo
+         dibuja js/placa.js en un SVG de 1920×1080, o de 1080×1920 con
+         ?formato=vertical. */
       @font-face {
         font-family: "Plus Jakarta Sans";
         src: url("/vendor/fonts/jakarta.woff2") format("woff2");
@@ -48,7 +49,7 @@
         flex-direction: column;
       }
       /* La lámina ocupa lo que sobra y el propio SVG la centra con su
-         relación 16:9: la barra queda debajo, nunca encima del crédito. */
+         relación de aspecto: la barra queda debajo, nunca encima del crédito. */
       main {
         flex: 1 1 0;
         min-height: 0;
@@ -86,6 +87,9 @@
         align-items: center;
         cursor: pointer;
       }
+      .barra [hidden] {
+        display: none;
+      }
       .barra button.fuerte {
         background: #e9eef0;
         color: #17232a;
@@ -117,9 +121,13 @@
         aria-label="Placa con el nivel del río Paraná en el Puerto de Santa Fe"></svg>
     </main>
     <div class="barra">
+      <button type="button" class="fuerte" id="compartir" hidden disabled>
+        Compartir
+      </button>
       <button type="button" class="fuerte" id="bajar" disabled>
         Descargar PNG
       </button>
+      <a id="t-formato" href="?formato=vertical">Vertical</a>
       <a id="t-oscuro" href="?">Oscuro</a>
       <a id="t-claro" href="?tema=claro">Claro</a>
       <a id="t-transp" href="?fondo=transparente">Fondo transparente</a>
