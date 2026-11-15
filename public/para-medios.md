@@ -37,6 +37,7 @@ La placa, en vivo. Mide 1920×1080.
 - **En OBS o vMix:** una fuente de navegador de 1920×1080 con `https://cotacerosf.com/placa?limpio=1`. Se actualiza sola cada diez minutos.
 - **Sobre tu video:** agregale `&fondo=transparente`. Con `&tema=claro` sale en claro.
 - **Como imagen:** en [/placa](https://cotacerosf.com/placa) hay un botón «Descargar PNG» de 1920×1080, para tu diseño o tus redes.
+- **Para el teléfono:** [la misma placa en vertical](https://cotacerosf.com/placa?formato=vertical), de 1080×1920, para estados e historias. Desde el teléfono, «Compartir» la manda directo.
 - **Lleva adentro** el nivel, la alerta y la evacuación de la ciudad, el último mes, el récord y las escalas del INA río arriba. Con la fecha de la lectura, el crédito y el 103: es lo que impide que una captura de hoy circule el jueves como si fuera de ese día.
 
 ## Tres condiciones
