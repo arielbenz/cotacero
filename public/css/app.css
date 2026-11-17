@@ -2090,6 +2090,8 @@ label.campo-dir {
   gap: var(--e-3);
   min-height: 48px;
   margin: 0;
+
+  max-width: none;
   padding: 0 var(--e-4);
   color: var(--sobre-solido);
   font-size: var(--t-s);
@@ -6059,6 +6061,177 @@ button.enlace-crudo {
   .aviso-emergencia {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (min-width: 64em) {
+  @supports (grid-template-columns: subgrid) {
+    :root {
+
+      --alto-top: 5.25rem;
+    }
+    html {
+      scroll-padding-top: calc(var(--alto-top) + var(--e-4));
+      scroll-padding-bottom: var(--e-4);
+    }
+    body.app,
+    body.app.con-instalar {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-content: start;
+      padding-bottom: var(--e-6);
+    }
+    body.app > * {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+
+    body.app > .franja-estado {
+      display: block;
+      grid-row: 1;
+    }
+    body.app > .top {
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: center;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      min-height: var(--alto-top);
+      padding-top: var(--e-3);
+      padding-bottom: var(--e-3);
+      background: var(--fondo);
+    }
+    .top .marca-bloque {
+      grid-column: 1;
+    }
+    .top .acciones-top {
+      grid-column: 3;
+    }
+
+    body.app > .barra-app {
+      grid-row: 2;
+      grid-column: 2;
+      justify-self: center;
+      align-self: stretch;
+      position: sticky;
+      top: 0;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      align-items: center;
+      gap: var(--e-1);
+      padding: 0 var(--e-4);
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .barra-app button {
+      flex: none;
+      flex-direction: row;
+      gap: var(--e-2);
+      min-height: 2.75rem;
+      padding: var(--e-2) var(--e-4) var(--e-2) var(--e-3);
+      border-radius: var(--r-full);
+    }
+    .barra-app button.on {
+      background: var(--agua-tinte);
+    }
+    .barra-app button svg,
+    .barra-app button.on svg {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      background: none;
+    }
+    .barra-app button span {
+      font-size: var(--t-s);
+      white-space: nowrap;
+    }
+
+    .punto-tab {
+      top: calc(var(--e-2) - 1px);
+      left: calc(var(--e-3) + 16px);
+      box-shadow: 0 0 0 2px var(--fondo);
+    }
+    .cuenta-tab {
+      top: 2px;
+      left: calc(var(--e-3) + 12px);
+      box-shadow: 0 0 0 2px var(--fondo);
+    }
+
+    .franja-estado a.franja-103 {
+      justify-content: flex-start;
+    }
+
+    .instalar {
+      left: auto;
+      right: var(--e-5);
+      bottom: var(--e-5);
+      width: 24rem;
+    }
+    body.app.con-instalar[data-vista="rio"] {
+      padding-bottom: calc(var(--e-7) + 3.75rem);
+    }
+
+    #v-rio.on {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 24rem;
+      grid-template-rows: repeat(4, auto) 1fr;
+      column-gap: var(--e-6);
+      align-items: start;
+      max-width: 72rem;
+    }
+    #v-rio > .tarjeta-regla {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      position: sticky;
+      top: calc(var(--alto-top) + var(--e-4));
+    }
+
+    #v-plan.on {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--e-5);
+      align-items: start;
+      max-width: 64rem;
+    }
+    #v-plan > * {
+      grid-column: 1 / -1;
+    }
+    #v-plan > .lista-plan {
+      grid-column: auto;
+    }
+
+    .acuerdos {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--e-5);
+    }
+    .acuerdos > h3 {
+      grid-column: 1 / -1;
+    }
+
+    #v-donde.on {
+      max-width: 90rem;
+    }
+    .mapa-y-lista {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+    .col-mapa {
+      top: calc(var(--alto-top) + var(--e-4));
+    }
+
+    #mapa {
+      height: calc(100vh - var(--alto-top) - 15rem);
+      min-height: 26rem;
+    }
+
+    body.marcando-mapa .col-mapa {
+      z-index: 90;
+    }
   }
 }
 
