@@ -4327,6 +4327,52 @@ p.pie-frescura,
   font-weight: 600;
   font-size: var(--t-m);
 }
+/* Historia, Comparar y Charlas, debajo de los años. Antes eran dos enlaces
+   en la letra chica de la nota del Niño, y Charlas sólo estaba en el pie: las
+   tres páginas que más tiempo de lectura dan casi no se veían. No es un
+   bloque de «Seguí por acá»: es la continuación de esta franja —los cuatro
+   años son una muestra, la serie entera está en /historia— y cada tarjeta
+   dice qué hay adentro. La tarjeta entera es el enlace.
+   Sin relleno de color a propósito: el texto cae sobre el mismo
+   --fondo-invertido que ya mide comprobar.js, y el borde hace la tarjeta. */
+.atajos-historia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--e-4);
+  margin: var(--e-7) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.atajos-historia a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  height: 100%;
+  padding: var(--e-5);
+  border: 1px solid var(--linea-invertida);
+  border-radius: var(--r-l);
+  text-decoration: none;
+  transition: border-color var(--mov);
+}
+/* El título va en el celeste de los enlaces de la franja: lo pone la regla
+   general de `.landing a`, y es lo que dice que la tarjeta se toca. */
+.atajos-historia b {
+  font-size: var(--t-m);
+  font-weight: 800;
+  line-height: 1.25;
+}
+.atajos-historia b span {
+  white-space: nowrap;
+}
+.atajos-historia a > span {
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+@media (hover: hover) {
+  .atajos-historia a:hover {
+    border-color: var(--acento);
+  }
+}
 
 /* ---------- tres pasos y métricas ---------- */
 .como-cabeza {
