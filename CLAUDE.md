@@ -1055,6 +1055,19 @@ ofrecía «con el número recién calculado» justo en la pestaña donde el CSS 
 oculta. En iPhone sin instalar esa tarjeta no sale si hay avisos desplegados:
 la de avisos ya pide instalar.
 
+**En escritorio las pestañas suben a la cabecera** (noviembre de 2026,
+«LA APP EN ESCRITORIO» en `estilos/app.css`). Desde `64em` —en em a
+propósito: con la letra agrandada queda el diseño del teléfono— el `<body>`
+de la app es una grilla: la `nav` sigue al final del HTML y la grilla la pone
+en la fila de la cabecera, que toma las columnas con `subgrid` y queda fija
+arriba (`--alto-top`). Río va en dos columnas con la regla fija a la derecha
+(`.tarjeta-regla`), Dónde ir con el mapa a casi todo el alto, Mi plan con las
+listas lado a lado. Mi casa, Ahora y Ajustes siguen en una columna. Dos
+cosas: un hijo nuevo de `<body>` que vaya en el flujo cae solo a lo ancho
+(`body.app > *`), pero la franja ocupa la fila 1 **aunque esté vacía** —si
+no, lo que viene después sube arriba de la cabecera—; y un sticky nuevo se
+pega en `calc(var(--alto-top) + …)`, no en `0`, o queda debajo de ella.
+
 **La tendencia del río no lleva color de estado.** Es caudal, no la regla del
 puerto: un naranja o un verde ahí le quita su significado al de la alerta. El
 titular dice las dos mitades en palabras («Subió esta semana y se espera que
