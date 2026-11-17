@@ -3806,6 +3806,44 @@ p.pie-frescura,
   font-size: var(--t-m);
 }
 
+.atajos-historia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--e-4);
+  margin: var(--e-7) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.atajos-historia a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+  height: 100%;
+  padding: var(--e-5);
+  border: 1px solid var(--linea-invertida);
+  border-radius: var(--r-l);
+  text-decoration: none;
+  transition: border-color var(--mov);
+}
+
+.atajos-historia b {
+  font-size: var(--t-m);
+  font-weight: 800;
+  line-height: 1.25;
+}
+.atajos-historia b span {
+  white-space: nowrap;
+}
+.atajos-historia a > span {
+  font-size: var(--t-s);
+  color: var(--tenue-invertido);
+}
+@media (hover: hover) {
+  .atajos-historia a:hover {
+    border-color: var(--acento);
+  }
+}
+
 .como-cabeza {
   display: flex;
   flex-wrap: wrap;

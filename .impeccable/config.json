@@ -26,6 +26,15 @@
         "value": "plus jakarta sans",
         "createdAt": "2026-10-26T12:53:39.089Z",
         "reason": "Decisión de proyecto documentada: Plus Jakarta Sans variable, self-hosteada, es la tipografía del texto (estilos/app.css y DESIGN.md). Decidió Claude con esa evidencia; el usuario no confirmó este ignore."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "public/index.html"
+        ],
+        "createdAt": "2026-11-17T19:38:40.209Z",
+        "reason": "Claude, con evidencia: el único hallazgo es .rm-tanque, la regla del mockup del hero; el agua y las líneas de alerta, evacuación y récord van de borde a borde a propósito (son la escala) y los rótulos son chips con fondo y relleno propios a 8 px del borde (estilos/app.css, .rm-umbral b)"
       }
     ]
   }
