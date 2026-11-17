@@ -59,24 +59,6 @@ Para que la próxima crecida encuentre a cada familia sabiendo su número, su pl
 
    Con el cálculo desglosado, no una caja negra, y sin fingir una precisión que los datos no tienen.
 
-## Mira el río. La lluvia es otra cuenta.
-
-Tu nivel de aviso sirve para las crecidas del Paraná. Pero si llueve mucho en poco tiempo, o varios días seguidos, una calle puede anegarse y entrar agua a las casas **aunque el río esté lejos de la alerta de la ciudad**.
-
-[Qué no dice tu nivel de aviso →](https://cotacerosf.com/datos#no-dice)
-
-Lo que mide
-
-El nivel del Paraná en el hidrómetro del Puerto, y cuánto le falta para llegar a tu terreno.
-
-Lo que no mide
-
-La lluvia sobre tu barrio, los desagües ni las bombas. Muestra la lluvia prevista, pero no la vuelve un número para tu casa.
-
-Cuando se juntan
-
-El municipio planifica para **río en 6 m + lluvia de 200 a 300 mm**: con el río alto, las bombas no alcanzan a sacar el agua de la ciudad. Y desde los **40 mm en un día** ya empieza a costar.
-
 ## 30 puntos de encuentro oficiales
 
 Los del municipio, verificados contra su GeoServer. En la app, ordenados por cercanía y sin conexión.
@@ -84,20 +66,6 @@ Los del municipio, verificados contra su GeoServer. En la app, ordenados por cer
 Su activación la confirma Defensa Civil: llamá al [**103**](tel:103) antes de salir.
 
 [Ver la lista completa](https://cotacerosf.com/puntos-de-encuentro)
-
-## Te dice lo que sabe. Y lo que no.
-
-Te dice de dónde sale cada número y cuánto margen tiene. Redondea en vez de fingir centímetros. Y cuando un dato no alcanza, lo dice en vez de inventarlo.
-
-[De dónde salen los datos →](https://cotacerosf.com/datos)
-
-Avisos de la app
-
-> «Sale de las curvas de nivel del municipio: pasan cerca de tu casa, no por tu puerta.»
-
-> «Si Defensa Civil dice que salgas, salí. Aunque acá diga que tenés margen.»
-
-Hecha por un vecino. No es una comunicación del municipio, y lo dice en cada pantalla.
 
 ## Conocé tu número antes de que lo diga el río.
 

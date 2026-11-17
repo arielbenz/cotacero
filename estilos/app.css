@@ -128,11 +128,9 @@
      claro son oscuras —la franja de historia, el cierre, la caja de código—
      en oscuro ya son --fondo-invertido, pero sin borde se fundían con el
      fondo: llevan un filete de 1 px y ninguna sombra, que en oscuro no se
-     ve. «Mira el río» es panel en claro y baja a --fondo-invertido en
-     oscuro. El pie va un tono más oscuro que el fondo.
-     En claro, los cuatro son neutros: el tema claro no cambia. */
+     ve. El pie va un tono más oscuro que el fondo.
+     En claro, los tres son neutros: el tema claro no cambia. */
   --borde-invertido: rgba(233, 238, 240, 0.08);
-  --sup-lluvia: var(--fondo-invertido);
   --fondo-pie: #0a1114;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px rgba(0, 0, 0, 0.3);
   --sombra-nav: 0 -6px 24px rgba(0, 0, 0, 0.35);
@@ -244,7 +242,6 @@
   --c-sup-fuerte: #0e1619;
   --c-sup-fuerte-borde: transparent;
   --c-borde-invertido: transparent;
-  --c-sup-lluvia: var(--panel);
   --c-fondo-pie: transparent;
   --c-linea-alerta: #cf440d;
   --c-linea-evac: #a5271a;
@@ -296,7 +293,6 @@
     --sup-fuerte: var(--c-sup-fuerte);
     --sup-fuerte-borde: var(--c-sup-fuerte-borde);
     --borde-invertido: var(--c-borde-invertido);
-    --sup-lluvia: var(--c-sup-lluvia);
     --fondo-pie: var(--c-fondo-pie);
     --linea-alerta: var(--c-linea-alerta);
     --linea-evac: var(--c-linea-evac);
@@ -338,7 +334,6 @@ html[data-theme="light"] {
   --sup-fuerte: var(--c-sup-fuerte);
   --sup-fuerte-borde: var(--c-sup-fuerte-borde);
   --borde-invertido: var(--c-borde-invertido);
-  --sup-lluvia: var(--c-sup-lluvia);
   --fondo-pie: var(--c-fondo-pie);
   --linea-alerta: var(--c-linea-alerta);
   --linea-evac: var(--c-linea-evac);
@@ -4476,58 +4471,6 @@ p.pie-frescura,
 .tarjeta-seccion h2 {
   margin-top: 0;
 }
-/* «Mira el río»: panel en claro; en oscuro baja a --fondo-invertido con su
-   filete (tokens --sup-lluvia y --borde-invertido). */
-.tarjeta-seccion.rio-lluvia {
-  background: var(--sup-lluvia);
-  border: 1px solid var(--borde-invertido);
-}
-/* ---------- la lluvia ----------
-   Dos tarjetas que separan lo que la app mide de lo que no, y una ámbar para
-   cuando se juntan. Es el único ámbar de la portada que no es un aviso: ése
-   color queda para el río y la lluvia juntos. */
-.rl-tarjetas {
-  display: flex;
-  flex-direction: column;
-  gap: var(--e-3);
-}
-.rl-par {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--e-3);
-}
-.rl-caja {
-  border-radius: var(--r-m);
-  padding: var(--e-4) var(--e-5);
-}
-.rl-caja .eti {
-  margin-bottom: var(--e-2);
-}
-.landing .rl-caja p {
-  margin: 0;
-  font-weight: 600;
-  font-size: var(--t-base);
-  line-height: 1.45;
-}
-.rl-mide {
-  background: var(--agua-tinte);
-}
-.rl-mide .eti {
-  color: var(--acento);
-}
-.rl-no-mide {
-  border: 1.5px dashed var(--linea);
-}
-.rl-juntan {
-  background: var(--alerta-tinte);
-}
-.rl-juntan .eti {
-  color: var(--alerta-texto);
-}
-.landing .rl-juntan p {
-  font-weight: 500;
-}
-
 /* ---------- secciones a dos columnas ---------- */
 /* El botón de las tarjetas no ocupa el ancho: es una acción, no un bloque. */
 .tarjeta-seccion .btn {
@@ -4538,57 +4481,6 @@ p.pie-frescura,
   height: 100%;
   min-height: 460px;
 }
-/* ---------- los avisos de la app, citados en la portada ----------
-   Esto se llamaba `.cita` y chocaba de frente con la cita textual de las
-   páginas generadas: el mismo nombre, la misma especificidad y mil líneas más
-   abajo, así que ganaba la otra. Estas tarjetas salían en monoespaciada, con
-   fondo gris y 6 px de aire a los costados, contra un borde durazno que sí
-   sobrevivía — y la tercera se veía distinta porque `.cita.neutra`, con un
-   punto más de especificidad, era la única que recuperaba lo suyo.
-
-   Dos componentes que no tienen nada que ver no pueden compartir nombre.
-   `.cita` se queda con lo que de verdad es una cita de un documento; esto pasa
-   a llamarse por lo que es.
-
-   La cara la toman prestada de `.aviso`, que es el componente con el que la
-   app dibuja estos mismos avisos de verdad: mismo tinte, mismo radio, mismo
-   padding y sin borde. La sección afirma que la app avisa lo que no sabe;
-   mostrar esos avisos con otra piel sería ilustrar la afirmación en vez de
-   mostrarla. */
-.avisos-app {
-  display: flex;
-  flex-direction: column;
-  gap: var(--e-3);
-}
-/* El encabezado de la columna. Antes cada tarjeta repetía "AVISO EN LA APP",
-   que a la segunda deja de informar. La línea lo ata al grupo sin gastar un
-   renglón de aire; el margen se anula porque acá el espaciado lo pone el gap. */
-.avisos-app > .eti {
-  margin-bottom: 0;
-  padding-bottom: var(--e-2);
-  border-bottom: 1.5px solid var(--linea);
-}
-.aviso-app {
-  background: var(--alerta-tinte);
-  border-radius: var(--r-m);
-  padding: var(--e-4) var(--e-5);
-}
-/* La aclaración del proyecto no es un aviso de la app: sin el tinte de alerta
-   y con una línea simple, para que no compita con los dos de arriba. */
-.aviso-app.neutro {
-  background: transparent;
-  border: 1.5px solid var(--linea);
-}
-/* Margen cero: el aire lo pone el padding de la tarjeta, y `.landing p` mete
-   16 px abajo que acá descuadran la caja. El 600 contra el 500 de la prosa de
-   al lado es lo que separa la evidencia del argumento, sin cambiar el cuerpo:
-   son dos textos del mismo rango, uno cita al otro. */
-.aviso-app p {
-  margin: 0;
-  font-weight: 600;
-}
-
-
 /* ---------- llamada final ---------- */
 /* La tarjeta para medios, debajo de la caja de cierre. Sin botón y sin número
    de secuencia a propósito: la acción principal de la portada es una sola
@@ -5530,8 +5422,7 @@ html.texto-grande {
      texto reflota y no se gana nada, así que van apilados. Las métricas son un
      número y un renglón corto — ahí dos columnas ahorran media pantalla. */
   .hitos,
-  .tres,
-  .rl-par {
+  .tres {
     grid-template-columns: 1fr;
   }
   /* Cada año en un renglón: el número a la izquierda y la frase al lado. */
@@ -7155,7 +7046,6 @@ button.enlace-crudo {
   .veredicto,
   .aviso,
   .bloque,
-  .aviso-app,
   .segmentado {
     border: 1px solid CanvasText;
   }
