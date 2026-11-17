@@ -4981,6 +4981,31 @@ html.texto-grande {
   padding: var(--e-5) var(--e-6);
 }
 
+/* El cierre de /historia y /comparar: «Esto es historia, no pronóstico» y la
+   fuente. Uno abajo del otro, a 1100 px, con la prosa acotada a 50ch, dejaban
+   media tarjeta vacía cada uno. En escritorio van lado a lado: el texto en
+   la más ancha, la fuente al costado, con los botones abajo para que las dos
+   cierren a la misma altura. En el teléfono se apilan como antes. */
+@media (min-width: 901px) {
+  .cierre-historia {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    gap: var(--e-5);
+    margin-bottom: var(--e-5);
+  }
+  .landing .cierre-historia > .bloque {
+    margin-bottom: 0;
+  }
+  .cierre-historia > .bloque.borde {
+    display: flex;
+    flex-direction: column;
+  }
+  .cierre-historia > .bloque.borde .fuente-enlaces {
+    margin-top: auto;
+    padding-top: var(--e-4);
+  }
+}
+
 @media (max-width: 700px) {
   .rejilla-2 {
     grid-template-columns: 1fr;

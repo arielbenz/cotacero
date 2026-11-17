@@ -4374,6 +4374,26 @@ html.texto-grande {
   padding: var(--e-5) var(--e-6);
 }
 
+@media (min-width: 901px) {
+  .cierre-historia {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    gap: var(--e-5);
+    margin-bottom: var(--e-5);
+  }
+  .landing .cierre-historia > .bloque {
+    margin-bottom: 0;
+  }
+  .cierre-historia > .bloque.borde {
+    display: flex;
+    flex-direction: column;
+  }
+  .cierre-historia > .bloque.borde .fuente-enlaces {
+    margin-top: auto;
+    padding-top: var(--e-4);
+  }
+}
+
 @media (max-width: 700px) {
   .rejilla-2 {
     grid-template-columns: 1fr;
