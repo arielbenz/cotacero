@@ -1100,8 +1100,10 @@ sin dirección en OpenStreetMap lo necesitó.
 portada y la cita textual de `/datos`—, con la misma especificidad y mil líneas
 de distancia. Ganaba la de más abajo, así que la portada salía en monoespaciada
 sobre fondo gris y `/datos` arrastraba un borde ámbar que nadie pidió. **Las dos
-estaban rotas y ninguna fallaba de forma visible.** Hoy son `.aviso-app` y
-`.cita`. Antes de estrenar un nombre de clase, `grep` en `estilos/app.css`.
+estaban rotas y ninguna fallaba de forma visible.** Se separaron en
+`.aviso-app` y `.cita`; la primera se fue con su sección de la portada
+(noviembre de 2026). Antes de estrenar un nombre de clase, `grep` en
+`estilos/app.css`.
 
 ### Dos botones, no tres
 
