@@ -228,41 +228,43 @@ ${tabla}
         </details>
       </section>
 
-      <section class="bloque oscuro">
-        <h2>Esto es historia, no pronóstico</h2>
-        <p>
-          El gráfico muestra dónde estuvo el río, no dónde va a estar. En cien
-          años cambiaron las presas aguas arriba y el régimen del río, y la
-          ciudad tampoco es la misma: un mismo número del hidrómetro no
-          significaba lo mismo antes que ahora.
-        </p>
-        <p>
-          La alerta de la ciudad es de <b>${nm(ESTACION.alerta, 2)} m</b> y la
-          evacuación, de <b>${nm(ESTACION.evacuacion, 2)} m</b>; las dos las
-          publica la estación del INA. Alcanzar una altura no significa que el
-          agua entre a una casa:
-          <a href="/datos#no-dice">por qué el nivel del río no es una predicción de inundación</a>.
-          El resumen de cada año, con sus máximos y sus días en alerta, está en
-          <a href="/historia">Cien años del Paraná</a>.
-        </p>
-      </section>
+      <div class="cierre-historia">
+        <section class="bloque oscuro">
+          <h2>Esto es historia, no pronóstico</h2>
+          <p>
+            El gráfico muestra dónde estuvo el río, no dónde va a estar. En cien
+            años cambiaron las presas aguas arriba y el régimen del río, y la
+            ciudad tampoco es la misma: un mismo número del hidrómetro no
+            significaba lo mismo antes que ahora.
+          </p>
+          <p>
+            La alerta de la ciudad es de <b>${nm(ESTACION.alerta, 2)} m</b> y la
+            evacuación, de <b>${nm(ESTACION.evacuacion, 2)} m</b>; las dos las
+            publica la estación del INA. Alcanzar una altura no significa que el
+            agua entre a una casa:
+            <a href="/datos#no-dice">por qué el nivel del río no es una predicción de inundación</a>.
+            El resumen de cada año, con sus máximos y sus días en alerta, está en
+            <a href="/historia">Cien años del Paraná</a>.
+          </p>
+        </section>
 
-      <section class="bloque borde">
-        <p class="kicker">La fuente</p>
-        <p class="chico">
-          Lectura diaria del hidrómetro del Puerto de Santa Fe:
-          <b>${serie.dias.toLocaleString("es-AR")} días medidos</b> en
-          ${ANIOS.length} años, del ${enPalabras(serie.desde)} al
-          ${enPalabras(serie.hasta)}. Fuente: ${esc(ORGANISMOS.ina.nombre)},
-          serie ${ESTACION.serieId} (altura hidrométrica, medición directa).
-          Cuando un día tiene más de una lectura se toma la más alta. Los
-          últimos 30 días se actualizan solos con la lectura del día.
-        </p>
-        <p class="fuente-enlaces">
-          <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
-          <a class="enlace-crudo" href="/datos-abiertos/serie-diaria.json">Bajar la serie día por día</a>
-        </p>
-      </section>`,
+        <section class="bloque borde">
+          <p class="kicker">La fuente</p>
+          <p class="chico">
+            Lectura diaria del hidrómetro del Puerto de Santa Fe:
+            <b>${serie.dias.toLocaleString("es-AR")} días medidos</b> en
+            ${ANIOS.length} años, del ${enPalabras(serie.desde)} al
+            ${enPalabras(serie.hasta)}. Fuente: ${esc(ORGANISMOS.ina.nombre)},
+            serie ${ESTACION.serieId} (altura hidrométrica, medición directa).
+            Cuando un día tiene más de una lectura se toma la más alta. Los
+            últimos 30 días se actualizan solos con la lectura del día.
+          </p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="/datos-abiertos/serie-diaria.json">Bajar la serie día por día</a>
+          </p>
+        </section>
+      </div>`,
   ],
 });
 

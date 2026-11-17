@@ -188,47 +188,49 @@ ${tablaHist}
         </p>
       </section>
 
-      <section class="bloque oscuro">
-        <h2>Esto es historia, no pronóstico</h2>
-        <p>
-          Que una altura se haya alcanzado pocas veces en cien años no dice
-          nada sobre lo que va a pasar este año. En cien años cambiaron las
-          presas aguas arriba, el uso del suelo de la cuenca y el propio
-          régimen del río.
-        </p>
-        <p>
-          Y la ciudad de 1925 no es la de hoy: un mismo número del hidrómetro
-          no significaba lo mismo antes que ahora, porque cambió lo que hay
-          entre el río y las casas. Y la serie mide sólo el Paraná: en 2003 no
-          llegó a la alerta, y la ciudad se inundó igual por el Salado.
-        </p>
-        ${
-          /* Era un bloque aparte, «Comparar con el río de hoy», con tres
-             enlaces al pie: el patrón «Seguí por acá» que CLAUDE.md prohíbe.
-             El enlace va donde el texto lo pide. */ ""
-        }<p>
-          Lo que marca el hidrómetro hoy está en la <a href="/">portada</a>, y
-          qué significa para un terreno en particular, en la
-          <a href="/app?ir=cota">app</a>.
-        </p>
-      </section>
+      <div class="cierre-historia">
+        <section class="bloque oscuro">
+          <h2>Esto es historia, no pronóstico</h2>
+          <p>
+            Que una altura se haya alcanzado pocas veces en cien años no dice
+            nada sobre lo que va a pasar este año. En cien años cambiaron las
+            presas aguas arriba, el uso del suelo de la cuenca y el propio
+            régimen del río.
+          </p>
+          <p>
+            Y la ciudad de 1925 no es la de hoy: un mismo número del hidrómetro
+            no significaba lo mismo antes que ahora, porque cambió lo que hay
+            entre el río y las casas. Y la serie mide sólo el Paraná: en 2003 no
+            llegó a la alerta, y la ciudad se inundó igual por el Salado.
+          </p>
+          ${
+            /* Era un bloque aparte, «Comparar con el río de hoy», con tres
+               enlaces al pie: el patrón «Seguí por acá» que CLAUDE.md prohíbe.
+               El enlace va donde el texto lo pide. */ ""
+          }<p>
+            Lo que marca el hidrómetro hoy está en la <a href="/">portada</a>, y
+            qué significa para un terreno en particular, en la
+            <a href="/app?ir=cota">app</a>.
+          </p>
+        </section>
 
-      <section class="bloque borde">
-        <p class="kicker">La fuente</p>
-        <p class="chico">
-          Serie diaria del hidrómetro del Puerto de Santa Fe:
-          <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> entre el
-          ${enPalabras(historia.desde)} y el ${enPalabras(historia.hasta)}.
-          Fuente: ${esc(ORGANISMOS.ina.nombre)}, serie ${ESTACION.serieId}
-          (altura hidrométrica, medición directa). Descargado el
-          ${enPalabras(historia.generado)}.
-          ${historia.incompletos.length ? "Con la libreta incompleta: " + historia.incompletos.join(", ") + "." : ""}
-        </p>
-        <p class="fuente-enlaces">
-          <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
-          <a class="enlace-crudo" href="${esc(FUENTES.historia.verificar)}" target="_blank" rel="noopener">Ver la serie cruda</a>
-        </p>
-      </section>`,
+        <section class="bloque borde">
+          <p class="kicker">La fuente</p>
+          <p class="chico">
+            Serie diaria del hidrómetro del Puerto de Santa Fe:
+            <b>${historia.dias.toLocaleString("es-AR")} días medidos</b> entre el
+            ${enPalabras(historia.desde)} y el ${enPalabras(historia.hasta)}.
+            Fuente: ${esc(ORGANISMOS.ina.nombre)}, serie ${ESTACION.serieId}
+            (altura hidrométrica, medición directa). Descargado el
+            ${enPalabras(historia.generado)}.
+            ${historia.incompletos.length ? "Con la libreta incompleta: " + historia.incompletos.join(", ") + "." : ""}
+          </p>
+          <p class="fuente-enlaces">
+            <a class="btn sec" href="${FUENTES.historia.url}" target="_blank" rel="noopener">Ver fuente</a>
+            <a class="enlace-crudo" href="${esc(FUENTES.historia.verificar)}" target="_blank" rel="noopener">Ver la serie cruda</a>
+          </p>
+        </section>
+      </div>`,
   ],
 });
 
