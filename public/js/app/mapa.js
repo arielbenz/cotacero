@@ -956,7 +956,19 @@ function avisoMapa(html, abajo = false) {
 
 /* La fecha va en el pedido, no sólo en la atribución plegada: una casa
    construida después de 2014 sale como baldío, y quien la busca tiene que
-   saber por qué no la encuentra. */
+   saber por qué no la encuentra. «Guiate por las calles» no alcanzaba: un
+   vecino de Villa Añatí (Rincón) escribió que el mapa «muestra todo campo»
+   donde vive hace cinco años (noviembre de 2026). Ahora dice por qué y
+   ofrece el plano, donde las calles están dibujadas y no sólo rotuladas. No
+   hay una foto más nueva sin clave ni cuota: el GeoServer del municipio está
+   detrás de un desafío de Cloudflare, y Esri o Mapbox cortan en el pico de
+   una crecida (CLAUDE.md, «El mapa son dos hosts»). */
+const textoFondo = () => (conFoto ? "Ver el plano" : "Ver la foto");
+const BOTON_FONDO = () =>
+  ' <button class="enlace-crudo" type="button" data-accion="mapa-fondo">' +
+  textoFondo() +
+  "</button>";
+
 const pedirToque = (texto) =>
   avisoMapa(
     "<b>" +
@@ -964,10 +976,23 @@ const pedirToque = (texto) =>
       "</b>" +
       (texto
         ? ""
-        : " La foto es del IGN, de 2013 y 2014: si tu casa es más nueva, " +
-          "guiate por las calles.") +
-      CANCELAR,
+        : " La foto es de 2013 y 2014: si tu cuadra sale como campo, guiate " +
+          "por los nombres de las calles o pasá al plano.") +
+      '<div class="mapa-aviso-botones">' +
+      BOTON_FONDO() +
+      CANCELAR +
+      "</div>",
   );
+
+/* Foto o plano mientras se marca. El botón cambia de texto en el lugar: el
+   pedido no se vuelve a escribir, y un lector de pantalla no lo relee. */
+export function cambiarFondoDeMarcar() {
+  if (!estaMarcando()) return;
+  fondoDeMarcar(!conFoto);
+  document
+    .querySelectorAll('#mapa [data-accion="mapa-fondo"]')
+    .forEach((b) => (b.textContent = textoFondo()));
+}
 
 const estaMarcando = () =>
   Boolean(document.getElementById("mapa")?.classList.contains("marcando"));

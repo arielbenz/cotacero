@@ -695,7 +695,7 @@ export function calcular() {
     ${glosa}${barraCasa(ref, r, alto)}${faltaRio}
     <p class="veredicto-pie">${txt}</p></div>`;
 
-  html += avisoSalado() + renglonCasa(z, km);
+  html += avisoSalado() + avisoDefensa() + renglonCasa(z, km);
   /* Antes estaba al final de la pantalla, unos 2.000 px abajo: lo que sigue a
      tu número es armar el plan, no leer el desglose. */
   html +=
@@ -832,6 +832,56 @@ export function avisoSalado(corto) {
     "del Puerto: la app no lee el nivel del Salado. De ese lado el agua " +
     "también puede venir del Salado o de la lluvia, aunque el Paraná esté " +
     'bajo. Para eso, guiate por Defensa Civil: <a href="tel:103">103</a>.</div>'
+  );
+}
+
+/* La casa está detrás de una defensa y el río está a 50 cm o menos de su
+   nivel de aviso, o ya lo pasó: el veredicto dice «Mové a las personas…» y
+   lo que hay entre el río y la casa quedaba en «Lo que hay entre el río y tu
+   casa», debajo del plan, los avisos y el desglose. Dos vecinos de Colastiné
+   Norte (noviembre de 2026) leyeron eso con el río en 5,83, detrás de un
+   terraplén que en 2016 aguantó 6,61: «¿es necesario que haga esto?».
+   No cambia el cálculo, ni el estado, ni el verbo —la app no sabe en qué
+   estado está la defensa hoy—: pone al lado del veredicto lo que la cuenta
+   no mira, con el nivel más alto registrado en la zona y su fuente. Con el
+   río lejos no sale: ahí alcanza la tarjeta de más abajo. `corto` es el
+   renglón de la tarjeta de la casa de la pestaña Río. */
+export function avisoDefensa(corto) {
+  const z = ZONAS.find((x) => x.id === estado.zona);
+  if (!z || estado.zonaAjena || estado.cota == null) return "";
+  if (z.defensa !== "local" && z.defensa !== "anillo") return "";
+  /* Con el mismo río que usa el veredicto, vencido o no: con el dato viejo
+     el veredicto igual dice «El río pasó tu nivel de aviso», y el contexto
+     tiene que ir con él. */
+  const r = estado.rio;
+  if (r == null || faltaCm(r, cotaEnHidrometro()) > 50) return "";
+  if (corto)
+    return (
+      '<p class="chico defensa-cerca"><b>Tu zona tiene defensa.</b> Este ' +
+      "número es lo que pasaría sin ella: lo que pasó otras veces está en Mi " +
+      "casa.</p>"
+    );
+  const max = (z.observado || []).reduce(
+    (a, o) => (!a || o.nivel > a.nivel ? o : a),
+    null,
+  );
+  return (
+    '<div class="aviso neutro defensa-cerca"><b>Lo que hay entre el río y tu ' +
+    "casa:</b> " +
+    z.nota +
+    " Tu nivel de aviso es lo que pasaría si esa defensa no estuviera. La " +
+    "app no sabe en qué estado está hoy, y el agua puede entrar antes por " +
+    "filtraciones, la napa o los desagües." +
+    /* El renglón de `observado` empieza en minúscula y lleva su propio «:»
+       («máximo de 2016: el Garello aguantó…»): va como oración aparte, y la
+       fuente detrás, que ya trae paréntesis adentro. */
+    (max
+      ? ` Lo más alto que tenemos registrado en tu zona: <b style="white-space:nowrap">${m(max.nivel)}</b>. ` +
+        max.que.charAt(0).toUpperCase() +
+        max.que.slice(1).replace(/\.?$/, ".") +
+        ` Fuente: ${max.fuente}.`
+      : "") +
+    ' Ante la duda, Defensa Civil: <a href="tel:103">103</a>.</div>'
   );
 }
 
