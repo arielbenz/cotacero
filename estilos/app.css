@@ -915,6 +915,13 @@ p.lado-salado {
   margin: 0 0 var(--e-2);
   color: var(--texto);
 }
+/* La defensa de la zona, con el río cerca del nivel de aviso (avisoDefensa
+   en cota.js). Igual que el del Salado: neutro, dice lo que el número no
+   mira. */
+p.defensa-cerca {
+  margin: 0 0 var(--e-2);
+  color: var(--texto);
+}
 /* La mochila al pie del veredicto, en un renglón con su botón: apilados
    empujaban la tarjeta de la casa fuera de la primera pantalla. */
 .plan-rio {

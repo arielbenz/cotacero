@@ -56,6 +56,7 @@ import { cargarLluvia } from "./lluvia.js";
 import {
   buscarDireccion,
   buscarEnVecina,
+  cambiarFondoDeMarcar,
   cancelarMarca,
   confirmarMarca,
   mapa,
@@ -264,6 +265,7 @@ const ACCIONES = {
   "mapa-confirmar": () => confirmarMarca(),
   "mapa-de-nuevo": () => marcarDeNuevo(),
   "mapa-cancelar": () => cancelarMarca(),
+  "mapa-fondo": () => cambiarFondoDeMarcar(),
   ayuda: () => {
     const t = document.getElementById("ayuda-simple");
     if (t) t.hidden = false;

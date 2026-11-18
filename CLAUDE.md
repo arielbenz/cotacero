@@ -932,6 +932,20 @@ cambia el cálculo ni es un estado**: dice lo que el número no mira. El punto
 no se guarda; se guarda la respuesta (`cc_lado_salado`), y con la altura a
 mano se apaga porque no hay punto.
 
+**Una casa detrás de una defensa también lo dice al lado del veredicto**
+(noviembre de 2026, `avisoDefensa()` en `cota.js`). Dos vecinos de
+Colastiné Norte, con el río en 5,83 y un nivel de aviso de ≈ 5,8, leyeron
+«Mové a las personas…» detrás del Garello, que en 2016 aguantó 6,61: la
+tarjeta de la defensa estaba debajo del plan y de los avisos. Con la zona
+confirmada, defensa `local` o `anillo` y el río a 50 cm o menos —o pasado—
+del nivel de aviso, va un aviso neutro debajo del veredicto en Mi casa (y
+un renglón en la tarjeta de Río): la `nota` de la zona, que el número es lo
+que pasaría sin la defensa, que la app no sabe en qué estado está, el
+`observado` más alto con su fuente, y el 103. Usa el mismo río que el
+veredicto, vencido o no. **No cambia el cálculo, el estado ni el verbo**: si
+alguna vez se decide que una defensa ablande la instrucción, es una decisión
+del proyecto, no de este aviso.
+
 ### Objetivos táctiles, contraste y la barra de instalar
 
 **Mínimo 44 px, y cómo se llega.** Los enlaces dentro de una frase —el «103» de
@@ -998,7 +1012,12 @@ pasa a `position: fixed` con la clase `marcando` (y `body.marcando-mapa` frena
 el scroll); `mapa.js` llama a `resize()` al entrar y al salir. El pedido va
 arriba, la confirmación abajo (`.mapa-aviso.confirmar`), Escape cancela, y la
 caja usa la tipografía del producto y no la de MapLibre (Helvetica 13 px).
-Antes quedaban ~170 px de foto para tocar.
+Antes quedaban ~170 px de foto para tocar. **El pedido lleva «Ver el plano» /
+«Ver la foto»** (`cambiarFondoDeMarcar()`, acción `mapa-fondo`): la foto
+del IGN es de 2013 y 2014, y en Villa Añatí (Rincón) un barrio de cinco años
+sale como campo, con los nombres de las calles flotando encima. En el plano
+las calles están dibujadas. No hay una foto más nueva sin clave ni cuota: el
+GeoServer del municipio está detrás de un desafío de Cloudflare.
 
 **El placeholder es el tenue** (`::placeholder` en `estilos/app.css`). Sin esa
 regla el navegador pone #757575: 4,14:1 en claro y 2,87 en oscuro, en el campo

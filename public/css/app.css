@@ -763,6 +763,11 @@ p.lado-salado {
   color: var(--texto);
 }
 
+p.defensa-cerca {
+  margin: 0 0 var(--e-2);
+  color: var(--texto);
+}
+
 .plan-rio {
   display: flex;
   flex-wrap: wrap;
