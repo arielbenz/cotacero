@@ -177,6 +177,25 @@ mismo sistema, o —más probable— el hidrómetro del Puerto de Santa Fe no es
 sobre el cauce principal del Paraná sino sobre el riacho, que es otra cosa
 hidráulicamente.
 
+_23/11/2026: no era una anomalía._ En la vía navegable Santa Fe está en el
+km 584 y Paraná en el 601: Paraná está aguas ARRIBA del empalme. Ver abajo.
+
+### Paso 3 (23/11/2026): los km de la vía navegable y la regla del Leyes
+
+- `analisis-pendiente-cauce-<fecha>.mjs` — pasa los desniveles del paso 2 a
+  cm/km con los km de los boletines de Vías Navegables (Santa Fe 584, Paraná
+  601, Hernandarias 689), y resta la regla del Leyes a la del Puerto.
+- `ina-serie-6232-2001-2026-<fecha>.json` — la regla del arroyo Leyes en la
+  Ruta 1 (SSRH 3225), lecturas desde 2001. Sin cero publicado.
+- `ina-estacion-6232-<fecha>.json` — su ficha en el catálogo del INA.
+- `salida-pendiente-cauce-<fecha>.txt` — la salida.
+
+    Santa Fe → Hernandarias (105 km)   5,0 cm/km aguas bajas · 4,8–4,9 en crecida
+    Santa Fe → Paraná (17 km)          4,2–4,5 aguas bajas  · 2,8–3,0 en crecida
+    Leyes − Puerto                     2,96 m aguas bajas  · 2,48 m en crecida
+
+Lectura, y sus límites, en `AUDITORIA.md` §2.
+
 ## La serie diaria y /comparar (13/11/2026)
 
 - `analisis-serie-diaria-<fecha>.mjs` — el prototipo de dos gráficos (años

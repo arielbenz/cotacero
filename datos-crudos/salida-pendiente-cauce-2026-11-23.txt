@@ -1,0 +1,49 @@
+
+=== 1. Pendiente sobre el cauce principal, cm/km ===
+
+  Santa Fe → Hernandarias (105 km), cero de Santa Fe 8,3780
+  Puerto        n     mediana   p10    p90
+  0–3 m       5222     5,03   4,80   5,23
+  3–5 m       6681     4,99   4,67   5,29
+  5–5.7 m      726     4,87   4,62   5,16
+  5.7–10 m     504     4,86   4,51   5,32
+  6.2–10 m     162     4,98   4,72   5,36
+
+  Santa Fe → Hernandarias (105 km), cero de Santa Fe 8,4214
+  Puerto        n     mediana   p10    p90
+  0–3 m       5222     4,99   4,76   5,19
+  3–5 m       6681     4,95   4,63   5,25
+  5–5.7 m      726     4,83   4,58   5,12
+  5.7–10 m     504     4,82   4,47   5,27
+  6.2–10 m     162     4,94   4,67   5,32
+
+  Santa Fe → Paraná (17 km), cero de Santa Fe 8,3780
+  Puerto        n     mediana   p10    p90
+  0–3 m       5291     4,49   3,73   5,14
+  3–5 m       6744     4,20   3,14   5,20
+  5–5.7 m      756     3,49   2,73   4,55
+  5.7–10 m     503     3,02   2,20   4,26
+  6.2–10 m     162     3,08   2,55   4,20
+
+  Santa Fe → Paraná (17 km), cero de Santa Fe 8,4214
+  Puerto        n     mediana   p10    p90
+  0–3 m       5291     4,24   3,47   4,89
+  3–5 m       6744     3,94   2,89   4,94
+  5–5.7 m      756     3,24   2,47   4,30
+  5.7–10 m     503     2,77   1,94   4,00
+  6.2–10 m     162     2,83   2,30   3,94
+
+=== 2. Regla del Leyes (Ruta 1) menos regla del Puerto, m ===
+  9082 días con lectura en el Leyes
+  Puerto        n     mediana   p10    p90
+  0–2 m       1421     2,96   2,81   3,16
+  2–3 m       3177     2,78   2,66   2,90
+  3–4 m       2623     2,65   2,48   2,75
+  4–5 m       1311     2,50   2,29   2,67
+  5–5.7 m      302     2,47   2,25   2,62
+  5.7–10 m     157     2,48   2,32   2,60
+
+  Picos:
+  1992-06-22  Puerto 7.43  Leyes —  Paraná 6.89  Hernandarias 7.88
+  2016-01-04  Puerto 6.59  Leyes 9.2  Paraná 6.19  Hernandarias 7.14
+  2016-01-05  Puerto 6.61  Leyes 9.15  Paraná 6.22  Hernandarias 7.14

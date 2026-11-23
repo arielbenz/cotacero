@@ -126,7 +126,7 @@ Se comprobó
 | 9 de cada 10, a menos de | 1,10 m |
 | El margen de medio metro alcanza en | 98 de 100 |
 
-Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del **terreno**; la del **agua** río arriba del Puerto no se pudo comprobar con ninguna medición.
+Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del **terreno**; la del **agua** frente a cada zona, río arriba del Puerto, no se pudo comprobar con ninguna medición.
 
 En discusión
 
@@ -134,13 +134,15 @@ En discusión
 
 **El cero: 8,42, con una duda.** Sale de la nota de Vías Navegables (8,9524 en el sistema del ex MOP) pasada al sistema del IGN; el INA midió 8,378 en 2016. Falta saber en qué sistema de alturas están las curvas del municipio.
 
-**La pendiente: 0,045 m/km.** No hay una medición que la respalde, y usamos un solo valor para todas las zonas. La cifra de 1992 que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.
+**La pendiente: 0,045 m/km.** Sobre el cauce principal del Paraná está medida: entre Santa Fe y Hernandarias, con las lecturas diarias del INA desde 1990, da entre 4,8 y 5 cm por km. Hacia la costa —Colastiné, Rincón, Arroyo Leyes— no hay medición, y usamos un solo valor para todas las zonas. La cifra de 1992 que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.
 
 **De dónde sale cada uno**
 
 **El cero.** Hasta el 26 de octubre de 2026 usábamos 8,20: la diferencia que sale del Reglamento de Edificaciones de San José del Rincón (16.00 I.G.M (7.80 m Hidrómetro Pto Santa Fe)), que repite la prensa. Ningún organismo lo respalda: en la nota del 23/7/2018 (expediente 01801-0049664-3, Ministerio de Infraestructura y Transporte de Santa Fe) la Subsecretaría de Puertos y Vías Navegables, que mantiene la escala, aclara que el 8,19 «no es un valor brindado por este organismo» y da el cero de la escala: +8,9524 en el sistema del ex Ministerio de Obras Públicas. El IGN publica que el pasaje de ese sistema al suyo es HIGN = HMOP − 0,531 m: 8,9524 − 0,531 = **8,4214**. El INA midió 8,378 con el IGN en diciembre de 2016, y la propia nota usa un desnivel de 0,556 que da 8,3964: los tres valores quedan a 4 cm. Lo que sigue abierto es que las curvas del municipio no declaran su sistema de alturas, y el 0,531 está medido en el Riachuelo, no en Santa Fe. Si las curvas estuvieran en un sistema anterior, 8,42 haría avisar hasta unos 20 cm antes: queda del lado seguro.
 
 **La pendiente.** El reglamento de Rincón, 16 km río arriba, convierte cota a hidrómetro sin ninguna corrección por distancia; con la pendiente de la app serían 72 cm más. O el reglamento simplifica, o la pendiente real en ese tramo es otra: depende del tramo, del caudal y de la condición hidráulica del momento.
+
+**Lo que sí está medido.** El INA publica las lecturas de Santa Fe, Paraná y Hernandarias con el cero de cada regla en el sistema del IGN, y Vías Navegables publica dónde está cada una sobre el río (km 584, 601 y 689). Con eso, entre Santa Fe y Hernandarias el agua sube 5 cm por km en aguas bajas y entre 4,8 y 4,9 en crecida. Entre Santa Fe y Paraná, en crecida, unos 3. El INA tiene además una regla en el arroyo Leyes, sobre la Ruta 1, con lecturas desde 2001, pero sin su cero publicado: comparada con la del Puerto, la diferencia se achica medio metro cuando el río crece. Eso indica que hacia la costa, en crecida, la pendiente es menor que la de la app; si es así, la app avisa antes de lo necesario, que es el lado seguro. Con el cero de esa regla se puede medir.
 
 **Y por qué 1992 no la confirma.** La nota de prensa que publica la cota de Arroyo Leyes en 1992 —16,70 IGN— dice que «se estima», y la saca de 7,43 m en el Puerto más 24 km a 4,5 cm por km. Es la misma cuenta que hace la app. Para cerrarla hace falta una sola cota del agua **medida** río arriba del Puerto, en 1992 o en 2016.
 
@@ -183,7 +185,7 @@ Fuente: Gestión de Riesgos · Plan de Contingencia [ver](https://santafeciudad.
 ## Lo que todavía no sabe
 
 - **En qué sistema de alturas están las curvas.** Los metadatos no lo declaran, y de eso depende si el cero de 8,42 corresponde a ellas o hay que corregirlo.
-- **Si la pendiente vale en todos los tramos.** Está contrastada en un punto de una crecida.
+- **Si la pendiente vale hacia la costa.** Está medida sobre el cauce principal; entre el Puerto y Arroyo Leyes falta el cero de la regla del arroyo para medirla.
 - **Cuánto se equivoca la cota en tu cuadra.** Medido contra 330 puntos del municipio, el medio metro alcanza en 98 de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.
 - **Los km río arriba de cada zona.** Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.
 - **En qué estado está la defensa de tu zona.** Cambia el resultado más que cualquiera de las constantes.

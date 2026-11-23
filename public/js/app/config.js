@@ -26,6 +26,9 @@ export const CONFIG = {
    8,20, que ningún organismo respalda (AUDITORIA.md §1). */
 export const CERO_IGN = 8.4214;
 
+/* Despejada de 1992, que es circular. Sobre el cauce principal la respaldan
+   las estaciones del INA (4,8–5,0 cm/km Santa Fe–Hernandarias); hacia la
+   costa, en crecida, sería menor y falta medirla (AUDITORIA.md §2). */
 export const PENDIENTE = 0.045;
 
 export const ESCALA_MIN = 0;

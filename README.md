@@ -34,7 +34,10 @@ no declaran su sistema de alturas (AUDITORIA.md §1). **Las otras constantes
 están en discusión y no se tocaron.** La pendiente se despejó del mismo caso de 1992 con el que
 después se la «validaba»: el 16,70 de Arroyo Leyes en 1992 que circula en la
 prensa se estimó con esa misma pendiente, así que coincidir con él no prueba
-nada. Lo que sí se midió contra algo independiente es la altura del terreno:
+nada. Sobre el cauce principal sí está medida: entre Santa Fe y Hernandarias
+las estaciones del INA dan 4,8–5,0 cm/km; hacia la costa, en crecida, la regla
+del arroyo Leyes indica que es menor, pero sin su cero no dice cuánto
+(`AUDITORIA.md` §2). Lo que sí se midió contra algo independiente es la altura del terreno:
 contra 330 puntos fijos de la Municipalidad, el margen de medio metro alcanza
 en 98 de cada 100. Todo está en `AUDITORIA.md` §1, §3 y §4, y explicado para
 cualquiera en `/datos`.
@@ -504,6 +507,9 @@ escribir código.
   Es la limitación más importante, no un pendiente más.
 - **Una cota de agua medida** de 1992 o 2016 en cualquier punto río arriba del
   puerto. Con una sola, la pendiente deja de ser un número sin respaldo.
+  El atajo: **la cota del cero de la regla del arroyo Leyes en la Ruta 1**
+  (INA serie 6232, SSRH 3225), que tiene lecturas diarias desde 2001 y la
+  crecida de 2016 entera (`AUDITORIA.md` §7, pregunta 29).
 - **Medir los km río arriba de cada zona sobre el cauce.** Salvo Arroyo Leyes
   (24 km, publicado) son estimaciones propias, y a 4,5 cm por km equivocarse
   5 km son 22 cm. La app ya lo aclara en pantalla.

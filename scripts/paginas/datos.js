@@ -370,13 +370,13 @@ ${[
               <tr><td>9 de cada 10, a menos de</td><td>${MEDICION.nueveDeDiez}</td></tr>
               <tr class="total"><td>El margen de medio metro alcanza en</td><td>${MEDICION.alcanza} de 100</td></tr>
             </table>
-            <p class="chico">Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del <b>terreno</b>; la del <b>agua</b> río arriba del Puerto no se pudo comprobar con ninguna medición.</p>
+            <p class="chico">Casi siempre del lado seguro: las curvas dan el terreno más bajo de lo que es. Es la altura del <b>terreno</b>; la del <b>agua</b> frente a cada zona, río arriba del Puerto, no se pudo comprobar con ninguna medición.</p>
           </div>
           <div class="firme-caja f-discusion" id="abiertas">
             <span class="eti">En discusión</span>
             <h3>Dos números sin cerrar</h3>
             <p><b>El cero: 8,42, con una duda.</b> Sale de la nota de Vías Navegables (8,9524 en el sistema del ex MOP) pasada al sistema del IGN; el INA midió 8,378 en 2016. Falta saber en qué sistema de alturas están las curvas del municipio.</p>
-            <p><b>La pendiente: 0,045 m/km.</b> No hay una medición que la respalde, y usamos un solo valor para todas las zonas. La cifra de ${RECORD_ANIO} que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.</p>
+            <p><b>La pendiente: 0,045 m/km.</b> Sobre el cauce principal del Paraná está medida: entre Santa Fe y Hernandarias, con las lecturas diarias del INA desde 1990, da entre 4,8 y 5 cm por km. Hacia la costa —Colastiné, Rincón, Arroyo Leyes— no hay medición, y usamos un solo valor para todas las zonas. La cifra de ${RECORD_ANIO} que circula para Arroyo Leyes se calculó con esta misma pendiente: coincidir con ella no prueba nada.</p>
             <details class="h-detalle">
               <summary>De dónde sale cada uno</summary>
               <p class="chico">
@@ -407,6 +407,21 @@ ${[
                 reglamento simplifica, o la pendiente real en ese tramo es otra:
                 depende del tramo, del caudal y de la condición hidráulica del
                 momento.
+              </p>
+              <p class="chico">
+                <b>Lo que sí está medido.</b> El INA publica las lecturas de
+                Santa Fe, Paraná y Hernandarias con el cero de cada regla en el
+                sistema del IGN, y Vías Navegables publica dónde está cada una
+                sobre el río (km 584, 601 y 689). Con eso, entre Santa Fe y
+                Hernandarias el agua sube 5 cm por km en aguas bajas y entre
+                4,8 y 4,9 en crecida. Entre Santa Fe y Paraná, en crecida,
+                unos 3. El INA tiene además una regla en el arroyo Leyes, sobre
+                la Ruta 1, con lecturas desde 2001, pero sin su cero
+                publicado: comparada con la del Puerto, la diferencia se achica
+                medio metro cuando el río crece. Eso indica que hacia la costa,
+                en crecida, la pendiente es menor que la de la app; si es así,
+                la app avisa antes de lo necesario, que es el lado seguro. Con
+                el cero de esa regla se puede medir.
               </p>
               <p class="chico">
                 <b>Y por qué ${RECORD_ANIO} no la confirma.</b> La nota de prensa
@@ -467,7 +482,7 @@ ${[
       titulo: "Lo que todavía no sabe",
       html: `        <ul class="no-sabe">
           <li><b>En qué sistema de alturas están las curvas.</b> Los metadatos no lo declaran, y de eso depende si el cero de 8,42 corresponde a ellas o hay que corregirlo.</li>
-          <li><b>Si la pendiente vale en todos los tramos.</b> Está contrastada en un punto de una crecida.</li>
+          <li><b>Si la pendiente vale hacia la costa.</b> Está medida sobre el cauce principal; entre el Puerto y Arroyo Leyes falta el cero de la regla del arroyo para medirla.</li>
           <li><b>Cuánto se equivoca la cota en tu cuadra.</b> Medido contra ${MEDICION.n} puntos del municipio, el medio metro alcanza en ${MEDICION.alcanza} de cada 100. En un pozo o una bajada que la curva no dibuja puede no alcanzar.</li>
           <li><b>Los km río arriba de cada zona.</b> Sólo Arroyo Leyes (24 km) está publicado. Equivocarse 5 km son 22 cm.</li>
           <li><b>En qué estado está la defensa de tu zona.</b> Cambia el resultado más que cualquiera de las constantes.</li>

@@ -4,8 +4,10 @@ Qué número usa la app, de dónde salió, qué tan firme es y qué habría que
 preguntarle a quién para cerrarlo. Es documentación interna: lo que de acá va
 a la interfaz está en `/datos`, escrito para cualquiera.
 
-Última revisión: **10 de noviembre de 2026** (mojones medidos en Arroyo Leyes;
-§7, después de la pregunta 25). Antes: 26/10/2026, el cero pasó a 8,4214 (§1).
+Última revisión: **23 de noviembre de 2026** (la pendiente medida entre
+estaciones del INA y la regla del Leyes en la Ruta 1, §2; pregunta 29). Antes:
+10/11/2026, mojones medidos en Arroyo Leyes (§7, después de la pregunta 25), y
+26/10/2026, el cero pasó a 8,4214 (§1).
 
 Regla de jerarquía, en este orden: **organismo oficial → universidad →
 normativa → prensa**. Ningún número que entre en el cálculo puede tener a la
@@ -23,7 +25,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | Récord 7,43 m (1992)           | `datos-abiertos/historia.json` | INA, serie 30             | sí        | si hay una crecida mayor  | sí, al generar         |
 | Aguas bajas 2,00 m             | `public/lib/fuentes.js`        | INA                       | sí        | idem                      | sí (no se usa todavía) |
 | **Cero del hidrómetro 8,4214** | `js/app/config.js`             | Vías Navegables + IGN     | sí        | sí — datum de las curvas  | no                     |
-| **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso       | **no**    | **discutido — ver abajo** | no                     |
+| **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso; el cauce da 4,8–5,0 cm/km (§2) | **no** | **discutido — ver abajo** | no           |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)   | no        | sí                        | no                     |
 | Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24 y mojones de Leyes) | no | sí                  | no                     |
 | Km río arriba por zona         | `js/app/zonas.js`              | 1 publicado, 9 propios    | parcial   | sí                        | no                     |
@@ -321,6 +323,74 @@ la constante**, pero es el primer indicio con fecha y lugar. Lo que la
 cerraría es una sola medición: la cota IGN del agua en el arroyo, frente al
 pueblo, un día con la lectura del Puerto conocida.
 
+### La pendiente medida entre estaciones del INA (23/11/2026)
+
+Lo primero que no sale de 1992. Script y salida en
+`datos-crudos/analisis-pendiente-cauce-2026-11-23.mjs` y
+`salida-pendiente-cauce-2026-11-23.txt`.
+
+**Sobre el cauce principal.** Los desniveles entre estaciones ya estaban
+calculados desde el 8/9/2026 (§7, preguntas 15 y 17); faltaba la distancia.
+La publica Vías Navegables en sus boletines de profundidades, sobre la vía
+navegable: **Santa Fe km 584, Paraná km 601, Hernandarias km 689**
+([boletín del 22/7/2024](https://argentina.gob.ar/sites/default/files/2018/05/2024-07-22_med.pdf)).
+Con el cero que declara el INA para cada estación, series diarias 1990–2026,
+mediana de cada día:
+
+| Tramo                     | km  | Puerto 0–3 m | 5,7 m o más | 6,2 m o más |
+| ------------------------- | --- | ------------ | ----------- | ----------- |
+| Santa Fe → Hernandarias   | 105 | 5,0 cm/km    | 4,8–4,9     | 4,9–5,0     |
+| Santa Fe → Paraná         | 17  | 4,2–4,5      | 2,8–3,0     | 2,8–3,1     |
+
+El rango de cada celda es con el cero de Santa Fe del INA (8,378) o el de la
+app (8,4214). Santa Fe–Hernandarias es el más firme: sobre 105 km, 10 cm de
+error en un cero mueven 0,1 cm/km, y el p10–p90 va de 4,5 a 5,4 en crecida.
+Santa Fe–Paraná es sensible a los ceros —el INA publica dos para Paraná,
+9,432 y 9,565 (catálogo de estaciones de Vías Navegables, serie 3330)—, pero
+el sentido es claro: **en crecida se achata**.
+
+Lo que dice: **0,045 está en el orden de la pendiente del cauce principal**,
+medida con miles de días y sin pasar por la prensa. Lo que **no** dice: que
+sea la pendiente entre el Puerto y la costa. Rincón y Arroyo Leyes están
+sobre el sistema Colastiné–Leyes–San Javier, en la planicie, y los km de las
+zonas no son km de la vía navegable (§5). La literatura del tramo de abajo
+dice lo mismo que la tabla: entre Diamante (km 533) y Ramallo (km 325) las
+pendientes van de 1,6 a 4,3 cm/km según el sub-tramo, y por encima de unos
+25.000 m³/s, con la planicie inundada, bajan en parte del tramo (García,
+Basile y Riccardi, _Cuadernos del CURIHAM_ 16, 2010,
+[ficha](https://bdu.siu.edu.ar/bdu/Record/I15-R229-article-60/Description);
+números tomados del resumen, no del texto completo).
+
+**La regla del arroyo Leyes en la Ruta 1.** El INA tiene una estación que
+no estaba en esta auditoría: «LEYES – Ruta Provincial Nº 001», serie 6232,
+de la Red Hidrológica Nacional (SSRH, código 3225), con lecturas diarias
+desde mayo de 2001. Las series de Santa Rita (6298) y Potrero (6221), en la
+misma ruta, devuelven exactamente los mismos valores: es una sola regla. En
+la crecida de 2016 marcó **9,20 m el 4/1/2016**, con el Puerto en 6,59. El
+INA **no publica su cero** (`cero_ign: null`), así que no da cotas. Pero la
+resta entre las dos reglas no depende de ningún cero, y sobre 9.082 días
+(`ina-serie-6232-2001-2026-2026-11-23.json`):
+
+| Puerto     | días  | Leyes − Puerto (mediana) |
+| ---------- | ----- | ------------------------ |
+| 0–2 m      | 1.421 | 2,96 m                   |
+| 2–3 m      | 3.177 | 2,78 m                   |
+| 3–4 m      | 2.623 | 2,65 m                   |
+| 4–5 m      | 1.311 | 2,50 m                   |
+| 5–5,7 m    | 302   | 2,47 m                   |
+| 5,7 m o más| 157   | 2,48 m                   |
+
+**Entre el Puerto y el Leyes el desnivel se achica 48 cm cuando el río
+crece**: sobre los 24 km de la zona, unos 2 cm/km menos que en aguas bajas.
+Es el mismo achatamiento que Santa Fe–Paraná, y va en el sentido de los dos
+documentos locales que usan pendiente cero (el reglamento de Rincón y la
+planilla de los mojones). Supone que las dos reglas no cambiaron de cero en
+25 años, cosa que no está comprobada.
+
+Con el cero de esa regla, la pendiente Puerto–Arroyo Leyes queda **medida**,
+día por día, crecida de 2016 incluida. Es la pregunta 29 (§7), y es hoy la
+de mayor rendimiento de toda la auditoría.
+
 **Por qué importa tanto.** La pendiente de la superficie del agua no es una
 constante del río: depende del tramo, del caudal, de la condición hidráulica
 del momento y de si el tramo está o no en remanso. Usar un único valor para
@@ -330,7 +400,14 @@ zona más lejana (Santa Rosa de Calchines, 40 km) la corrección es de 1,80 m
 coeficiente ajustado a una sola crecida.
 
 **Decisión: se mantiene 0,045 y se declara como limitación mayor** en `/datos`
-y en la propia pantalla del cálculo.
+y en la propia pantalla del cálculo. _(23/11/2026: se mantiene. El cauce
+principal la respalda en orden de magnitud; la regla del Leyes dice que en
+crecida, entre el Puerto y la costa, la pendiente es menor que en aguas bajas,
+pero sin su cero no dice cuánto vale. Una pendiente menor **subiría** el nivel
+de aviso de la costa: si la de crecida es menor, la app hoy queda del lado
+pesimista ahí, y bajar la constante es justamente el cambio que la vuelve
+menos prudente. Por eso no se toca con una inferencia; cuando llegue el cero,
+hay que volver acá antes que a cualquier otra constante.)_
 
 ---
 
@@ -562,6 +639,13 @@ poder copiarse y mandarse.
    cambios de instrumento o de referencia que convenga conocer?
 4. ¿Existe algún valor publicado de pendiente de la superficie del agua para el
    tramo Santa Fe – Arroyo Leyes?
+29. _(23/11/2026; al INA o a la Subsecretaría de Recursos Hídricos, dueña de
+    la estación.)_ **¿Cuál es la cota IGN del cero de la regla del arroyo
+    Leyes en la Ruta Provincial 1** (serie 6232 del SIyAH, código SSRH 3225,
+    −31,4948 / −60,4251), y en qué sistema de alturas? ¿Cambió de cero o de
+    lugar desde 2001? ¿Las series 6298 (Santa Rita) y 6221 (Potrero) son la
+    misma regla? Con ese número la pendiente Puerto–Arroyo Leyes deja de
+    estimarse (§2).
 
 ### Al IGN — Dirección de Geodesia
 
@@ -651,6 +735,11 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     principal del Paraná sino sobre el riacho. Si es lo segundo, «la pendiente
     del Paraná» no es lo que traduce cota a lectura del Puerto, y el modelo
     entero se apoya en eso.
+    _23/11/2026: la premisa estaba mal._ Paraná **no** está aguas abajo: en la
+    vía navegable el Puerto de Santa Fe empalma en el km 584 y Paraná está en
+    el km 601. Los 0,72 m en 17 km son unos 4 cm/km, un gradiente normal (§2).
+    La pregunta sobre el riacho sigue valiendo, pero ya no la sostiene esta
+    resta.
 
 16. ¿Los `cero_ign` de las series 26, 27, 28, 29, 30 y 31 están todos en el
     mismo sistema de alturas? El catálogo los publica sin declarar el sistema.
@@ -659,6 +748,8 @@ crudos y los scripts están en `datos-crudos/`, con la fecha en el nombre.
     cuando el río crece**: 5,271 m en aguas bajas contra 5,124 m con el Puerto
     por encima de 5,70 (−3,6 cm por cada metro de altura, r = −0,17). ¿Hay una
     curva publicada de pendiente contra caudal para el tramo?
+    _23/11/2026:_ con los 105 km de la vía navegable (km 584 a 689) son 5,0
+    cm/km en aguas bajas y 4,8–4,9 en crecida (§2).
 
 **Al IGN:**
 
@@ -838,7 +929,10 @@ Rincón.
 - **`CERO_IGN` se movió el 26/10/2026, de 8,20 a 8,4214** (§1). Lo que sigue
   abierto es el datum de las curvas, no el cero.
 - **`PENDIENTE` sigue en 0,045.** No hay evidencia para otro valor, y menos
-  para valores distintos por tramo.
+  para valores distintos por tramo. Desde el 23/11/2026 el cauce principal la
+  respalda en orden de magnitud (4,8–5,0 cm/km, Santa Fe–Hernandarias), y la
+  regla del Leyes indica que entre el Puerto y la costa se achata en crecida
+  (§2): lo que falta es el cero de esa regla (pregunta 29).
 - **`ERROR_DEM` sigue en 0,5.** El 22/10/2026 se midió contra 330 puntos
   fijos municipales: cubre al 98 % del lado que importa (§4).
   Lo que se midió el 8/9/2026 es que **no debería ser una constante**: el
@@ -922,7 +1016,8 @@ municipio dice riesgo.
 
 - **Dónde estuvo el agua en 2016, en cota.** Ni una sola cota medida de la
   superficie del agua río arriba del Puerto, ni de 1992 ni de 2016. Es lo que
-  resolvería la pendiente (§2, §3).
+  resolvería la pendiente (§2, §3). La regla del Leyes en la Ruta 1 tiene la
+  lectura de cada día de 2016 (9,20 m el 4/1); le falta el cero (pregunta 29).
 - **El estado de cada defensa hoy.** El Garello está en su última etapa (85 %
   en septiembre de 2026); la Provincia dio por terminado el mantenimiento del
   sistema en agosto de 2025 y dice haber recuperado la cota en 27 km de
