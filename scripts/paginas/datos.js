@@ -210,9 +210,12 @@ const htmlDatos = pagina({
           que midió la Provincia en 2005, en la misma campaña de la que salieron
           las curvas: la app toma los cuatro más cercanos a tu casa. Ahí el
           terreno cambia mucho de un lugar a otro —terraplenes, cunetas,
-          rellenos—, así que descuenta <b>un metro</b> en vez de medio. Donde no
-          hay ni curvas ni puntos te pide la cota a mano, en vez de caer a una
-          fuente peor.
+          rellenos—, así que descuenta <b>un metro</b> en vez de medio. Lo mismo
+          dentro de la ciudad cuando la curva más cercana queda a más de 400 m
+          y un punto medido al lado dice que el terreno es más bajo, como pasa
+          en partes de La Guardia y Colastiné: lejos de una curva, en terreno
+          bajo, el punto es mejor dato. Donde no hay ni curvas ni puntos te pide la cota a mano, en
+          vez de caer a una fuente peor.
         </p>
         <p class="chico">
           Es una estimación, no una medición de tu terreno: la curva pasa cerca,

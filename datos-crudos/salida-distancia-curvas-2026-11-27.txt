@@ -1,0 +1,57 @@
+
+1. Puntos con cota de la IDESF, por distancia a la curva más cercana  (e = curvas − referencia)
+  0–25 m                                       n= 1139  mediana  -0.02  mediana|e| 0.17  p90 0.90  > +0,5:   9.4 %  > +1:   6.1 %
+  25–50 m                                      n=  970  mediana  -0.00  mediana|e| 0.18  p90 0.68  > +0,5:   7.8 %  > +1:   2.8 %
+  50–100 m                                     n= 1026  mediana  -0.00  mediana|e| 0.20  p90 0.84  > +0,5:   7.9 %  > +1:   2.2 %
+  100–150 m                                    n=  473  mediana  -0.01  mediana|e| 0.21  p90 0.66  > +0,5:   9.7 %  > +1:   2.5 %
+  150–250 m                                    n=  539  mediana  -0.03  mediana|e| 0.21  p90 0.68  > +0,5:  10.4 %  > +1:   5.0 %
+  250–400 m                                    n=  346  mediana  -0.05  mediana|e| 0.16  p90 0.76  > +0,5:  11.3 %  > +1:   7.5 %
+  400–700 m                                    n=  231  mediana   0.11  mediana|e| 0.36  p90 3.15  > +0,5:  28.6 %  > +1:  24.7 %
+  más de 700 m                                 n=  883  mediana   0.68  mediana|e| 0.85  p90 3.43  > +0,5:  54.5 %  > +1:  44.5 %
+
+2. Puntos fijos municipales (medidos), ídem  (e = curvas − referencia)
+  0–25 m                                       n=  115  mediana  -0.50  mediana|e| 0.55  p90 1.31  > +0,5:   4.3 %  > +1:   4.3 %
+  25–50 m                                      n=   69  mediana  -0.33  mediana|e| 0.45  p90 1.95  > +0,5:   5.8 %  > +1:   5.8 %
+  50–100 m                                     n=   76  mediana  -0.38  mediana|e| 0.41  p90 1.10  > +0,5:   2.6 %  > +1:   2.6 %
+  100–150 m                                    n=   23  mediana  -0.38  mediana|e| 0.45  p90 0.88  > +0,5:   0.0 %  > +1:   0.0 %
+  150–250 m                                    n=   29  mediana  -0.29  mediana|e| 0.40  p90 1.12  > +0,5:   6.9 %  > +1:   0.0 %
+  250–400 m                                    n=   19  mediana  -0.38  mediana|e| 0.38  p90 0.98  > +0,5:   0.0 %  > +1:   0.0 %
+  400–700 m                                    n=    9  mediana  -0.27  mediana|e| 0.30  p90 0.99  > +0,5:   0.0 %  > +1:   0.0 %
+  más de 700 m                                 n=    3  mediana  -0.12  mediana|e| 0.12  p90 0.34  > +0,5:   0.0 %  > +1:   0.0 %
+
+3. A más de 400 m de una curva: dónde, y a qué altura está el terreno
+  (fuera de las vecinales, al no · terreno 11.2–18.7 n=  704  mediana   0.59  mediana|e| 0.71  p90 3.11  > +0,5:  51.8 %  > +1:  44.0 %
+  (fuera, al oeste) · terreno 12.3–18.8        n=  213  mediana   0.13  mediana|e| 0.37  p90 1.96  > +0,5:  37.1 %  > +1:  21.6 %
+  (fuera, otro) · terreno 11.7–17.8            n=   83  mediana   1.58  mediana|e| 1.58  p90 4.13  > +0,5:  67.5 %  > +1:  57.8 %
+  PRO-FOMENTO Y CULTURA LA GUARD · terreno 9.8–14.2 n=   45  mediana   3.15  mediana|e| 3.15  p90 4.44  > +0,5:  93.3 %  > +1:  91.1 %
+  NUEVA SANTA FE · terreno 16.8–17.1           n=   16  mediana  -0.68  mediana|e| 0.69  p90 0.79  > +0,5:   0.0 %  > +1:   0.0 %
+  21 DE OCTUBRE · terreno 16.8–17.1            n=   11  mediana  -0.16  mediana|e| 0.16  p90 0.20  > +0,5:   0.0 %  > +1:   0.0 %
+  BARRIO LAS FLORES II · terreno 16.3–16.9     n=    6  mediana   0.19  mediana|e| 0.19  p90 0.45  > +0,5:   0.0 %  > +1:   0.0 %
+  ALTOS DEL VALLE · terreno 16.8–16.9          n=    6  mediana  -0.55  mediana|e| 0.57  p90 0.64  > +0,5:   0.0 %  > +1:   0.0 %
+  SANTA MARTA · terreno 17.6–17.9              n=    4  mediana   0.02  mediana|e| 0.06  p90 0.10  > +0,5:   0.0 %  > +1:   0.0 %
+  PROGRESO POMPEYA OESTE · terreno 16.8–17.0   n=    4  mediana  -0.23  mediana|e| 0.23  p90 0.25  > +0,5:   0.0 %  > +1:   0.0 %
+  BARRIO BRIGADIER ESTANISLAO LO · terreno 17.7–17.9 n=    4  mediana  -0.41  mediana|e| 0.44  p90 0.56  > +0,5:   0.0 %  > +1:   0.0 %
+  GUADALUPE NORESTE · terreno 12.1–12.5        n=    4  mediana   4.03  mediana|e| 4.03  p90 4.12  > +0,5: 100.0 %  > +1: 100.0 %
+  BERNARDINO RIVADAVIA · terreno 17.3–17.5     n=    3  mediana  -0.10  mediana|e| 0.10  p90 0.20  > +0,5:   0.0 %  > +1:   0.0 %
+  RENE FAVALORO · terreno 16.8–17.1            n=    3  mediana  -0.16  mediana|e| 0.16  p90 0.33  > +0,5:   0.0 %  > +1:   0.0 %
+  SAN JOSE · terreno 16.7–16.8                 n=    2  mediana   0.09  mediana|e| 0.09  p90 0.09  > +0,5:   0.0 %  > +1:   0.0 %
+  COLASTINE SUR · terreno 12.7–12.7            n=    1  mediana   2.88  mediana|e| 2.88  p90 2.88  > +0,5: 100.0 %  > +1: 100.0 %
+  REPUBLICA DE LOS HORNOS · terreno 16.5–16.5  n=    1  mediana   0.23  mediana|e| 0.23  p90 0.23  > +0,5:   0.0 %  > +1:   0.0 %
+  SAN IGNACIO DE LOYOLA NORTE · terreno 17.7–17.7 n=    1  mediana  -0.01  mediana|e| 0.01  p90 0.01  > +0,5:   0.0 %  > +1:   0.0 %
+  CEFERINO NAMUNCURA · terreno 18.0–18.0       n=    1  mediana  -0.22  mediana|e| 0.22  p90 0.22  > +0,5:   0.0 %  > +1:   0.0 %
+  SAN IGNACIO DE LOYOLA SUR · terreno 17.9–17.9 n=    1  mediana  -0.58  mediana|e| 0.58  p90 0.58  > +0,5:   0.0 %  > +1:   0.0 %
+  CULTURAL Y DEPORTIVA CENTRAL G · terreno 14.3–14.3 n=    1  mediana   0.42  mediana|e| 0.42  p90 0.42  > +0,5:   0.0 %  > +1:   0.0 %
+
+4. Lo mismo, por la altura real del terreno en vez de por barrio
+  terreno por debajo de 13 m, a más de 400 m   n=  133  mediana   3.81  mediana|e| 3.81  p90 4.37  > +0,5: 100.0 %  > +1: 100.0 %
+  terreno por debajo de 13 m, a 400 m o menos  n=  103  mediana   1.89  mediana|e| 1.89  p90 6.17  > +0,5:  73.8 %  > +1:  63.1 %
+  terreno de 13 a 15 m, a más de 400 m         n=  287  mediana   2.50  mediana|e| 2.50  p90 3.02  > +0,5:  95.5 %  > +1:  92.7 %
+  terreno de 13 a 15 m, a 400 m o menos        n=  852  mediana   0.12  mediana|e| 0.26  p90 0.96  > +0,5:  20.7 %  > +1:   8.8 %
+  terreno de 15 m o más, a más de 400 m        n=  694  mediana   0.01  mediana|e| 0.32  p90 1.07  > +0,5:  20.2 %  > +1:   7.3 %
+  terreno de 15 m o más, a 400 m o menos       n= 3538  mediana  -0.05  mediana|e| 0.17  p90 0.63  > +0,5:   4.3 %  > +1:   1.2 %
+
+5. Qué dejaría sin altura un tope, en una malla de 150 m
+  todo el rectángulo de las curvas    11880 celdas; a más de 250 m: 67.2 % · 400 m: 60.5 % · 700 m: 51.1 %
+  dentro de las vecinales              4019 celdas; a más de 250 m: 23.3 % · 400 m: 13.2 % · 700 m: 5.4 %
+
+La curva más baja es la de 12.5 m y la más alta la de 22.5 m.

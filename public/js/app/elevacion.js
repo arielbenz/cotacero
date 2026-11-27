@@ -1,7 +1,9 @@
 /* js/app/elevacion.js — la cota del terreno, de las fuentes de altura.
    Hoy son dos: las curvas del municipio en la ciudad y los puntos con cota de
-   la Provincia en la costa. Fuera de todas devuelve null y la app pide la cota
-   a mano, en vez de caer a una fuente peor.
+   la Provincia en la costa —y en la ciudad, donde la curva queda lejos y un
+   punto medido al lado dice que el terreno es más bajo—. Fuera de todas
+   devuelve null y la app pide la cota a mano, en vez de caer a una fuente
+   peor.
 
    Puro: sólo fetch, ni estado ni DOM. scripts/comprobar.js lo carga desde
    Node con un fetch que lee del disco. */
@@ -34,8 +36,15 @@ function distanciaASegmento(px, py, ax, ay, bx, by) {
 /* ---------- las curvas del municipio ----------
    Secretaría de Recursos Hídricos, cada 50 cm y en metros IGN: el mismo
    sistema que el cero del hidrómetro (ver scripts/curvas.js). Se interpola
-   entre las dos curvas de cota DISTINTA más cercanas. */
-function entreCurvas(d, lat, lon) {
+   entre las dos curvas de cota DISTINTA más cercanas.
+
+   No tiene tope de distancia, a propósito: en la ciudad alta y llana hay
+   curvas a más de un kilómetro y el dato es bueno, porque el terreno no
+   cambia. Un tope de 400 m dejaba sin altura al 13 % de la ciudad
+   (AUDITORIA.md §4). Lo que sí falla lejos de una curva es el terreno bajo
+   —la más baja es la de 12,5 m, y por debajo no hay con qué interpolar—: para
+   eso está CURVAS_LEJOS_M, más abajo. Exportada para scripts/cotas-costa.js. */
+export function entreCurvas(d, lat, lon) {
   const ml = mPorGradoLon(lat);
   const px = lon * ml,
     py = lat * M_POR_GRADO_LAT;
@@ -76,7 +85,28 @@ function entreCurvas(d, lat, lon) {
    Más lejos que PUNTOS_MAX_M del punto medido más cercano no hay dato: es
    otro terreno. La mitad de los puntos tiene un vecino a menos de 36 m y
    nueve de cada diez a menos de 76 (AUDITORIA.md §7, pregunta 24). */
-const PUNTOS_MAX_M = 150;
+export const PUNTOS_MAX_M = 150;
+
+/* Desde qué distancia a la curva más cercana se le pregunta también a los
+   puntos. Medido contra los 5.607 puntos con cota que caen en el rectángulo
+   de las curvas: hasta 400 m las curvas dan el terreno más de 1 m arriba del
+   real en el 2 a 7,5 % de los casos; de 400 a 700 m, en el 24,7 %, y más
+   lejos en el 44,5 % —el lado que hace avisar tarde, y casi todo en terreno
+   bajo: La Guardia, Colastiné, el borde norte—.
+
+   A esa distancia, si hay un punto medido a menos de PUNTOS_MAX_M y da el
+   terreno MÁS BAJO que las curvas por más del margen de las curvas
+   (ERROR_DEM), la altura sale de los puntos, con su margen. Si no, quedan las
+   curvas, como antes. La condición del margen se agregó después de cruzarlo
+   con las parcelas del catastro: sin ella cambiaban de fuente 2.292 lotes de
+   la ciudad alta, donde los puntos y las curvas coinciden y lo único que
+   cambiaba era el margen (0,5 → 1,0 m), y 538 dejaban de verse como «más
+   alto que el récord». Con ella no cambia ningún lote, y las 26 parcelas
+   donde las curvas daban más de 1 m de más siguen corregidas.
+   datos-crudos/analisis-distancia-curvas-2026-11-27.mjs,
+   analisis-curvas-lejos-afinado-2026-11-27.mjs y AUDITORIA.md §4.
+   No se toca sin leer eso. */
+export const CURVAS_LEJOS_M = 400;
 
 /* Cuatro vecinos, pesados por la inversa del cuadrado de la distancia. Es lo
    que se validó: estimando cada punto con sus cuatro vecinos, en Rincón y
@@ -110,8 +140,12 @@ function conPuntos(d, lat, lon) {
 
 /* ---------- las fuentes, en orden ----------
    La primera cuya área contiene el punto es la que contesta, aunque conteste
-   null: donde hay curvas mandan las curvas. Cada archivo se baja recién
-   cuando hace falta —quien vive en la ciudad nunca pide el de la costa—.
+   null: donde hay curvas mandan las curvas. La excepción es `lejos`: si la
+   primera contesta desde más lejos que eso, se le pregunta a la siguiente, y
+   la siguiente vale sólo si da el terreno más bajo por más del margen de la
+   primera (ver CURVAS_LEJOS_M). Cada archivo se
+   baja recién cuando hace falta —quien vive en la ciudad, cerca de una curva,
+   nunca pide el de la costa—.
 
    Cada fuente trae todo lo suyo, en un solo renglón: el archivo, la cuenta,
    el MARGEN —la constante de config.js, que sigue teniendo dueño en
@@ -124,6 +158,7 @@ export const FUENTES_ALTURA = [
     id: "curvas",
     archivo: "/datos-abiertos/curvas.json",
     calcular: entreCurvas,
+    lejos: CURVAS_LEJOS_M,
     margen: ERROR_DEM,
     sello: "topografia",
     dice: {
@@ -156,7 +191,7 @@ export const FUENTES_ALTURA = [
         (distancia != null
           ? " El más cercano a ese lugar está a " + Math.round(distancia) + " m."
           : "") +
-        " En la costa el terreno cambia mucho de un lugar a otro —terraplenes, " +
+        " Ahí el terreno cambia mucho de un lugar a otro —terraplenes, " +
         "cunetas, rellenos—, así que la cuenta usa un metro menos.",
     },
   },
@@ -193,6 +228,11 @@ const dentro = ([oe, os, on, ono], lat, lon) =>
    `fuente` es el id de FUENTES_ALTURA y decide el margen: ver margenDe() en
    modelo.js. */
 export async function elevacionDe(lat, lon) {
+  // Lo que contestó una fuente desde más lejos que su `lejos`, y su margen:
+  // vale salvo que la siguiente diga que el terreno es más bajo que eso por
+  // más de ese margen.
+  let deLejos = null;
+  let margenDeLejos = 0;
   for (const f of FUENTES_ALTURA) {
     let d;
     try {
@@ -201,8 +241,15 @@ export async function elevacionDe(lat, lon) {
       continue;
     }
     if (!dentro(d.area, lat, lon)) continue;
-    const r = f.calcular(d, lat, lon);
-    return r && { ...r, fuente: f.id };
+    const c = f.calcular(d, lat, lon);
+    const r = c && { ...c, fuente: f.id };
+    if (deLejos) return r && deLejos.cota - r.cota > margenDeLejos ? r : deLejos;
+    if (r && f.lejos != null && r.distancia > f.lejos) {
+      deLejos = r;
+      margenDeLejos = f.margen;
+      continue;
+    }
+    return r;
   }
-  return null;
+  return deLejos;
 }

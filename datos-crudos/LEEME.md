@@ -205,3 +205,75 @@ Lectura, y sus límites, en `AUDITORIA.md` §2.
   `public/datos-abiertos/serie-diaria.json` sin ir al INA, desde 1990 y con un
   hueco en 2026, para mirar `/comparar` en una máquina sin red. **No es la que
   se publica:** la de verdad, desde 1925, la escribe `node scripts/historia.js`.
+
+## Las líneas de riesgo de la Provincia (27/11/2026)
+
+- `idesf-lineas-riesgo-<fecha>.mjs` — para 3.391 puntos de `MACotas` (todos
+  los de Rincón y Arroyo Leyes y uno de cada ocho del resto), pregunta a la
+  IDESF qué «Líneas de Riesgo» pasan al lado (`MACurvasHistoricas` y
+  `MACurvasTeoricas`, por `GetFeatureInfo`: el WFS sigue apagado). Cada línea
+  trae la altura del Puerto de su crecida (`h_puerto`). Escribe
+  `idesf-lineas-riesgo-<fecha>.json`. Son unos 5.000 pedidos de a dos: cerca
+  de una hora. Por debajo de ~1,8 m por píxel la capa no contesta.
+- `analisis-lineas-riesgo-<fecha>.mjs` — cota del terreno junto a la línea
+  menos (cero + `h_puerto`), por línea y por distancia al Puerto, contra la
+  recta de la app; salida en `salida-lineas-riesgo-<fecha>.txt`.
+
+Qué son: líneas de afectación **modeladas** (convenio CFI-INA, 2005, modelo
+ISIS FLOW), también las «históricas» de 1973, 1983, 1992, 1998 y 2003; fichas
+2f0b4860-… y 61e41910-… del catálogo de la IDESF. No es agua medida, y usan
+la misma planialtimetría que los puntos con cota.
+
+Lectura, con la consulta de píxel de 1,9 m (854 puntos con alguna línea):
+
+- Las líneas sin sufijo y las «HIS» **no sirven** para esto: en Colastiné
+  todas las crecidas grandes caen sobre terreno de ~13,5 m y en Arroyo Leyes
+  sobre ~17,04 m, la misma cota para 1983, 1992, 1998 y la de 50 años. Ahí la
+  línea sigue un borde —una ruta, un terraplén, el fin del área— y no el
+  lugar donde el agua toca el terreno.
+- Las «POT» sí suben con la altura del Puerto. Su desnivel sobre el Puerto:
+  +0,0 a +0,6 m en Colastiné, +0,5 a +1,0 en Rincón, +0,65 a +1,3 entre
+  Rincón y Leyes y +0,8 a +1,2 en Leyes, con 6 a 53 puntos por línea y
+  franja. La recta de la app da +0,50, +0,72 y +1,08 (11, 16 y 24 km).
+- El control junto al Puerto quedó casi vacío (19 puntos; una sola línea
+  con 7, +0,21 m): no alcanza para validar el método.
+- No sabemos qué significan «HIS» y «POT»: las fichas no lo dicen. Está en
+  el informe del convenio, que hay que pedir.
+
+No cambió ninguna constante. En `AUDITORIA.md` §2.
+
+## Lejos de una curva (27/11/2026)
+
+- `analisis-distancia-curvas-<fecha>.mjs` — el error de `entreCurvas()` según
+  la distancia a la curva más cercana y según la altura real del terreno,
+  contra los puntos con cota de la IDESF y la red municipal, con las
+  vecinales como área habitada; y cuánta superficie dejaría sin altura un
+  tope. Salida en `salida-distancia-curvas-<fecha>.txt`. Lectura en
+  `AUDITORIA.md` §4: el problema no es la distancia sino el terreno por
+  debajo de la curva más baja (12,5 m). De ahí salió `CURVAS_LEJOS_M`: a más
+  de 400 m de una curva la app le pregunta a los puntos con cota. Mide las
+  curvas solas (`entreCurvas()`), no lo que contesta la app.
+
+- `analisis-curvas-lejos-reglas-<fecha>.mjs` — las reglas que se probaron
+  para arreglarlo: las que sólo miran las curvas (un tope, el lado de afuera
+  de la curva más baja), que no separan nada, y usar los puntos con cota
+  donde la curva queda lejos, que es la que entró. Salida en
+  `salida-curvas-lejos-reglas-<fecha>.txt`.
+
+- `muni-parcelas-lejos-<fecha>.mjs` — baja las 122.949 parcelas del catastro
+  municipal (`publico:parcela`, ~60 MB que no se guardan) y escribe en
+  `muni-parcelas-lejos-<fecha>.json` las 3.766 que quedan a más de 400 m de
+  una curva, con lo que da cada fuente de altura en su centro.
+- `analisis-curvas-lejos-afinado-<fecha>.mjs` — la regla con varios umbrales
+  («los puntos mandan si dan X menos que las curvas»), contra los puntos con
+  cota y contra esas parcelas. De ahí salió que X sea el margen de las curvas.
+  Salida en `salida-curvas-lejos-afinado-<fecha>.txt`.
+
+`analisis-puntos-fijos-2026-10-22.mjs` filtra por lo que la app contesta
+con curvas. Con la primera versión de la regla daba 322 marcas en vez de 330,
+porque 8 pasaban a salir de los puntos; con la afinada vuelve a dar 330.
+
+## Pedidos de información
+
+- `pedidos-de-informacion-<fecha>.md` — borradores de los pedidos de las
+  preguntas 30 a 32 de `AUDITORIA.md` §7. Sin enviar.

@@ -4,9 +4,12 @@ Qué número usa la app, de dónde salió, qué tan firme es y qué habría que
 preguntarle a quién para cerrarlo. Es documentación interna: lo que de acá va
 a la interfaz está en `/datos`, escrito para cualquiera.
 
-Última revisión: **23 de noviembre de 2026** (la pendiente medida entre
-estaciones del INA y la regla del Leyes en la Ruta 1, §2; pregunta 29). Antes:
-10/11/2026, mojones medidos en Arroyo Leyes (§7, después de la pregunta 25), y
+Última revisión: **27 de noviembre de 2026** (las líneas de riesgo de la
+Provincia contra la pendiente, §2; el error de las curvas lejos de una curva y
+en terreno bajo, con el cambio que salió de ahí —a más de 400 m de una curva
+se usan los puntos con cota—, §4; preguntas 30 a 32). Antes: 23/11/2026, la pendiente
+medida entre estaciones del INA y la regla del Leyes en la Ruta 1 (§2;
+pregunta 29); 10/11/2026, mojones medidos en Arroyo Leyes (§7, después de la pregunta 25), y
 26/10/2026, el cero pasó a 8,4214 (§1).
 
 Regla de jerarquía, en este orden: **organismo oficial → universidad →
@@ -28,6 +31,7 @@ prensa como mejor fuente sin que acá diga que es así.
 | **Pendiente 0,045 m/km**       | `js/app/config.js`             | derivada de un caso; el cauce da 4,8–5,0 cm/km (§2) | **no** | **discutido — ver abajo** | no           |
 | Margen de cota ±0,5 m          | `js/app/config.js`             | convención; medida (§4)   | no        | sí                        | no                     |
 | Margen en la costa ±1,0 m      | `js/app/config.js`             | medido (§7, preg. 24 y mojones de Leyes) | no | sí                  | no                     |
+| Curva «lejos» a 400 m          | `js/app/elevacion.js`          | medido (§4)               | no        | sí                        | no                     |
 | Km río arriba por zona         | `js/app/zonas.js`              | 1 publicado, 9 propios    | parcial   | sí                        | no                     |
 | Niveles observados por zona    | `js/app/zonas.js` (`ZONAS`)    | municipio en prensa, 2016 | **no**    | sí — ver §9               | no                     |
 | Umbral de lluvia 40 mm/día     | `js/app/lluvia.js`             | criterio propio           | no        | sí                        | no                     |
@@ -409,6 +413,62 @@ pesimista ahí, y bajar la constante es justamente el cambio que la vuelve
 menos prudente. Por eso no se toca con una inferencia; cuando llegue el cero,
 hay que volver acá antes que a cualquier otra constante.)_
 
+### Las líneas de riesgo de la Provincia (27/11/2026)
+
+Un contraste más, y el primero que mira la costa barrio por barrio. No es
+agua medida: es el modelo hidrodinámico de la Provincia contra la recta de la
+app. Scripts, datos y salida en `datos-crudos/idesf-lineas-riesgo-2026-11-27.*`,
+`analisis-lineas-riesgo-2026-11-27.mjs` y `salida-lineas-riesgo-2026-11-27.txt`.
+
+**Qué son.** La IDESF publica dos capas de la Secretaría de Recursos Hídricos
+que no habíamos mirado: «Líneas de Riesgo Históricas» (`MACurvasHistoricas`:
+1973, 1983, 1992, 1998 y 2003) y «Líneas de Riesgo Teóricas»
+(`MACurvasTeoricas`: recurrencias de 2 a 100 años, con el Puerto en 5,27 ·
+6,18 · 6,97 · 7,34 · 7,78 · 8,18 m). Cada línea trae la altura del Puerto de
+su crecida. Según sus fichas del catálogo son líneas de afectación «obtenidas
+por modelación» —**también las históricas**—, con el modelo ISIS FLOW y la
+planialtimetría de la zona, por convenio entre el CFI y el INA, de diciembre
+de 2005: el mismo proyecto de las curvas y de los puntos con cota.
+
+**Cómo se cruzó.** Una línea de inundación es donde el agua toca el terreno:
+la cota del terreno junto a ella es la cota del agua ahí, y restándole el cero
+y la altura del Puerto queda el desnivel entre ese lugar y el Puerto, que es
+lo que la app calcula como pendiente × km. El servidor no entrega la
+geometría de las líneas, pero contesta cuáles pasan al lado de un punto: se
+le preguntó en 3.391 puntos con cota (todos los de Rincón y Arroyo Leyes, y
+uno de cada ocho del resto). 854 tienen alguna línea a pocos metros.
+
+**Qué dio.**
+
+- Las líneas sin sufijo y las «HIS» **no sirven para esto**. Caen sobre la
+  misma cota de terreno sea cual sea la crecida —unos 13,5 m en Colastiné y
+  17,04 m en Arroyo Leyes, igual para 1983, 1992, 1998 y la de 50 años—: ahí
+  la línea sigue un borde, no el agua.
+- Las «POT» sí suben con la altura del Puerto. La mediana del desnivel, por
+  línea, con 6 a 53 puntos cada una:
+
+  | Zona (km en línea recta al Puerto) | Líneas «POT»   | La app            |
+  | ---------------------------------- | -------------- | ----------------- |
+  | Colastiné (9–13)                   | +0,0 a +0,6 m  | +0,50 m (11 km)   |
+  | Rincón (13–17)                     | +0,5 a +1,0 m  | +0,72 m (16 km)   |
+  | Entre Rincón y Leyes (17–21)       | +0,65 a +1,3 m | entre las dos     |
+  | Arroyo Leyes (21 o más)            | +0,8 a +1,2 m  | +1,08 m (24 km)   |
+
+**Sus límites, que son varios.** El control falló: junto al Puerto el desnivel
+tenía que dar cero y quedaron 19 puntos con línea cerca (la única línea con
+datos, 7 puntos, da +0,21 m). Es un modelo contra otro, y los dos usan la
+planialtimetría de 2005. Los puntos con cota están sobre calles y rutas, así
+que junto a un terraplén la cota sale más alta que el agua. Y **no sabemos
+qué significan «HIS» y «POT»**: las fichas no lo dicen (pregunta 30).
+
+**Lectura: no cambia nada, y no contradice la recta.** En las tres zonas con
+valor propio, lo que usa la app cae dentro del rango de las líneas «POT». Lo
+único para mirar es la franja entre Rincón y Arroyo Leyes con las crecidas
+grandes (+1,2 a +1,3 m): quien la cargue con los 16 km de Rincón recibe +0,72,
+hasta medio metro menos, antes del margen de 1,0 m. No se toca la constante
+por esto; va contra lo que sugiere la regla del Leyes (pendiente menor en
+crecida), y ninguno de los dos alcanza para decidir.
+
 ---
 
 ## 3. La comprobación de 1992
@@ -518,6 +578,120 @@ que `/datos` ya advierte: la curva pasa cerca de tu casa, no por tu puerta.
 que importa, y el sesgo de las curvas ya agrega margen. Subirlo no se
 justifica con esto: haría avisar antes en todos lados por seis puntos
 sueltos. En `/datos` deja de decirse «no es una medición».
+
+### Lejos de una curva, y por debajo de la más baja (27/11/2026)
+
+`entreCurvas()` no tiene tope de distancia: da una altura esté la curva a
+20 m o a 3 km (los puntos de la costa sí lo tienen, 150 m). Medido con el
+módulo de producción contra los 5.607 puntos con cota de la IDESF que caen
+en el rectángulo de las curvas y contra la red municipal.
+`datos-crudos/analisis-distancia-curvas-2026-11-27.mjs`, salida al lado.
+
+    distancia a la curva     curvas más altas que el punto por más de 1 m
+    0 a 400 m                2 a 7,5 %  (mediana del error 0,16–0,21 m)
+    400 a 700 m              24,7 %
+    más de 700 m             44,5 %
+
+Pero la distancia no es la causa. Separando por la altura real del terreno:
+
+    terreno                  a 400 m o menos          a más de 400 m
+    de 15 m o más            1,2 %  (n = 3.538)        7,3 %  (n = 694)
+    de 13 a 15 m             8,8 %  (n = 852)         92,7 %  (n = 287)
+    por debajo de 13 m      63,1 %  (n = 103)        100 %    (n = 133)
+
+**La curva más baja es la de 12,5 m.** Por debajo de ella no hay con qué
+interpolar, y la cuenta devuelve igual un valor entre las dos curvas más
+cercanas: en terreno de menos de 13 m la altura sale 1,9 m arriba de la real
+aun con una curva a menos de 400 m (mediana), y 3,8 m arriba más lejos. Es el
+error del lado que hace avisar tarde, y en el terreno que primero se moja.
+Dentro de las vecinales aparece en La Guardia–Colastiné (45 puntos de 9,8 a
+14,2 m, +3,15 m de mediana), Guadalupe Noreste (4 puntos de 12,1 a 12,5 m,
++4,0) y Colastiné Sur. No sabemos si en esos puntos hay casas.
+
+En cambio, en la ciudad alta y llana —Nueva Santa Fe, 21 de Octubre, Santa
+Marta, Favaloro, terreno de 16,5 a 18 m— una curva a 400–1.200 m da igual
+bien: ningún punto con cota queda más de 0,5 m optimista, y los 12 puntos
+fijos municipales que están a más de 400 m de una curva tampoco (el peor,
++0,30). Ahí las curvas están lejos porque el terreno no cambia.
+
+**Por qué no se puso un tope de 400 m**, que era lo propuesto el 23/11: en
+una malla de 150 m deja sin altura al 13,2 % de la superficie de las
+vecinales, casi toda en esa ciudad alta donde el dato es bueno, y no arregla
+el terreno bajo que tiene una curva cerca.
+
+**Lo que se probó y no sirve: detectar «el lado de afuera de la curva más
+baja».** Era la otra mitad de la propuesta. Con las dos curvas más cercanas
+se puede saber si el punto queda entre ellas o del mismo lado de las dos, y
+de cuál. Medido: de los 634 puntos donde las curvas dan más de 1 m de más,
+esa regla saca entre 0 y 6 según cómo se la escriba, y deja sin altura entre
+el 0,8 y el 3,5 % de la ciudad. No separa nada: 86 de los 202 puntos malos de
+la ciudad tienen una curva a menos de 50 m, y fuera de ella la mayoría queda
+del lado ALTO de la curva más cercana —un terraplén o una ruta, y detrás el
+bajo—. Con las curvas solas no se puede saber. No se implementó.
+
+**Decisión (27/11/2026): donde la curva queda a más de 400 m, se le pregunta
+a los puntos.** `CURVAS_LEJOS_M = 400` en `js/app/elevacion.js`. Si a esa
+distancia hay un punto con cota de la IDESF a menos de 150 m, la altura sale
+de los puntos —con su margen, `ERROR_PUNTOS`—; si no lo hay, siguen las
+curvas, sin tope. (Así entró; más abajo, la condición que se le agregó el
+mismo día.) `cotas-costa.json` pasa de 2.765 a 4.136 puntos: suma los
+1.371 de adentro del rectángulo que están lejos de toda curva
+(`scripts/cotas-costa.js`). Estimando cada punto con sus vecinos, sin usarlo
+a él, el porcentaje que queda optimista **aun después del margen**:
+
+                              antes     ahora
+    los 5.607 puntos          17,0 %     7,8 %
+    dentro de las vecinales   10,3 %     9,1 %
+    fuera de ellas            30,2 %     5,2 %
+    terreno de menos de 13 m  88,6 %    38,6 %
+
+(El «antes» de la ciudad no contradice el 2 % medido contra la red
+municipal: acá la referencia son los puntos de la calle del mismo
+relevamiento, no marcas.) Dos casos en `scripts/comprobar.js`; las reglas
+probadas, en `datos-crudos/analisis-curvas-lejos-reglas-2026-11-27.mjs`.
+
+**Lo que esto no arregla**, y queda a la vista: el terreno bajo que tiene
+una curva a menos de 400 m. Ahí el 38,6 % sigue optimista. Usar los puntos
+siempre que haya uno cerca lo bajaría a 1,9 % en total y 15,3 % en terreno
+bajo, pero esa prueba favorece a los puntos —se los compara contra ellos
+mismos— y revierte «donde hay curvas mandan las curvas» en toda la ciudad:
+antes hay que medir las dos fuentes contra la red municipal, que es
+independiente. No se hizo.
+
+**Un efecto que se corrigió el mismo día.** Tal como entró, en la ciudad
+alta una casa a más de 400 m de una curva y con un punto al lado pasaba del
+margen de 0,5 m al de 1,0, sin que su altura mejorara. El cruce con el
+catastro lo midió: de las 122.844 parcelas del área de las curvas, 3.766
+están a más de 400 m de una curva; 2.375 pasaban a los puntos, 2.292 de ellas
+lotes de hasta 2.000 m² —Santa Marta, 21 de Octubre, Brigadier López, todos
+en terreno de 16,3 a 17,9 m—, y 538 dejaban de verse como «más alto que el
+récord». Las correcciones grandes, donde las curvas daban más de 1 m de más,
+eran 26 parcelas y ninguna un lote: de 2.100 m² a 60 hectáreas, en La
+Guardia–Colastiné, Guadalupe Noreste y Colastiné Sur.
+`datos-crudos/muni-parcelas-lejos-2026-11-27.*`.
+
+**Decisión afinada (27/11/2026): lejos de una curva, los puntos mandan sólo
+si dan el terreno más bajo que las curvas por más de `ERROR_DEM`.** Es decir,
+cuando el margen de las curvas no alcanza a cubrir la diferencia. No agrega
+una constante. Medido con varios umbrales
+(`datos-crudos/analisis-curvas-lejos-afinado-2026-11-27.mjs`):
+
+                                    puntos con cota     lotes que     parcelas
+                                    optimistas          cambian       corregidas
+    siempre las curvas (antes)      17,0 %                  0          0 de 26
+    siempre los puntos (PR 81)       7,8 %              2.292         26 de 26
+    puntos si dan 0,25 m menos       7,9 %                 89         26 de 26
+    puntos si dan 0,5 m menos        8,2 %                  0         26 de 26
+    puntos si dan 1 m menos          9,3 %                  0         26 de 26
+
+Con 0,5 m no cambia ningún lote del catastro y siguen corregidas las 26
+parcelas. El precio son 24 puntos con cota (0,4 %) que vuelven a quedar
+optimistas, 23 de ellos fuera de las vecinales.
+
+**Lo que este cruce no ve:** el catastro no registra los asentamientos
+informales, y el terreno bajo es justo donde puede haberlos; una parcela no
+es una casa, y se usó su centro. Que la corrección caiga sobre 26 parcelas
+grandes no dice que ahí no viva nadie.
 
 ---
 
@@ -864,6 +1038,29 @@ PF5N(55) (14,557, chapa sobre pilar al costado de la Ruta 1) el cálculo da
 15,56, justo un metro arriba. Es la marca contaminada de la pregunta 25, pero
 cae en el borde del margen, no adentro. Si aparece una marca al nivel del
 terreno en Rincón, es la primera comparación que hay que hacer.
+
+30. **¿Qué distingue a las líneas «HIS» de las «POT» en `MACurvasHistoricas`
+    y `MACurvasTeoricas`?** Una misma crecida (`92HIS` y `92POT`, `P50-S50` y
+    `P50_S50POT`) trae dos líneas con la misma altura del Puerto y los mismos
+    caudales. Las fichas del catálogo (2f0b4860-… y 61e41910-…) no lo dicen.
+    Está en el informe del convenio CFI–INA de las Áreas de Riesgo Hídrico
+    (2005). De la respuesta depende cuál de las dos sirve para contrastar la
+    pendiente (§2).
+31. **¿Se puede consultar el proyecto ejecutivo de la Defensa Oeste de Arroyo
+    Leyes y San José del Rincón?** Lo hizo PROINSA (contrato 18588, Decreto
+    1108 del 7/7/2021) y el pliego de la obra, de 2023, dice que está en el
+    Centro de Documentación del Ministerio **bajo el código mfn 5003**
+    (`centrodocumental@santafe.gov.ar`). El pliego de la consultoría exigía
+    hasta 15 km de traza y 5 km² relevados con planialtimetrías al cero del
+    IGN, un mojón cada 1.000 m, un vuelo con dron y el estudio
+    hidrológico-hidráulico: sería la primera topografía de la costa posterior
+    a 2005, y quizás niveles de agua de diseño río arriba.
+32. **Al INA–CRL: la serie de las dos escalas de San José del Rincón.** Una
+    en el arroyo Ubajay y otra fuera del anillo, con los ceros nivelados al
+    IGN y lecturas desde octubre de 2010, crecida de 2015–2016 incluida
+    (Bianchi y Nicuesa, IFRH 2016). Es agua medida en la costa, en el mismo
+    sistema de alturas, con la lectura del Puerto conocida cada día: lo que la
+    pregunta 29 busca para el Leyes, ya nivelado.
 
 ### Diez mojones medidos en Arroyo Leyes (10/11/2026)
 
