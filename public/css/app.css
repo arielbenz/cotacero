@@ -290,6 +290,12 @@ textarea {
   color: inherit;
 }
 
+input,
+select,
+textarea {
+  font-size: max(1rem, 1em);
+}
+
 .saltar {
   position: absolute;
   left: -9999px;
@@ -5091,6 +5097,34 @@ textarea {
   }
 }
 
+@media (hover: none) {
+  .btn:active:not(:disabled),
+  .btn.sec:active:not(:disabled),
+  .btn-emergencia:active {
+    opacity: var(--hover-relleno);
+    transition-duration: 0s;
+  }
+  .punto:active,
+  .tel:active,
+  .chk:active span,
+  .barra-app button:active,
+  summary:active,
+  .tema:active,
+  .pildora-rio:active,
+  .chips-ancla a:active,
+  .enlace-crudo:active,
+  .charla:active,
+  .fila-punto:active,
+  .sugerir > summary:active,
+  .pie-sitio a:active,
+  .franja-estado a:active,
+  .zona-opcion:active,
+  .sug-dir li:active {
+    opacity: var(--hover-texto);
+    transition-duration: 0s;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
@@ -5887,7 +5921,7 @@ button.enlace-crudo {
   background: var(--panel-2);
   color: var(--texto);
   font-family: var(--sans);
-  font-size: var(--t-base);
+  font-size: max(1rem, var(--t-base));
 }
 #form-contacto textarea {
   resize: vertical;
