@@ -1,0 +1,26 @@
+A. Puntos con cota que quedan optimistas pasado el margen
+   regla                                   todos (5607)   en vecinales (3721)          fuera (1886)  terreno < 13 m (236) lejos de curva (1114)
+   hoy: siempre los puntos                  436 · 7.8 %           337 · 9.1 %            99 · 5.2 %           91 · 38.6 %            31 · 2.8 %
+   puntos si dan 0 m menos                  438 · 7.8 %           337 · 9.1 %           101 · 5.4 %           91 · 38.6 %            33 · 3.0 %
+   puntos si dan 0,25 m menos               443 · 7.9 %           337 · 9.1 %           106 · 5.6 %           91 · 38.6 %            38 · 3.4 %
+   puntos si dan 0,5 m menos                460 · 8.2 %           338 · 9.1 %           122 · 6.5 %           91 · 38.6 %            55 · 4.9 %
+   puntos si dan 0,75 m menos               492 · 8.8 %           338 · 9.1 %           154 · 8.2 %           91 · 38.6 %            87 · 7.8 %
+   puntos si dan 1 m menos                  520 · 9.3 %           338 · 9.1 %           182 · 9.7 %           92 · 39.0 %          115 · 10.3 %
+   antes: siempre las curvas               952 · 17.0 %          383 · 10.3 %          569 · 30.2 %          209 · 88.6 %          547 · 49.1 %
+
+B. Parcelas a más de 400 m de una curva: 3766 de 122844 (3505 lotes de hasta 2.000 m²)
+   con un punto a menos de 150 m: 2375 · donde las curvas dan más de 1 m de más que los puntos: 26 (0 lotes)
+   regla                                   pasan a los puntos              de ésos, lotes      lotes: aviso baja >0,3  lotes que pierden «récord»        corregidas de las 26
+   hoy: siempre los puntos                               2375                        2292                        1638                         538                          26
+   puntos si dan 0 m menos                                770                         715                         715                         353                          26
+   puntos si dan 0,25 m menos                             123                          89                          89                          25                          26
+   puntos si dan 0,5 m menos                               26                           0                           0                           0                          26
+   puntos si dan 0,75 m menos                              26                           0                           0                           0                          26
+   puntos si dan 1 m menos                                 26                           0                           0                           0                          26
+   antes: siempre las curvas                                0                           0                           0                           0                           0
+
+   Con X = 0,5 (el margen de las curvas), las parcelas que pasan a los puntos:
+     PRO-FOMENTO Y CULTURA LA GUARDIA - COLASTINE   17 (0 lotes) · curvas 14.24 → puntos 10.85
+     (fuera de las vecinales)                        4 (0 lotes) · curvas 16.26 → puntos 12.70
+     GUADALUPE NORESTE                               3 (0 lotes) · curvas 16.25 → puntos 12.69
+     COLASTINE SUR                                   2 (0 lotes) · curvas 15.53 → puntos 12.89

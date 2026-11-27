@@ -773,7 +773,8 @@ cada una tiene UNA sola forma de decirse:
    En pantalla: «el río está en 4,86 m», «la regla del río (hidrómetro)».
 2. **cota del terreno** — la elevación IGN (curvas del municipio; en Rincón
    y Arroyo Leyes, puntos con cota de la Provincia, y también dentro de la
-   ciudad donde la curva queda a más de `CURVAS_LEJOS_M`: `AUDITORIA.md` §4).
+   ciudad donde la curva queda a más de `CURVAS_LEJOS_M` y los puntos dan el
+   terreno más bajo: `AUDITORIA.md` §4).
    En pantalla: «la altura de tu terreno», «16,4 m sobre el mar». «Cota IGN»
    sólo entre paréntesis, porque así figura en la escritura y en los planos.
 3. **umbral hidráulico estimado** — la lectura del hidrómetro a partir de la

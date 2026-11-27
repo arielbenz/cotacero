@@ -260,9 +260,18 @@ No cambió ninguna constante. En `AUDITORIA.md` §2.
   donde la curva queda lejos, que es la que entró. Salida en
   `salida-curvas-lejos-reglas-<fecha>.txt`.
 
+- `muni-parcelas-lejos-<fecha>.mjs` — baja las 122.949 parcelas del catastro
+  municipal (`publico:parcela`, ~60 MB que no se guardan) y escribe en
+  `muni-parcelas-lejos-<fecha>.json` las 3.766 que quedan a más de 400 m de
+  una curva, con lo que da cada fuente de altura en su centro.
+- `analisis-curvas-lejos-afinado-<fecha>.mjs` — la regla con varios umbrales
+  («los puntos mandan si dan X menos que las curvas»), contra los puntos con
+  cota y contra esas parcelas. De ahí salió que X sea el margen de las curvas.
+  Salida en `salida-curvas-lejos-afinado-<fecha>.txt`.
+
 `analisis-puntos-fijos-2026-10-22.mjs` filtra por lo que la app contesta
-con curvas: corrido hoy da 322 marcas y no 330, porque 8 pasaron a salir de
-los puntos. No se volvió a correr; `lib/mediciones.json` sigue con 330.
+con curvas. Con la primera versión de la regla daba 322 marcas en vez de 330,
+porque 8 pasaban a salir de los puntos; con la afinada vuelve a dar 330.
 
 ## Pedidos de información
 

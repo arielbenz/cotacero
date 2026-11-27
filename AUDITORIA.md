@@ -633,7 +633,8 @@ bajo—. Con las curvas solas no se puede saber. No se implementó.
 a los puntos.** `CURVAS_LEJOS_M = 400` en `js/app/elevacion.js`. Si a esa
 distancia hay un punto con cota de la IDESF a menos de 150 m, la altura sale
 de los puntos —con su margen, `ERROR_PUNTOS`—; si no lo hay, siguen las
-curvas, sin tope. `cotas-costa.json` pasa de 2.765 a 4.136 puntos: suma los
+curvas, sin tope. (Así entró; más abajo, la condición que se le agregó el
+mismo día.) `cotas-costa.json` pasa de 2.765 a 4.136 puntos: suma los
 1.371 de adentro del rectángulo que están lejos de toda curva
 (`scripts/cotas-costa.js`). Estimando cada punto con sus vecinos, sin usarlo
 a él, el porcentaje que queda optimista **aun después del margen**:
@@ -657,10 +658,40 @@ mismos— y revierte «donde hay curvas mandan las curvas» en toda la ciudad:
 antes hay que medir las dos fuentes contra la red municipal, que es
 independiente. No se hizo.
 
-**Un efecto para saber:** en la ciudad alta, una casa a más de 400 m de una
-curva y con un punto al lado pasa del margen de 0,5 m al de 1,0: su nivel de
-aviso baja alrededor de medio metro. Es del lado prudente, y en terreno de
-17 m sigue quedando por encima del récord.
+**Un efecto que se corrigió el mismo día.** Tal como entró, en la ciudad
+alta una casa a más de 400 m de una curva y con un punto al lado pasaba del
+margen de 0,5 m al de 1,0, sin que su altura mejorara. El cruce con el
+catastro lo midió: de las 122.844 parcelas del área de las curvas, 3.766
+están a más de 400 m de una curva; 2.375 pasaban a los puntos, 2.292 de ellas
+lotes de hasta 2.000 m² —Santa Marta, 21 de Octubre, Brigadier López, todos
+en terreno de 16,3 a 17,9 m—, y 538 dejaban de verse como «más alto que el
+récord». Las correcciones grandes, donde las curvas daban más de 1 m de más,
+eran 26 parcelas y ninguna un lote: de 2.100 m² a 60 hectáreas, en La
+Guardia–Colastiné, Guadalupe Noreste y Colastiné Sur.
+`datos-crudos/muni-parcelas-lejos-2026-11-27.*`.
+
+**Decisión afinada (27/11/2026): lejos de una curva, los puntos mandan sólo
+si dan el terreno más bajo que las curvas por más de `ERROR_DEM`.** Es decir,
+cuando el margen de las curvas no alcanza a cubrir la diferencia. No agrega
+una constante. Medido con varios umbrales
+(`datos-crudos/analisis-curvas-lejos-afinado-2026-11-27.mjs`):
+
+                                    puntos con cota     lotes que     parcelas
+                                    optimistas          cambian       corregidas
+    siempre las curvas (antes)      17,0 %                  0          0 de 26
+    siempre los puntos (PR 81)       7,8 %              2.292         26 de 26
+    puntos si dan 0,25 m menos       7,9 %                 89         26 de 26
+    puntos si dan 0,5 m menos        8,2 %                  0         26 de 26
+    puntos si dan 1 m menos          9,3 %                  0         26 de 26
+
+Con 0,5 m no cambia ningún lote del catastro y siguen corregidas las 26
+parcelas. El precio son 24 puntos con cota (0,4 %) que vuelven a quedar
+optimistas, 23 de ellos fuera de las vecinales.
+
+**Lo que este cruce no ve:** el catastro no registra los asentamientos
+informales, y el terreno bajo es justo donde puede haberlos; una parcela no
+es una casa, y se usó su centro. Que la corrección caiga sobre 26 parcelas
+grandes no dice que ahí no viva nadie.
 
 ---
 
