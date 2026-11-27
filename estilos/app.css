@@ -388,6 +388,14 @@ textarea {
   font-size: inherit;
   color: inherit;
 }
+/* Un campo de texto nunca baja de 16 px: con menos, Safari en iPhone agranda
+   la página al enfocarlo y quien escribe su dirección pierde la pantalla.
+   `max(1rem, 1em)` respeta lo heredado si es más grande. */
+input,
+select,
+textarea {
+  font-size: max(1rem, 1em);
+}
 /* El salto al contenido. Fuera de pantalla hasta que lo enfocan; no se usa
    `display:none` ni `visibility:hidden` porque eso lo saca del orden de
    tabulación y entonces no sirve para nada. */
@@ -5790,6 +5798,38 @@ textarea {
     opacity: var(--hover-texto);
   }
 }
+/* En una pantalla táctil, el toque es el hover: la misma atenuación, mientras
+   el dedo está apoyado. Sin esto, en el teléfono sólo respondían `.btn` y
+   `.tema`. Va en `:active`, que se suelta al levantar el dedo y no deja
+   estados pegados. Entra sin transición —un toque dura menos que `--mov`
+   y no se llegaba a ver— y sale con la de siempre. */
+@media (hover: none) {
+  .btn:active:not(:disabled),
+  .btn.sec:active:not(:disabled),
+  .btn-emergencia:active {
+    opacity: var(--hover-relleno);
+    transition-duration: 0s;
+  }
+  .punto:active,
+  .tel:active,
+  .chk:active span,
+  .barra-app button:active,
+  summary:active,
+  .tema:active,
+  .pildora-rio:active,
+  .chips-ancla a:active,
+  .enlace-crudo:active,
+  .charla:active,
+  .fila-punto:active,
+  .sugerir > summary:active,
+  .pie-sitio a:active,
+  .franja-estado a:active,
+  .zona-opcion:active,
+  .sug-dir li:active {
+    opacity: var(--hover-texto);
+    transition-duration: 0s;
+  }
+}
 
 /* El foco visible tiene que verse igual en todos lados, no heredar el que
    trae cada control. */
@@ -6715,7 +6755,7 @@ button.enlace-crudo {
   background: var(--panel-2);
   color: var(--texto);
   font-family: var(--sans);
-  font-size: var(--t-base);
+  font-size: max(1rem, var(--t-base));
 }
 #form-contacto textarea {
   resize: vertical;
