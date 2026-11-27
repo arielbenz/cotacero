@@ -297,6 +297,14 @@ const alturas = [
   ["Dorrego 2414, San José del Rincón", -31.6055, -60.5741, 15.52, "puntos"],
   ["plaza de Rincón", -31.606, -60.568, 16.47, "puntos"],
   ["Arroyo Leyes", -31.56, -60.53, 15.17, "puntos"],
+  // Lejos de toda curva y con un punto medido al lado: manda el punto
+  // (CURVAS_LEJOS_M). La Guardia, sobre un punto de MACotas que la IDESF da
+  // en 11,39 m; las curvas, a 601 m, decían 15,60. 27/11/2026.
+  ["La Guardia, lejos de las curvas", -31.65548, -60.605523, 11.39, "puntos"],
+  // Lejos de toda curva y SIN punto cerca: siguen las curvas, sin tope. Punto
+  // fijo municipal de La Salle e/ San José y Santiago de Chile, medido en
+  // 16,901 m; la curva más cercana está a 1.005 m.
+  ["La Salle y Santiago de Chile, ciudad alta", -31.56875948, -60.69962137, 16.78, "curvas"],
 ];
 for (const [n, lat, lon, cota, fuente] of alturas) {
   const r = await elevacionDe(lat, lon);

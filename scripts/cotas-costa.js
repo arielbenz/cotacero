@@ -11,10 +11,16 @@
 //
 // Para qué: las curvas del municipio terminan en el límite de la ciudad, y
 // San José del Rincón y Arroyo Leyes quedaban sin altura. Estos puntos sí
-// llegan. La app los usa SÓLO fuera del área de las curvas, y con un margen
+// llegan. La app los usa fuera del área de las curvas, y con un margen
 // propio, ERROR_PUNTOS = 1,0 m (js/app/config.js): en la costa el terreno
 // cambia más de un punto al otro, y con 0,5 m uno de cada ocho quedaba del
 // lado optimista.
+//
+// Y, desde el 27/11/2026, también ADENTRO del área de las curvas, donde la
+// curva más cercana queda a más de CURVAS_LEJOS_M (js/app/elevacion.js): La
+// Guardia, Colastiné, el borde norte. Ahí las curvas daban el terreno más de
+// 1 m arriba del real en uno de cada tres puntos (AUDITORIA.md §4). Por eso
+// se guardan también los puntos de adentro que están lejos de toda curva.
 //
 // CÓMO SE BAJA, porque no es lo normal. El servidor tiene el WFS apagado y las
 // descargas piden usuario. Pero son PUNTOS, y en un punto el recuadro que
@@ -29,6 +35,15 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+// La cuenta de producción, importada: la distancia a la curva tiene que ser
+// la misma que va a medir la app. app-en-node.js cambia fetch por uno que
+// sólo lee del disco, así que el de la red se guarda antes.
+const red = globalThis.fetch;
+await import("./app-en-node.js");
+const { entreCurvas, CURVAS_LEJOS_M, PUNTOS_MAX_M } = await import(
+  "/js/app/elevacion.js"
+);
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SALIDA = join(RAIZ, "public", "datos-abiertos", "cotas-costa.json");
@@ -72,7 +87,7 @@ async function puntos(lon, lat, medio) {
     INFO_FORMAT: "application/vnd.ogc.gml",
     FEATURE_COUNT: "200000",
   });
-  const r = await fetch(`${WMS}?${q}`, { headers: CABECERAS });
+  const r = await red(`${WMS}?${q}`, { headers: CABECERAS });
   if (!r.ok) throw new Error("La IDESF respondió " + r.status);
   const x = await r.text();
   return [...x.matchAll(/<MACotas_feature>([\s\S]*?)<\/MACotas_feature>/g)].map(
@@ -84,13 +99,25 @@ async function puntos(lon, lat, medio) {
   );
 }
 
-const area = JSON.parse(await readFile(CURVAS, "utf8")).area;
+const curvas = JSON.parse(await readFile(CURVAS, "utf8"));
+const area = curvas.area;
 const fuera = ([lon, lat]) =>
   lon > OESTE &&
   (lon > area[2] - FRANJA ||
     lat > area[3] - FRANJA ||
     lon < area[0] + FRANJA ||
     lat < area[1] + FRANJA);
+/* Adentro del área de las curvas, los que están lejos de toda curva. La app
+   busca vecinos hasta PUNTOS_MAX_M de una casa que está a más de
+   CURVAS_LEJOS_M de la curva: esos vecinos están, como mucho, esa diferencia
+   más cerca de la curva. Acá el corte de OESTE no corre: adentro del área la
+   app ya contesta, y con un dato peor. */
+const lejosDeLasCurvas = ([lon, lat]) =>
+  lon >= area[0] &&
+  lon <= area[2] &&
+  lat >= area[1] &&
+  lat <= area[3] &&
+  entreCurvas(curvas, lat, lon).distancia > CURVAS_LEJOS_M - PUNTOS_MAX_M;
 
 const todos = new Map();
 for (const [lon, lat] of CENTROS) {
@@ -99,7 +126,8 @@ for (const [lon, lat] of CENTROS) {
 }
 // z ≤ 1 son vacíos del origen, no cotas: 5 de 10.526 el 22/10/2026.
 const validos = [...todos.values()].filter(([, , z]) => z > 1);
-const elegidos = validos.filter(fuera);
+const elegidos = validos.filter((p) => fuera(p) || lejosDeLasCurvas(p));
+const deAdentro = elegidos.filter((p) => !fuera(p)).length;
 if (elegidos.length < 1000)
   throw new Error(
     "Sólo " + elegidos.length + " puntos: la IDESF contestó de menos, no se pisa nada",
@@ -128,7 +156,15 @@ const salida = {
 await writeFile(SALIDA, JSON.stringify(salida));
 
 console.log("puntos bajados : " + todos.size + " (" + validos.length + " con cota)");
-console.log("guardados      : " + elegidos.length + " (fuera del área de las curvas)");
+console.log(
+  "guardados      : " +
+    elegidos.length +
+    " (" +
+    (elegidos.length - deAdentro) +
+    " fuera del área de las curvas, " +
+    deAdentro +
+    " adentro y lejos de toda curva)",
+);
 console.log("área           : " + salida.area.join(", "));
 console.log("tamaño         : " + (JSON.stringify(salida).length / 1024).toFixed(0) + " KB");
 console.log("escrito en     : datos-abiertos/cotas-costa.json");

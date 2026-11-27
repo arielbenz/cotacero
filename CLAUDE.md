@@ -772,7 +772,8 @@ cada una tiene UNA sola forma de decirse:
 1. **nivel del río** — la lectura del hidrómetro (dato del INA).
    En pantalla: «el río está en 4,86 m», «la regla del río (hidrómetro)».
 2. **cota del terreno** — la elevación IGN (curvas del municipio; en Rincón
-   y Arroyo Leyes, puntos con cota de la Provincia).
+   y Arroyo Leyes, puntos con cota de la Provincia, y también dentro de la
+   ciudad donde la curva queda a más de `CURVAS_LEJOS_M`: `AUDITORIA.md` §4).
    En pantalla: «la altura de tu terreno», «16,4 m sobre el mar». «Cota IGN»
    sólo entre paréntesis, porque así figura en la escritura y en los planos.
 3. **umbral hidráulico estimado** — la lectura del hidrómetro a partir de la
@@ -803,8 +804,8 @@ dice cada vez.
 
 ### Los números tienen dueño
 
-`CERO_IGN` (8,4214), `PENDIENTE` (0,045), `ERROR_DEM` (0,5) y `ERROR_PUNTOS` (1,0)
-están **en discusión técnica abierta**. `AUDITORIA.md` explica de dónde salió cada uno, qué evidencia
+`CERO_IGN` (8,4214), `PENDIENTE` (0,045), `ERROR_DEM` (0,5), `ERROR_PUNTOS` (1,0)
+y `CURVAS_LEJOS_M` (400, en `elevacion.js`) están **en discusión técnica abierta**. `AUDITORIA.md` explica de dónde salió cada uno, qué evidencia
 hay en contra y por qué no se tocaron. **No cambiarlos sin leer ese archivo.**
 Cambiar una constante para que el resultado parezca más seguro es precisamente
 lo que el proyecto no hace.
@@ -1206,7 +1207,9 @@ instalarse_.
 | `CRITICOS` | los 13 HTML, `app.css`, `guia.css`, `comun-clasico.js`, `rio-barra.js` | 108 KB | todo el que entra al sitio |
 | `DEL_APP`  | `/app`, los 27 módulos, `lib/comun.js`, `curvas.json`, `cotas-costa.json`, tipografías, íconos | 262 KB | sólo quien abre `/app`     |
 
-Medido con gzip el 13/11/2026, con `/comparar` en la primera: 7,8 KB, casi
+(El 27/11/2026 `cotas-costa.json` pasó de 25 a 37 KB con gzip al sumar los
+puntos de adentro del área de las curvas: la segunda tanda anda por los
+274 KB, sin volver a medirla entera.) Medido con gzip el 13/11/2026, con `/comparar` en la primera: 7,8 KB, casi
 todo la tabla de 102 años —los números en el HTML, no sólo en el JS—. Antes,
 el 29/10/2026 —99 y 256 KB—, con `/hidrometro` en la primera y
 `/lib/comun.js` pasado a la segunda (sólo lo piden los módulos de la app;
