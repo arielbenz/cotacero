@@ -54,7 +54,8 @@ export const ERROR_DEM = 0.5;
 
 /* El margen de la otra fuente: los puntos con cota de la costa, que se usan
    fuera del área de las curvas (Rincón, Arroyo Leyes) y, adentro, donde la
-   curva queda a más de CURVAS_LEJOS_M (elevacion.js). Estimando cada
+   curva queda a más de CURVAS_LEJOS_M y los puntos dan el terreno más bajo
+   (elevacion.js). Estimando cada
    punto con sus cuatro vecinos, en la costa el 12,5 % quedaba más de 0,5 m
    por arriba del real —el lado que hace avisar tarde— contra el 4,7 % en la
    ciudad: el terreno cambia más entre terraplenes, cunetas y rellenos. Con
